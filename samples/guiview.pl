@@ -1,4 +1,4 @@
-#!/usr/bin/perl -w -I ../
+#!/usr/bin/perl -w -I ../ 
 
 # a very simple viewer for XDF files.
 
@@ -48,7 +48,7 @@ BEGIN {
                      XDF::Specification
                    );
   for(@modlist) {
-    die "Could'nt load $_ module, please correct Perl path or install.\n" unless (eval "require $_" );
+    die "Could'nt load $_ module, please correct Perl path or install.\n$@" unless (eval "require $_" );
   }
 
 }
