@@ -120,15 +120,6 @@ sub getAxisTags {
 
 }
 
-#/** setWriteAxisOrderList
-# There will perhaps be a use for this one day on tagged data, but the limitations 
-# of declaring tags and validating within the DTD prevent this for now. Dont use. 
-#*/
-sub setWriteAxisOrderList {
-  my ($self) = @_;
-  warn "setWriteAxisOrderList has no effect currently for TaggedXMLDataIOStyle, Ignoring\n";
-}
-
 # /** getXMLAttributes
 #      This method returns the XMLAttributes of this class. 
 #  */
@@ -238,6 +229,10 @@ sub _removeAxisTag {
 # Modification History
 #
 # $Log$
+# Revision 1.12  2001/03/26 18:16:37  thomas
+# yanked overriding method of setWriteAxisOrderList,
+# makes docs look messy.
+#
 # Revision 1.11  2001/03/26 18:12:24  thomas
 # use writeAxisOrderList in toXMLFileHandle.
 #
@@ -328,7 +323,7 @@ The following instance (object) methods are defined for XDF::TaggedXMLDataIOStyl
 
 =over 4
 
-=item setAxisTag ($axisId, $tag)
+=item setAxisTag ($tag, $axisId)
 
 Set an association between an XDF data tag and axis reference. One day we will hopefully be able to support user defined tags, but for the time being you will have to stick to those specified by the XDF DTD(e.g. "d0","d1", ... "d8"). Note that choosing the wrong tag name will break the current XDF DTD, so go with the defaults (e.g. DONT use this method) if you dont know what you are doing here.  
 
@@ -340,7 +335,7 @@ Set an association between an XDF data tag and axis reference. One day we will h
 
  
 
-=item toXMLFileHandle ($indent, $junk, $fileHandle)
+=item toXMLFileHandle ($fileHandle, $junk, $indent)
 
 Write this object out to a filehandle in XDF formatted XML.  
 
@@ -383,7 +378,7 @@ B<new>, B<clone>, B<update>.
 =over 4
 
 XDF::TaggedXMLDataIOStyle inherits the following instance (object) methods of L<XDF::BaseObject>:
-B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLAttributes>, B<setXMLNotationHash>, B<toXMLFile>.
+B<addXMLElement>, B<removeXMLElement>, B<getXMLElementList>, B<setXMLElementList>, B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLAttributes>, B<setXMLNotationHash>, B<toXMLString>, B<toXMLFile>.
 
 =back
 
@@ -392,7 +387,7 @@ B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLAttributes>, B<setX
 =over 4
 
 XDF::TaggedXMLDataIOStyle inherits the following instance (object) methods of L<XDF::XMLDataIOStyle>:
-B<untaggedInstructionNodeName>, B<getReadId{>, B<setReadId>, B<getReadIdRef>, B<setReadIdRef>, B<getEncoding{>, B<setEncoding>, B<getEndian{>, B<setEndian>.
+B<untaggedInstructionNodeName>, B<getReadId{>, B<setReadId>, B<getReadIdRef>, B<setReadIdRef>, B<getEncoding{>, B<setEncoding>, B<getEndian{>, B<setEndian>, B<getWriteAxisOrderList>, B<setWriteAxisOrderList>.
 
 =back
 
