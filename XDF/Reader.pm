@@ -404,17 +404,21 @@ sub createXDFObjectFromFileHandle {
 sub create_parser {
   my ($optionsHashRef) = @_;
  
+  my $nameSpaces = 0;
+  my $parseParamEnt = 0;
   my $noExpand = 0;
 
   if (defined $optionsHashRef) {
     my %option = %{$optionsHashRef};
     $noExpand = $option{'noExpand'} if exists $option{'noExpand'}; 
+    $nameSpaces = $option{'namespaces'} if exists $option{'namespaces'}; 
+    $parseParamEnt = $option{'parseParamEnt'} if exists $option{'parseParamEnt'}; 
   }
   
    my $parser = new XML::Parser(  
-                                ParseParamEnt => 1,
+                                ParseParamEnt => $parseParamEnt,
                                 NoExpand => $noExpand,
-                                Namespaces => 1,
+                                Namespaces => $nameSpaces,
                                 Handlers => { 
                                      Start => \&handle_start,
                                      End   => \&handle_end,
@@ -443,16 +447,20 @@ sub create_validating_parser {
   my ($optionsHashRef) = @_;
 
   my $noExpand = 0;
+  my $nameSpaces = 0;
+  my $parseParamEnt = 0; 
 
   if (defined $optionsHashRef) {
     my %option = %{$optionsHashRef};
     $noExpand = $option{'noExpand'} if exists $option{'noExpand'};
+    $nameSpaces = $option{'namespaces'} if exists $option{'namespaces'}; 
+    $parseParamEnt = $option{'parseParamEnt'} if exists $option{'parseParamEnt'}; 
   }
   
    my $parser = new XML::Checker::Parser (
-                                ParseParamEnt => 1,
+                                ParseParamEnt => $parseParamEnt,
                                 NoExpand => $noExpand,
-                                Namespaces => 1,
+                                Namespaces => $nameSpaces,
                                 Handlers => { 
                                      Start => \&handle_start,
                                      End   => \&handle_end,
@@ -488,7 +496,14 @@ sub create_validating_parser {
 #@                 number will be displayed. Has no effect unless XML::Parser::Checker
 #@                 is the parser. Defaults to 200. 
 #@
-#@ 'noExpand'   => Don't expand entities in output if true.
+#@ 'noExpand'   => Don't expand entities in output if true. Default is false. 
+#@
+#@ 'nameSpaces' => When this option is given with a true value, then the parser does namespace
+#@                 processing. By default, namespace processing is turned off.
+#@
+#@ 'parseParamEnt' => Unless standalone is set to "yes" in the XML declaration, setting this to
+#@                    a true value allows the external DTD to be read, and parameter entities
+#@                    to be parsed and expanded. The default is false. 
 #@
 #@ 'quiet'      => Set the reader to run quietly. Defaults to 1 ('yes'). 
 #@ 
@@ -518,10 +533,14 @@ sub deal_with_options {
        $PARSER_MSG_THRESHOLD = $value;
      } elsif($option eq 'maxWarning') {
        $MAX_WARNINGS = $value;
-     } elsif($option eq 'noExpand') {
-       # do nothing here. The parser will use it 
+     } elsif( $option eq 'noExpand'
+             or $option eq 'parseParamEnt'
+             or $option eq 'namespaces'
+            ) 
+     {
+       # do nothing here. The parser will use these
      } else {
-        print STDERR "Unknown option: $option, Ignoring\n";
+        print STDERR "Unknown option: $option, Ignoring\n" unless $QUIET;
      }
   }
 
@@ -1975,6 +1994,11 @@ sub my_fail {
 # Modification History
 #
 # $Log$
+# Revision 1.7  2000/12/05 16:31:13  thomas
+# Changed default behavior of XML Parser. parseParamEnt and
+# Namespace may be options passed to the parser via the
+# options hash. -b.t.
+#
 # Revision 1.6  2000/12/01 20:03:38  thomas
 # Brought Pod docmentation up to date. Bumped up version
 # number. -b.t.
