@@ -98,9 +98,9 @@ use Carp;
 
 use XDF::BaseObjectWithXMLElements;
 use XDF::Array;
-use XDF::Reader;
 use XDF::Parameter;
 use XDF::ParameterGroup;
+#use XDF::Reader;
 
 use strict;
 use integer;
@@ -414,18 +414,18 @@ sub removeParamGroup {
    return 0;
 }
 
-# /** loadFromXDFFile
+# /* loadFromXDFFile
 # Read in an XML file into this structure. The current structure, 
 # if it has any components, is overrided and lost. 
 # */
-sub loadFromXDFFile {
-  my ($self, $file, $optionsHashRef) = @_;
+#sub loadFromXDFFile {
+#  my ($self, $file, $optionsHashRef) = @_;
 
-  my $reader = new XDF::Reader($optionsHashRef);
-  $self->_init(); # clear out old structure
-  $reader->setReaderStructureObject($self);
-  $self = $reader->parseFile($file);
-}
+#  my $reader = new XDF::Reader($optionsHashRef);
+#  $self->_init(); # clear out old structure
+#  $reader->setReaderStructureObject($self);
+#  $self = $reader->parseFile($file);
+#}
 
 #
 # Private Methods 
@@ -463,6 +463,9 @@ sub _init {
 # Modification History
 #
 # $Log$
+# Revision 1.13  2001/07/17 17:38:56  thomas
+# yanked loadfromXDFFile method. Now in XDF class.
+#
 # Revision 1.12  2001/06/29 21:07:12  thomas
 # changed public add (and remove) methods to
 # conform to Java API standard: e.g. return boolean
