@@ -4,6 +4,7 @@ Makefile.PL
 README
 LICENCE
 XDF_DOC.txt
+UML-XDF.gif
 MANIFEST
 DOM.patch
 XDF/Array.pm
