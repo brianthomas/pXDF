@@ -28,8 +28,17 @@ Revision history for Perl extension XDF.
           to find the correct Axes from the parent and change its
           iteration order and the order of traversal for next method.
 
-0.17-beta0 Fri Feb 16 05:31:00 2001
+0.17-beta0 Fri Mar 9 05:31:00 2001
         - changed getBytes() method name to numOfBytes to conform w/
           Java API
         - combined Fixed and Exponential dataFormat classes as FloatDataFormat.
+        - added in Utility and Constants classes, shifted class data as needed
+          into new Constants class.
+        - Binary IO now conforms to the XDF standard. Non-native writting of 
+          binary floats now supported for example.
+        - fixed a number of bugs in the Locator. Most importantly, hasNext 
+          method now works without forgetting about the last datum and is more
+          intellegently implemented.
+        - updated the guiview.pl program (in samples sub-directory). Much more
+          functionality added.
 

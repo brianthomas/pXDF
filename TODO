@@ -9,10 +9,6 @@
      for example, bring getFormatCommands in FormattedXMLDataIOStyle in line 
      with Java package.
 
-   - Move Fixed and Exponential Data formats over to FloatDataFormat
-
-   - check locator hasNext funct. make like Java
-
    - blank data not written properly
 
    - Implement append Array/align axis functionality
@@ -50,11 +46,6 @@
      -- Href capability (Done for files only)
      -- compression (just stores string, sufficient?)
      -- checksum (just stores string, sufficient?, whats the def?)
-
-   - Note: Perl Binary Integer supports native signed OR endian. Investigate how to 
-     do unsigned AND Endianess?? Also, and more importantly, perl pack 
-     puts floats into native format, so binary files across platforms is NOT
-     supported (unless the 2 native formats are similar, which is unlikely :P).
 
    - More effort to bring classes/methods into alignment with the Java package.
 
