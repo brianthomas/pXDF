@@ -224,66 +224,7 @@ sub XDF_NODE_NAMES { (
                     );
 }
 
-# Modification History
-#
-# $Log$
-# Revision 1.16  2001/08/13 21:02:36  thomas
-#  moved VERSION from BaseObject to Constants class
-#
-# Revision 1.15  2001/08/13 20:56:37  thomas
-# updated documentation via utils/makeDoc.pl for the release.
-#
-# Revision 1.14  2001/08/13 19:46:04  thomas
-# removed commented out code.
-#
-# Revision 1.13  2001/07/13 21:42:14  thomas
-# added ValueList stuff
-#
-# Revision 1.12  2001/07/03 17:55:43  thomas
-# added notAnumber, over|underflow to value special
-# list.
-#
-# Revision 1.11  2001/07/02 17:25:49  thomas
-# made changes req. from DTD change to FieldRelation Roles.
-#
-# Revision 1.10  2001/06/21 17:23:26  thomas
-# added Logarithm check
-#
-# Revision 1.9  2001/06/19 21:19:43  thomas
-# added compression.
-#
-# Revision 1.8  2001/04/25 16:01:31  thomas
-# updated documentation
-#
-# Revision 1.7  2001/04/25 15:55:58  thomas
-# fixed XDF DTD name
-#
-# Revision 1.6  2001/04/17 18:59:27  thomas
-# Added some stuff from BaseObject, and new
-# stuff needed by Specifiaction Class.
-#
-# Revision 1.5  2001/03/16 19:54:56  thomas
-# Documentation updated and improved, re-ran makeDoc on file.
-#
-# Revision 1.4  2001/03/15 22:22:29  thomas
-# Transfered XDF_NODE_NAMES and some VALUELIST defines from the
-# Reader class to here.
-#
-# Revision 1.3  2001/03/14 21:32:34  thomas
-# Updated perldoc section using new version of
-# makeDoc.pl.
-#
-# Revision 1.2  2001/03/09 21:49:57  thomas
-# updated perlDocumentation section.
-#
-# Revision 1.1  2001/03/09 21:07:52  thomas
-# Initial version. Copied from Java package.
-#
-#
-#
-
 1;
-
 
 __END__
 

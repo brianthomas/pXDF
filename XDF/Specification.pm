@@ -221,16 +221,6 @@ sub new { # PRIVATE
 }
 
 
-# Modification History
-#
-# $Log$
-# Revision 1.1  2001/04/17 18:46:30  thomas
-# Holds spec info on how XDF package should
-# operate. Mirror class to Java Package.
-#
-#
-#
-
 1;
 
 

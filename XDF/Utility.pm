@@ -246,34 +246,6 @@ sub reverse64BitStringByteOrder {
   return $bitString;
 }
 
-# Modification History
-#
-# $Log$
-# Revision 1.7  2001/08/13 20:56:37  thomas
-# updated documentation via utils/makeDoc.pl for the release.
-#
-# Revision 1.6  2001/06/21 17:23:49  thomas
-# added isValidLogarithm method.
-#
-# Revision 1.5  2001/04/25 16:01:31  thomas
-# updated documentation
-#
-# Revision 1.4  2001/03/16 19:54:57  thomas
-# Documentation updated and improved, re-ran makeDoc on file.
-#
-# Revision 1.3  2001/03/14 21:32:35  thomas
-# Updated perldoc section using new version of
-# makeDoc.pl.
-#
-# Revision 1.2  2001/03/09 21:49:57  thomas
-# updated perlDocumentation section.
-#
-# Revision 1.1  2001/03/09 21:07:52  thomas
-# Initial version. Copied from Java package.
-#
-#
-#
-
 1;
 
 

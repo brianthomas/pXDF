@@ -310,50 +310,6 @@ sub _sprintfNotation {
   return $notation;
 }
 
-# Modification History
-#
-# $Log$
-# Revision 1.11  2001/08/13 20:56:37  thomas
-# updated documentation via utils/makeDoc.pl for the release.
-#
-# Revision 1.10  2001/08/13 19:48:30  thomas
-# bug fix: use only local XML attributes for appendAttribs in _init
-#
-# Revision 1.9  2001/07/23 15:58:07  thomas
-# added ability to add arbitary XML attribute to class.
-# getXMLattributes now an instance method, we
-# have old class method now called getClassXMLAttributes.
-#
-# Revision 1.8  2001/05/23 17:24:14  thomas
-# change to allow right-justification of ASCII
-# numbers.
-#
-# Revision 1.7  2001/04/25 16:01:31  thomas
-# updated documentation
-#
-# Revision 1.6  2001/03/16 19:54:56  thomas
-# Documentation updated and improved, re-ran makeDoc on file.
-#
-# Revision 1.5  2001/03/14 21:32:34  thomas
-# Updated perldoc section using new version of
-# makeDoc.pl.
-#
-# Revision 1.4  2001/03/09 21:53:08  thomas
-# Had no documentation. added.
-#
-# Revision 1.3  2001/02/15 22:42:50  thomas
-# fix to regexNotation
-#
-# Revision 1.2  2001/02/15 18:27:37  thomas
-# removed fortranNotation from class.
-#
-# Revision 1.1  2001/02/15 17:51:53  thomas
-# Initial Version. Created from ExponentialDataFormat. This
-# version has problems w/ some IO routines.
-#
-#
-#
-
 1;
 
 

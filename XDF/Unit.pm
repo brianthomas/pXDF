@@ -187,50 +187,6 @@ sub AUTOLOAD {
   &XDF::GenericObject::AUTOLOAD($self, $val, $AUTOLOAD, \%field );
 }
 
-# Modification History
-#
-# $Log$
-# Revision 1.11  2001/08/13 20:56:37  thomas
-# updated documentation via utils/makeDoc.pl for the release.
-#
-# Revision 1.10  2001/08/13 19:50:16  thomas
-# bug fix: use only local XML attributes for appendAttribs in _init
-#
-# Revision 1.9  2001/07/23 15:58:07  thomas
-# added ability to add arbitary XML attribute to class.
-# getXMLattributes now an instance method, we
-# have old class method now called getClassXMLAttributes.
-#
-# Revision 1.8  2001/04/25 16:01:31  thomas
-# updated documentation
-#
-# Revision 1.7  2001/03/16 19:54:57  thomas
-# Documentation updated and improved, re-ran makeDoc on file.
-#
-# Revision 1.6  2001/03/14 21:32:35  thomas
-# Updated perldoc section using new version of
-# makeDoc.pl.
-#
-# Revision 1.5  2000/12/15 22:11:59  thomas
-# Regenerated perlDoc section in files. -b.t.
-#
-# Revision 1.4  2000/12/14 22:11:26  thomas
-# Big changes to the API. get/set methods, added Href/Entity stuff, deep cloning,
-# added Href, Notes, NotesLocationOrder nodes/classes. Ripped out _enlarge_array
-# from DataCube (not needed) and fixed problems outputing delimited/formatted
-# read nodes. -b.t.
-#
-# Revision 1.3  2000/12/01 20:03:38  thomas
-# Brought Pod docmentation up to date. Bumped up version
-# number. -b.t.
-#
-# Revision 1.2  2000/10/16 17:37:21  thomas
-# Changed over to BaseObject Class from Object Class.
-# Added in History Modification section.
-#
-#
-#
-
 1;
 
 

@@ -167,17 +167,6 @@ sub Init { # PRIVATE
 
 }
 
-# Modification History
-#
-# $Log$
-# Revision 1.1  2001/03/23 21:54:59  thomas
-# Inital version. Allows parsing and convient
-# manipulation of any XML
-# document with XDF embedded within it.
-#
-#
-#
-
 1;
 
 
