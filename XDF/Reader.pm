@@ -85,6 +85,7 @@ use XDF::SkipCharFormattedIOCmd;
 use XDF::StringDataFormat;
 use XDF::Structure;
 use XDF::XMLDataIOStyle;
+use XDF::XMLElement;
 
 use vars qw ($VERSION %field);
 
@@ -140,6 +141,7 @@ my @Class_Attributes = qw (
                               readAxisOrderList
                               readAxisOrderHash
                               noteLocatorOrder
+                              lastObjList
                               lastNoteObject
                               lastUnitObject
                               lastParamObject
@@ -178,9 +180,9 @@ my $DEBUG = 0; # for printing out debug information from class methods
 my $QUIET = 1; # if enabled it suppresses warnings from class methods 
 my $PARSER_MSG_THRESHOLD = 200; # we print all messages equal to and below this threshold
 
-my %Default_Handler = ( 'start' => sub { my ($self,$e) = @_; $self->_printWarning("Warning: UNKNOWN NODE [$e] encountered. Ignoring.\n") unless $self->{Options}->{quiet}; },
+my %Default_Handler = ( 'start' => sub { &_default_start_handler(@_); }, 
                         'end' => sub { &_null_cmd(); },
-                        'cdata' => sub { &_null_cmd(); },
+                        'cdata' => sub { &_default_cdata_handler(@_); },
                       );
 
 # dispatch table for the start node handler of the parser
@@ -547,19 +549,27 @@ sub _handle_start {
 
    my %attrib_hash = &_make_attrib_array_a_hash(@attribinfo);
 
-   # add this node to the current path
+   # 1.add this node to the current path
    push @{$self->{currentNodePath}}, $element;
 
+   # 2. run the start handler. All start handlers SHOULD return a corresponding
+   # xdf object that they create at this step. 
+   my $obj;
    if ( exists $self->{startElementHandler}->{$element}) {
 
       # run the appropriate start handler
-      $self->{startElementHandler}->{$element}->($self, %attrib_hash);
+      $obj = $self->{startElementHandler}->{$element}->($self, %attrib_hash);
 
    } 
    else 
    {
-      $self->_default_Start_Handler($element, \%attrib_hash);
+      $obj =  $self->_exec_default_Start_Handler($element, \%attrib_hash);
    }
+
+   # 3. record the object that corresponds to this XML node (remember that we
+   # dont always have an object defined, some XML nodes have no coorsponending
+   # xdf object so $obj may equal undef.
+   push @{$self->{lastObjList}}, $obj;
 
 }
 
@@ -580,9 +590,11 @@ sub _handle_end {
 
    } else {
 
-      $self->_default_End_Handler($element);
+      $self->_exec_default_End_Handler($element);
 
    } 
+
+   pop @{$self->{lastObjList}};
 
 }
 
@@ -616,7 +628,7 @@ sub _handle_char {
        } else { 
 
          # do nothing with other character data
-         $self->_default_CData_Handler($string);
+         $self->_exec_default_CData_Handler($string);
 
        }
 
@@ -750,7 +762,6 @@ sub _asciiDelimiter_node_start {
        $self->_printWarning( "Danger: More than one read node with readId=\"$readId\", using latest node.\n" )
            if defined $self->{XMLDataIOStyleObj}{$readId};
        $self->{XMLDataIOStyleObj}{$readId} = $self->{currentArray}->getXMLDataIOStyle();
-
     }
 
     $self->{dataIOStyleAttribRef} = undef;
@@ -758,8 +769,7 @@ sub _asciiDelimiter_node_start {
 
   }
 
-  push @{$self->{currentFormatObjectList}}, $self->{currentArray}->getXMLDataIOStyle();
-
+  return $self->{currentArray}->getXMLDataIOStyle();
 }
 
 sub _array_node_end {
@@ -811,6 +821,7 @@ sub _array_node_start {
   $self->{currentDatatypeObject} = $self->{currentArray};
   $self->{currentArrayAxes} = {};
 
+  return $newarray;
 }
 
 sub _axis_node_start {
@@ -851,11 +862,13 @@ sub _axis_node_start {
 
   $self->{currentDatatypeObject} = $axisObj;
 
+  return $axisObj;
 }
 
 sub _axisUnits_node_start { 
   my ($self, %attrib_hash) = @_;
   # do nothing
+  return undef;
 }
 
 sub _binaryFloatField_node_start {
@@ -868,9 +881,10 @@ sub _binaryFloatField_node_start {
   # create the object, add it to the current datatype holder 
   my $dataTypeObj = $self->{currentDatatypeObject};
   
+  my $dataFormatObj;
   if (ref($dataTypeObj) eq 'XDF::Field' or ref($dataTypeObj) eq 'XDF::Array' ) {
   
-     $dataTypeObj->setDataFormat(new XDF::BinaryFloatDataFormat(\%merged_hash));
+     $dataFormatObj = $dataTypeObj->setDataFormat(new XDF::BinaryFloatDataFormat(\%merged_hash));
   
   } else {
   
@@ -878,6 +892,7 @@ sub _binaryFloatField_node_start {
   
   }
 
+  return $dataFormatObj;
 }
 
 sub _binaryIntegerField_node_start {
@@ -890,15 +905,18 @@ sub _binaryIntegerField_node_start {
   # create the object, add it to the current datatype holder 
   my $dataTypeObj = $self->{currentDatatypeObject};
   
+  my $dataFormatObj;
   if (ref($dataTypeObj) eq 'XDF::Field' or ref($dataTypeObj) eq 'XDF::Array' ) {
   
-     $dataTypeObj->setDataFormat(new XDF::BinaryIntegerDataFormat(\%merged_hash));
+     $dataFormatObj = $dataTypeObj->setDataFormat(new XDF::BinaryIntegerDataFormat(\%merged_hash));
   
   } else {
   
     warn "Unknown parent object, cant set string data format in $dataTypeObj, ignoring\n";
   
   }
+
+  return $dataFormatObj;
 
 }
 
@@ -907,6 +925,7 @@ sub _dataTag_node_start {
 
   $self->{currentDataTagLevel}++;
 
+  return undef;
 }
 
 sub _dataTag_node_end {
@@ -1117,18 +1136,20 @@ sub _data_node_start {
     die "No read object defined in array. Exiting.\n";
   }
 
+  return $self->{currentArray}->getDataCube;
 }
 
 sub _dataFormat_node_start {
   my ($self, %attrib_hash) = @_;
   # save attribs for latter
   $self->{dataFormatAttribRef} = \%attrib_hash;
+  return undef;
 }
 
 sub _field_node_start {
   my ($self, %attrib_hash) = @_;
 
-   my $_parentNodeName = $self->_parentNodeName();
+   #my $_parentNodeName = $self->_parentNodeName();
 
    my $fieldObj = $self->{currentArray}->getFieldAxis()->addField(\%attrib_hash);
 
@@ -1145,6 +1166,7 @@ sub _field_node_start {
 
    $self->{currentDatatypeObject} = $fieldObj;
 
+   return $fieldObj;
 }
 
 sub _fieldAxis_node_start {
@@ -1183,6 +1205,7 @@ sub _fieldAxis_node_start {
    # add the axis object to the array
    $self->{currentArray}->addFieldAxis($axisObj, undef, 1);
 
+   return $axisObj;
 }
 
 sub _fieldGroup_node_end { 
@@ -1218,6 +1241,7 @@ sub _fieldGroup_node_start {
   # add to the list of open fieldGroups
   push @{$self->{currentFieldGroupList}}, $fieldGroupObj;
 
+  return $fieldGroupObj;
 }
 
 
@@ -1227,6 +1251,7 @@ sub _field_relationship_node_start {
    my $fieldObj = $self->_lastFieldObj();
    my $relObj = $fieldObj->setRelation(new XDF::FieldRelation(\%attrib_hash));
 
+   return $relObj;
 }
 
 sub _floatField_node_start {
@@ -1239,9 +1264,10 @@ sub _floatField_node_start {
   # create the object, add it to the current datatype holder 
   my $dataTypeObj = $self->{currentDatatypeObject};
   
+  my $dataFormatObj;
   if (ref($dataTypeObj) eq 'XDF::Field' or ref($dataTypeObj) eq 'XDF::Array' ) {
   
-     $dataTypeObj->setDataFormat(new XDF::FloatDataFormat(\%merged_hash));
+     $dataFormatObj = $dataTypeObj->setDataFormat(new XDF::FloatDataFormat(\%merged_hash));
   
   } else {
   
@@ -1249,6 +1275,7 @@ sub _floatField_node_start {
   
   }
 
+  return $dataFormatObj;
 }
 
 sub _for_node_start {              
@@ -1265,6 +1292,7 @@ sub _for_node_start {
     exit (-1); 
   }
 
+  return undef;
 }
 
 sub _integerField_node_start {
@@ -1277,9 +1305,10 @@ sub _integerField_node_start {
   # create the object, add it to the current datatype holder 
   my $dataTypeObj = $self->{currentDatatypeObject};
   
+  my $dataFormatObj;
   if (ref($dataTypeObj) eq 'XDF::Field' or ref($dataTypeObj) eq 'XDF::Array' ) {
   
-     $dataTypeObj->setDataFormat(new XDF::IntegerDataFormat(\%merged_hash));
+     $dataFormatObj = $dataTypeObj->setDataFormat(new XDF::IntegerDataFormat(\%merged_hash));
   
   } else {
   
@@ -1287,6 +1316,7 @@ sub _integerField_node_start {
   
   }
 
+  return $dataFormatObj;
 }
 
 sub _note_node_charData {
@@ -1338,7 +1368,6 @@ sub _note_node_start {
          $self->{NoteObj}{$id} = $noteObj;
    }
 
-
    my $addNoteObj;
    if ($parent_node eq $XDF_node_name{'array'}) {
          $addNoteObj = $self->{currentArray};
@@ -1356,11 +1385,13 @@ sub _note_node_start {
 
    $self->{lastNoteObject} = $noteObj;
 
+   return $noteObj;
 }
 
 sub _note_index_node_start {
    my ($self, %attrib_hash) = @_;
    push @{$self->{noteLocatorOrder}}, $attrib_hash{'axisIdRef'};
+   return undef;
 }
 
 sub _notes_node_end {
@@ -1398,6 +1429,10 @@ sub _notes_node_start {
 
    $self->{lastNotesParentObject} = $obj if defined $obj; # ->notes() if defined $obj;
 
+   #special handling: notes object comes 'pre-defined' in parent,
+   # so go to the parent to find it.
+   my $notesObj = defined $obj ? $obj->getNotes : undef;
+   return $notesObj;
 }
 
 sub _parameter_node_start {
@@ -1431,6 +1466,7 @@ sub _parameter_node_start {
 
    $self->{lastParamObject} = $paramObj;
 
+   return $paramObj;
 }
 
 sub _parameterGroup_node_end { 
@@ -1474,6 +1510,7 @@ sub _parameterGroup_node_start {
   # now add it to the list
   push @{$self->{currentParamGroupList}}, $paramGroupObj;
 
+  return $paramGroupObj;
 }
 
 sub _read_node_end {
@@ -1517,10 +1554,11 @@ sub _read_node_start {
   # save these for later, when we know what kind of dataIOstyle we got
   # use reference object, if refId exists 
   my $readIdRef = $attrib_hash{'readIdRef'};
+  my $readObj;
   if (defined $readIdRef) {
 
      # clone from the reference object
-     my $readObj = $self->{XMLDataIOStyleObj}{$readIdRef}->clone();
+     $readObj = $self->{XMLDataIOStyleObj}{$readIdRef}->clone();
 
      # override with local values
      $readObj->setXMLAttributes(\%attrib_hash);
@@ -1553,6 +1591,8 @@ sub _read_node_start {
      $self->{dataIOStyleAttribRef} = \%attrib_hash;
   }
 
+  return $readObj;
+
 }
 
 sub _readCell_node_start { 
@@ -1578,6 +1618,7 @@ sub _readCell_node_start {
   my $formatObj = $self->_currentFormatObject();
   my $readCellObj = $formatObj->addFormatCommand(new XDF::ReadCellFormattedIOCmd(\%attrib_hash));
 
+  return $readCellObj;
 }
 
 sub _repeat_node_end { 
@@ -1610,6 +1651,7 @@ sub _repeat_node_start {
  
   push @{$self->{currentFormatObjectList}}, $repeatObj;
 
+  return $repeatObj;
 }
 
 sub _root_node_start { 
@@ -1624,6 +1666,7 @@ sub _root_node_start {
   $self->{XDF}->DefaultDataArraySize($self->{Options}->{axisSize}) 
       if defined $self->{Options}->{axisSize};
 
+  return $self->{currentStructure};
 }
 
 sub _skipChar_node_start {
@@ -1647,8 +1690,9 @@ sub _skipChar_node_start {
   }
 
   my $formatObj = $self->_currentFormatObject();
-  $formatObj->addFormatCommand(new XDF::SkipCharFormattedIOCmd(\%attrib_hash));
+  my $skipCharObj = $formatObj->addFormatCommand(new XDF::SkipCharFormattedIOCmd(\%attrib_hash));
 
+  return $skipCharObj;
 }
 
 sub _stringField_node_start {
@@ -1660,17 +1704,17 @@ sub _stringField_node_start {
 
   # create the object, add it to the current datatype holder 
   my $dataTypeObj = $self->{currentDatatypeObject}; 
-
+  my $dataFormatObj;
   if (ref($dataTypeObj) eq 'XDF::Field' or ref($dataTypeObj) eq 'XDF::Array' ) { 
 
-     $dataTypeObj->setDataFormat(new XDF::StringDataFormat(\%merged_hash));
+     $dataFormatObj = $dataTypeObj->setDataFormat(new XDF::StringDataFormat(\%merged_hash));
 
   } else {
 
     warn "Unknown parent object, cant set string dataformat in $dataTypeObj, ignoring\n";
 
   }
-
+  return $dataFormatObj;
 }
 
 sub _structure_node_start {
@@ -1684,6 +1728,7 @@ sub _structure_node_start {
       $self->{currentStructure} = $structObj;
    }
    
+   return $self->{currentStructure};
 }
 
 sub _tagToAxis_node_start {
@@ -1709,6 +1754,7 @@ sub _tagToAxis_node_start {
   # add in the axis, tag information
   $self->{currentArray}->getXMLDataIOStyle()->setAxisTag($attrib_hash{'tag'}, $attrib_hash{'axisIdRef'});
 
+  return undef;
 }
 
 sub _unit_node_charData {
@@ -1763,16 +1809,19 @@ sub _unit_node_start {
 
   $self->{lastUnitObject} = $unitObj;
 
+  return $unitObj;
 }
 
 sub _units_node_start { 
    my ($self, %attrib_hash) = @_;
   # do nothing
+  return undef;
 }
 
 sub _unitless_node_start {
    my ($self, %attrib_hash) = @_;
   # do nothing
+  return undef;
 }
 
 sub _value_node_charData {
@@ -1860,12 +1909,11 @@ sub _valueGroup_node_start {
   # now add it to the list
   push @{$self->{currentValueGroupList}}, $valueGroupObj;
 
+  return $valueGroupObj;
 }
 
 sub _valueList_node_charData {
   my ($self, $string) = @_;
-
-print STDERR "valuelist charData parent:",$self->_parentNodeName(), "\n";
 
   # split up string based on declared delimiter
   my $delimiter = '/' . $self->{currentValueList}->{'delimiter'};
@@ -1985,8 +2033,6 @@ sub _valueList_node_start {
 
    } else {
 
-print STDERR "setting valuelist parent node name to $parent_node\n";
-
          $self->{currentValueList}->{'parent_node'} = $parent_node;
          $self->{currentValueList}->{'delimiter'} = defined $attrib_hash{'delimiter'} ?
                $attrib_hash{'delimiter'} : $Def_ValueList_Delimiter;
@@ -1995,6 +2041,7 @@ print STDERR "setting valuelist parent node name to $parent_node\n";
 
    }
 
+   return undef;
 }
 
 sub _vector_node_start { 
@@ -2002,14 +2049,17 @@ sub _vector_node_start {
 
   my $parent_node = $self->_parentNodeName();
 
+  my $axisValueObj;
   if ($parent_node eq $XDF_node_name{'axis'}) {
 
      my $axisObj = $self->_lastAxisObj();
-     my $axisValue = $axisObj->addAxisUnitDirection(\%attrib_hash);
+     my $axisValueObj = $axisObj->addAxisUnitDirection(\%attrib_hash);
 
   } else {
         $self->_printWarning( "$XDF_node_name{'vector'} node not supported for $parent_node yet. Ignoring node.\n");
   }
+
+  return $axisValueObj; 
 
 }
 
@@ -2041,6 +2091,11 @@ sub _printWarning {
 sub _currentFormatObject {
   my ($self)=@_;
   return $self->{currentFormatObjectList}->[$#{$self->{currentFormatObjectList}}]; 
+}
+
+sub _lastObj {
+  my ($self)=@_;
+  return @{$self->{lastObjList}}->[$#{$self->{lastObjList}}];
 }
 
 sub _lastFieldObj {
@@ -2178,6 +2233,8 @@ sub _init {
 
   $self->{nrofWarnings} = 0; # a counter that is compared to $MAX_WARNINGS to see if we halt 
 
+  $self->{lastObjList} = []; # a list of objects, should map roughly to xml node traversal order 
+                             # but may contain null entries since not all XML nodes coorespond to XDF objects.
 }
 
 sub _create_parser {
@@ -2434,7 +2491,101 @@ sub _get_valueList_node_values {
   return @values;
 }
 
-sub _default_Start_Handler {
+# this is the actual default start handler for the Reader.
+# (see Default_Handler hash)
+sub _default_start_handler {
+   my ($self,$e, $attrib_hash_ref) = @_;
+
+   my $parentNodeName = $self->_parentNodeName();
+   my $newelement;
+
+print STDERR "Parent Node name:[$parentNodeName] ",join ',', @_,"\n"; 
+print STDERR "\tpath:", join '/', @{$self->{currentNodePath}} ,"\n";
+
+   # the DTD sez that if we get non-xdf defined nodes, it IS 
+   # allowed as long as these are children of the following 
+   # XDF defined nodes, OR are children of a non-XDF defined node
+   # (e.g. the child of one of these nodes, which we call 'XDF::XMLElement')
+   if( $parentNodeName eq $XDF_node_name{'structure'} 
+       || $parentNodeName eq $XDF_node_name{'root'} 
+     ) 
+   {
+
+     $newelement = &_create_new_element($e, $attrib_hash_ref);
+     $self->{currentStructure}->addXMLElement($newelement);
+
+   } elsif( $parentNodeName eq $XDF_node_name{'array'} ) { 
+
+     $newelement = &_create_new_element($e, $attrib_hash_ref);
+     $self->{currentArray}->addXMLElement($newelement);
+
+   } elsif( $parentNodeName eq $XDF_node_name{'fieldaxis'} ) { 
+
+     $newelement = &_create_new_element($e, $attrib_hash_ref);
+     $self->{currentArray}->getFieldAxis->addXMLElement($newelement);
+
+   } elsif( $parentNodeName eq $XDF_node_name{'axis'} ) { 
+
+     $newelement = &_create_new_element($e, $attrib_hash_ref);
+     $self->_lastAxisObj->addXMLElement($newelement);
+
+   } elsif( $parentNodeName eq $XDF_node_name{'field'} ) { 
+
+     $newelement = &_create_new_element($e, $attrib_hash_ref);
+     $self->_lastFieldObj()->addXMLElement($newelement);
+
+   } else {
+
+      my $lastObj = $self->_lastObj; 
+      if (defined $lastObj && ref($lastObj) eq 'XDF::XMLElement') {
+
+print STDERR "add to existing xmlelement obj ($parentNodeName)\n";
+         $newelement = &_create_new_element($e, $attrib_hash_ref);
+         $lastObj->addXMLElement($newelement);
+      } else {
+         $self->_printWarning("Warning: ILLEGAL NODE:[$e] (child of $parentNodeName) encountered. Ignoring.\n") 
+            unless $self->{Options}->{quiet}; 
+      }
+
+   }
+
+   return $newelement;
+}
+
+sub _create_new_element {
+  my ($name, $attrib_hash_ref) = @_;
+
+   my $newelement = new XDF::XMLElement();
+   $newelement->setNodeName($name);
+   while ( my ($key, $value) = each %{$attrib_hash_ref}) {
+        my $attribObj = new XDF::XMLAttribute();
+        $attribObj->setKey($key);
+        $attribObj->setValue($value);
+        $newelement->addAttribute($attribObj);
+   }
+   return $newelement;
+}
+
+sub _default_cdata_handler {
+   my ($self, $string) = @_;
+
+   if (!$IGNORE_WHITESPACE_ONLY_DATA || $string !~ m/^\s*$/) {
+      my $lastObj = $self->_lastObj();
+      if (defined $lastObj) {
+         if (ref($lastObj) eq 'XDF::XMLElement') {
+           $lastObj->setCData($string);
+         } else {
+            $self->_printWarning("Warning: cant do anything with CDATA:[$string] for ".ref($lastObj).". Ignoring.\n"); 
+         }
+      } else {
+         my $nodename = $self->_currentNodeName();
+         $self->_printWarning("Warning: CDATA encountered for $nodename:[$string]. Ignoring.\n"); 
+      }
+   }
+
+}
+
+sub _exec_default_Start_Handler {
    my ($self, $element, $attrib_hash_ref) = @_;
 
    if ( exists $self->{defaultHandler}->{'start'}) {
@@ -2446,7 +2597,7 @@ sub _default_Start_Handler {
    }
 }
 
-sub _default_End_Handler {
+sub _exec_default_End_Handler {
    my ($self, $element) = @_;
 
    if ( exists $self->{defaultHandler}->{'end'}) {
@@ -2458,7 +2609,7 @@ sub _default_End_Handler {
    }
 }
 
-sub _default_CData_Handler {
+sub _exec_default_CData_Handler {
    my ($self, $string) = @_;
 
    if ( exists $self->{defaultHandler}->{'cdata'}) {
@@ -2680,6 +2831,11 @@ sub _appendArrayToArray {
 # Modification History
 #
 # $Log$
+# Revision 1.21  2001/03/21 20:20:23  thomas
+# Fixed all start Handlers so that they return the object they create.
+# Added _lastObj method.
+# Added code for treatment of adding XMLElements to the XDF structure.
+#
 # Revision 1.20  2001/03/16 22:48:02  thomas
 # fixes to valueListGroup.
 #
