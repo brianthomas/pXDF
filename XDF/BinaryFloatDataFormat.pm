@@ -138,10 +138,10 @@ sub getXMLAttributes {
 }
 
 #/** convertBitStringToFloatBits
-# * Convert the string representation of bits into the binary
-# * float bits as specified by an instance of the BinaryFloatDataFormat object.
-# * The desired endianness of the output data bits must be supplied.
-# * The actual float bits are returned. 
+#  Convert the string representation of bits into the binary
+#  float bits as specified by an instance of the BinaryFloatDataFormat object.
+#  The desired endianness of the output data bits must be supplied.
+#  The actual float bits are returned. 
 # */
 sub convertBitStringToFloatBits {
   my ($self, $bitString, $dataEndian) = @_;
@@ -163,6 +163,50 @@ sub convertBitStringToFloatBits {
   my $unpacktemplate = $self->{_unpackTemplateNotation};
 
   return unpack $unpacktemplate, pack $packtemplate, $bitString;
+
+}
+
+
+#/** convertFloatToFloatBits
+#  Convert the passed number into binary float bits as specified by 
+#  the instance of a BinaryFloatDataFormat object.
+#  The desired endianness of the output data bits must be supplied.
+#  The resulting float bits of the transform are returned. 
+#@ 
+#  Note 1: An implicit assumption of this method is that the native format
+#  conforms to the IEEE-Standard for Binary Floating Point Arithmetic.
+#  Both big and little endian platforms are supported, but if a machine
+#  deviates from IEEE, garbage will be created. 
+#@ 
+#  Note 2: 32 bit machines are implicitly supported. This algorthim may 
+#  fail on 64 bit machines. 
+#@ 
+# Note 3: Perl stores all floating point as double precision. Using the
+# 32 bit size will result in a rounding of the value (and subsequent loss
+# of information). Use 64 bit binary floats for data integrity when using
+# the Perl XDF package.  
+# */
+sub convertFloatToFloatBits {
+  my ($self, $floatValue, $dataEndian) = @_;
+
+  return undef unless defined $floatValue && defined $dataEndian;
+
+print STDERR "Float bit convertion called \n";
+
+  my $bitTemplate = $self->{_templateNotation};
+  my $nativeFloatTemplate = $self->{_unpackTemplateNotation};
+
+  my $bits = pack $nativeFloatTemplate, $floatValue;
+  
+  # if the endianness is different, we have to reverse byte order
+  # from what is given.
+  if ($dataEndian ne &XDF::Constants::PLATFORM_ENDIAN) {
+     my $bitString = unpack $bitTemplate, $bits;
+     $bitString = XDF::Utility::reverseBitStringByteOrder($bitString, $self->{Bits});
+     $bits = pack $bitTemplate, $bitString;              
+  }
+
+  return $bits;
 
 }
 
@@ -220,6 +264,9 @@ sub _sprintfNotation {
 # Modification History
 #
 # $Log$
+# Revision 1.12  2001/03/09 23:10:32  thomas
+# Added convertFloatToFloatBits method.
+#
 # Revision 1.11  2001/03/09 22:04:23  thomas
 # Shunted some class data off to Constants class (where it should be).
 # Added come checks from Utility package to prevent bad assigned
@@ -314,197 +361,9 @@ These methods set the requested attribute if an argument is supplied to the meth
 
 =over 4
 
-=item # add in XML attributes
+=item bits
 
- 
-
-=item push @Class_Attributes, @Class_XML_Attributes;
-
- 
-
-=item # add in super class attributes
-
- 
-
-=item push @Class_Attributes, @{&XDF::DataFormat::classAttributes};
-
- 
-
-=item # add in super class XML attributes
-
- 
-
-=item push @Class_XML_Attributes, @{&XDF::DataFormat::getXMLAttributes};
-
- 
-
-=item # /** bits
-
- 
-
-=item # The number of bits this XDF::BinaryFloatDataFormat holds.
-
- 
-
-=item # */
-
- 
-
-=item # Something specific to Perl
-
- 
-
-=item # We use the "string" stuff here
-
- 
-
-=item my $Perl_Sprintf_Field_BinaryFloat = 's';
-
- 
-
-=item my $Perl_Regex_Field_BinaryFloat = '\.';
-
- 
-
-=item # Initalization
-
- 
-
-=item # set up object attributes.
-
- 
-
-=item for my $attr ( @Class_Attributes ) { $field{$attr}++; }
-
- 
-
-=item # /** classXMLNodeName
-
- 
-
-=item # This method returns the class XML node name.
-
- 
-
-=item # This method takes no arguments may not be changed. 
-
- 
-
-=item # */
-
- 
-
-=item sub classXMLNodeName {
-
- 
-
-=item }
-
- 
-
-=item # /** classAttributes
-
- 
-
-=item #  This method returns a list containing the names
-
- 
-
-=item #  of the attributes of this class.
-
- 
-
-=item #  This method takes no arguments may not be changed. 
-
- 
-
-=item # */
-
- 
-
-=item sub classAttributes {
-
- 
-
-=item }
-
- 
-
-=item #
-
- 
-
-=item # GET/SET methods 
-
- 
-
-=item #
-
- 
-
-=item # /** getBits
-
- 
-
-=item # */
-
- 
-
-=item sub getBits {
-
- 
-
-=item return $self->{Bits};
-
- 
-
-=item }
-
- 
-
-=item # /** setBits
-
- 
-
-=item #     Set the (number of) bits attribute. 
-
- 
-
-=item # */
-
- 
-
-=item sub setBits {
-
- 
-
-=item $self->{Bits} = $value;
-
- 
-
-=item }
-
- 
-
-=item # /** numOfBytes
-
- 
-
-=item # A convenience method.
-
- 
-
-=item # Return the number of bytes this XDF::BinaryFloatDataFormat holds.
-
- 
-
-=item # */
-
- 
-
-=item sub numOfBytes { 
-
- 
+The number of bits this XDF::BinaryFloatDataFormat holds.  
 
 =back
 
@@ -527,6 +386,14 @@ A convenience method. Return the number of bytes this XDF::BinaryFloatDataFormat
 =item getXMLAttributes (EMPTY)
 
 This method returns the XMLAttributes of this class. 
+
+=item convertBitStringToFloatBits ($dataEndian, $bitString)
+
+Convert the string representation of bits into the binaryfloat bits as specified by an instance of the BinaryFloatDataFormat object. The desired endianness of the output data bits must be supplied. The actual float bits are returned. 
+
+=item convertFloatToFloatBits ($dataEndian, $floatValue)
+
+Convert the passed number into binary float bits as specified by the instance of a BinaryFloatDataFormat object. The desired endianness of the output data bits must be supplied. The resulting float bits of the transform are returned. @ Note 1: An implicit assumption of this method is that the native formatconforms to the IEEE-Standard for Binary Floating Point Arithmetic. Both big and little endian platforms are supported, but if a machinedeviates from IEEE, garbage will be created. @ Note 2: 32 bit machines are implicitly supported. This algorthim may fail on 64 bit machines. @ Note 3: Perl stores all floating point as double precision. Using the32 bit size will result in a rounding of the value (and subsequent lossof information). Use 64 bit binary floats for data integrity when usingthe Perl XDF package.  
 
 =back
 
@@ -564,7 +431,7 @@ B<new>, B<clone>, B<update>.
 =over 4
 
 XDF::BinaryFloatDataFormat inherits the following instance methods of L<XDF::DataFormat>:
-B<getLessThanValue>, B<setLessThanValue>, B<getLessThanOrEqualValue>, B<setLessThanOrEqualValue>, B<getGreaterThanValue>, B<setGreaterThanValue>, B<getGreaterThanOrEqualValue>, B<setGreaterThanOrEqualValue>, B<getInfiniteValue>, B<setInfiniteValue>, B<getInfiniteNegativeValue>, B<setInfiniteNegativeValue>, B<getNoDataValue>, B<setNoDataValue>, B<toXMLFileHandle>.
+B<toXMLFileHandle>.
 
 =back
 
@@ -581,7 +448,7 @@ B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLAttributes>, B<setX
 
 =head1 SEE ALSO
 
-L<XDF::DataFormat>
+L<XDF::Utility>, L<XDF::DataFormat>
 
 =back
 
