@@ -154,9 +154,13 @@ sub VALUE_INEQUALITY_LIST { ( &VALUE_INEQUALITY_LESS_THAN,
 sub VALUE_SPECIAL_INFINITE { "infinite"; }
 sub VALUE_SPECIAL_INFINITE_NEGATIVE { "infiniteNegative"; }
 sub VALUE_SPECIAL_NODATA{ "noData"; }
+sub VALUE_SPECIAL_NOTANUMBER { "notANumber"; }
+sub VALUE_SPECIAL_OVERFLOW { "overflow"; }
+sub VALUE_SPECIAL_UNDERFLOW { "underflow"; }
 
 sub VALUE_SPECIAL_LIST { ( &VALUE_SPECIAL_INFINITE,  &VALUE_SPECIAL_INFINITE_NEGATIVE,
-                           &VALUE_SPECIAL_NODATA ); }
+                           &VALUE_SPECIAL_NODATA, &VALUE_SPECIAL_NOTANUMBER, &VALUE_SPECIAL_UNDERFLOW,
+                           &VALUE_SPECIAL_OVERFLOW ); }
 
 sub DEFAULT_VALUELIST_STEP { 1; }
 sub DEFAULT_VALUELIST_START { 1; }
@@ -220,6 +224,10 @@ sub XDF_NODE_NAMES { (
 # Modification History
 #
 # $Log$
+# Revision 1.12  2001/07/03 17:55:43  thomas
+# added notAnumber, over|underflow to value special
+# list.
+#
 # Revision 1.11  2001/07/02 17:25:49  thomas
 # made changes req. from DTD change to FieldRelation Roles.
 #
