@@ -36,7 +36,7 @@ package XDF::Field;
 # */
 
 use Carp;
-use XDF::BaseObject;
+use XDF::BaseObjectWithXMLElements;
 use XDF::DataFormat;
 use XDF::Units;
 
@@ -46,8 +46,8 @@ use integer;
 use vars qw ($AUTOLOAD %field @ISA);
 
 
-# inherits from XDF::BaseObject
-@ISA = ("XDF::BaseObject");
+# inherits from XDF::BaseObjectWithXMLElements;
+@ISA = ("XDF::BaseObjectWithXMLElements");
 
 # CLASS DATA
 # /** name
@@ -134,7 +134,10 @@ my @Class_Attributes = ();
 push @Class_Attributes, @Class_XML_Attributes;
 
 # add in super class attributes
-push @Class_Attributes, @{&XDF::BaseObject::classAttributes};
+push @Class_Attributes, @{&XDF::BaseObjectWithXMLElements::classAttributes};
+
+# add in super class XML attributes to our list 
+push @Class_XML_Attributes, @{&XDF::BaseObjectWithXMLElements::getXMLAttributes};
 
 # Initalization
 # set up object attributes.
@@ -499,6 +502,9 @@ sub _init {
 # Modification History
 #
 # $Log$
+# Revision 1.11  2001/04/23 19:28:01  thomas
+# allow XMLElements to be held within field class
+#
 # Revision 1.10  2001/04/17 18:52:31  thomas
 # Properly calling superclass init now
 #
