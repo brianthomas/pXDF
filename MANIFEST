@@ -9,6 +9,7 @@ UML-XDF.gif
 XDF_0.17.dtd
 XDF/Array.pm
 XDF/Axis.pm
+XDF/BaseObject.pm
 XDF/BinaryFloatDataFormat.pm
 XDF/BinaryFloatStyle.pm
 XDF/BinaryIntegerDataFormat.pm
@@ -33,7 +34,6 @@ XDF/IntegerDataFormat.pm
 XDF/IntegerStyle.pm
 XDF/Locator.pm
 XDF/Note.pm
-XDF/Object.pm
 XDF/Parameter.pm
 XDF/ParameterGroup.pm
 XDF/ReadCellFormattedIOCmd.pm
