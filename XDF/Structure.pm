@@ -382,9 +382,14 @@ sub removeStructure {
 # RETURNS : an XDF::Array object reference on success, undef on failure.
 # */
 sub addArray {
-  my ($self, $attribHashReference) = @_;
+  my ($self, $attribHashOrObjectReference) = @_;
 
-  my $arrayObj = XDF::Array->new($attribHashReference);
+  my $arrayObj;
+  if (ref($attribHashOrObjectReference) eq 'XDF::Array') {
+    $arrayObj = $attribHashOrObjectReference;
+  } else {
+    $arrayObj = XDF::Array->new($attribHashOrObjectReference);
+  }
 
   # add the parameter to the list
   push @{$self->{ArrayList}}, $arrayObj;
@@ -479,6 +484,10 @@ sub _init {
 # Modification History
 #
 # $Log$
+# Revision 1.6  2001/03/14 16:13:06  thomas
+# Fixed addArray method. Wasnt treating passing an
+# already allocated arrayobject correctly.
+#
 # Revision 1.5  2000/12/15 22:12:00  thomas
 # Regenerated perlDoc section in files. -b.t.
 #
