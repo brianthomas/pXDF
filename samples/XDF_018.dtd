@@ -433,23 +433,6 @@ grouped together with name="position".
 	repeated until the end of the data. 
 -->
 <!ELEMENT dataFormat ((float | integer | string | binaryInteger | binaryFloat | arrayRef))>
-<!--
-these things need to be dealt with using relationships
-<!ATTLIST dataFormat
-        lessThanValue NMTOKEN #IMPLIED
-        lessThanOrEqualValue NMTOKEN #IMPLIED
-        greaterThanValue NMTOKEN #IMPLIED
-        greaterThanOrEqualValue NMTOKEN #IMPLIED
--->
-<!ATTLIST dataFormat
-        infiniteValue CDATA #IMPLIED
-        infiniteNegativeValue CDATA #IMPLIED
-        noDataValue CDATA #IMPLIED
-        notANumberValue CDATA #IMPLIED
-        underflowValue CDATA #IMPLIED
-        overflowValue CDATA #IMPLIED
-        disabledValue CDATA #IMPLIED
->
 <!-- 
 The element float is used for text format of non-integer (floating point) 
 numbers.  If exponential format is to be used, supply the width of the exponent
@@ -461,12 +444,26 @@ are expected to be read or written as E-format.  One can not mix E and F-format.
 	width NMTOKEN #REQUIRED
 	precision NMTOKEN #REQUIRED
 	exponent NMTOKEN #IMPLIED
+        infiniteValue CDATA #IMPLIED
+        infiniteNegativeValue CDATA #IMPLIED
+        noDataValue CDATA #IMPLIED
+        notANumberValue CDATA #IMPLIED
+        underflowValue CDATA #IMPLIED
+        overflowValue CDATA #IMPLIED
+        disabledValue CDATA #IMPLIED
 >
 <!ELEMENT integer EMPTY>
 <!ATTLIST integer
 	type (decimal | octal | hexadecimal) "decimal"
 	width NMTOKEN #REQUIRED
 	signed (yes | no) "yes"
+        infiniteValue CDATA #IMPLIED
+        infiniteNegativeValue CDATA #IMPLIED
+        noDataValue CDATA #IMPLIED
+        notANumberValue CDATA #IMPLIED
+        underflowValue CDATA #IMPLIED
+        overflowValue CDATA #IMPLIED
+        disabledValue CDATA #IMPLIED
 >
 <!ELEMENT string EMPTY>
 <!ATTLIST string
@@ -476,6 +473,13 @@ are expected to be read or written as E-format.  One can not mix E and F-format.
 <!ATTLIST binaryInteger
 	signed (yes | no) "yes"
 	bits NMTOKEN #REQUIRED
+        infiniteValue CDATA #IMPLIED
+        infiniteNegativeValue CDATA #IMPLIED
+        noDataValue CDATA #IMPLIED
+        notANumberValue CDATA #IMPLIED
+        underflowValue CDATA #IMPLIED
+        overflowValue CDATA #IMPLIED
+        disabledValue CDATA #IMPLIED
 >
 <!-- BinaryFloats will need to conform to the IEEE-754 standard.  
 However, only real*4 and real*8 are universally accepted (real*10 and
@@ -486,6 +490,13 @@ real*16 are common but not everywhere).
 <!ELEMENT binaryFloat EMPTY>
 <!ATTLIST binaryFloat
 	bits (32 | 64) #REQUIRED
+        infiniteValue CDATA #IMPLIED
+        infiniteNegativeValue CDATA #IMPLIED
+        noDataValue CDATA #IMPLIED
+        notANumberValue CDATA #IMPLIED
+        underflowValue CDATA #IMPLIED
+        overflowValue CDATA #IMPLIED
+        disabledValue CDATA #IMPLIED
 >
 <!-- inherited from string data format.. this represents arrayId's which
      hold the n-dimensional "datum" -->
@@ -493,6 +504,12 @@ real*16 are common but not everywhere).
 <!ATTLIST arrayRef
 	length CDATA #REQUIRED
 >
+
+<!-- if present allows the specification of the style of data to be read in.
+     IF missing, then it is assumed that the data are held in a delimited 
+     format with default settings (delimiter is space, newLine recordterminator
+     and repeatable is "yes") 
+  -->
 <!ELEMENT dataStyle (fixedWidth | tagged | delimited)>
 <!ATTLIST dataStyle
 	encoding (ANSI | ISO-8859-1 | UTF-8 | UTF-16) "ISO-8859-1"
