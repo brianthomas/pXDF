@@ -104,9 +104,10 @@ sub IO_ENCODINGS_LIST {  ( &IO_ENCODING_UTF_8, &IO_ENCODING_UTF_16,
                            &IO_ENCODING_ISO_8859_1, &IO_ENCODING_ANSI ); }
 
 # allowable roles for the (field) relation node
-sub RELATION_ROLE_LIST { ( "errors" , "sensitivity" ,
-                           "weights" , "references" ,
-                            "noteMarks" ); }
+sub RELATION_ROLE_LIST { ( "error" , "sensitivity" , "precision",
+                           "quality" , "positiveError" , "negativeError",
+                           "weight" , "reference" , "noteMark" ); 
+                       }
 
 sub DATATYPE_INTEGER { "integer"; }
 sub DATATYPE_FIXED { "fixed"; }
@@ -219,6 +220,9 @@ sub XDF_NODE_NAMES { (
 # Modification History
 #
 # $Log$
+# Revision 1.11  2001/07/02 17:25:49  thomas
+# made changes req. from DTD change to FieldRelation Roles.
+#
 # Revision 1.10  2001/06/21 17:23:26  thomas
 # added Logarithm check
 #
