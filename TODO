@@ -11,6 +11,13 @@
    - Href stuff only supports files. Need Entity Resolver type behavior ala Java.
      This may be a bug in libxml-enno that we need to patch.
   
+   - XDF::DOM::Parser is expanding newLine entities and then converting to whitespace
+     on toString call which feeds the XDF::Reader. Upshot: a bad bug that keeps delimited
+     data (with newline record terms) from reading properly. Minor bug: formatted data is
+     printed on one long line (but still reads ok). Fixing this will be non-trivial as
+     its part of the XML spec to convert all newlines to space (It makes you wonder what
+     the #$#%%# the W3C was thinking..).
+
    - incorporate compress exec. config into make proceedure.
 
    - readId/readIdRef implemented, however problems will result if readIdRef

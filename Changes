@@ -86,3 +86,5 @@ Revision history for Perl extension XDF.
         - Support for notANumber, overflow, underflow and disabled attributes in Array and Field.
         - Finally included support of infinite, infiniteNegative, noData Value object creation
 	  from a valueList. Also support for notANumber, overflow, and underflow attribs too. 
+        - Bug fix: output PCDATA now has angle brackets entified upon toXMLFileHandle call. 
+        - Bug fix: attributes on ValueGroup not printing on toXMLFileHandle call.
