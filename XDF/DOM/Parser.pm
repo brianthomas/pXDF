@@ -101,15 +101,18 @@ sub new {
     my $debug = $DEBUG;
     my $quiet = $QUIET;
     my $validate = $VALIDATE;
+    my $dontLoadYet = 0;
 
     if ( exists $args{'debug'}) { $debug = $args{'debug'}; }
     if ( exists $args{'quiet'}) { $quiet = $args{'quiet'}; }
     if ( exists $args{'validate'}) { $validate = $args{'validate'}; }
+    if ( exists $args{'dontLoadHrefData'}) { $dontLoadYet = $args{'dontLoadHrefData'}; }
 
     my $self = $proto->SUPER::new (%args);
     $self->{'DEBUG'} = $debug;
     $self->{'QUIET'} = $quiet;
     $self->{'VALIDATE'} = $validate;
+    $self->{'DONT_LOAD_DATA_YET'} = $dontLoadYet;
 
     return $self;
 } 
@@ -224,7 +227,7 @@ sub _parseNodeIntoXDFObject {
    $newnode->setOwnerDocument($miniDOM);
    $miniDOM->appendChild($newnode);
 
-   my %options = ('validate' => $self->{'VALIDATE'}, 'quiet' => $self->{'QUIET'}, 'debug' => $self->{'DEBUG'},);
+   my %options = ('validate' => $self->{'VALIDATE'}, 'quiet' => $self->{'QUIET'}, 'debug' => $self->{'DEBUG'}, 'dontLoadHrefData' => $self->{'DONT_LOAD_DATA_YET'});
    my $reader = new XDF::Reader(\%options);
    my $XDFObject = $reader->parseString($miniDOM->toString());
 
