@@ -1,0 +1,42 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE XDF SYSTEM "XDF_018.dtd" [
+  <!ENTITY table1 SYSTEM "XDF_sample23.dat" NDATA xdf>
+  <!NOTATION xdf PUBLIC "application/xdf">
+]>
+<!-- a simple table using "row" and "cell" node prescription, held in an external
+     file. As for earlier example, note the "mixed"
+     nature of the PCDATA with "cell" nodes in the first row of the data (XDF_sample23.dat). 
+     This IS allowed by the XDF DTD -->
+<XDF name="A sample XDF document" description="This shows how to put any data into XDF format">
+      <parameter name="obsdate">
+         <unitless/>
+         <value>01-12-99</value>
+      </parameter>
+      <array name="Raw Data">
+          <parameter name="integration time">
+              <units><unit>sec</unit></units>
+              <value>900</value>
+          </parameter>
+          <units>
+             <unit>counts</unit>
+             <unit power="-1">seconds</unit>
+          </units>
+          <dataFormat><float width="5" precision="2"/></dataFormat>
+          <colAxis size="6">
+             <units><unit>pixel</unit></units>
+             <dataFormat><integer width="2"/></dataFormat>
+             <valueListAlgorithm><polynomial size="6">0 1</polynomial></valueListAlgorithm>
+          </colAxis>
+          <rowAxis size="6">
+             <units><unit>pixel</unit></units>
+             <dataFormat><integer width="2"/></dataFormat>
+             <valueList delimiter=" " repeatable="yes">10  9 8 2 1 0</valueList>
+          </rowAxis>
+          <data startByte="4" href="table1"/>
+          <notes>
+             <note>Improper cooling of the camera may have resulted in significant dark current.</note>
+             <note noteId="note2" location="2 6">No data because of a cosmic ray hit</note>
+             <note noteIdRef="note2" location="3 8"/>
+          </notes>
+      </array>
+</XDF>
