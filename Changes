@@ -77,4 +77,8 @@ Revision history for Perl extension XDF.
         - added setCData method to XMLElement class.
         - fixed html doc generation utility to make pages IE can read.
         - added compression for data in external files. Not great a implementation.
+	- added logarithm attribute to Units class.
+	- changed internal storage of data in DataCube. Got rid of nasty eval statements.
+	  much faster now, but still not as fast as native (C) implementation (e.g. PDL).
+	- Units node not getting attributes parsed by the Reader (eep!). Fixed.
 
