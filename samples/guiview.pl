@@ -1,4 +1,4 @@
-#!/usr/bin/perl -w -I ../XDF/Perl_Package
+#!/usr/bin/perl -w -I ../
 
 # a very simple viewer for XDF files.
 
@@ -16,6 +16,10 @@
 # */
 
 # CVS $Id$
+
+# TODO
+#
+# = Need to edit Axis Unit Values, Array Unit Values
 
 use Tk;
 #use Tk::Pane;
@@ -41,6 +45,7 @@ BEGIN {
                      Tk::DialogBox
                      Tk::FileSelect
                      XDF::DOM::Parser
+                     XDF::Specification
                    );
   for(@modlist) {
     die "Could'nt load $_ module, please correct Perl path or install.\n" unless (eval "require $_" );
@@ -114,10 +119,12 @@ my %DataFormatClass = (
 
 my $CURRENT_STRUCTURE;
 my $CURRENT_ITEM; # could be an array or structure that is selected from Hlist
-my $ARRAY_ATTRIB_EDIT_OPEN;
-my $STRUCT_ATTRIB_EDIT_OPEN;
+my $ARRAY_ATTRIB_EDIT_OPEN = 0;
+my $DATA_ATTRIB_EDIT_OPEN = 0;
+my $STRUCT_ATTRIB_EDIT_OPEN = 0;
 my %AXIS_ATTRIB_EDIT_OPEN;
 my @XMLNODE_EDITFRAMES;
+my @DATAEDITFRAMES;
 my @ARRAYEDITFRAMES;
 my @STRUCTEDITFRAMES;
 my %AXISEDITFRAMES = ( 'vert' => [], 'horz' => []);
@@ -137,8 +144,8 @@ $SIG{'QUIT'} = "my_exit";
 # GUI Config
 
 # my wonderfull color defs
-my ( $Red ,$Green, $Blue, $Lite_blue, $Yellow, $Dark_green, $Grey, $Dark_grey, $Medium_grey, $Lite_grey, $White, $Bright_white, $Black) =
-   ("#c24","#8e7","#50F",   "#7df"  , "#eea",  "#181"    ,"#bbb","#555"    ,"#888",   "#bbb",   "#eee", "#eee", "#000");
+my ( $Red ,$Green, $Blue, $Lite_blue, $Yellow, $Dark_green, $Grey, $Dark_grey, $Medium_grey, $Lite_grey, $White, $Bright_white, $Black, $Purple) =
+   ("#c24","#8e7","#50F",   "#7df"  , "#eea",  "#181"    ,"#bbb","#555"    ,"#888",   "#bbb",   "#eee", "#eee", "#000", "#a8a");
 
 my %ListBoxBgColor = (
                         'XDF::StringDataFormat' => $Yellow,
@@ -155,12 +162,17 @@ my $BaseColor = $Lite_grey;
 my $XMLNodeColor = $Blue;
 my $StructureColor = $Red;
 my $ArrayColor = $Green;
+my $DataColor = $Purple;
 my $EventMouseOverColor = 'yellow';
 my $ButtonFgColor = $Black;
 my $ButtonBgColor = $White;
+my $AddButtonBgColor = $Green;
+my $ClearButtonBgColor = $Yellow;
+my $DeleteButtonBgColor = $Red;
 
 my $StructAttributeTitle = 'Structure Attributes';
 my $ArrayAttributeTitle = 'Array Attributes';
+my $DataAttributeTitle = 'Data Attributes';
 my $AxisWidgetBaseName = 'Axis_edit_boldlabel';
 
 # Font defs'
@@ -233,6 +245,8 @@ my %SmallFont = %Fixed_SmallFont;
   &init_gui();
   &init_mouse_bindings();
   &init_key_bindings();
+
+  &unshow_edit_frames();
 
   &load_xml_file($XML_FILE);
 
@@ -308,8 +322,7 @@ sub init_gui {
   my $leftFrame     = $WIDGET{'main'}->Frame->pack(expand => 0 , fill => 'both', side => 'left');
   my $rightFrame    = $WIDGET{'main'}->Frame->pack(expand => 1 , fill => 'both', side => 'right');
 
-  my $infoFrame    = $rightFrame->Frame->pack(expand => 0 ,fill => 'both', side => 'top');
-  my $arrayDataFrame = $rightFrame->Frame; #->pack(expand => 1, fill => 'both', side => 'bottom');
+  my $infoFrame    = $rightFrame->Frame->pack(expand => 1 ,fill => 'both', side => 'top');
 
   my $listFrame = $leftFrame->Frame->pack(expand => 1, fill => 'both', side => 'top');
   #my $listButtonFrame = $leftFrame->Frame->pack(expand => 1, fill => 'both', side => 'bottom');
@@ -318,39 +331,45 @@ sub init_gui {
   my $toolLabelFrame  = $topFrame->Frame->pack(side=> 'top', fill => 'both');
   my $fileNameFrame  = $topFrame->Frame->pack(side => 'top', fill => 'both');
 
-  my $infoLabelFrame  = $infoFrame->Frame->pack(side => 'top', fill => 'both');
+  my $infoLabelFrame  = $infoFrame->Frame->pack(expand => 0, side => 'top', fill => 'x');
 
-  my $xmlNodeHeaderFrame  = $infoFrame->Frame; #->pack(side => 'top', fill => 'both');
-  my $xmlNodeAttribEditFrame  = $xmlNodeHeaderFrame->Frame->pack(side => 'top', fill => 'both');
+  my $xmlNodeHeaderFrame  = $infoFrame->Frame->pack(expand => 1, side => 'top', fill => 'both');
+  my $xmlNodeAttribEditFrame  = $xmlNodeHeaderFrame->Frame->pack(side => 'bottom', fill => 'both');
 
-  my $structureHeaderFrame  = $infoFrame->Frame; #->pack(side => 'top', fill => 'both');
-  my $structureAttribEditFrame  = $structureHeaderFrame->Frame->pack(side => 'top', fill => 'both');
-  my $arrayHeaderFrame  = $infoFrame->Frame; #->pack(side => 'top', fill => 'both');
+  my $structureFrame  = $infoFrame->Frame->pack(expand => 1, side => 'top', fill => 'both');
+  my $structureAttribEditFrame  = $structureFrame->Frame->pack(side => 'top', fill => 'both');
+  my $structDataFrame = $structureFrame->Frame->pack(expand => 1, fill => 'both', );
+
+  my $arrayHeaderFrame  = $infoFrame->Frame->pack(expand => 1, side => 'top', fill => 'both');
   my $arrayAttribEditFrame  = $arrayHeaderFrame->Frame->pack(side => 'top', fill => 'both');
+  my $arrayDataFrame = $infoFrame->Frame->pack(expand => 1, fill => 'both' );
 
   $FRAME{'xmlNodeHeader'} = $xmlNodeHeaderFrame;
   $FRAME{'xmlNodeAttribEdit'} = $xmlNodeAttribEditFrame;
-  $FRAME{'structHeader'} = $structureHeaderFrame;
+  $FRAME{'structHeader'} = $structureFrame;
   $FRAME{'arrayHeader'} = $arrayHeaderFrame;
+  $FRAME{'structData'} = $structDataFrame;
   $FRAME{'arrayData'} = $arrayDataFrame;
-
-  show_array_frames(); # this will show all info frames 
 
   # configure frames
   $menubarFrame->configure( relief => 'raised', bd => 2, bg => $BaseColor);
   $topFrame ->configure ( relief => 'flat', bd => 2, bg => $BaseColor );
+  $listButtonFrame ->configure ( relief => 'flat', bd => 2, bg => $BaseColor );
+  $leftFrame ->configure ( relief => 'flat', bd => 2, bg => $Black);
   $infoFrame ->configure ( relief => 'flat', bd => 2, bg => $BaseColor );
   $toolLabelFrame ->configure ( relief => 'flat', bd => 2, bg => $BaseColor );
   $arrayHeaderFrame ->configure ( relief => 'flat', bd => 2, bg => $ArrayColor);
   $arrayAttribEditFrame->configure ( relief => 'flat', bd => 2, bg => $BaseColor);
   $structureAttribEditFrame ->configure ( relief => 'flat', bd => 2, bg => $StructureColor);
-  $xmlNodeAttribEditFrame ->configure ( relief => 'flat', bd => 2, bg => $XMLNodeColor);
+#  $xmlNodeHeaderFrame ->configure ( relief => 'flat', bd => 2, bg => $XMLNodeColor);
+  $xmlNodeAttribEditFrame ->configure ( relief => 'flat', bd => 2, bg => $Black);
   $fileNameFrame ->configure ( relief => 'flat', bd => 2, bg => $BaseColor );
+  $structDataFrame->configure( relief => 'flat', bd => 2, bg => $Black);
   $arrayDataFrame->configure( relief => 'flat', bd => 2, bg => $Black);
 
   # Widgets
   # menuBar Frame Widgets
-  &create_program_menu($menubarFrame);
+  &create_menus($menubarFrame);
 
   $WIDGET{'ylist_scroll'} = $listFrame->Scrollbar()->pack(side => 'left', expand => 0, fill => 'y');
   $WIDGET{'xlist_scroll'} = $listFrame->Scrollbar(-orient => 'horizontal')->pack(side => 'bottom', expand => 0, fill => 'x');
@@ -374,29 +393,30 @@ sub init_gui {
   &add_horizontal_scrollbar_to_widget($WIDGET{'xml_hlist'},$listFrame,'left',$WIDGET{'ylist_scroll'});
   &add_vertical_scrollbar_to_widget($WIDGET{'xml_hlist'},$listFrame,'bottom',$WIDGET{'xlist_scroll'});
 
+  $WIDGET{'list_addXMLNode_button'} = $listButtonFrame->Button(
+                                                         -text => 'Add Child XML Node',
+                                                         -fg => $ButtonFgColor, -bg => $AddButtonBgColor,
+                                                         -state => 'disabled',
+                                                         -command => sub { &null_cmd(); },
+                                                         -font => $BoldFont{$DISPLAY_SIZE},
+                                                      )->pack(side => 'top'); 
+
   $WIDGET{'list_addStruct_button'} = $listButtonFrame->Button(
-                                                         -text => 'Add Structure', 
-                                                         -fg => $ButtonFgColor, -bg => $ButtonBgColor,
+                                                         -text => 'Add Child Structure', 
+                                                         -fg => $ButtonFgColor, -bg => $AddButtonBgColor,
                                                          -state => 'disabled', 
                                                          -command => sub { &add_structure_to_selected(); },
                                                          -font => $BoldFont{$DISPLAY_SIZE},
                                                       )->pack(side => 'top'); # expand => 1, fill => 'y');
-  $WIDGET{'list_delStruct_button'} = $listButtonFrame->Button(
-                                                         -text => 'Delete Structure', 
-                                                         -fg => $ButtonFgColor, -bg => $ButtonBgColor,
-                                                         -state => 'disabled', 
-                                                         -command => sub { &delete_selected_structure(); },
-                                                         -font => $BoldFont{$DISPLAY_SIZE},
-                                                      )->pack(side => 'top'); # expand => 1, fill => 'y');
   $WIDGET{'list_addArray_button'} = $listButtonFrame->Button(
-                                                         -text => 'Add Array', 
-                                                         -fg => $ButtonFgColor, -bg => $ButtonBgColor,
+                                                         -text => 'Add Child Array', 
+                                                         -fg => $ButtonFgColor, -bg => $AddButtonBgColor,
                                                          -state => 'disabled', 
                                                          -font => $BoldFont{$DISPLAY_SIZE},
                                                       )->pack(side => 'top'); # expand => 1, fill => 'y');
-  $WIDGET{'list_delArray_button'} = $listButtonFrame->Button(
-                                                         -text => 'Delete Array', 
-                                                         -fg => $ButtonFgColor, -bg => $ButtonBgColor,
+  $WIDGET{'list_deleteThis_button'} = $listButtonFrame->Button(
+                                                         -text => 'Delete Item', 
+                                                         -fg => $ButtonFgColor, -bg => $DeleteButtonBgColor,
                                                          -state => 'disabled', 
                                                          -font => $BoldFont{$DISPLAY_SIZE},
                                                       )->pack(side => 'top'); # expand => 1, fill => 'y');
@@ -410,33 +430,45 @@ sub init_gui {
                                                  font => $Font{$DISPLAY_SIZE},
                                                )->pack(fill => 'x', side=> 'left' );
 
-  $WIDGET{'xmlNode_attrib_edit_label'} = $xmlNodeAttribEditFrame->Label(
-                                                 text => "XML Node Here",
-                                                   bg => $BaseColor, fg => $Black,
-                                                   bd => 2,
-                                                 font => $Font{$DISPLAY_SIZE},
-                                                    )->pack(fill => 'both', side=> 'top' );
-
-#  &make_widget_highlight_on_mouseover($WIDGET{'xmlNode_attrib_edit_label'});
-#  $WIDGET{'xmlNode_attrib_edit_label'}->bind('<Double-Button-1>' => 
-#                                           sub { &edit_xmlNode_attribs($xmlNodeHeaderFrame); });
-
-  $WIDGET{'struct_attrib_edit_label'} = $structureAttribEditFrame->Label( 
-                                                 text => $StructAttributeTitle . ":[]",
-                                                   bg => $BaseColor, fg => $Black,
-                                                   bd => 2,
-                                                 font => $Font{$DISPLAY_SIZE},
-                                                    )->pack(fill => 'both', side=> 'top' );
-  &make_widget_highlight_on_mouseover($WIDGET{'struct_attrib_edit_label'});
-  $WIDGET{'struct_attrib_edit_label'}->bind('<Double-Button-1>' => 
-                                         sub { &edit_struct_attribs($structureHeaderFrame); });
-
   $WIDGET{'info_boldlabel'} = $infoLabelFrame->Label( text => "         Selected Node Properties          ",
                                                   bg => $BaseColor, fg => $Black,
                                                   bd => 2,
                                                   font => $BoldFont{$DISPLAY_SIZE},
                                                 )->pack(fill => 'both', side=> 'top' );
 
+
+  $WIDGET{'xmlNode_notebook_label'} = $xmlNodeAttribEditFrame->Label (
+                                                  text => 'XML Element View/Edit',
+                                              #    bg => $BaseColor, fg => $Black,
+                                                  font => $Font{$DISPLAY_SIZE},
+                                                  bd => 2,
+                                                      )->pack(side => 'top', fill => 'both');
+
+  $WIDGET{'xmlNode_notebook'} = $xmlNodeAttribEditFrame->NoteBook (-dynamicgeometry => 'false',
+                                                        -bg => $BaseColor,
+                                                        -font => $Font{$DISPLAY_SIZE},
+                                                      )->pack(side => 'top', expand => 1, fill => 'both');
+  &configure_xmlNode_notebook($WIDGET{'xmlNode_notebook'});
+
+  $WIDGET{'struct_attrib_edit_label'} = $structureAttribEditFrame->Label ( 
+                                                 text => $StructAttributeTitle,
+                                                   bg => $BaseColor, fg => $Black,
+                                                   bd => 2,
+                                                 font => $Font{$DISPLAY_SIZE},
+                                                    )->pack(fill => 'both', side=> 'top' );
+  &make_widget_highlight_on_mouseover($WIDGET{'struct_attrib_edit_label'});
+  $WIDGET{'struct_attrib_edit_label'}->bind('<Double-Button-1>' => 
+                                         sub { &edit_struct_attribs($structureFrame); });
+
+  $WIDGET{'struct_edit_label'} = $structDataFrame->Label ( -text => 'Structure View/Edit Functions',
+                                                      -font => $Font{$DISPLAY_SIZE},
+                                               )->pack(fill => 'x', side=> 'top');
+
+  $WIDGET{'struct_notebook'} = $structDataFrame->NoteBook( -dynamicgeometry => 'false',
+                                                        -bg => $BaseColor,
+                                                        -font => $Font{$DISPLAY_SIZE},
+                                                      )->pack(side => 'top', expand => 1, fill => 'both');
+   &configure_struct_notebook($WIDGET{'struct_notebook'});
 
 
   $WIDGET{'array_attrib_edit_label'} = $arrayAttribEditFrame->Label( text => $ArrayAttributeTitle . ":[]",
@@ -458,56 +490,179 @@ sub init_gui {
                                                         -bg => $BaseColor,
                                                         -font => $Font{$DISPLAY_SIZE},
                                                       )->pack(side => 'top', expand => 1, fill => 'both');
-   $WIDGET{'array_notebook'}->add( 'Data', -label => 'Data',
-                                    -raisecmd => sub { },
-                                    -createcmd => sub { &init_table_gui(@_); },
-                                  );
+   &configure_array_notebook($WIDGET{'array_notebook'});
 
-   $WIDGET{'array_notebook'}->add( 'DFmt', -label => 'DataFormat',
-                                    -raisecmd => sub { },
-                                    -createcmd => sub { &init_array_dataformat_gui(@_); },
-                                  );
+}
 
-   $WIDGET{'array_notebook'}->add( 'Note', -label => 'Notes',
-                                    -raisecmd => sub { },
-                                    -createcmd => sub { &init_notelist_gui('Array', @_);},
-                                  );
+sub configure_array_notebook {
+   my ($widget) = @_;
 
-   $WIDGET{'array_notebook'}->add( 'Out', -label => 'XMLDataIOStyle',
-                                    -raisecmd => sub { },
-                                    -createcmd => sub { &init_array_outputstyle_gui(@_); },
-                                  );
+   $widget->add( 'Data', -label => 'Data',
+                 -raisecmd => sub { },
+                 -createcmd => sub { &init_dataview_gui(@_); },
+               );
 
-   $WIDGET{'array_notebook'}->add( 'Param', -label => 'Parameters',
-                                    -raisecmd => sub { },
-                                    -createcmd => sub { &init_parameterlist_gui('Array', @_);},
-                                  );
+   $widget->add( 'DFmt', -label => 'DataFormat',
+                 -raisecmd => sub { },
+                 -createcmd => sub { &init_array_dataformat_gui(@_); },
+               );
 
-   $WIDGET{'array_notebook'}->add( 'Unit', -label => 'Units',
-                                    -raisecmd => sub { },
-                                    -createcmd => sub { &init_unitlist_gui('Array', @_);},
-                                  );
+   $widget->add( 'Note', -label => 'Notes',
+                 -raisecmd => sub { },
+                 -createcmd => sub { &init_notelist_gui('Array', @_);},
+               );
+
+   $widget->add( 'Out', -label => 'XMLDataIOStyle',
+                  -raisecmd => sub { },
+                  -createcmd => sub { &init_array_outputstyle_gui(@_); },
+               );
+
+   $widget->add( 'Param', -label => 'Parameters',
+                 -raisecmd => sub { },
+                 -createcmd => sub { &init_parameterlist_gui('Array', @_);},
+               );
+
+   $widget->add( 'Unit', -label => 'Units',
+                  -raisecmd => sub { },
+                  -createcmd => sub { &init_unitlist_gui('Array', @_);},
+               );
+
+}
+
+sub configure_xmlNode_notebook {
+   my ($widget) = @_;
+
+   $widget->add( 'Attributes', -label => 'Attributes',
+                 -raisecmd => sub { },
+                 -createcmd => sub { &init_xmlNodeAttrib_gui('xmlNode', @_);},
+               );
+
+   $widget->add( 'CDATA', -label => 'CDATA',
+                 -raisecmd => sub { },
+                 -createcmd => sub { &init_xmlNodeCDATA_gui('xmlNode', @_);},
+               );
+
+}
+
+sub configure_struct_notebook {
+   my ($widget) = @_;
+
+   $widget->add( 'Note', -label => 'Notes',
+                 -raisecmd => sub { },
+                 -createcmd => sub { &init_notelist_gui('Struct', @_);},
+               );
+
+   $widget->add( 'Param', -label => 'Parameters',
+                 -raisecmd => sub { },
+                 -createcmd => sub { &init_parameterlist_gui('Struct', @_);},
+               );
+
+}
+
+sub unshow_edit_frames {
+
+   $FRAME{'xmlNodeHeader'}->packForget;
+   $FRAME{'structHeader'}->packForget;
+   $FRAME{'structData'}->packForget;
+   $FRAME{'arrayHeader'}->packForget;
+   $FRAME{'arrayData'}->packForget;
 
 }
 
 sub show_xmlnode_frames {
    my ($path) = @_;
 
-   &clear_xmlNode_attrib_edit();
- 
-   $WIDGET{'xmlNode_attrib_edit_label'}->configure( -text => 'Edit XML Element',
-                                                    -font => $Font{$DISPLAY_SIZE},
-                                              #      -fg => 'white', #$Bright_white,
-                                              #      -bg => $XMLNodeColor,
-                                                );
+   &unshow_edit_frames();
 
    $FRAME{'xmlNodeHeader'}->pack(side => 'top', fill => 'both'); 
-   $FRAME{'structHeader'}->packForget;
-   $FRAME{'arrayHeader'}->packForget;
-   $FRAME{'arrayData'}->packForget;
+   &edit_XMLNode_attribs ($path);
+
+}
+
+sub edit_XMLNode_attribs {
+  my ( $path) = @_;
+
+  &clear_xmlNode_attrib_edit();
+
+   # tag name 
+   my $subFrame = $FRAME{'xmlNodeHeader'}->Frame->pack(side => 'top', fill => 'both', expand => 0);
+   my $labelname = 'xmlElementTag_label';
+   my $entryname = 'xmlElementTag_val_label';
+   my $getMethodRef = sub { $CURRENT_ITEM->getTagName; };
+   my $setMethodRef = sub {
+                              $CURRENT_ITEM->setTagName(@_);
+                              $WIDGET{'xml_hlist'}->entryconfigure($path, -text => $_[0] );
+                          };
+   &make_label_click_widget( 'TAGNAME', $subFrame, $labelname, $entryname, $getMethodRef, $setMethodRef);
+   push @XMLNODE_EDITFRAMES, $subFrame;
+
+   my $masterFrame = $FRAME{'xmlNode_attribs'};#->Scrolled ( 'Frame', -scrollbars => 'se')->pack( side => 'top', expand => 1, fill => 'both');
+#   push @XMLNODE_EDITFRAMES, $masterFrame;
+
+   #populate attib tab
+   my $attrib_numb = 0;
+   foreach my $attrObj ($CURRENT_ITEM->getAttributes->getValues) {
+      $subFrame = $masterFrame->Frame->pack(side => 'top', fill => 'both', expand => 0);
+      push @XMLNODE_EDITFRAMES, $subFrame;
+      $labelname = 'xmlElementAttr' . $attrib_numb . "_label";
+      $entryname = 'xmlElementAttr' . $attrib_numb . "_val_label";
+      $getMethodRef = sub { $attrObj->getValue; };
+      $setMethodRef = sub { $attrObj->setValue(@_); };
+      #next if ref(&$getMethodRef);
+      my $buttonName = 'xmlElementAttr' . $attrib_numb . "_button";
+      $WIDGET{$buttonName} = $subFrame->Button( -text => 'Delete Attrib',
+                                                -bg => $Red, -fg => $Black,
+                                                -font => $Font{$DISPLAY_SIZE},
+                                                -command => sub { &null_cmd; },
+                                              )->pack(side => 'left');
+      &make_label_click_widget( $attrObj->getName, $subFrame, $labelname, $entryname, $getMethodRef, $setMethodRef);
+      $attrib_numb++;
+   }
+
+   # populate CDATA tab
+   if (defined $FRAME{'xmlNode_CDATA'}) {
+      &show_XMLNode_CDATA();
+   }
+
+}
+
+sub show_XMLNode_CDATA {
+
+   my $elementCDataFrame = $FRAME{'xmlNode_CDATA'}->Frame->pack(side => 'top', fill => 'both', expand => 0);
+   push @XMLNODE_EDITFRAMES, $elementCDataFrame;
+   #$WIDGET{'xmlNode_cdata_label'} = $elementCDataLabelFrame->Label( -text => 'CData',
+   #                                                                 -font => $Font{$DISPLAY_SIZE},
+   #                                                                 -bg => $BaseColor, -fg => $Black,
+   #                                                                )->pack(side => 'top');
+   my $labelname = "xmlElementCdata_label";
+   my $entryname = "xmlElementCdata_val_label";
+   my $getMethodRef = sub { &null_cmd(); };
+   my $setMethodRef = sub { &null_cmd(); };
+   my $cdataButtonName = 'xmlElementCdataDel_button';
+   $WIDGET{$cdataButtonName} = $elementCDataFrame->Button( -text => 'Delete CDATA',
+                                                  -bg => $Red, -fg => $Black,
+                                                  -font => $Font{$DISPLAY_SIZE},
+                                                  -command => sub { &null_cmd; },
+                                                )->pack(side => 'left');
+   &make_label_click_widget( 'CDATA', $elementCDataFrame, $labelname, $entryname, $getMethodRef, $setMethodRef);
+
+}
+
+
+sub show_xmlnode_frames_old {
+   my ($path) = @_;
+
+   &unshow_edit_frames();
+
+   &clear_xmlNode_attrib_edit();
+ 
+   $FRAME{'xmlNodeHeader'}->pack(side => 'top', fill => 'both'); 
 
    # tag name 
    my $subFrame = $FRAME{'xmlNodeAttribEdit'}->Frame->pack(side => 'top', fill => 'both', expand => 0);
+   $subFrame ->configure ( relief => 'flat', bd => 2, bg => $XMLNodeColor);
+   my $subsubFrame = $subFrame->Frame->pack(side => 'top', fill => 'both', expand => 0);
+
    my $labelname = 'xmlElementTag_label';
    my $entryname = 'xmlElementTag_val_label';
    my $getMethodRef = sub { $CURRENT_ITEM->getTagName; };
@@ -515,7 +670,7 @@ sub show_xmlnode_frames {
                               $CURRENT_ITEM->setTagName(@_); 
                               $WIDGET{'xml_hlist'}->entryconfigure($path, -text => $_[0] );
                           };
-   &make_label_click_widget( 'TAGNAME', $subFrame, $labelname, $entryname, $getMethodRef, $setMethodRef);
+   &make_label_click_widget( 'TAGNAME', $subsubFrame, $labelname, $entryname, $getMethodRef, $setMethodRef);
    push @XMLNODE_EDITFRAMES, $subFrame;
 
   # CDATA
@@ -572,7 +727,7 @@ sub show_xmlnode_frames {
 
    $WIDGET{'add_XMLAttrib_button'} = $buttonFrame->Button( -text => 'Add Attribute',
                                                            -command => sub { &null_cmd; },
-                                                           -bg => $Green, -fg => $Black,
+                                                           -bg => $AddButtonBgColor, -fg => $Black,
                                                            -font => $Font{$DISPLAY_SIZE},
                                                          )->pack(side => 'left');
 
@@ -581,7 +736,7 @@ sub show_xmlnode_frames {
 # should only be present if CDATA doesnt exist already
    $WIDGET{'add_XMLAttrib_button'} = $buttonFrame->Button( -text => 'Add CDATA',
                                                            -command => sub { &null_cmd; },
-                                                           -bg => $Green, -fg => $Black,
+                                                           -bg => $AddButtonBgColor, -fg => $Black,
                                                            -font => $Font{$DISPLAY_SIZE},
                                                          )->pack(side => 'left');
 
@@ -590,22 +745,20 @@ sub show_xmlnode_frames {
 sub show_struct_frames {
    my ($pack) = @_;
 
+   &unshow_edit_frames();
 #   &show_xmlnode_frames();
 
-   $FRAME{'xmlNodeHeader'}->packForget;
-
-   $FRAME{'structHeader'}->pack(side => 'top', fill => 'both'); 
+   $FRAME{'structHeader'}->pack(expand => 1, side => 'top', fill => 'both'); 
+   $FRAME{'structData'}->pack(expand => 1, fill => 'both', side => 'bottom');
    &edit_struct_attribs ($FRAME{'structHeader'});
-
-   $FRAME{'arrayHeader'}->packForget;
-   $FRAME{'arrayData'}->packForget;
 
 }
 
 sub show_array_frames {
    my ($pack) = @_;
 
-   &show_struct_frames();
+ #  &show_struct_frames();
+   &unshow_edit_frames();
 
    $FRAME{'arrayHeader'}->pack(side => 'top', fill => 'both'); 
    $FRAME{'arrayData'}->pack(expand => 1, fill => 'both', side => 'bottom'); 
@@ -666,6 +819,7 @@ sub init_itemlist_gui {
                                             -text => "Add $name",
                                             -font => $Font{$DISPLAY_SIZE},
                                             -command => sub { &$addCodeRef; },
+                                            -bg => $AddButtonBgColor, -fg => $Black,
                                            )->pack( side => 'left');
 }
 
@@ -695,6 +849,47 @@ sub update_array_unitlist_view {
        $listbox->insert('end', $name);
    }
 
+}
+
+sub init_xmlNodeAttrib_gui {
+   my ($what, $frame) = @_;
+
+   my $name = 'XMLNode_Attribs';
+
+   my $subFrame1 = $frame->Frame->pack(side => 'top', expand => 1, fill => 'both');
+   my $subFrame2 = $frame->Frame->pack(side => 'top');
+
+   $FRAME{'xmlNode_attribs'} = $subFrame1;
+
+   my $addbuttonname = $what . '_add' . $name . '_button';
+   $WIDGET{$addbuttonname} = $subFrame2->Button (
+                                            -text => "Add Attribute",
+                                            -font => $Font{$DISPLAY_SIZE},
+                                            -command => sub { &null_cmd; },
+                                            -bg => $AddButtonBgColor, -fg => $Black,
+                                           )->pack( side => 'left');
+
+}
+
+sub init_xmlNodeCDATA_gui {
+   my ($what, $frame) = @_;
+
+   my $name = 'XMLNode_CDATA';
+   my $subFrame1 = $frame->Frame->pack(side => 'top', expand => 1, fill => 'both');
+   my $subFrame2 = $frame->Frame->pack(side => 'top');
+
+   $FRAME{'xmlNode_CDATA'} = $subFrame1;
+
+   my $addbuttonname = $what . '_add' . $name . '_button';
+   $WIDGET{$addbuttonname} = $subFrame2->Button (
+                                                    -text => "Clear CDATA",
+                                                    -font => $Font{$DISPLAY_SIZE},
+                                                    -command => sub { &null_cmd; },
+                                                    -bg => $ClearButtonBgColor, -fg => $Black,
+                                                )->pack( side => 'left');
+
+
+    &show_XMLNode_CDATA(); # populate 
 }
 
 sub init_notelist_gui {
@@ -1066,12 +1261,20 @@ sub make_entry_blank {
    $OPEN_ENTRY_WIDGET = $WIDGET{$widgetname};
 }
 
-sub init_table_gui {
+# set up the widgets to show the view of the data node attribs, data
+# and axis information
+sub init_dataview_gui {
   my ($mainFrame) = @_;
 
   # frames
-  my $leftFrame = $mainFrame->Frame->pack(expand => 0, fill => 'both', side => 'left');
-  my $rightFrame = $mainFrame->Frame->pack(expand => 1, fill => 'both', side => 'left');
+  my $attribFrame = $mainFrame->Frame->pack(expand => 0, fill => 'both', side => 'top');
+  my $lowerFrame = $mainFrame->Frame->pack(expand => 1, fill => 'both', side => 'top');
+
+  my $dataLabelFrame = $lowerFrame->Frame->pack(expand => 0, fill => 'both' );
+  my $dataFrame = $lowerFrame->Frame->pack(expand => 1, fill => 'both', side => 'bottom');
+
+  my $leftFrame = $dataFrame->Frame->pack(expand => 0, fill => 'both', side => 'left');
+  my $rightFrame = $dataFrame->Frame->pack(expand => 1, fill => 'both', side => 'left');
 
   my $horzAxisInfoFrame = $rightFrame->Frame->pack(expand => 0, fill => 'both', side => 'top');
   my $bottomFrame = $rightFrame->Frame->pack(expand => 1, fill => 'both', side => 'bottom');
@@ -1096,8 +1299,26 @@ sub init_table_gui {
   $horzAxisInfoFrame->configure ( relief => 'flat', bd => 2, bg => 'white');
   $bottomFrame->configure ( relief => 'flat', bd => 2, bg => $Black);
   $vertAxisInfoFrame->configure ( relief => 'flat', bd => 2, bg => 'white');
+  $attribFrame->configure ( relief => 'flat', bd => 2, bg => $DataColor );
+  $lowerFrame->configure ( relief => 'flat', bd => 4, );
 
   # widgets
+
+  $WIDGET{'data_attrib_edit_label'} = $attribFrame->Label( text => $DataAttributeTitle,
+                                                          font => $Font{$DISPLAY_SIZE},
+                                                          bg => $BaseColor,
+                                                        )->pack( expand => 0, fill => 'x');
+
+  $WIDGET{'datatable_view_label'} = $dataLabelFrame->Label( text => 'Table View',
+                                                            font => $Font{$DISPLAY_SIZE},
+                                                            bg => $BaseColor,
+                                                           )->pack( expand => 0, fill => 'x',);
+
+  &make_widget_highlight_on_mouseover($WIDGET{'data_attrib_edit_label'});
+
+  $WIDGET{'data_attrib_edit_label'}->bind('<Double-Button-1>' =>
+                                                   sub { &edit_data_attribs($attribFrame); });
+
 
   my $hAxisLabel = 'horz' . $AxisWidgetBaseName;
   $WIDGET{$hAxisLabel} = $horzAxisInfoFrame->Label( text => '', 
@@ -1235,9 +1456,6 @@ sub update_view {
 
    &debug("update view\n");
 
-   # Note: we need to lock/unlook table notebook tabs 
-   # as appropriate
-
    &configure_gui_view($CURRENT_ITEM);
    &update_header_view();
    &update_array_unitlist_view();
@@ -1264,32 +1482,57 @@ sub configure_gui_view {
    &debug("configure_gui_view\n");
 
    my @showArrayWidgets =  (
-                                $WIDGET{'list_delArray_button'},
+                                $WIDGET{'list_addXMLNode_button'}, 
+                                $WIDGET{'list_deleteThis_button'}, 
                            ); 
 
    my @showStructWidgets = (
                                 $WIDGET{'list_addStruct_button'}, 
-                                $WIDGET{'list_delStruct_button'}, 
                                 $WIDGET{'list_addArray_button'}, 
+                                $WIDGET{'list_addXMLNode_button'}, 
+                                $WIDGET{'list_deleteThis_button'}, 
                            ); 
 
-   if (defined $type) {
-      if ($type =~ m/Element/) {
+   my @showExteriorXMLWidgets = (
+                                $WIDGET{'list_addStruct_button'},
+                                $WIDGET{'list_addXMLNode_button'}, 
+                                $WIDGET{'list_deleteThis_button'}, 
+                           );
+
+   my @showInteriorXMLWidgets = (
+                                $WIDGET{'list_addXMLNode_button'}, 
+                                $WIDGET{'list_deleteThis_button'}, 
+                           ); 
+
+   if (defined $type && ref($type)) {
+      if (ref($type) eq 'XDF::XMLElement') {
          for(@showStructWidgets) { $_->configure(-state => 'disabled'); }
          for(@showArrayWidgets) { $_->configure(-state => 'disabled'); }
-         $WIDGET{'list_addStruct_button'}->configure(-state => 'normal');
-      } elsif ($type =~ m/Array/) {
-         for (@showArrayWidgets) { $_->configure(-state => 'normal'); }
+         for(@showExteriorXMLWidgets) { $_->configure(-state => 'disabled'); }
+         for(@showInteriorXMLWidgets) { $_->configure(-state => 'normal'); }
+      } elsif (ref($type) eq 'XML::DOM::Element') {
          for(@showStructWidgets) { $_->configure(-state => 'disabled'); }
+         for(@showArrayWidgets) { $_->configure(-state => 'disabled'); }
+         for(@showInteriorXMLWidgets) { $_->configure(-state => 'disabled'); }
+         for(@showExteriorXMLWidgets) { $_->configure(-state => 'normal'); }
+      } elsif (ref($type) eq 'XDF::Array') {
+         for(@showStructWidgets) { $_->configure(-state => 'disabled'); }
+         for(@showInteriorXMLWidgets) { $_->configure(-state => 'disabled'); }
+         for(@showExteriorXMLWidgets) { $_->configure(-state => 'disabled'); }
+         for(@showArrayWidgets) { $_->configure(-state => 'normal'); }
       } else { 
          # its a structure
-         for(@showStructWidgets) { $_->configure(-state => 'normal'); }
          for(@showArrayWidgets) { $_->configure(-state => 'disabled'); }
+         for(@showInteriorXMLWidgets) { $_->configure(-state => 'disabled'); }
+         for(@showExteriorXMLWidgets) { $_->configure(-state => 'disabled'); }
+         for(@showStructWidgets) { $_->configure(-state => 'normal'); }
       }
    } else { 
       # its all disabled
       for(@showArrayWidgets) { $_->configure(-state => 'disabled'); }
       for(@showStructWidgets) { $_->configure(-state => 'disabled'); }
+      for(@showExteriorXMLWidgets) { $_->configure(-state => 'disabled'); }
+      for(@showInteriorXMLWidgets) { $_->configure(-state => 'disabled'); }
    }
 
 }
@@ -1321,13 +1564,23 @@ sub show_XDF_node_in_Hlist {
    if (ref($node) eq 'XDF::DOM::Element') { 
 
      my $xdfObj = $node->getXDFObject();
-print STDERR "XDF: $xdfObj\n";
      show_structure_in_Hlist($widget, $xdfObj, $path, 'XDF::Structure') if defined $xdfObj;
 
    } else {
 
+      # print only element nodes, not text nodes
+      show_XMLElement_in_Hlist($widget, $node, $path, $tagName);
+
+   }
+   
+
+}
+
+sub show_XMLElement_in_Hlist {
+  my ($widget, $node, $path, $text) = @_;
+
       # its an ordinary XML Element node
-      $widget->add($path, -text => $tagName, 
+      $widget->add($path, -text => $text,
                           -image => $XML_ELEMENT_NODE_IMAGE,
                           -data => $node);
 
@@ -1336,15 +1589,23 @@ print STDERR "XDF: $xdfObj\n";
          show_XDF_node_in_Hlist($widget, $_, "$path/$_");
       }
 
-   }
-   
+}
+
+sub show_otherXMLElement_in_Hlist {
+  my ($widget, $node, $path, $text) = @_;
+      
+      # its an ordinary XML Element node
+      $widget->add($path, -text => $text,
+                          -image => $XML_ELEMENT_NODE_IMAGE,
+                          -data => $node);
+      
+      # print out the children
+      #for (@{$node->getXMLElementList()}) {
+      #   show_otherXMLElement_in_Hlist($widget, $_, "$path/$_", $_->getNodeName);
+      #}
 
 }
 
-#   for (@xdfNodes) {
-#     my $xdfObj = $_->getXDFObject();
-#     show_structure_in_Hlist($widget, $xdfObj, $xdfObj, 'XDF::Structure') if defined $xdfObj;
-#   }
 
 sub show_structure_in_Hlist {
   my ($widget, $structObj, $path, $text) = @_;
@@ -1352,6 +1613,12 @@ sub show_structure_in_Hlist {
   $widget->add($path, -text => $text, 
                       -image => $STRUCTURE_IMAGE,
                       -data => $structObj);
+
+  foreach my $node (@{$structObj->getXMLElementList()}) {
+     next unless defined $node;
+     my $name = $node->getNodeName;
+     &show_XMLElement_in_Hlist($widget, $node, "$path/$node", $name);
+  }
 
   foreach my $sObj (@{$structObj->getStructList()}) {
      #my $name = 'Structure:' . $sObj->getName();
@@ -1416,7 +1683,7 @@ sub create_menu {
    return $thisMenu;
 }
 
-sub create_program_menu {
+sub create_menus {
   my ($menu) = @_;
 
   $WIDGET{'file_menu'} = &create_menu($menu, 'File', 'left');
@@ -1527,12 +1794,20 @@ sub create_file_menu {
                                                       bg => $BaseColor,
                                                       -variable => \$PRETTY_XDF_OUTPUT,
                                                       -value => 1,
+                                                      -command => sub {
+                                                               my $spec = XDF::Specification->getInstance();
+                                                               $spec->setPrettyXDFOutput($PRETTY_XDF_OUTPUT);
+                                                                      },
                                                                      );
     $WIDGET{'file_pretty_output_false_menu'} = $cc_file_output_pretty->radiobutton(-label => ' False ',
                                                      -font => $Font{$DISPLAY_SIZE},
                                                       bg => $BaseColor,
                                                       -variable => \$PRETTY_XDF_OUTPUT,
                                                       -value => 0,
+                                                     -command => sub {
+                                                               my $spec = XDF::Specification->getInstance();                                        
+                                                               $spec->setPrettyXDFOutput($PRETTY_XDF_OUTPUT);
+                                                                      },
                                                                      );
 
    # input file options
@@ -1818,8 +2093,6 @@ sub save_xdf_file {
 
   open(FILE, ">$file");
   print FILE $XDF_DOM->toString;
-#  $XDF->Pretty_XDF_Output($PRETTY_XDF_OUTPUT);  # whether to use pretty print 
-#  $XDF->toXMLFileHandle(\*FILE);
   close FILE;
 
 }
@@ -2154,6 +2427,43 @@ sub edit_array_attribs {
    &update_array_edit_attrib_val();
 }
 
+sub edit_data_attribs {
+   my ($frame) = @_;
+
+   return unless defined $CURRENT_ITEM && $CURRENT_ITEM =~ m/Array/;
+
+   if ($DATA_ATTRIB_EDIT_OPEN) {
+      &close_data_attrib_edit();
+      return;
+   }
+
+   $DATA_ATTRIB_EDIT_OPEN = 1;
+
+   $WIDGET{'data_attrib_edit_label'}->configure( -text => '<<Click to Close Data Attributes>>',
+                                                  -fg => 'white', #$Bright_white,
+                                                  -bg => $DataColor,
+                                                );
+   &make_widget_not_highlight_on_mouseover($WIDGET{'data_attrib_edit_label'});
+
+   for (@{XDF::DataCube->getXMLAttributes}) {
+       my $subFrame = $frame->Frame->pack(side => 'top', fill => 'both', expand => 0);
+       push @DATAEDITFRAMES, $subFrame;
+       my $labelname = 'dataCube' . $_ . "_label";
+       my $entryname = 'dataCube' . $_ . "_val_label";
+       my $getMethod = 'get' . ucfirst $_;
+       my $setMethod = 'set' . ucfirst $_;
+       my $getMethodRef = sub { $CURRENT_ITEM->getDataCube->$getMethod; };
+       my $setMethodRef = sub { $CURRENT_ITEM->getDataCube->$setMethod(@_); };
+       next if ref(&$getMethodRef);
+       &make_label_click_widget( $_, $subFrame, $labelname, $entryname, $getMethodRef, $setMethodRef
+);
+   }
+
+   # update value of widgets
+   #&update_data_edit_attrib_val();
+}
+
+
 sub edit_axis_attribs {
   my ($frame, $axisNum, $which) = @_;
 
@@ -2181,12 +2491,14 @@ sub edit_axis_attribs {
    &make_widget_not_highlight_on_mouseover($WIDGET{$widgetname});
 
    for (@{$axisObj->getXMLAttributes()}) {
+       my $getMethod = 'get' . ucfirst $_;
+       my $setMethod = 'set' . ucfirst $_;
+       next if ref($axisObj->$getMethod); # dont show objects 
+
        my $subFrame = $frame->Frame->pack(side => 'top', fill => 'both', expand => 0);
        push @{$AXISEDITFRAMES{$which}}, $subFrame;
        my $labelname = 'axis' . $axisNum . $_ . "_label";
        my $entryname = 'axis' . $axisNum . $_ . "_val_label";
-       my $getMethod = 'get' . ucfirst $_;
-       my $setMethod = 'set' . ucfirst $_;
        my $getMethodRef = sub { $axisObj->$getMethod; };
        my $setMethodRef = sub { $axisObj->$setMethod(@_); };
        &make_label_click_widget( $_, $subFrame, $labelname, $entryname, 
@@ -2280,6 +2592,25 @@ sub close_array_attrib_edit {
   &make_widget_highlight_on_mouseover($WIDGET{'array_attrib_edit_label'});
 
   $ARRAY_ATTRIB_EDIT_OPEN = 0;
+  return;
+
+}
+
+sub close_data_attrib_edit {
+
+  while ((my $frame = pop @DATAEDITFRAMES)) {
+      $frame->destroy();
+  }    
+       
+  # update attribute title   
+  $WIDGET{'data_attrib_edit_label'}->configure( -text => $DataAttributeTitle,
+                                                  -fg => $Black,
+                                                  -bg => $BaseColor,
+                                               );
+
+  &make_widget_highlight_on_mouseover($WIDGET{'data_attrib_edit_label'});
+
+  $DATA_ATTRIB_EDIT_OPEN = 0;
   return;
 
 }
@@ -2763,6 +3094,7 @@ sub bugs_message {
   push @msg, "";
   push @msg, "Known Bugs";
   push @msg, "";
+  push @msg, "Lots! Dont use this tool for anything other than as a demo!";
   return @msg;
 }
 
