@@ -32,6 +32,9 @@ my $manpageDir = "../blib/man3";
     my $outname = $manfile;  
     $outname =~ s/(.*)?\..*$/$1\.html/;
 
+    $outname =~ s/^XDF::(.*?)/xdf-$1/; # needed to let explorer work on pages
+    $outname =~ s/::/-/g; # needed to let explorer work on pages
+
     push @htmlPages, $outname;
 
     # convert the file to HTML
@@ -54,9 +57,12 @@ my $manpageDir = "../blib/man3";
     $fileContents =~ s/(<H2>AUTHOR<\/H2>\s*?<A NAME=\".*?\">\s*?<\/A>)\s*?(.*?)\s*?(<P>)/$1<pre>$2<\/pre>\n$3/s;
     $fileContents =~ s/<\/FONT>//sg;
     $fileContents =~ s/<I><\/I>//sg;
-    $fileContents =~ s/<[iI]>(XDF.*?)<\/[iI]><[iI]>(\w*?)<\/[iI]>/<a href="$1$2.html">$1$2<\/a>/g;
-    $fileContents =~ s/the <?I?>?(XDF::\w+?)\s?<?\/?I?>?([\s,])/<a href="$1.html">$1<\/a>$2/g;
-    $fileContents =~ s/the\s+?<[aA] href="(XDF.*?)<\/[iI]> \.\n/<a href="$1.html">$1<\/a>./sg; 
+    $fileContents =~ s/<[iI]>XDF::(.*?)<\/[iI]><[iI]>(\w*?)<\/[iI]>/<a href="xdf-$1$2.html">XDF::$1$2<\/a>/g;
+    #$fileContents =~ s/the <?I?>?(XDF::\w+?)\s?<?\/?I?>?([\s,])/<a href="$1.html">$1<\/a>$2/g;
+    $fileContents =~ s/the <?I?>?XDF::DOM::(\w+?)\s?<?\/?I?>?([\s,])/<a href="xdf-DOM-$1.html">XDF::DOM::$1<\/a>$2/g;
+    $fileContents =~ s/the <?I?>?XDF::(\w+?)\s?<?\/?I?>?([\s,])/<a href="xdf-$1.html">XDF::$1<\/a>$2/g;
+    $fileContents =~ s/the\s+?<[aA] href="XDF::DOM::(.*?)<\/[iI]> \.\n/<a href="xdf-DOM-$1.html">XDF::DOM::$1<\/a>./sg; 
+    $fileContents =~ s/the\s+?<[aA] href="XDF::(.*?)<\/[iI]> \.\n/<a href="xdf-$1.html">XDF::$1<\/a>./sg; 
 
     $fileContents =~ s/^(.*?)(<A HREF="#index">Index<\/A>)(.*?)(<A NAME="index">&nbsp;<\/A><H2>Index<\/H2>\s<DL>\s<DT>.*)(.*?)$/$1<HR>$4<HR>$3$2$5/sg;
 
@@ -75,7 +81,7 @@ my $manpageDir = "../blib/man3";
   print FILE '<a href="classes.html"> Use the no-frames version.</a>'; 
   print FILE '</NOFRAMES>'; 
   print FILE '<FRAME SRC="classes.html" NAME="classes">'; 
-  print FILE '<FRAME SRC="XDF::BaseObject.html" NAME="class">'; 
+  print FILE '<FRAME SRC="xdf-BaseObject.html" NAME="class">'; 
   print FILE '</FRAMESET>'; 
   print FILE '</HEAD></HTML>';
   close FILE;
@@ -89,7 +95,7 @@ my $manpageDir = "../blib/man3";
 
   foreach my $page (sort @htmlPages) {
     my $displayName = $page;
-    $displayName =~ s/\.html//;
+    $displayName =~ s/^xdf-(.*?)\.html/XDF::$1/;
     print FILE '<LI><A HREF="'. $page . '"> ' . $displayName . "</A>\n";
   } 
   print FILE '</UL></body></html>'; 
