@@ -312,17 +312,16 @@ sub getLength {
 
 # /** addAxisValue
 # Add an XDF::AxisValue object to this axis. 
+# RETURNS : 1 on success, 0 on failure.
 # */
 sub addAxisValue {
-  my ($self, $value ) = @_;
+  my ($self, $valueObj ) = @_;
 
-  unless (defined $value) {
+  unless (defined $valueObj) {
     # No point in adding an axis value w/o a value for it.
     carp "Cannot add an AxisValue, no value specified. Ignoring request.\n"; 
-    return;
+    return 0;
   } 
-
-  my $obj = XDF::Value->new({'value' => $value});
 
   # hmm. if we have a reference object, what happens?
   # I guess this *should* become its own, new object
@@ -333,10 +332,10 @@ sub addAxisValue {
 
   if (defined @{$self->{ValueList}}->[$index]) {
      # increase the size of the array by pushing
-     push @{$self->{ValueList}}, $obj;
+     push @{$self->{ValueList}}, $valueObj;
   } else {
      # use a pre-alocated spot that is undefined
-     @{$self->{ValueList}}->[$index] = $obj;
+     @{$self->{ValueList}}->[$index] = $valueObj;
   }
 
   # bump up the size of this axis
@@ -346,7 +345,7 @@ sub addAxisValue {
      $self->{_parentArray}->_updateInternalLookupIndices();
   }
 
-  return $obj;
+  return 1;
 
 }
 
@@ -354,27 +353,25 @@ sub addAxisValue {
 # Set the value of this axis at the given index.
 # */
 sub setAxisValue {
-  my ($self, $index, $valueOrValueObjRef ) = @_;
+  my ($self, $index, $valueObj ) = @_;
 
-  return unless defined $index && $index >= 0;
+  return 0 unless defined $index && $index >= 0;
 
-  unless (defined $valueOrValueObjRef) {
+  unless (defined $valueObj ) {
      if (defined @{$self->{ValueList}}->[$index]) {
         # if the axisValue is presently defined, we lower
         # the length of the axis by 1
         $self->{_length} = $self->{_length} - 1;
         @{$self->{ValueList}}->[$index] = undef;
      }
-     return;
+     return 1;
   }
     
-  my $valueObj = $valueOrValueObjRef;
-
   unless (ref($valueObj) eq 'XDF::Value' or 
           ref($valueObj) eq 'XDF::UnitDirection' )
   {
-    $valueObj  = new XDF::Value(); #@{$self->{ValueList}}->[$index];
-    $valueObj->setValue($valueOrValueObjRef);
+     $valueObj  = new XDF::Value(); #@{$self->{ValueList}}->[$index];
+     $valueObj->setValue($valueObj);
   } 
 
   # if the axisValue is not presently defined, we raise
@@ -387,20 +384,24 @@ sub setAxisValue {
         $self->{_parentArray}->_updateInternalLookupIndices();
      }
 
-  }
+   }
 
-  @{$self->{ValueList}}->[$index] = $valueObj;
+   @{$self->{ValueList}}->[$index] = $valueObj;
 
-  return $valueObj;
+   return 1;
 }
 
 # /** addAxisUnitDirection
 # Add an XDF::UnitDirection object to this axis. 
+# Returns 1 on success , 0 on failure.
 # */ 
 sub addAxisUnitDirection {
-  my ($self, $attribHashRef) = @_; 
+  my ($self, $obj) = @_; 
 
-  my $obj = XDF::UnitDirection->new($attribHashRef);
+  if (!defined $obj) {
+     carp "Cannot add an AxisUnitDirection, no value specified. Ignoring request.\n"; 
+     return 0;
+  }
 
   my $index = $self->{_length};
   if (defined @{$self->{ValueList}}->[$index]) {
@@ -415,23 +416,27 @@ sub addAxisUnitDirection {
      $self->{_parentArray}->_updateInternalLookupIndices();
   }
 
-  return $obj;
+  return 1;
 }
 
 # /** removeAxisValue 
 # Remove either an XDF::Value or XDF::UnitDirection object from this axis. 
-# $what may either be an index value or object reference. 
+# Returns 1 on success , 0 on failure.
 # */ 
 sub removeAxisValue {
-  my ($self, $what) = @_;
-  $self->_remove_from_list($what, $self->{ValueList}, 'valueList');
-  # bump down size of the axis 
-  $self->{_length} = $self->{_length} -1;
+  my ($self, $obj) = @_;
 
-  if (defined $self->{_parentArray}) {
-     $self->{_parentArray}->_updateInternalLookupIndices();
+  if ($self->_remove_from_list($obj, $self->{ValueList}, 'valueList')) {
+     # bump down size of the axis 
+     $self->{_length} = $self->{_length} -1;
+
+     if (defined $self->{_parentArray}) {
+        $self->{_parentArray}->_updateInternalLookupIndices();
+     }
+     return 1;
   }
 
+  return 0;
 }
 
 # /** getAxisValue 
@@ -460,14 +465,16 @@ sub getAxisValues {
 
 # /** addUnit 
 # Add an XDF::Unit object to the XDF::Units object contained in this axis. 
+# Returns 1 on success , 0 on failure.
 # */ 
-sub addUnit { my ($self, $attribHashRefOrObjectRef) = @_;
-   my $unitObj = $self->{AxisUnits}->addUnit($attribHashRefOrObjectRef);
-   return $unitObj;
+sub addUnit { 
+   my ($self, $unitObj) = @_;
+   return $self->{AxisUnits}->addUnit($unitObj);
 }
 
 # /** removeUnit 
 # Remove an XDF::Unit object from the XDF::Units object contained in this axis. 
+# Returns 1 on success , 0 on failure.
 # */ 
 sub removeUnit { 
   my ($self, $indexOrObjectRef) = @_; 
@@ -476,31 +483,34 @@ sub removeUnit {
 
 # /** addValueGroup 
 # Insert a ValueGroup object into this object to group the axisValues. 
+# Returns 1 on success , 0 on failure.
 # */ 
 sub addValueGroup {
-  my ($self, $attribHashRefOrObjectRef) = @_;
+  my ($self, $valueGroupObj) = @_;
 
-  return unless defined $attribHashRefOrObjectRef && ref $attribHashRefOrObjectRef;
-
-  my $groupObj;
-  if ($attribHashRefOrObjectRef =~ m/XDF::ValueGroup/) {
-    $groupObj = $attribHashRefOrObjectRef;
-  } else {
-    $groupObj = new XDF::ValueGroup($attribHashRefOrObjectRef);
+  unless (defined $valueGroupObj && ref ($valueGroupObj) =~ m/XDF::ValueGroup/) {
+     carp "Cannot add a valueGroup, no value specified or not a ValueGroup object. Ignoring request.\n"; 
+     return 0;
   }
 
   # add the group to the groupOwnedHash
-  %{$self->{_valueGroupOwnedHash}}->{$groupObj} = $groupObj;
+  %{$self->{_valueGroupOwnedHash}}->{$valueGroupObj} = $valueGroupObj;
 
-  return $groupObj;
+  return 1;
+
 }
 
 # /** removeValueGroup 
 # Remove a ValueGroup object from this object 
+# Returns 1 on success , 0 on failure.
 # */
 sub removeValueGroup { 
-  my ($self, $hashKey ) = @_; 
-  delete %{$self->{_valueGroupOwnedHash}}->{$hashKey}; 
+   my ($self, $hashKey ) = @_; 
+   if (exists %{$self->{_valueGroupOwnedHash}}->{$hashKey}) {
+      delete %{$self->{_valueGroupOwnedHash}}->{$hashKey}; 
+      return 1;
+   }
+   return 0;
 }
 
 # /** getIndexFromAxisValue
@@ -583,6 +593,12 @@ sub setParentArray { # PRIVATE
 # Modification History
 #
 # $Log$
+# Revision 1.14  2001/06/29 21:07:12  thomas
+# changed public add (and remove) methods to
+# conform to Java API standard: e.g. return boolean
+# rather than an object. Also, these methods only
+# accept an object (in general) as input (instead of an attribute hash).
+#
 # Revision 1.13  2001/06/21 15:43:11  thomas
 # fix to allow update of internal dataCube
 # indices when axis length is changed.

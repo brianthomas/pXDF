@@ -175,17 +175,22 @@ sub getXMLAttributes {
 # Other Public Methods
 #
 
-# perhaps we should be adding full-blown objects here, but
-# it doesnt seem to be justified. 
+# /** addFormatCommand
+# Add a FormattedIOCmd object to the list in this object.
+# These child objects are used to direct how the XDF formatted
+# data should be read in.
+# Returns 1 on success, 0 on failure. 
+# */
+#
 sub addFormatCommand {
   my ($self, $obj) = @_;
 
-  return unless defined $obj && ref $obj;
+  return 0 unless defined $obj && ref $obj;
 
   # push into our array
   push @{$self->{FormatCmdList}}, $obj;
 
-  return $obj;
+  return 1;
 }
 
 sub toXMLFileHandle {
@@ -378,6 +383,12 @@ sub _sprintfNotation {
 # Modification History
 #
 # $Log$
+# Revision 1.19  2001/06/29 21:07:12  thomas
+# changed public add (and remove) methods to
+# conform to Java API standard: e.g. return boolean
+# rather than an object. Also, these methods only
+# accept an object (in general) as input (instead of an attribute hash).
+#
 # Revision 1.18  2001/04/25 16:01:31  thomas
 # updated documentation
 #

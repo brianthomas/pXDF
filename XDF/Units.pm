@@ -194,29 +194,29 @@ sub getXMLAttributes {
 # Other Public Methods
 #
 
+#/** addUnit
+# Add an XDF::Unit Object to the list of units within this XDF::Units object.
+# RETURNS : 1 on success, 0 on failure.
+#*/
 sub addUnit {
-  my ($self, $info ) = @_;
+  my ($self, $unitObj) = @_;
 
-  return unless defined $info;
-
-  my $unitObj;
-
-  if (ref $info && $info =~ m/XDF::Unit/) {
-    $unitObj = $info;
-  } else {
-    $unitObj = new XDF::Unit($info);
-  }
+  return 0 unless defined $unitObj && ref $unitObj;
 
   # add it to our list
   push @{$self->{UnitList}}, $unitObj;
 
-  return $unitObj;
+  return 1;
 
 }
 
+#/** removeUnit
+# 
+# RETURNS : 1 on success, 0 on failure.
+#*/
 sub removeUnit {
   my ($self, $what) = @_;
-  $self->_remove_from_list($what, $self->{UnitList}, 'unitList');
+  return $self->_remove_from_list($what, $self->{UnitList}, 'unitList');
 }
 
 sub toXMLFileHandle {
@@ -248,6 +248,12 @@ sub _init {
 # Modification History
 #
 # $Log$
+# Revision 1.11  2001/06/29 21:07:12  thomas
+# changed public add (and remove) methods to
+# conform to Java API standard: e.g. return boolean
+# rather than an object. Also, these methods only
+# accept an object (in general) as input (instead of an attribute hash).
+#
 # Revision 1.10  2001/06/21 17:33:43  thomas
 # added logarithm attribute
 #

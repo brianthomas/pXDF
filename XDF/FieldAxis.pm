@@ -265,27 +265,18 @@ sub getLength {
 #
 
 # /** addField
-# Adds a field to this field Axis. Takes either an attribute HASH
-# reference (the attributes in the hash must correspond to those
-# of L<XDF::Field>) or an XDF::Field object reference as its argument. 
-# Returns the field object reference on success, undef on failure.
+# Adds a field to this field Axis. 
+# Returns 1 on success, 0 on failure.
 # */
 sub addField {
-  my ($self, $attribHashOrObjectRef) = @_;
+  my ($self, $fieldObj) = @_;
 
-  unless (defined $attribHashOrObjectRef) {
+  unless (defined $fieldObj) {
     # No point in adding a field w/o a value for it.
-    carp "Cannot add an Field, no attribHashOrObjectRef specified. Ignoring request.\n";
-    return;
+    carp "Cannot add an Field, no fieldObj specified. Ignoring request.\n";
+    return 0;
   }
 
-  my $fieldObj;
-  if (ref($attribHashOrObjectRef) eq 'XDF::Field') {
-    $fieldObj = $attribHashOrObjectRef;
-  } else {
-    $fieldObj = XDF::Field->new($attribHashOrObjectRef);
-  }
-  
   my $index = $self->{_length};
 
   if (defined @{$self->{FieldList}}->[$index]) {
@@ -306,7 +297,7 @@ sub addField {
   # add the parameter to the list
 #  push @{$self->{FieldList}}, $fieldObj;
 
-  return $fieldObj;
+  return 1;
 
 }
 
@@ -382,46 +373,49 @@ sub setField {
 # RETURNS : 1 on success, undef on failure.
 # */
 sub removeField {
-  my ($self, $indexOrObjectRef) = @_;
-  my $ret_val = $self->_remove_from_list($indexOrObjectRef, $self->{FieldList}, 'fieldList');
-  $self->{_length}-- if defined $ret_val;
+  my ($self, $fieldObj) = @_;
 
-  if (defined $self->{_parentArray}) {
-     $self->{_parentArray}->_updateInternalLookupIndices();
+  if ($self->_remove_from_list($fieldObj, $self->{FieldList}, 'fieldList')) {
+
+     $self->{_length}--;
+
+     if (defined $self->{_parentArray}) {
+        $self->{_parentArray}->_updateInternalLookupIndices();
+     }
+     return 1;
   }
 
-  return $ret_val;
+  return 0;
+
 }
 
 
 # /** addFieldGroup 
 # Insert a fieldGroup object into this object.
-# Returns fieldGroup object on success, undef on failure.
+# Returns 1 on success, 0 on failure.
 # */ 
 sub addFieldGroup {
-  my ($self, $attribHashOrObjectRef) = @_;
+  my ($self, $fieldGroupObj) = @_;
  
-  return unless defined $attribHashOrObjectRef && ref $attribHashOrObjectRef;
-
-  my $fieldGroupObj;
-  if ( $attribHashOrObjectRef =~ m/XDF::FieldGroup/) { 
-    $fieldGroupObj = $attribHashOrObjectRef;
-  } else {
-    $fieldGroupObj = new XDF::FieldGroup($attribHashOrObjectRef);
-  }
+  return 0 unless defined $fieldGroupObj && ref $fieldGroupObj;
 
   # add the group to the groupOwnedHash
   %{$self->{_fieldGroupOwnedHash}}->{$fieldGroupObj} = $fieldGroupObj;
 
-  return $fieldGroupObj;
+  return 1;
 }
 
 # /** removeFieldGroup 
 # Remove a fieldGroup object from this object. 
+# Returns 1 on success, 0 on failure.
 # */
 sub removeFieldGroup {
-  my ($self, $hashKey) = @_;
-  delete %{$self->{_fieldGroupOwnedHash}}->{$hashKey};
+   my ($self, $hashKey) = @_;
+   if (exists %{$self->{_fieldGroupOwnedHash}}->{$hashKey}) {
+      delete %{$self->{_fieldGroupOwnedHash}}->{$hashKey};
+      return 1;
+   }
+   return 0;
 }
 
 #
@@ -472,6 +466,12 @@ sub setParentArray { # PRIVATE
 # Modification History
 #
 # $Log$
+# Revision 1.13  2001/06/29 21:07:12  thomas
+# changed public add (and remove) methods to
+# conform to Java API standard: e.g. return boolean
+# rather than an object. Also, these methods only
+# accept an object (in general) as input (instead of an attribute hash).
+#
 # Revision 1.12  2001/06/21 15:44:05  thomas
 # fix to allow update of internal dataCube
 # indices when axis length is changed.

@@ -283,175 +283,135 @@ sub getXMLAttributes {
 
 # /** addNote
 # Insert an XDF::Note object into the XDF::Notes object held by this object.
-# This method may optionally take a reference to an attribute hash as
-# its argument. Attributes in the attribute hash should
-# correspond to attributes of the L<XDF::Note> object. 
-# The attribute/value pairs in the attribute hash reference are
-# used to initialize the new XDF::Note object.
-# RETURNS : an XDF::Note object reference on success, undef on failure.
+# RETURNS : 1 on success, 0 on failure.
 # */
 sub addNote {
-  my ($self, $info) = @_;
+  my ($self, $noteObj) = @_;
 
-  my $noteObj;
-  if(ref $info && $info =~ m/XDF::Note/) {
-    $noteObj = $info if(ref $info && $info =~ m/XDF::Note/);
-  } else {
-    $noteObj = XDF::Note->new($info);
-  }
+  return 0 unless defined $noteObj && ref $noteObj;
 
   # add the parameter to the list
   push @{$self->{NoteList}}, $noteObj;
 
-  return $noteObj;
+  return 1;
 }
 
 # /** removeNote
 # Removes an XDF::Note object from the list of XDF::Note objects
 # held within the XDF::Notes object of this object. This method takes 
 # either the list index number or an object reference as its argument.
-# RETURNS : 1 on success, undef on failure.
+# RETURNS : 1 on success, 0 on failure.
 # */
 sub removeNote {
   my ($self, $what) = @_;
-  $self->_remove_from_list($what, $self->{NoteList}, 'noteList');
+  return $self->_remove_from_list($what, $self->{NoteList}, 'noteList');
 }
 
 # /** addParameter 
 # Insert an XDF::Parameter object into this object.
-# This method may optionally take a reference to an attribute hash as
-# its argument. Attributes in the attribute hash should
-# correspond to attributes of the L<XDF::Parameter> object. 
-# The attribute/value pairs in the attribute hash reference are
-# used to initialize the new XDF::Parameter object.
-# RETURNS : an XDF::Parameter object reference on success, undef on failure.
+# RETURNS : 1 on success, 0 on failure.
 # */
 sub addParameter {
-  my ($self, $attribHashReference) = @_;
+  my ($self, $paramObj) = @_;
 
-  my $paramObj = XDF::Parameter->new($attribHashReference);
+  return 0 unless defined $paramObj && ref $paramObj;
 
   # add the parameter to the list
   push @{$self->{ParamList}}, $paramObj;
 
-  return $paramObj;
+  return 1;
 }
 
 # /** removeParameter 
 # Remove an XDF::Parameter object from the list of XDF::Parameters
 # held within this object. This method takes either the list index 
 # number or an object reference as its argument.
-# RETURNS : 1 on success, undef on failure.
+# RETURNS : 1 on success, 0 on failure.
 # */
 sub removeParameter {
   my ($self, $indexOrObjectRef) = @_;
-  $self->_remove_from_list($indexOrObjectRef, $self->{ParamList}, 'paramList');
+  return $self->_remove_from_list($indexOrObjectRef, $self->{ParamList}, 'paramList');
 }
 
 # /** addStructure
 # Insert an XDF::Structure object into this object.
-# This method may optionally take a reference to an attribute hash as
-# its argument. Attributes in the attribute hash should
-# correspond to attributes of the L<XDF::Structure> object. 
-# The attribute/value pairs in the attribute hash reference are
-# used to initialize the new XDF::Structure object.
-# RETURNS : an XDF::Structure object reference on success, undef on failure.
+# RETURNS :  1 on success, 0 on failure.
 # */
 sub addStructure {
-   my ($self, $attribHashReference) = @_;
+   my ($self, $structObj) = @_;
 
-  my $structObj = XDF::Structure->new($attribHashReference);
+   return 0 unless defined $structObj && ref $structObj;
 
-  # add the new structure to the list
-  push @{$self->{StructList}}, $structObj;
+   # add the new structure to the list
+   push @{$self->{StructList}}, $structObj;
 
-  return $structObj;
+   return 1;
 }
 
 # /** removeStructure
 # Remove an XDF::Structure object from the list of XDF::Structures
 # held within this object. This method takes either the list index 
 # number or an object reference as its argument.
-# RETURNS : 1 on success, undef on failure.
+# RETURNS : 1 on success, 0 on failure.
 # */
 sub removeStructure {
   my ($self, $indexOrObjectRef) = @_; 
-  $self->_remove_from_list($indexOrObjectRef, $self->{StructList}, 'structList');
+  return $self->_remove_from_list($indexOrObjectRef, $self->{StructList}, 'structList');
 }
 
 # /** addArray
 # Insert an XDF::Array object into this object.
-# This method may optionally take a reference to an attribute hash as
-# its argument. Attributes in the attribute hash should
-# correspond to attributes of the L<XDF::Array> object. 
-# The attribute/value pairs in the attribute hash reference are
-# used to initialize the new XDF::Array object.
-# RETURNS : an XDF::Array object reference on success, undef on failure.
+# RETURNS : 1 on success, 0 on failure.
 # */
 sub addArray {
-  my ($self, $attribHashOrObjectReference) = @_;
+   my ($self, $arrayObj) = @_;
 
-  my $arrayObj;
-  if (ref($attribHashOrObjectReference) eq 'XDF::Array') {
-    $arrayObj = $attribHashOrObjectReference;
-  } else {
-    $arrayObj = XDF::Array->new($attribHashOrObjectReference);
-  }
+   return 0 unless defined $arrayObj && ref $arrayObj;
 
-  # add the parameter to the list
-  push @{$self->{ArrayList}}, $arrayObj;
+   # add the parameter to the list
+   push @{$self->{ArrayList}}, $arrayObj;
 
-  return $arrayObj;
+   return 1;
 }
 
 # /** removeArray
 # Remove an XDF::Array object from the list of XDF::Arrays
 # held within this object. This method takes either the list index 
 # number or an object reference as its argument.
-# RETURNS : 1 on success, undef on failure.
+# RETURNS : 1 on success, 0 on failure.
 # */
 sub removeArray {
   my ($self, $indexOrObjectRef) = @_; 
-  $self->_remove_from_list($indexOrObjectRef, $self->{ArrayList}, 'arrayList');
+  return $self->_remove_from_list($indexOrObjectRef, $self->{ArrayList}, 'arrayList');
 }
 
 # /** addParamGroup
 # Insert an XDF::ParameterGroup object into this object.
-# This method takes either a reference to an attribute hash OR
-# object reference to an existing XDF::ParameterGroup as
-# its argument. Attributes in the attribute hash reference should
-# correspond to attributes of the L<XDF::ParameterGroup> object. 
-# The attribute/value pairs in the attribute hash reference are
-# used to initialize the new XDF::ParameterGroup object.
-# RETURNS : an XDF::ParameterGroup object reference on success, undef on failure.
+# RETURNS : 1 on success, 0 on failure.
 # */
 sub addParamGroup {
-  my ($self, $objectRefOrAttribHashRef ) = @_;
+  my ($self, $groupObj) = @_;
 
-  my $info = $objectRefOrAttribHashRef;
-  return unless defined $info && ref $info;
-
-  my $groupObj;
-  if ($info =~ m/XDF::ParameterGroup/) {
-    $groupObj = $info;
-  } else {
-    $groupObj = new XDF::ParameterGroup($info);
-  }
+  return 0 unless defined $groupObj && ref $groupObj;
 
   # add the group to the groupOwnedHash
   %{$self->{_paramGroupOwnedHash}}->{$groupObj} = $groupObj;
 
-  return $groupObj;
+  return 1;
 }
 
 # /** removeParamGroup
 # Remove an XDF::ParameterGroup object from the hash table of XDF::ParameterGroups 
 # held within this object. This method takes the hash key 
-# its argument. RETURNS : 1 on success, undef on failure.
+# its argument. RETURNS : 1 on success, 0 on failure.
 # */
 sub removeParamGroup { 
-  my ($self, $hashKey) = @_; 
-  delete %{$self->{_paramGroupOwnedHash}}->{$hashKey}; 
+   my ($self, $hashKey) = @_; 
+   if (exists %{$self->{_paramGroupOwnedHash}}->{$hashKey}) {
+      delete %{$self->{_paramGroupOwnedHash}}->{$hashKey}; 
+      return 1;
+   }
+   return 0;
 }
 
 # /** loadFromXDFFile
@@ -503,6 +463,12 @@ sub _init {
 # Modification History
 #
 # $Log$
+# Revision 1.12  2001/06/29 21:07:12  thomas
+# changed public add (and remove) methods to
+# conform to Java API standard: e.g. return boolean
+# rather than an object. Also, these methods only
+# accept an object (in general) as input (instead of an attribute hash).
+#
 # Revision 1.11  2001/04/25 16:01:31  thomas
 # updated documentation
 #

@@ -97,29 +97,21 @@ sub getXMLAttributes {
 # /** addFieldGroup 
 # Convenience method.
 # Insert a field group object into this object.
+# RETURNS: 1 on success, 0 on failure.
 # */ 
 sub addFieldGroup {
-  my ($self, $info) = @_;
-
-  return unless defined $info && ref $info;
-
-  my $groupObj;
-  if ($info =~ m/XDF::FieldGroup/) {
-    $groupObj = $info;
-  } else {
-    $groupObj = new XDF::FieldGroup($info);
-  }
-
-  $self->addMemberObject($groupObj);
+  my ($self, $fieldGroupObj) = @_;
+  return $self->addMemberObject($fieldGroupObj);
 }
 
 # /** removeFieldGroup 
 # Convenience method.
 # Removes a field group object from this object.
+# RETURNS: 1 on success, 0 on failure.
 # */
 sub removeFieldGroup { 
   my ($self, $obj) = @_; 
-  $self->removeMemberObject($obj); 
+  return $self->removeMemberObject($obj); 
 }
 
 #
@@ -138,6 +130,12 @@ sub AUTOLOAD {
 # Modification History
 #
 # $Log$
+# Revision 1.9  2001/06/29 21:07:12  thomas
+# changed public add (and remove) methods to
+# conform to Java API standard: e.g. return boolean
+# rather than an object. Also, these methods only
+# accept an object (in general) as input (instead of an attribute hash).
+#
 # Revision 1.8  2001/04/25 16:01:31  thomas
 # updated documentation
 #

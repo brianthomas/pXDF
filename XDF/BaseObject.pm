@@ -111,19 +111,21 @@ sub getXMLAttributes {
 
 # /** addToGroup
 # Add this object as a member of a group.
+# Returns : 1 on success, 0 on failure.
 # */
 sub addToGroup {
   my ($self, $groupObj) = @_;
 
-  return unless defined $groupObj && ref $groupObj;
+  return 0 unless defined $groupObj && ref $groupObj;
 
   # make sure its not already a member!
   unless (exists %{$self->{_groupMemberHash}}->{$groupObj}) {
     $groupObj->addMemberObject($self);
     %{$self->{_groupMemberHash}}->{$groupObj} = $groupObj;
-    return $groupObj;
+    return 1;
   } else {
      carp "Can't add to group: $self already a member of $groupObj\n"; 
+     return 0;
   }
 
 }
@@ -578,6 +580,12 @@ sub READLINE {
 # Modification History
 #
 # $Log$
+# Revision 1.15  2001/06/29 21:07:12  thomas
+# changed public add (and remove) methods to
+# conform to Java API standard: e.g. return boolean
+# rather than an object. Also, these methods only
+# accept an object (in general) as input (instead of an attribute hash).
+#
 # Revision 1.14  2001/04/17 18:58:55  thomas
 # Ripped a ton of stuff out and put into Specification class.
 #

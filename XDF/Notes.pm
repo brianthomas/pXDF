@@ -118,35 +118,37 @@ sub getXMLAttributes {
 #
 
 # /** addAxisIdToLocatorOrder
+# Add an axisId (string) to the list of axes within this object.
+# Returns 1 on success, 0 on failure.
 # */
 sub addAxisIdToLocatorOrder {
    my ($self, $axisId) = @_;
-   $self->{LocationOrder}->addAxisIdToLocatorOrder($axisId);
+   return $self->{LocationOrder}->addAxisIdToLocatorOrder($axisId);
 }
 
+#/** addNote
+# Add a note object to the list of notes within this XDF::Note object.
+# Returns 1 on success, 0 on failure.
+# */
 sub addNote {
-  my ($self, $info ) = @_;
+  my ($self, $noteObj ) = @_;
 
-  return unless defined $info;
-
-  my $noteObj;
-
-  if (ref $info && $info =~ m/XDF::Note/) {
-    $noteObj = $info;
-  } else {
-    $noteObj = new XDF::Note($info);
-  }
+  return 0 unless defined $noteObj && ref $noteObj;
 
   # add it to our list
   push @{$self->{NoteList}}, $noteObj;
 
-  return $noteObj;
+  return 1;
 
 }
 
+#/** removeNote
+# Remove the passed Note object from the list of notes held within this Notes object.
+# Returns 1 on success, 0 on failure.
+# */
 sub removeNote {
   my ($self, $what) = @_;
-  $self->_remove_from_list($what, $self->{NoteList}, 'noteList');
+  return $self->_remove_from_list($what, $self->{NoteList}, 'noteList');
 }
 
 #
@@ -173,6 +175,12 @@ sub _init {
 # Modification History
 #
 # $Log$
+# Revision 1.7  2001/06/29 21:07:12  thomas
+# changed public add (and remove) methods to
+# conform to Java API standard: e.g. return boolean
+# rather than an object. Also, these methods only
+# accept an object (in general) as input (instead of an attribute hash).
+#
 # Revision 1.6  2001/04/25 16:01:31  thomas
 # updated documentation
 #

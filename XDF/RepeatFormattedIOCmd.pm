@@ -154,15 +154,18 @@ sub getXMLAttributes {
 # Other Public MEthods
 #
 
+#/** addFormatCommand
+# Returns 1 on succes, 0 on failure.
+# */
 sub addFormatCommand {
   my ($self, $obj) = @_;
 
-  return unless defined $obj && ref $obj;
+  return 0 unless defined $obj && ref $obj;
 
   # push into our array
   push @{$self->{FormatCmdList}}, $obj;
 
-  return $obj;
+  return 1;
 }
 
 #
@@ -328,6 +331,12 @@ sub _sprintfNotation {
 # Modification History
 #
 # $Log$
+# Revision 1.14  2001/06/29 21:07:12  thomas
+# changed public add (and remove) methods to
+# conform to Java API standard: e.g. return boolean
+# rather than an object. Also, these methods only
+# accept an object (in general) as input (instead of an attribute hash).
+#
 # Revision 1.13  2001/04/25 16:01:31  thomas
 # updated documentation
 #

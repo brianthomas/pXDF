@@ -243,7 +243,7 @@ sub _init {
 sub _remove_from_list { 
   my ($self, $what, $list_ref, $listName) = @_;
 
-  return unless defined $what;
+  return 0 unless defined $what;
 
   my $index = -1;
 
@@ -259,12 +259,12 @@ sub _remove_from_list {
       last if ($obj eq $remove_obj);
       if ($index == $#{$list_ref}) { 
         carp "Could not find $remove_obj in $self $listName, ignoring remove request.\n";
-        return;
+        return 0;
       }
     }
   } else { # if NOT ref, then we are giving an index number we want to remove
 
-    return unless ($what >= 0); # make sure its reasonable index
+    return 0 unless ($what >= 0); # make sure its reasonable index
     $index = $what;
 
   }
@@ -277,6 +277,7 @@ sub _remove_from_list {
     return 1; # success 
   } else {
     carp "$self $listName empty! No objects to remove.\n";
+    return 0;
   }
 
 }
@@ -284,6 +285,12 @@ sub _remove_from_list {
 # Modification History
 #
 # $Log$
+# Revision 1.8  2001/06/29 21:07:12  thomas
+# changed public add (and remove) methods to
+# conform to Java API standard: e.g. return boolean
+# rather than an object. Also, these methods only
+# accept an object (in general) as input (instead of an attribute hash).
+#
 # Revision 1.7  2001/04/17 18:54:12  thomas
 # Properly doing init now. Removed init of BaseObject attributes(!!!)
 #

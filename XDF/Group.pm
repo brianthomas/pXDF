@@ -128,31 +128,35 @@ sub getXMLAttributes {
 
 # /** addMemberObject
 # Add an object to this group. 
+# Returns: 1 on success, 0 on failure.
 # */
 sub addMemberObject {
   my ($self, $obj) = @_;
 
-  return unless defined $obj && ref $obj;
+   return 0 unless defined $obj && ref $obj;
 
-  unless ( exists %{$self->{_memberObjHash}}->{$obj} ) {
-    %{$self->{_memberObjHash}}->{$obj} = $obj;
-    return $obj;
-  }
+   unless ( exists %{$self->{_memberObjHash}}->{$obj} ) {
+     %{$self->{_memberObjHash}}->{$obj} = $obj;
+     return 1;
+   }
 
+   return 0;
 }
 
 # /** removeMemberObject
 # Remove an object from membership in this group. 
+# Returns: 1 on success, 0 on failure.
 # */
 sub removeMemberObject {
   my ($self, $obj) = @_;
 
-  return unless defined $obj && ref $obj;
+  return 0 unless defined $obj && ref $obj;
 
   if ( exists %{$self->{_memberObjHash}}->{$obj} ) {
     delete %{$self->{_memberObjHash}}->{$obj};
-    return $obj;
+    return 1;
   }
+  return 0;
 }
 
 # /** hasMemberObj
@@ -187,6 +191,12 @@ sub _init {
 # Modification History
 #
 # $Log$
+# Revision 1.10  2001/06/29 21:07:12  thomas
+# changed public add (and remove) methods to
+# conform to Java API standard: e.g. return boolean
+# rather than an object. Also, these methods only
+# accept an object (in general) as input (instead of an attribute hash).
+#
 # Revision 1.9  2001/04/25 16:01:31  thomas
 # updated documentation
 #

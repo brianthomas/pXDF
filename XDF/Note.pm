@@ -213,12 +213,20 @@ sub setXMLAttributes {
 
 }
 
+#/** addText
+# Append text into this XDF::Note object.
+# Returns 1 on success, 0 on failure.
+# */
 sub addText {
   my ($self, $text) = @_;
-  return unless defined $text;
-  my $oldval = $self->getValue();
-  $text = $oldval . $text if defined $oldval; 
-  $self->setValue($text);
+
+  return 0 unless defined $text && !ref $text;
+
+   my $oldval = $self->getValue();
+   $text = $oldval . $text if defined $oldval; 
+   $self->setValue($text);
+   return 1;
+
 }
  
 #
@@ -236,6 +244,12 @@ sub AUTOLOAD {
 # Modification History
 #
 # $Log$
+# Revision 1.10  2001/06/29 21:07:12  thomas
+# changed public add (and remove) methods to
+# conform to Java API standard: e.g. return boolean
+# rather than an object. Also, these methods only
+# accept an object (in general) as input (instead of an attribute hash).
+#
 # Revision 1.9  2001/04/25 16:01:31  thomas
 # updated documentation
 #
@@ -366,6 +380,12 @@ Set the value attribute.
 =item setXMLAttributes ($attribHashRefOrString)
 
 XDF::Note has a special setXMLAttributes method. These objects are so simple they seem to merit special handling. This new setXMLAttributes method takes eitherand attribute Hash reference or a STRING. If the input value is a HASH reference, we construct an object from it, else, we just set its value attribute to the contents of the passed STRING. Private MethodsThis is called when we cant find any defined methodexists already. Used to handle general purpose set/getmethods for our attributes (object fields). Modification History$Log$
+XDF::Note has a special setXMLAttributes method. These objects are so simple they seem to merit special handling. This new setXMLAttributes method takes eitherand attribute Hash reference or a STRING. If the input value is a HASH reference, we construct an object from it, else, we just set its value attribute to the contents of the passed STRING. Private MethodsThis is called when we cant find any defined methodexists already. Used to handle general purpose set/getmethods for our attributes (object fields). Modification HistoryRevision 1.10  2001/06/29 21:07:12  thomas
+XDF::Note has a special setXMLAttributes method. These objects are so simple they seem to merit special handling. This new setXMLAttributes method takes eitherand attribute Hash reference or a STRING. If the input value is a HASH reference, we construct an object from it, else, we just set its value attribute to the contents of the passed STRING. Private MethodsThis is called when we cant find any defined methodexists already. Used to handle general purpose set/getmethods for our attributes (object fields). Modification Historychanged public add (and remove) methods to
+XDF::Note has a special setXMLAttributes method. These objects are so simple they seem to merit special handling. This new setXMLAttributes method takes eitherand attribute Hash reference or a STRING. If the input value is a HASH reference, we construct an object from it, else, we just set its value attribute to the contents of the passed STRING. Private MethodsThis is called when we cant find any defined methodexists already. Used to handle general purpose set/getmethods for our attributes (object fields). Modification Historyconform to Java API standard: e.g. return boolean
+XDF::Note has a special setXMLAttributes method. These objects are so simple they seem to merit special handling. This new setXMLAttributes method takes eitherand attribute Hash reference or a STRING. If the input value is a HASH reference, we construct an object from it, else, we just set its value attribute to the contents of the passed STRING. Private MethodsThis is called when we cant find any defined methodexists already. Used to handle general purpose set/getmethods for our attributes (object fields). Modification Historyrather than an object. Also, these methods only
+XDF::Note has a special setXMLAttributes method. These objects are so simple they seem to merit special handling. This new setXMLAttributes method takes eitherand attribute Hash reference or a STRING. If the input value is a HASH reference, we construct an object from it, else, we just set its value attribute to the contents of the passed STRING. Private MethodsThis is called when we cant find any defined methodexists already. Used to handle general purpose set/getmethods for our attributes (object fields). Modification Historyaccept an object (in general) as input (instead of an attribute hash).
+XDF::Note has a special setXMLAttributes method. These objects are so simple they seem to merit special handling. This new setXMLAttributes method takes eitherand attribute Hash reference or a STRING. If the input value is a HASH reference, we construct an object from it, else, we just set its value attribute to the contents of the passed STRING. Private MethodsThis is called when we cant find any defined methodexists already. Used to handle general purpose set/getmethods for our attributes (object fields). Modification History
 XDF::Note has a special setXMLAttributes method. These objects are so simple they seem to merit special handling. This new setXMLAttributes method takes eitherand attribute Hash reference or a STRING. If the input value is a HASH reference, we construct an object from it, else, we just set its value attribute to the contents of the passed STRING. Private MethodsThis is called when we cant find any defined methodexists already. Used to handle general purpose set/getmethods for our attributes (object fields). Modification HistoryRevision 1.9  2001/04/25 16:01:31  thomas
 XDF::Note has a special setXMLAttributes method. These objects are so simple they seem to merit special handling. This new setXMLAttributes method takes eitherand attribute Hash reference or a STRING. If the input value is a HASH reference, we construct an object from it, else, we just set its value attribute to the contents of the passed STRING. Private MethodsThis is called when we cant find any defined methodexists already. Used to handle general purpose set/getmethods for our attributes (object fields). Modification Historyupdated documentation
 XDF::Note has a special setXMLAttributes method. These objects are so simple they seem to merit special handling. This new setXMLAttributes method takes eitherand attribute Hash reference or a STRING. If the input value is a HASH reference, we construct an object from it, else, we just set its value attribute to the contents of the passed STRING. Private MethodsThis is called when we cant find any defined methodexists already. Used to handle general purpose set/getmethods for our attributes (object fields). Modification HistoryRevision 1.8  2001/03/16 19:54:57  thomasDocumentation updated and improved, re-ran makeDoc on file. Revision 1.7  2001/03/14 21:32:34  thomasUpdated perldoc section using new version ofmakeDoc.pl. Revision 1.6  2000/12/18 16:35:54  thomasFixed Minor problem with getValue/addNotein class. -b.t. Revision 1.5  2000/12/15 22:11:59  thomasRegenerated perlDoc section in files. -b.t. Revision 1.4  2000/12/14 22:11:25  thomasBig changes to the API. get/set methods, added Href/Entity stuff, deep cloning,added Href, Notes, NotesLocationOrder nodes/classes. Ripped out _enlarge_arrayfrom DataCube (not needed) and fixed problems outputing delimited/formattedread nodes. -b.t. Revision 1.3  2000/12/01 20:03:38  thomasBrought Pod docmentation up to date. Bumped up versionnumber. -b.t. Revision 1.2  2000/10/16 17:37:21  thomasChanged over to BaseObject Class from Object Class. Added in History Modification section.  

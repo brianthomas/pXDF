@@ -417,64 +417,46 @@ sub getXMLAttributes {
 
 # /** addNote
 # Insert an XDF::Note object into the XDF::Notes object held by this object.
-# This method may optionally take a reference to an attribute hash as
-# its argument. Attributes in the attribute hash should
-# correspond to attributes of the L<XDF::Note> object. 
-# The attribute/value pairs in the attribute hash reference are
-# used to initialize the new XDF::Note object.
-# RETURNS : an XDF::Note object reference on success, undef on failure.
+# RETURNS : 1 on success, 0 on failure.
 # */
 sub addNote {
-  my ($self, $info) = @_;
+  my ($self, $noteObj) = @_;
   
-  my $noteObj;
-  if(ref $info && $info =~ m/XDF::Note/) {
-    $noteObj = $info if(ref $info && $info =~ m/XDF::Note/);
-  } else {
-    $noteObj = XDF::Note->new($info);
-  }
+  return 0 unless defined $noteObj && ref $noteObj;
   
   # add the parameter to the list
   push @{$self->{NoteList}}, $noteObj;
 
-  return $noteObj;
+  return 1;
 }
 
 # /** removeNote
 # Removes an XDF::Note object from the list of XDF::Note objects
-# held within the XDF::Notes object of this object. This method takes 
-# either the list index number or an object reference as its argument.
-# RETURNS : 1 on success, undef on failure.
+# held within the XDF::Notes object of this object. 
+# RETURNS : 1 on success, 0 on failure.
 # */
 sub removeNote {
   my ($self, $what) = @_;
-  $self->_remove_from_list($what, $self->{NoteList}, 'noteList');
+  return $self->_remove_from_list($what, $self->{NoteList}, 'noteList');
 }
 
 # /** addUnit
 # Insert an XDF::Unit object into the L<XDF::Units> object (e.g. $obj->units)
 # held in this object.
-# This method takes either a reference to an attribute hash OR
-# object reference to an existing XDF::Unit as
-# its argument. Attributes in the attribute hash reference should
-# correspond to attributes of the L<XDF::Unit> object. 
-# The attribute/value pairs in the attribute hash reference are
-# used to initialize the new XDF::Unit object.
-# RETURNS : an XDF::Unit object if successfull, undef if not. 
-sub addUnit { my ($self, $attribHashRefOrObjectRef) = @_;
-   my $unitObj = $self->{Units}->addUnit($attribHashRefOrObjectRef);
-   return $unitObj;
+# RETURNS : 1 on success, 0 on failure.
+sub addUnit { 
+   my ($self, $unitObj) = @_;
+   return $self->{Units}->addUnit($unitObj);
 }
 
 # /** removeUnit
 # Remove an XDF::Unit object from the list of XDF::Units held in
-# the array units reference object. This method takes either the list index 
-# number or an object reference as its argument.
-# RETURNS : 1 on success, undef on failure.
+# the array units reference object. 
+# RETURNS : 1 on success, 0 on failure.
 # */
 sub removeUnit {
-  my ($self, $indexOrObjectRef) = @_;
-  return $self->{Units}->removeUnit($indexOrObjectRef);
+  my ($self, $unitObj) = @_;
+  return $self->{Units}->removeUnit($unitObj);
 }
 
 #
@@ -502,6 +484,12 @@ sub _init {
 # Modification History
 #
 # $Log$
+# Revision 1.13  2001/06/29 21:07:12  thomas
+# changed public add (and remove) methods to
+# conform to Java API standard: e.g. return boolean
+# rather than an object. Also, these methods only
+# accept an object (in general) as input (instead of an attribute hash).
+#
 # Revision 1.12  2001/04/25 16:01:31  thomas
 # updated documentation
 #

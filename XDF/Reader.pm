@@ -427,15 +427,19 @@ sub new {
 # the entries in the passed hash should be 'nodename' => sub { &handler_for_nodename(@_); }; 
 # If a 'nodename' for a handler already exists in the XDF start handler table,  
 # this method will override it with the new handler. 
+# Returns 1 on success, 0 on failure.
 #*/
 sub addStartElementHandlers {
   my ($self, %newHandlers) = @_;
+
+  return 0 unless %newHandlers;
 
   # merge into existing XDF handlers
   while ( my ($k, $v) = each (%newHandlers)) {
      $self->{startElementHandler}->{$k} = $v;
   }
 
+  return 1;
 }
 
 #/** addEndElementHandlers
@@ -443,14 +447,18 @@ sub addStartElementHandlers {
 # the entries in the passed hash should be 'nodename' => sub { &handler_for_nodename(@_); }; 
 # If a 'nodename' for a handler already exists in the XDF end handler table,  
 # this method will override it with the new handler. 
+# Returns 1 on success, 0 on failure.
 #*/
 sub addEndElementHandlers {
   my ($self, %newHandlers) = @_;
+
+  return 0 unless %newHandlers;
 
   # merge into existing XDF handlers
   while ( my ($k, $v) = each (%newHandlers)) {
      $self->{endElementHandler}->{$k} = $v;
   }
+  return 1;
 
 }
 
@@ -459,14 +467,19 @@ sub addEndElementHandlers {
 # the entries in the passed hash should be 'nodename' => sub { &handler_for_nodename(@_); }; 
 # If a 'nodename' for a handler already exists in the XDF CDATA handler table,  
 # this method will override it with the new handler. 
+# returns 1 on success, 0 on failure. 
 #*/
 sub addCharDataHandlers {
   my ($self, %newHandlers) = @_;
+
+  return 0 unless %newHandlers;
 
   # merge into existing XDF handlers
   while ( my ($k, $v) = each (%newHandlers)) {
      $self->{charDataHandler}->{$k} = $v;
   }
+  
+  return 1;
 
 }
 
@@ -944,7 +957,8 @@ sub _binaryFloatField_node_start {
   my $dataFormatObj;
   if (ref($dataTypeObj) eq 'XDF::Field' or ref($dataTypeObj) eq 'XDF::Array' ) {
   
-     $dataFormatObj = $dataTypeObj->setDataFormat(new XDF::BinaryFloatDataFormat(\%merged_hash));
+     $dataFormatObj = new XDF::BinaryFloatDataFormat(\%merged_hash);
+     $dataTypeObj->setDataFormat($dataFormatObj);
   
   } else {
   
@@ -968,7 +982,8 @@ sub _binaryIntegerField_node_start {
   my $dataFormatObj;
   if (ref($dataTypeObj) eq 'XDF::Field' or ref($dataTypeObj) eq 'XDF::Array' ) {
   
-     $dataFormatObj = $dataTypeObj->setDataFormat(new XDF::BinaryIntegerDataFormat(\%merged_hash));
+     $dataFormatObj = new XDF::BinaryIntegerDataFormat(\%merged_hash);
+     $dataTypeObj->setDataFormat($dataFormatObj);
   
   } else {
   
@@ -1219,7 +1234,8 @@ sub _field_node_start {
 
    #my $_parentNodeName = $self->_parentNodeName();
 
-   my $fieldObj = $self->{currentArray}->getFieldAxis()->addField(\%attrib_hash);
+   my $fieldObj = new XDF::Field(\%attrib_hash);
+   $self->{currentArray}->getFieldAxis()->addField($fieldObj);
 
    # add this object to all open groups
    foreach my $groupObj (@{$self->{currentFieldGroupList}}) { $fieldObj->addToGroup($groupObj); }
@@ -1286,16 +1302,16 @@ sub _fieldGroup_node_start {
 
   my $_parentNodeName = $self->_parentNodeName();
 
-  my $fieldGroupObj;
+  my $fieldGroupObj = new XDF::FieldGroup(\%attrib_hash);
 
   if($_parentNodeName eq $XDF_node_name{'fieldAxis'} ) {
 
-    $fieldGroupObj = $self->{currentArray}->getFieldAxis()->addFieldGroup(\%attrib_hash);
+    return unless $self->{currentArray}->getFieldAxis()->addFieldGroup($fieldGroupObj);
 
   } elsif($_parentNodeName eq $XDF_node_name{'fieldGroup'} ) {
 
     my $lastGroupObj = $self->{currentFieldGroupList}[$#{$self->{currentFieldGroupList}}];
-    $fieldGroupObj = $lastGroupObj->addFieldGroup(\%attrib_hash);
+    return unless $lastGroupObj->addFieldGroup($fieldGroupObj);
 
   } else {
 
@@ -1317,7 +1333,8 @@ sub _field_relationship_node_start {
   my ($self, %attrib_hash) = @_;
 
    my $fieldObj = $self->_lastFieldObj();
-   my $relObj = $fieldObj->setRelation(new XDF::FieldRelation(\%attrib_hash));
+   my $relObj = new XDF::FieldRelation(\%attrib_hash);
+   $fieldObj->setRelation($relObj);
 
    return $relObj;
 }
@@ -1335,7 +1352,8 @@ sub _floatField_node_start {
   my $dataFormatObj;
   if (ref($dataTypeObj) eq 'XDF::Field' or ref($dataTypeObj) eq 'XDF::Array' ) {
   
-     $dataFormatObj = $dataTypeObj->setDataFormat(new XDF::FloatDataFormat(\%merged_hash));
+     $dataFormatObj = new XDF::FloatDataFormat(\%merged_hash);
+     $dataTypeObj->setDataFormat($dataFormatObj);
   
   } else {
   
@@ -1376,7 +1394,8 @@ sub _integerField_node_start {
   my $dataFormatObj;
   if (ref($dataTypeObj) eq 'XDF::Field' or ref($dataTypeObj) eq 'XDF::Array' ) {
   
-     $dataFormatObj = $dataTypeObj->setDataFormat(new XDF::IntegerDataFormat(\%merged_hash));
+     $dataFormatObj = new XDF::IntegerDataFormat(\%merged_hash);
+     $dataTypeObj->setDataFormat($dataFormatObj);
   
   } else {
   
@@ -1448,7 +1467,7 @@ sub _note_node_start {
    }
 
    if (defined $addNoteObj) {
-      $noteObj = $addNoteObj->addNote($noteObj);
+      return unless $addNoteObj->addNote($noteObj);
    }
 
    $self->{lastNoteObject} = $noteObj;
@@ -1500,6 +1519,8 @@ sub _notes_node_start {
    #special handling: notes object comes 'pre-defined' in parent,
    # so go to the parent to find it.
    my $notesObj = defined $obj ? $obj->getNotes : undef;
+   $notesObj->setXMLAttributes(\%attrib_hash);
+
    return $notesObj;
 }
 
@@ -1508,22 +1529,22 @@ sub _parameter_node_start {
 
    my $_parentNodeName = $self->_parentNodeName();
 
-   my $paramObj;
+   my $paramObj = new XDF::Parameter(\%attrib_hash);
    if($_parentNodeName eq $XDF_node_name{'array'} ) {
 
-        $paramObj = $self->{currentArray}->addParameter(\%attrib_hash);
+       return unless $self->{currentArray}->addParameter($paramObj);
 
    } elsif($_parentNodeName eq $XDF_node_name{'root'}
               || $_parentNodeName eq $XDF_node_name{'structure'})
    { 
 
-        $paramObj = $self->{currentStructure}->addParameter(\%attrib_hash);
+       return unless $self->{currentStructure}->addParameter($paramObj);
 
    } elsif($_parentNodeName eq $XDF_node_name{'parameterGroup'} ) {
 
 #        $LAST_GROUP_OBJECT->addObject(new XDF::Parameter(\%attrib_hash));
         # for now, just add as regular parameter 
-       $paramObj = $self->{lastParamGroupParentObject}->addParameter(\%attrib_hash);
+       return unless $self->{lastParamGroupParentObject}->addParameter($paramObj);
 
    } else {
        die" weird parent node $_parentNodeName for parameter";
@@ -1547,24 +1568,24 @@ sub _parameterGroup_node_start {
   
   my $_parentNodeName = $self->_parentNodeName();
 
-  my $paramGroupObj;
+  my $paramGroupObj = new XDF::ParameterGroup(\%attrib_hash);
 
   if($_parentNodeName eq $XDF_node_name{'array'} ) {
 
-    $paramGroupObj = $self->{currentArray}->addParamGroup(\%attrib_hash);
+    return unless $self->{currentArray}->addParamGroup($paramGroupObj);
     $self->{lastParamGroupParentObject} = $self->{currentArray};
 
   } elsif($_parentNodeName eq $XDF_node_name{'root'}
               || $_parentNodeName eq $XDF_node_name{'structure'})
   {
 
-    $paramGroupObj = $self->{currentStructure}->addParamGroup(\%attrib_hash);
+    return unless $self->{currentStructure}->addParamGroup($paramGroupObj);
     $self->{lastParamGroupParentObject} = $self->{currentStructure};
 
   } elsif($_parentNodeName eq $XDF_node_name{'parameterGroup'} ) {
 
     my $lastGroupObj = $self->{currentParamGroupList}[$#{$self->{currentParamGroupList}}]; 
-    $paramGroupObj = $lastGroupObj->addParamGroup(\%attrib_hash);
+    return unless $lastGroupObj->addParamGroup($paramGroupObj);
 
   } else {
 
@@ -1684,7 +1705,8 @@ sub _readCell_node_start {
   } 
 
   my $formatObj = $self->_currentFormatObject();
-  my $readCellObj = $formatObj->addFormatCommand(new XDF::ReadCellFormattedIOCmd(\%attrib_hash));
+  my $readCellObj = new XDF::ReadCellFormattedIOCmd(\%attrib_hash);
+  return unless $formatObj->addFormatCommand($readCellObj);
 
   return $readCellObj;
 }
@@ -1715,7 +1737,8 @@ sub _repeat_node_start {
   } 
 
   my $formatObj = $self->_currentFormatObject();
-  my $repeatObj = $formatObj->addFormatCommand(new XDF::RepeatFormattedIOCmd(\%attrib_hash));
+  my $repeatObj = new XDF::RepeatFormattedIOCmd(\%attrib_hash);
+  return unless $formatObj->addFormatCommand($repeatObj);
  
   push @{$self->{currentFormatObjectList}}, $repeatObj;
 
@@ -1727,7 +1750,6 @@ sub _root_node_start {
   
   # this is just like a "structure" node.
   # but is always the first one.
-  # $self->{XDF} = XDF::Structure->new(\%attrib_hash);
   $self->{XDF}->setXMLAttributes(\%attrib_hash);
   $self->{currentStructure} = $self->{XDF};
 
@@ -1759,7 +1781,8 @@ sub _skipChar_node_start {
   }
 
   my $formatObj = $self->_currentFormatObject();
-  my $skipCharObj = $formatObj->addFormatCommand(new XDF::SkipCharFormattedIOCmd(\%attrib_hash));
+  my $skipCharObj = new XDF::SkipCharFormattedIOCmd(\%attrib_hash);
+  return unless $formatObj->addFormatCommand($skipCharObj);
 
   return $skipCharObj;
 }
@@ -1776,7 +1799,8 @@ sub _stringField_node_start {
   my $dataFormatObj;
   if (ref($dataTypeObj) eq 'XDF::Field' or ref($dataTypeObj) eq 'XDF::Array' ) { 
 
-     $dataFormatObj = $dataTypeObj->setDataFormat(new XDF::StringDataFormat(\%merged_hash));
+     $dataFormatObj = new XDF::StringDataFormat(\%merged_hash);
+     return unless $dataTypeObj->setDataFormat($dataFormatObj); 
 
   } else {
 
@@ -1793,7 +1817,8 @@ sub _structure_node_start {
       $self->{XDF} = XDF::Structure->new(\%attrib_hash);
       $self->{currentStructure} = $self->{XDF};
    } else {
-      my $structObj = $self->{currentStructure}->addStructure(\%attrib_hash);
+      my $structObj = new XDF::Structure(\%attrib_hash);
+      return unless $self->{currentStructure}->addStructure($structObj);
       $self->{currentStructure} = $structObj;
    }
    
@@ -1831,7 +1856,8 @@ sub _unit_node_charData {
 
   if (defined $self->{lastUnitObject}) {
     # add string as the value of the note
-    $self->{lastUnitObject}->setValue($string);
+    my $valueObj = new XDF::Value($string);
+    $self->{lastUnitObject}->setValue($valueObj);
 
   } else {
 
@@ -1847,28 +1873,28 @@ sub _unit_node_start {
 
   my $_parentNodeName = $self->_grandParentNodeName();
 
-  my $unitObj;
+  my $unitObj = new XDF::Unit(\%attrib_hash);
 
   if ($_parentNodeName eq $XDF_node_name{'field'} ) {
 
      # add the unit to the last parameter node in grandparent
       my $fieldObj = $self->_lastFieldObj();
 
-      $unitObj = $fieldObj->addUnit(\%attrib_hash);
+      return unless $fieldObj->addUnit($unitObj);
 
   } elsif ($_parentNodeName eq $XDF_node_name{'axis'} ) {
 
       my $axisObj = $self->_lastAxisObj();
-      $unitObj = $axisObj->addUnit(\%attrib_hash);
+      return unless $axisObj->addUnit($unitObj);
 
   } elsif ($_parentNodeName eq $XDF_node_name{'array'} ) {
 
-      $unitObj = $self->{currentArray}->addUnit(\%attrib_hash);
+      return unless $self->{currentArray}->addUnit($unitObj);
 
   } elsif ($_parentNodeName eq $XDF_node_name{'parameter'} ) {
 
       my $paramObj = $self->{lastParamObject};
-      $unitObj = $paramObj->addUnit(\%attrib_hash);
+      return unless $paramObj->addUnit($unitObj);
 
   } else {
 
@@ -1923,29 +1949,29 @@ sub _value_node_charData {
 
   my $parent_node = $self->_parentNodeName();
 
-  my $valueObj;
+  my $valueObj = new XDF::Value($string);
 
   if ($parent_node eq $XDF_node_name{'parameter'} ) {
 
      # add the value in $string to last parameter node in grandparent
      my $paramObj = $self->{lastParamObject};
-     $valueObj = $paramObj->addValue($string);
+     die "cant add value to parameter" unless $paramObj->addValue($valueObj);
 
   } elsif ($parent_node eq $XDF_node_name{'axis'} ) {
 
      # add the value in $string to last axis node in current array 
      my $axisObj = $self->_lastAxisObj();
-     $valueObj = $axisObj->addAxisValue($string);
+     die "" unless $axisObj->addAxisValue($valueObj);
 
   } elsif ( $parent_node eq $XDF_node_name{'valueGroup'} ) {
 
     if (ref($self->{lastValueGroupParentObject}) eq 'XDF::Parameter') {
 
-       $valueObj = $self->{lastValueGroupParentObject}->addValue($string);
+       die "" unless $self->{lastValueGroupParentObject}->addValue($valueObj);
 
     } elsif (ref($self->{lastValueGroupParentObject}) eq 'XDF::Axis') {
 
-       $valueObj = $self->{lastValueGroupParentObject}->addAxisValue($string);
+       die "" unless $self->{lastValueGroupParentObject}->addAxisValue($valueObj);
 
     } else {
       my $name = ref($self->{lastValueGroupParentObject});
@@ -1973,24 +1999,24 @@ sub _valueGroup_node_start {
 
   my $_parentNodeName = $self->_parentNodeName();
 
-  my $valueGroupObj;
+  my $valueGroupObj = new XDF::ValueGroup(\%attrib_hash);
 
   if( $_parentNodeName eq $XDF_node_name{'axis'} ) {
 
     my $axisObj = $self->_lastAxisObj();
-    $valueGroupObj = $axisObj->addValueGroup(\%attrib_hash);
+    return unless $axisObj->addValueGroup($valueGroupObj);
     $self->{lastValueGroupParentObject} = $axisObj;
 
   } elsif($_parentNodeName eq $XDF_node_name{'parameter'} ) {
 
     my $paramObj = $self->{lastParamObject};
-    $valueGroupObj = $paramObj->addValueGroup(\%attrib_hash);
+    return unless $paramObj->addValueGroup($valueGroupObj);
     $self->{lastValueGroupParentObject} = $paramObj;
 
   } elsif($_parentNodeName eq $XDF_node_name{'valueGroup'} ) {
 
     my $lastGroupObj = $self->{currentValueGroupList}->[$#{$self->{currentValueGroupList}}];
-    $valueGroupObj = $lastGroupObj->addValueGroup(\%attrib_hash);
+    return unless $lastGroupObj->addValueGroup($valueGroupObj);
 
   } else {
 
@@ -2028,7 +2054,9 @@ sub _valueList_node_charData {
       # adding values to the last axis in the array
       my $axisObj = $self->_lastAxisObj();
       foreach my $val (@values) { 
-         push @valueObjList, $axisObj->addAxisValue($val); 
+         my $valueObj = new XDF::Value($val);
+         die "cant add value to axis" unless $axisObj->addAxisValue($valueObj); 
+         push @valueObjList, $valueObj;
       }
 
   } elsif ($self->{currentValueList}->{'parent_node'} eq $XDF_node_name{'parameter'} ) {
@@ -2053,7 +2081,9 @@ sub _valueList_node_charData {
 
      # adding values to the last axis in the array
      foreach my $val (@values) { 
-       push @valueObjList, $self->{lastValueGroupParentObject}->$method($val);
+        my $valueObj = new XDF::Value($val);
+        die "cant add value" unless $self->{lastValueGroupParentObject}->$method($valueObj);
+        push @valueObjList, $valueObj;
      }
 
   } else {
@@ -2088,7 +2118,9 @@ sub _valueList_node_start {
 
         my $axisObj = $self->_lastAxisObj();
         foreach my $val (@values) { 
-           push @valueObjList, $axisObj->addAxisValue($val); 
+           my $valueObj = new XDF::Value($val);
+           die "cant add value" unless $axisObj->addAxisValue($valueObj); 
+           push @valueObjList, $valueObj;
         }
 
       } elsif($parent_node eq $XDF_node_name{'valueGroup'}) {
@@ -2111,7 +2143,9 @@ sub _valueList_node_start {
 
          my $paramObj = $self->{lastParamObject};
          foreach my $val (@values) { 
-            push @valueObjList, $paramObj->addValue($val); 
+            my $valueObj = new XDF::Value($val);
+            die "cant add value to parameter" unless $paramObj->addValue($valueObj); 
+            push @valueObjList, $valueObj;
          }
 
       } else {
@@ -2143,11 +2177,11 @@ sub _vector_node_start {
 
   my $parent_node = $self->_parentNodeName();
 
-  my $axisValueObj;
+  my $axisValueObj = new XDF::UnitDirection(\%attrib_hash);
   if ($parent_node eq $XDF_node_name{'axis'}) {
 
      my $axisObj = $self->_lastAxisObj();
-     my $axisValueObj = $axisObj->addAxisUnitDirection(\%attrib_hash);
+     return unless $axisObj->addAxisUnitDirection($axisValueObj);
 
   } else {
         $self->_printWarning( "$XDF_node_name{'vector'} node not supported for $parent_node yet. Ignoring node.\n");
@@ -2842,7 +2876,8 @@ sub _appendArrayToArray {
             foreach my $value (@valuesToAdd) {
                if (( $origAxis->getIndexFromAxisValue($value)) == -1) 
                {
-                  $origAxis->addAxisValue($value);
+                  my $valueObj = new XDF::Value($value);
+                  die "Cant add value to axis" unless $origAxis->addAxisValue($valueObj);
                }
             }
 
@@ -2958,6 +2993,12 @@ sub _appendArrayToArray {
 # Modification History
 #
 # $Log$
+# Revision 1.31  2001/06/29 21:07:12  thomas
+# changed public add (and remove) methods to
+# conform to Java API standard: e.g. return boolean
+# rather than an object. Also, these methods only
+# accept an object (in general) as input (instead of an attribute hash).
+#
 # Revision 1.30  2001/06/21 21:25:57  thomas
 # Added Units handling(!) wasnt picking up attributes correctly. fixed.
 #

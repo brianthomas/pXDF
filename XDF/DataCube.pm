@@ -388,16 +388,21 @@ sub writeDataToFileHandle {
 
 # /** addData
 # This routine will append data to a cell unless directed to do otherwise.
+# RETURNS: 1 on success, 0 on failure.
 # */
 sub addData {
   my ($self, $locator, $data, $no_append ) = @_;
 
+  return 0 unless defined $locator;
+
   if ($no_append) {
      $self->setData($locator, $data);
+     return 1;
   } else {
      my $old = $self->getData($locator);
      $old = "" unless defined $old;
      $self->setData($locator, $old . $data);
+     return 1;
   }
 
 }
@@ -1010,6 +1015,12 @@ sub _build_locator_string {
 # Modification History
 #
 # $Log$
+# Revision 1.27  2001/06/29 21:07:12  thomas
+# changed public add (and remove) methods to
+# conform to Java API standard: e.g. return boolean
+# rather than an object. Also, these methods only
+# accept an object (in general) as input (instead of an attribute hash).
+#
 # Revision 1.26  2001/06/21 15:43:49  thomas
 # more changes related to new internal storage scheme:
 # fix to allow update of internal dataCube

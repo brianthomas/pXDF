@@ -470,22 +470,6 @@ sub setUnits {
    $self->{Units} = $value;
 }
 
-# /** setFieldAxis
-# Set the fieldAxis in this array. 
-# This will remove an existing field axis if undef is passed. 
-# */
-sub setFieldAxis {
-  my ($self, $value) = @_;
-
-  # dont add unless defined and a reference. 
-  # remove an existing field axis if undef is passed. 
-  if (defined $value) {
-    $self->addFieldAxis($value) if ref($value);
-  } else {
-    $self->removeFieldAxis();
-  }
-}
-
 # /** getFieldAxis
 # 
 # */
@@ -572,34 +556,31 @@ sub createLocator {
 # correspond to attributes of the L<XDF::ParameterGroup> object. 
 # The attribute/value pairs in the attribute hash reference are
 # used to initialize the new XDF::ParameterGroup object.
-# RETURNS : an XDF::ParameterGroup object reference on success, undef on failure.
+# returns: 1 on success, 0 on failure.
 # */
 sub addParamGroup {
-  my ($self, $objectRefOrAttribHashRef ) = @_;
+  my ($self, $objectRef ) = @_;
 
-  return unless defined $objectRefOrAttribHashRef && ref $objectRefOrAttribHashRef;
-
-  my $groupObj;
-  if ($objectRefOrAttribHashRef =~ m/XDF::ParameterGroup/) {
-    $groupObj = $objectRefOrAttribHashRef;
-  } else {
-    $groupObj = new XDF::ParameterGroup($objectRefOrAttribHashRef);
-  }
+  return 0 unless defined $objectRef && ref $objectRef;
 
   # add the group to the groupOwnedHash
-  %{$self->_paramGroupOwnedHash}->{$groupObj} = $groupObj;
+  %{$self->_paramGroupOwnedHash}->{$objectRef} = $objectRef;
 
-  return $groupObj;
+  return 1;
+
 }
 
 # /** removeParamGroup
 # Remove an XDF::ParameterGroup object from the hash table of XDF::ParameterGroups 
 # held within this object. This method takes the hash key 
-# its argument. RETURNS : 1 on success, undef on failure.
+# its argument. 
+# RETURNS : 1 on success, 0 on failure.
 # */
 sub removeParamGroup {
-  my ($self, $hashKey) = @_;
-  delete %{$self->_paramGroupOwnedHash}->{$hashKey};
+   my ($self, $hashKey) = @_;
+   return 0 unless (exists %{$self->_paramGroupOwnedHash}->{$hashKey});
+   delete %{$self->_paramGroupOwnedHash}->{$hashKey};
+   return 1;
 }
 
 # /** addAxis
@@ -610,18 +591,12 @@ sub removeParamGroup {
 # correspond to attributes of the L<XDF::Axis> object. 
 # The attribute/value pairs in the attribute hash reference are
 # used to initialize the new XDF::Axis object.
-# RETURNS : an XDF::Axis object reference on success, undef on failure.
+# RETURNS : 1 on success, 0 on failure.
 # */
 sub addAxis {
-  my ($self, $attribHashRefOrObjectRef ) = @_;
+  my ($self, $axisObj ) = @_;
 
-  my $axisObj = $attribHashRefOrObjectRef;
-
-  if (ref $attribHashRefOrObjectRef eq 'HASH') {
-    $axisObj = XDF::Axis->new($attribHashRefOrObjectRef);
-  }
-
-  return unless &_can_add_axisObj_to_array($axisObj);
+  return 0 unless &_can_add_axisObj_to_array($axisObj);
 
   # add this axis to the list 
   push @{$self->{AxisList}}, $axisObj; 
@@ -633,7 +608,7 @@ sub addAxis {
 
   $axisObj->setParentArray($self);
 
-  return $axisObj;
+  return 1;
 }
 
 sub _updateInternalLookupIndices {
@@ -658,16 +633,16 @@ sub _can_add_axisObj_to_array {
 # Remove an XDF::Axis object from the list of XDF::Axes
 # held within this object. This method takes either the list index 
 # number or an object reference as its argument.
-# RETURNS : removed object on success, undef on failure.
+# RETURNS : 1 on success, 0 on failure.
 # */
 sub removeAxis {
-   my ($self, $indexOrObjectRef) = @_;
-   # NOT the whole story. We have to deal with clearing up the 
-   # DataIOStyle object (see addAxis above)
-   my $axisObj = $self->_remove_from_list($indexOrObjectRef, $self->{AxisList}, 'axisList');
-
-   $axisObj->setParentArray(undef);
-   return $axisObj;
+   my ($self, $axisObj) = @_;
+   if (defined $axisObj && $self->_remove_from_list($axisObj, $self->{AxisList}, 'axisList')) {
+     $axisObj->setParentArray(undef);
+     return 1;
+   } else {
+     return 0;
+   }
 }
 
 # /** addUnit
@@ -679,17 +654,17 @@ sub removeAxis {
 # correspond to attributes of the L<XDF::Unit> object. 
 # The attribute/value pairs in the attribute hash reference are
 # used to initialize the new XDF::Unit object.
-# RETURNS : an XDF::Unit object if successfull, undef if not. 
-sub addUnit { my ($self, $attribHashRefOrObjectRef) = @_;
-   my $unitObj = $self->{Units}->addUnit($attribHashRefOrObjectRef);
-   return $unitObj;
+# RETURNS : 1 if successfull, 0 if not. 
+sub addUnit {
+   my ($self, $unitObj ) = @_;
+   return $self->{Units}->addUnit($unitObj);
 }
 
 # /** removeUnit
 # Remove an XDF::Unit object from the list of XDF::Units held in
 # the array units reference object. This method takes either the list index 
 # number or an object reference as its argument.
-# RETURNS : 1 on success, undef on failure.
+# RETURNS : 1 on success, 0 on failure.
 # */
 sub removeUnit { 
   my ($self, $indexOrObjectRef) = @_;
@@ -704,50 +679,44 @@ sub removeUnit {
 # correspond to attributes of the L<XDF::Parameter> object. 
 # The attribute/value pairs in the attribute hash reference are
 # used to initialize the new XDF::Parameter object.
-# RETURNS : an XDF::Parameter object reference on success, undef on failure.
+# RETURNS : 1 on success, 0 on failure.
 # */
 sub addParameter {
-  my ($self, $attribHashReference) = @_;
+  my ($self, $paramObj ) = @_;
 
-  my $paramObj = XDF::Parameter->new($attribHashReference);
+  return 0 unless defined $paramObj && ref($paramObj);
 
   # add the parameter to the list
   push @{$self->{ParamList}}, $paramObj;
 
-  return $paramObj;
+  return 1;
 }
 
 # /** removeParameter 
 # Remove an XDF::Parameter object from the list of XDF::Parameters
 # held within this object. This method takes either the list index 
 # number or an object reference as its argument.
-# RETURNS : 1 on success, undef on failure.
+# RETURNS : 1 on success, 0 on failure.
 # */
 sub removeParameter {
-  my ($self, $indexOrObjectRef) = @_;
-  $self->_remove_from_list($indexOrObjectRef, $self->{ParamList}, 'paramList');
+   my ($self, $indexOrObjectRef) = @_;
+   return $self->_remove_from_list($indexOrObjectRef, $self->{ParamList}, 'paramList');
 }
 
 # /** addNote
 # Insert an XDF::Note object into the XDF::Notes object held by this object.
-# This method may optionally take a reference to an attribute hash as
-# its argument. Attributes in the attribute hash should
-# correspond to attributes of the L<XDF::Note> object. 
-# The attribute/value pairs in the attribute hash reference are
-# used to initialize the new XDF::Note object.
-# RETURNS : an XDF::Note object reference on success, undef on failure.
+# RETURNS : 1 on success, 0 on failure.
 # */
 sub addNote {
-  my ($self, $info) = @_;
-  my $noteObj = $self->{Notes}->addNote($info);
-  return $noteObj;
+   my ($self, $noteObj ) = @_;
+   return $self->{Notes}->addNote($noteObj);
 }
 
 # /** removeNote
 # Removes an XDF::Note object from the list of XDF::Note objects
 # held within the XDF::Notes object of this object. This method takes 
 # either the list index number or an object reference as its argument.
-# RETURNS : 1 on success, undef on failure.
+# RETURNS : 1 on success, 0 on failure.
 # */
 sub removeNote {
   my ($self, $what) = @_;
@@ -756,10 +725,11 @@ sub removeNote {
 
 # /** addData
 # Append the SCALAR value onto the requested datacell (via L<XDF::DataCube> LOCATOR REF).
+# RETURNS : 1 on success, 0 on failure.
 # */
 sub addData {
   my ($self, $locator, $dataValue) = @_;
-  $self->{DataCube}->addData($locator, $dataValue);
+  return $self->{DataCube}->addData($locator, $dataValue);
 }
 
 # /** setData
@@ -771,15 +741,15 @@ sub setData {
   $self->{DataCube}->setData($locator, $dataValue);
 }
 
-# /** removeData
+# /* removeData
 # Remove the requested data from the 
 # indicated datacell (via L<XDF::DataCube> LOCATOR REF) in the XDF::DataCube held in this Array. 
 # B<NOT CURRENTLY IMPLEMENTED>. 
 # */
-sub removeData {
-  my ($self, $locator, $data) = @_;
-  $self->{DataCube}->removeData($locator, $data);
-}
+# sub removeData {
+#  my ($self, $locator, $data) = @_;
+#  $self->{DataCube}->removeData($locator, $data);
+# }
 
 # /** getData
 # Retrieve the SCALAR value of the requested datacell (via L<XDF::DataCube> LOCATOR REF).
@@ -790,47 +760,62 @@ sub getData {
 }
 
 # /** addFieldAxis
-# A convenience method (same as $Array->setFieldAxis($fieldAxisObj)).
-# Changes the L<XDF::FieldAxis> object in this Array to the indicated one.
+# Set the Field Axis of this Array. If an undef value is passed,
+# then the field Axis is removed from the array.
+# RETURNS : 1 on success, 0 on failure.
 # */
 sub addFieldAxis {
-  my ($self, $attribHashRefOrObjectRef ) = @_;
+  my ($self, $fieldAxisObj) = @_;
 
-  my $fieldAxisObj = $attribHashRefOrObjectRef;
-  $fieldAxisObj = XDF::FieldAxis->new($attribHashRefOrObjectRef)
-     if ref($attribHashRefOrObjectRef) eq 'HASH';
+  if (defined $fieldAxisObj) {
+ 
+     return 0 unless &_can_add_axisObj_to_array($fieldAxisObj);
 
-  return unless &_can_add_axisObj_to_array($fieldAxisObj);
+     # By convention, the fieldAxis is always first axis in the axis list.
+     # Make sure that we *replace* the existing fieldAxis, if it exists.
+     shift @{$self->{AxisList}} if ref(@{$self->{AxisList}}[0]) eq 'XDF::FieldAxis';
+     unshift @{$self->{AxisList}}, $fieldAxisObj;
 
-  # By convention, the fieldAxis is always first axis in the axis list.
-  # Make sure that we *replace* the existing fieldAxis, if it exists.
-  shift @{$self->{AxisList}} if ref(@{$self->{AxisList}}[0]) eq 'XDF::FieldAxis';
-  unshift @{$self->{AxisList}}, $fieldAxisObj;
+     # bump up the number of dimensions
+     $self->{DataCube}->{Dimension} = $self->{DataCube}->getDimension() + 1;
+     $self->_updateInternalLookupIndices();
 
-  # bump up the number of dimensions
-  $self->{DataCube}->{Dimension} = $self->{DataCube}->getDimension() + 1;
-  $self->_updateInternalLookupIndices();
+     $fieldAxisObj->setParentArray($self);
+     return 1;
 
-  $fieldAxisObj->setParentArray($self);
+  } else {
+     # remove the field Axis
+     return $self->removeFieldAxis();
+  }
 
-  return $fieldAxisObj;
+}
+
+# /** addFieldAxis
+# Set the Field Axis of this Array. If an undef value is passed,
+# then the field Axis is removed from the array.
+# RETURNS 1 on success, 0 on failure.
+# */
+sub setFieldAxis {
+   my ($self, $fieldAxisObj) = @_;
+   $self->addFieldAxis($fieldAxisObj);
 }
 
 # /** removeFieldAxis
 # Removes the L<XDF::FieldAxis> object in this Array.
-# Returns the removed axis on success, undef on failure.
+# Returns 1 on success, 0 on failure.
 # */
 sub removeFieldAxis { 
-  my ($self) = @_; 
+   my ($self) = @_; 
 
-  my $fieldAxis;
-  if (ref(@{$self->{AxisList}}[0]) eq 'XDF::FieldAxis') {
-     $fieldAxis = shift @{$self->{AxisList}};
-     $self->dimension( $self->dimension() - 1 );
-     $fieldAxis->setParentArray(undef);
-  }
+   my $fieldAxis;
+   if (ref(@{$self->{AxisList}}[0]) eq 'XDF::FieldAxis') {
+      $fieldAxis = shift @{$self->{AxisList}};
+      $self->dimension( $self->dimension() - 1 );
+      $fieldAxis->setParentArray(undef);
+      return 1;
+   }
 
-  return $fieldAxis;
+   return 0;
 }
 
 #

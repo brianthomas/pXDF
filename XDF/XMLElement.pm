@@ -112,23 +112,30 @@ sub getXMLElementList {
 
 # /** addXMLElement
 # Aliased to the appendChild method. 
+# Returns : 1 on success , 0 on failure.
 # */
 sub addXMLElement {
   my ($self, $xmlElementObjRef) = @_;
 
-  # change owner document to that of this one
-  $xmlElementObjRef->setOwnerDocument($self->getOwnerDocument);
-  $self->appendChild($xmlElementObjRef);
+   return 0 unless defined $xmlElementObjRef && ref $xmlElementObjRef;
+
+   # change owner document to that of this one
+   $xmlElementObjRef->setOwnerDocument($self->getOwnerDocument);
+   $self->appendChild($xmlElementObjRef);
+
+   return 1;
 }
 
 # /** removeXMLElement
 # Aliased to the removeChild method. Will only remove child
 # XMLElement nodes. 
+# Returns : 1 on success , 0 on failure.
 # */
 sub removeXMLElement {
    my ($self, $xmlElementObjRef) = @_;
-   return unless defined $xmlElementObjRef && ref($xmlElementObjRef) eq 'XDF::XMLElement';
+   return 0 unless defined $xmlElementObjRef && ref($xmlElementObjRef);
    $self->removeChild($xmlElementObjRef);
+   return 1;
 }
 
 # /** setXMLElementList 
@@ -280,6 +287,12 @@ sub toXMLFileHandle {
 # Modification History
 #
 # $Log$
+# Revision 1.6  2001/06/29 21:07:12  thomas
+# changed public add (and remove) methods to
+# conform to Java API standard: e.g. return boolean
+# rather than an object. Also, these methods only
+# accept an object (in general) as input (instead of an attribute hash).
+#
 # Revision 1.5  2001/05/23 17:24:49  thomas
 # added setCData method.
 #

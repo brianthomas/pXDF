@@ -103,27 +103,22 @@ sub getXMLAttributes {
 # /** 
 # Convenience method.
 # Insert a parameterGroup object into this object 
+# Returns 1 on success, 0 on failure.
 # */ 
 sub addParamGroup {
-  my ($self, $info) = @_;
-
-  return unless defined $info && ref $info;
-
-  my $groupObj;
-  if ($info =~ m/XDF::ParameterGroup/) {
-    $groupObj = $info;
-  } else {
-    $groupObj = new XDF::ParameterGroup($info);
-  }
-
-  $self->addMemberObject($groupObj);
+  my ($self, $paramGroupObj) = @_;
+  return $self->addMemberObject($paramGroupObj);
 }
 
 # /** 
 # Convenience method.
 # Remove a parameterGroup object from this object 
+# Returns 1 on success, 0 on failure.
 # */
-sub removeParamGroup { my ($self, $obj) = @_; $self->removeMemberObject($obj); }
+sub removeParamGroup { 
+   my ($self, $paramGroupObj) = @_; 
+   return $self->removeMemberObject($paramGroupObj); 
+}
 
 #
 # Private Methods 
@@ -141,6 +136,12 @@ sub AUTOLOAD {
 # Modification History
 #
 # $Log$
+# Revision 1.9  2001/06/29 21:07:12  thomas
+# changed public add (and remove) methods to
+# conform to Java API standard: e.g. return boolean
+# rather than an object. Also, these methods only
+# accept an object (in general) as input (instead of an attribute hash).
+#
 # Revision 1.8  2001/04/25 16:01:31  thomas
 # updated documentation
 #

@@ -76,20 +76,28 @@ sub getXMLAttributes {
 }
 
 # /** addXMLElement
+# Add a child XMLElement object to this one.
+# Returns 1 on success, 0 on failure.
 # */
 sub addXMLElement {
-  my ($self, $xmlElementObjRef) = @_;
+  my ($self, $xmlElementObj) = @_;
 
-  push @{$self->getXMLElementList}, $xmlElementObjRef;
-  return $xmlElementObjRef;
+  return 0 unless defined $xmlElementObj && ref $xmlElementObj;
+  push @{$self->getXMLElementList}, $xmlElementObj;
+
+  return 1;
 }
 
 # /** removeXMLElement
-# 
+# Remove a child XMLElement object to this one.
+# Returns 1 on success, 0 on failure.
 # */
 sub removeXMLElement {
-   my ($self, $xmlElementObjRef) = @_;
+   my ($self, $xmlElementObj) = @_;
+
+   return 0 unless defined $xmlElementObj && ref $xmlElementObj;
    die "removeXMLElement not implemented yet.\n";
+
 }
 
 # /** getXMLElementList 
@@ -110,9 +118,7 @@ sub setXMLElementList {
 
 sub _init {
   my ($self) = @_;
-
   $self->{_childXMLElementList} = []; # init of child XML object list (all objects have) 
-
 }
 
 #/** toXMLFileHandle
@@ -269,6 +275,12 @@ sub toXMLFileHandle {
 # Modification History
 #
 # $Log$
+# Revision 1.3  2001/06/29 21:07:12  thomas
+# changed public add (and remove) methods to
+# conform to Java API standard: e.g. return boolean
+# rather than an object. Also, these methods only
+# accept an object (in general) as input (instead of an attribute hash).
+#
 # Revision 1.2  2001/04/25 16:01:31  thomas
 # updated documentation
 #

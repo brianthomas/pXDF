@@ -86,10 +86,17 @@ sub getXMLAttributes {
 #
 
 # /** addAxisIdToLocatorOrder
+# Add this axisId (a string) to the location order of the Notes.
+# Returns 1 on success, 0 on failure.
 # */
 sub addAxisIdToLocatorOrder {
    my ($self, $axisId) = @_;
+
+   return 0 unless defined $axisId && !ref $axisId;
+
    push @{$self->{LocationOrderList}}, $axisId;
+
+   return 1;
 }
 
 #/** toXMLFileHandle
@@ -166,6 +173,12 @@ sub _init {
 # Modification History
 #
 # $Log$
+# Revision 1.9  2001/06/29 21:07:12  thomas
+# changed public add (and remove) methods to
+# conform to Java API standard: e.g. return boolean
+# rather than an object. Also, these methods only
+# accept an object (in general) as input (instead of an attribute hash).
+#
 # Revision 1.8  2001/04/25 16:01:31  thomas
 # updated documentation
 #
