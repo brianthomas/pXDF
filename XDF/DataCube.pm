@@ -260,7 +260,7 @@ sub toXMLFileHandle {
   print $fileHandle ">";
 
   # write the data
-  $self->writeDataToFileHandle($fileHandle, $indent );
+  $self->writeDataToFileHandle($fileHandle, $indent, $self->{Compression} );
 
   # close the tagged data section
   print $fileHandle "</" . $nodeName . ">";
@@ -273,7 +273,7 @@ sub toXMLFileHandle {
 # Writes out just the data to the proscribed filehandle.
 # */
 sub writeDataToFileHandle {
-  my ($self, $fileHandle, $indent) = @_;
+  my ($self, $fileHandle, $indent, $compression_type) = @_;
 
   my $dontPrintCDATATag = 0;
   my $spec = XDF::Specification->getInstance();
@@ -291,16 +291,19 @@ sub writeDataToFileHandle {
 
   my $dataFileHandle;
   my $dataFileName;
-  # check for href
+
+  # check for href -- writing to an external file 
   if ( defined $href ) {
 
       # BIG assumption: href is a file we want to read/write
       # Better Handling in future is needed
       if (defined $href->getSysId()) {
+        my $href_program = ""; #&_dataCompressionProgram($compression_type);
         $dataFileName = $href->getBase() if defined $href->getBase();
         $dataFileName .= $href->getSysId();
-        open(DFH, ">$dataFileName"); # we will write data to another file 
-                                     # as specified by the entity
+        $href_program .= ">$dataFileName";
+        open(DFH, $href_program); # we will write data to another file 
+                                 # as specified by the entity
         $dataFileHandle = \*DFH;
         $dontPrintCDATATag = 1;
       } else {
@@ -308,7 +311,11 @@ sub writeDataToFileHandle {
       }   
 
   } else {
-    $dataFileHandle = $fileHandle;
+    $dataFileHandle = $fileHandle; # writing to metadata (XML) file 
+
+    # some warning message
+    carp "XDF::DataCube can only compress data held in an external file (HREF). Ignoring\n"
+       unless (!defined $compression_type);
   } 
 
   croak "XDF::DataCube has no valid data filehandle" unless defined $dataFileHandle;
@@ -397,6 +404,7 @@ sub addData {
   # fix the array if it doesnt
   my $eval_string = &_build_locator_string($self->{_parentArray}, $locator);
 
+  $data =~ s/"/\\"/g; # without this, we get eval errors
 
   if($no_append) {
     $eval_string = $eval_string . " = \"$data\"";
@@ -474,6 +482,32 @@ sub AUTOLOAD {
   #&XDF::BaseObject::AUTOLOAD($self, $val, $AUTOLOAD, \%{$XDF::DataCube::FIELDS} );
   &XDF::GenericObject::AUTOLOAD($self, $val, $AUTOLOAD, \%field );
 }
+
+# only perl needs this. Need as private method?
+# Certainly this implementation is bad, very bad. 
+# At the minimum we need to put this info in constants
+# class and make it user configurable at make time.
+sub _dataCompressionProgram {
+  my ($compression_type) = @_;
+
+  return "" unless defined $compression_type;
+
+  my $compression_program;
+  if ($compression_type eq &XDF::Constants::DATA_COMPRESSION_GZIP() ) {
+     $compression_program = &XDF::Constants::DATA_COMPRESSION_GZIP_PATH();
+  } elsif ($compression_type eq &XDF::Constants::DATA_COMPRESSION_BZIP2() ) {
+     $compression_program = &XDF::Constants::DATA_COMPRESSION_BZIP2_PATH();
+  } elsif ($compression_type eq &XDF::Constants::DATA_COMPRESSION_COMPRESS() ) {
+     $compression_program = &XDF::Constants::DATA_COMPRESSION_COMPRESS_PATH();
+  } elsif ($compression_type eq &XDF::Constants::DATA_COMPRESSION_ZIP() ) {
+     $compression_program = &XDF::Constants::DATA_COMPRESSION_UNZIP_PATH();
+  } else {
+     croak "Data compression for type: $compression_type NOT Implemented. Aborting write.\n";
+  }
+
+  return $compression_program;
+}
+
 
 sub _init {
   my ($self) = @_;
@@ -785,7 +819,7 @@ sub _doReadCellFormattedIOCmdOutput {
       if ($padsize > 0) {
           $output = " " x $padsize . $datum;
       } elsif ($padsize < 0) {
-          warn "Error: cant write $output, actual length is larger than declared size($formatsize) ";
+          warn "Error: cant write data:[$datum], actual length is larger than declared size ($formatsize) ";
           if (defined $noDataValue) {
              warn "printing with noDataValue:[$noDataValue]\n";
              $output = $noDataValue; # just print no datavalue
@@ -883,6 +917,9 @@ sub _build_locator_string {
 # Modification History
 #
 # $Log$
+# Revision 1.25  2001/06/19 21:20:19  thomas
+# added compression of output data.
+#
 # Revision 1.24  2001/05/29 21:08:54  thomas
 # Fix bug in output of FloatDataFormat data for formatted case.
 #
