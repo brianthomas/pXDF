@@ -2,7 +2,7 @@
 # $Id$
 
 # /** COPYRIGHT
-#    ConversionConponent.pm Copyright (C) 2003 Brian Thomas,
+#    ConversionComponent.pm Copyright (C) 2003 Brian Thomas,
 #    XML Group GSFC-NASA, Code 630.1, Greenbelt MD, 20771
 #@ 
 #    This program is free software; it is licensed under the same terms
@@ -21,7 +21,7 @@
 # */
 
 # /** DESCRIPTION
-# An XDF::ConversionConponent is an abstract class that defines component interface
+# An XDF::ConversionComponent is an abstract class that defines component interface
 # for objects held within a Conversion object.
 # */
 
@@ -38,7 +38,7 @@
 # XDF::NaturalLogarithm
 # */
 
-package XDF::ConversionConponent;
+package XDF::ConversionComponent;
 
 use XDF::BaseObject;
 
@@ -77,7 +77,7 @@ for my $attr ( @Class_Attributes ) { $field{$attr}++; }
 
 # /** classXMLNodeName
 # This method takes no arguments may not be changed. 
-# This method returns the class node name of XDF::ConversionConponent.
+# This method returns the class node name of XDF::ConversionComponent.
 # */
 sub classXMLNodeName { 
   return $Class_XML_Node_Name; 
