@@ -25,7 +25,7 @@ package XDF::FormattedIOCmd;
 # formatted IO commands in the XDF::FormattedDataIOStyle.
 # */
 
-use XDF::Object;
+use XDF::BaseObject;
 use Carp;
 
 use strict;
@@ -33,15 +33,15 @@ use integer;
 
 use vars qw ($AUTOLOAD %field @ISA);
 
-# inherits from XDF::Object
-@ISA = ("XDF::Object");
+# inherits from XDF::BaseObject
+@ISA = ("XDF::BaseObject");
 
 # CLASS DATA
 my @Class_Attributes = qw (
                           );
 
 # add in super class attributes
-push @Class_Attributes, @{&XDF::Object::classAttributes};
+push @Class_Attributes, @{&XDF::BaseObject::classAttributes};
 
 # Initalization
 # set up object attributes.
@@ -82,6 +82,16 @@ sub _sprintfNotation {
   warn "You are calling the _sprintfNotation method of an abstract class from $self.\n";
 }
 
+# Modification History
+#
+# $Log$
+# Revision 1.2  2000/10/16 17:37:20  thomas
+# Changed over to BaseObject Class from Object Class.
+# Added in History Modification section.
+#
+#
+#
+
 1;
 
 
@@ -99,7 +109,7 @@ XDF::FormattedIOCmd - Perl Class for FormattedIOCmd
 
  This is an abstract class that describes the interface for formatted IO commands in the XDF::FormattedDataIOStyle. 
 
-XDF::FormattedIOCmd inherits class and attribute methods of L<XDF::GenericObject>, L<XDF::Object>.
+XDF::FormattedIOCmd inherits class and attribute methods of L<XDF::BaseObject>, L<XDF::GenericObject>.
 
 
 =over 4
@@ -135,7 +145,7 @@ A change in the value of these attributes will change the functioning of ALL ins
 
 =over 4
 
-The following class attribute methods are inherited from L<XDF::Object>:
+The following class attribute methods are inherited from L<XDF::BaseObject>:
 B<Pretty_XDF_Output>, B<Pretty_XDF_Output_Indentation>, B<DefaultDataArraySize>.
 
 =back
@@ -150,8 +160,8 @@ B<Pretty_XDF_Output>, B<Pretty_XDF_Output_Indentation>, B<DefaultDataArraySize>.
 
 =over 4
 
-XDF::FormattedIOCmd inherits the following instance methods of L<XDF::GenericObject>:
-B<new>, B<clone>, B<update>, B<setObjRef>.
+XDF::FormattedIOCmd inherits the following instance methods of L<XDF::BaseObject>:
+B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<toXMLFileHandle>, B<toXMLFile>.
 
 =back
 
@@ -159,8 +169,8 @@ B<new>, B<clone>, B<update>, B<setObjRef>.
 
 =over 4
 
-XDF::FormattedIOCmd inherits the following instance methods of L<XDF::Object>:
-B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<toXMLFileHandle>, B<toXMLFile>.
+XDF::FormattedIOCmd inherits the following instance methods of L<XDF::GenericObject>:
+B<new>, B<clone>, B<update>, B<setObjRef>.
 
 =back
 
@@ -168,7 +178,7 @@ B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<toXMLFileHandle>, B<toXML
 
 =head1 SEE ALSO
 
-L<XDF::Object>
+L<XDF::BaseObject>
 
 =back
 

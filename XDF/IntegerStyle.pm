@@ -37,7 +37,7 @@ package XDF::IntegerStyle;
 # */
 
 
-use XDF::Object;
+use XDF::BaseObject;
 use Carp;
 
 use strict;
@@ -45,8 +45,8 @@ use integer;
 
 use vars qw ($AUTOLOAD %field @ISA);
 
-# inherits from XDF::Object
-@ISA = ("XDF::Object");
+# inherits from XDF::BaseObject
+@ISA = ("XDF::BaseObject");
 
 # CLASS DATA
 my $Class_XML_Node_Name = "integer";
@@ -56,7 +56,7 @@ my @Class_Attributes = qw (
                           );
 
 # add in super class attributes
-push @Class_Attributes, @{&XDF::Object::classAttributes};
+push @Class_Attributes, @{&XDF::BaseObject::classAttributes};
 
 my $Integer_Type_Decimal = 'decimal';
 my $Integer_Type_Hex = 'hexadecimal';
@@ -192,6 +192,16 @@ sub fortranNotation {
 }
 
 
+# Modification History
+#
+# $Log$
+# Revision 1.2  2000/10/16 17:37:21  thomas
+# Changed over to BaseObject Class from Object Class.
+# Added in History Modification section.
+#
+#
+#
+
 1;
 
 
@@ -212,7 +222,7 @@ XDF::IntegerStyle - Perl Class for IntegerStyle
 
  XDF::IntegerStyle is an abstract class that describes (ASCII)  integer numbers. 
 
-XDF::IntegerStyle inherits class and attribute methods of L<XDF::GenericObject>, L<XDF::Object>.
+XDF::IntegerStyle inherits class and attribute methods of L<XDF::BaseObject>, L<XDF::GenericObject>.
 
 
 =over 4
@@ -269,6 +279,10 @@ Returns the class value for the (default) decimal type. This method takes no arg
 
 A convenience method. Return the number of bytes this XDF::BinaryFloatField holds. 
 
+=item fortranNotation (EMPTY)
+
+The fortran style notation for this object. 
+
 =back
 
 =over 4
@@ -280,7 +294,7 @@ A change in the value of these attributes will change the functioning of ALL ins
 
 =over 4
 
-The following class attribute methods are inherited from L<XDF::Object>:
+The following class attribute methods are inherited from L<XDF::BaseObject>:
 B<Pretty_XDF_Output>, B<Pretty_XDF_Output_Indentation>, B<DefaultDataArraySize>.
 
 =back
@@ -295,8 +309,8 @@ B<Pretty_XDF_Output>, B<Pretty_XDF_Output_Indentation>, B<DefaultDataArraySize>.
 
 =over 4
 
-XDF::IntegerStyle inherits the following instance methods of L<XDF::GenericObject>:
-B<new>, B<clone>, B<update>, B<setObjRef>.
+XDF::IntegerStyle inherits the following instance methods of L<XDF::BaseObject>:
+B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<toXMLFileHandle>, B<toXMLFile>.
 
 =back
 
@@ -304,8 +318,8 @@ B<new>, B<clone>, B<update>, B<setObjRef>.
 
 =over 4
 
-XDF::IntegerStyle inherits the following instance methods of L<XDF::Object>:
-B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<toXMLFileHandle>, B<toXMLFile>.
+XDF::IntegerStyle inherits the following instance methods of L<XDF::GenericObject>:
+B<new>, B<clone>, B<update>, B<setObjRef>.
 
 =back
 
@@ -313,7 +327,7 @@ B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<toXMLFileHandle>, B<toXML
 
 =head1 SEE ALSO
 
-L< XDF::IntegerDataFormat>, L< XDF::IntegerDataType>, L<XDF::Object>
+L< XDF::IntegerDataFormat>, L< XDF::IntegerDataType>, L<XDF::BaseObject>
 
 =back
 

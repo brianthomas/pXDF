@@ -34,7 +34,7 @@
 
 package XDF::FormattedXMLDataIOStyle;
 
-use XDF::Object;
+use XDF::BaseObject;
 use Carp;
 
 use strict;
@@ -316,6 +316,16 @@ sub _sprintfNotation {
 }
 
 
+# Modification History
+#
+# $Log$
+# Revision 1.2  2000/10/16 17:37:20  thomas
+# Changed over to BaseObject Class from Object Class.
+# Added in History Modification section.
+#
+#
+#
+
 1;
 
 
@@ -333,7 +343,7 @@ XDF::FormattedXMLDataIOStyle - Perl Class for FormattedXMLDataIOStyle
 
  This class indicates how records are to be read in for formatted  (untagged) text format. 
 
-XDF::FormattedXMLDataIOStyle inherits class and attribute methods of L<XDF::GenericObject>, L<XDF::XMLDataIOStyle>, L<XDF::Object>.
+XDF::FormattedXMLDataIOStyle inherits class and attribute methods of L<XDF::BaseObject>, L<XDF::GenericObject>, L<XDF::XMLDataIOStyle>.
 
 
 =over 4
@@ -397,7 +407,7 @@ A change in the value of these attributes will change the functioning of ALL ins
 
 =over 4
 
-The following class attribute methods are inherited from L<XDF::Object>:
+The following class attribute methods are inherited from L<XDF::BaseObject>:
 B<Pretty_XDF_Output>, B<Pretty_XDF_Output_Indentation>, B<DefaultDataArraySize>.
 
 =back
@@ -407,6 +417,15 @@ B<Pretty_XDF_Output>, B<Pretty_XDF_Output_Indentation>, B<DefaultDataArraySize>.
 =over 4
 
 =head2 INHERITED Other Methods
+
+
+
+=over 4
+
+XDF::FormattedXMLDataIOStyle inherits the following instance methods of L<XDF::BaseObject>:
+B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<toXMLFile>.
+
+=back
 
 
 
@@ -426,20 +445,11 @@ B<toXMLFileHandle>.
 
 =back
 
-
-
-=over 4
-
-XDF::FormattedXMLDataIOStyle inherits the following instance methods of L<XDF::Object>:
-B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<toXMLFile>.
-
-=back
-
 =back
 
 =head1 SEE ALSO
 
-L< XDF::XMLDataIOStyle>, L<XDF::Object>
+L< XDF::XMLDataIOStyle>, L<XDF::BaseObject>
 
 =back
 

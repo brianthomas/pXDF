@@ -65,7 +65,7 @@ package XDF::Array;
 
 use Carp;
 
-use XDF::Object;
+use XDF::BaseObject;
 
 use XDF::Axis;
 use XDF::DataCube;
@@ -83,8 +83,8 @@ use integer;
 
 use vars qw ($AUTOLOAD %field @ISA);
 
-# inherits from XDF::Object
-@ISA = ("XDF::Object");
+# inherits from XDF::BaseObject
+@ISA = ("XDF::BaseObject");
 
 # CLASS DATA
 my $Class_Node_Name = "array";
@@ -139,7 +139,7 @@ my @Class_Attributes = qw (
 # */
 
 # add in super class attributes
-push @Class_Attributes, @{&XDF::Object::classAttributes};
+push @Class_Attributes, @{&XDF::BaseObject::classAttributes};
 
 # Initalization
 # set up object attributes.
@@ -170,7 +170,7 @@ sub AUTOLOAD {
   &XDF::GenericObject::AUTOLOAD($self, $val, $AUTOLOAD, \%field );
 }
 
-# private method called from XDF::Object->new
+# private method called from XDF::BaseObject->new
 sub _init {
   my ($self) = @_;
 
@@ -197,7 +197,7 @@ sub _init {
 # from the abstract class L<XDF::DataIOStyle>.
 # */
 # Note that we have to use this special method (instead of relying
-# on XDF::Object AUTOLOAD) to insure that _parentArray is properly
+# on XDF::GenericObject AUTOLOAD) to insure that _parentArray is properly
 # updated.
 sub XmlDataIOStyle {
   my ($self, $val) = @_;
@@ -557,6 +557,17 @@ sub fieldAxis {
 
 1;
 
+# Modification History
+#
+# $Log$
+# Revision 1.2  2000/10/16 17:37:20  thomas
+# Changed over to BaseObject Class from Object Class.
+# Added in History Modification section.
+#
+#
+#
+
+
 
 __END__
 
@@ -603,7 +614,7 @@ XDF::Array - Perl Class for Array
   
 
 
-XDF::Array inherits class and attribute methods of L<XDF::GenericObject>, L<XDF::Object>.
+XDF::Array inherits class and attribute methods of L<XDF::BaseObject>, L<XDF::GenericObject>.
 
 
 =over 4
@@ -779,7 +790,7 @@ A change in the value of these attributes will change the functioning of ALL ins
 
 =over 4
 
-The following class attribute methods are inherited from L<XDF::Object>:
+The following class attribute methods are inherited from L<XDF::BaseObject>:
 B<Pretty_XDF_Output>, B<Pretty_XDF_Output_Indentation>, B<DefaultDataArraySize>.
 
 =back
@@ -794,8 +805,8 @@ B<Pretty_XDF_Output>, B<Pretty_XDF_Output_Indentation>, B<DefaultDataArraySize>.
 
 =over 4
 
-XDF::Array inherits the following instance methods of L<XDF::GenericObject>:
-B<new>, B<clone>, B<update>, B<setObjRef>.
+XDF::Array inherits the following instance methods of L<XDF::BaseObject>:
+B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<toXMLFileHandle>, B<toXMLFile>.
 
 =back
 
@@ -803,8 +814,8 @@ B<new>, B<clone>, B<update>, B<setObjRef>.
 
 =over 4
 
-XDF::Array inherits the following instance methods of L<XDF::Object>:
-B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<toXMLFileHandle>, B<toXMLFile>.
+XDF::Array inherits the following instance methods of L<XDF::GenericObject>:
+B<new>, B<clone>, B<update>, B<setObjRef>.
 
 =back
 
@@ -812,7 +823,7 @@ B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<toXMLFileHandle>, B<toXML
 
 =head1 SEE ALSO
 
-L<XDF::Object>, L<XDF::Axis>, L<XDF::DataCube>, L<XDF::DataFormat>, L<XDF::FieldAxis>, L<XDF::Locator>, L<XDF::Note>, L<XDF::Parameter>, L<XDF::ParameterGroup>, L<XDF::TaggedXMLDataIOStyle>, L<XDF::Units>
+L<XDF::BaseObject>, L<XDF::Axis>, L<XDF::DataCube>, L<XDF::DataFormat>, L<XDF::FieldAxis>, L<XDF::Locator>, L<XDF::Note>, L<XDF::Parameter>, L<XDF::ParameterGroup>, L<XDF::TaggedXMLDataIOStyle>, L<XDF::Units>
 
 =back
 

@@ -37,7 +37,7 @@ package XDF::FixedStyle;
 # XDF::FixedDataType
 # */
 
-use XDF::Object;
+use XDF::BaseObject;
 use Carp;
 
 use strict;
@@ -45,8 +45,8 @@ use integer;
 
 use vars qw ($AUTOLOAD %field @ISA);
 
-# inherits from XDF::Object
-@ISA = ("XDF::Object");
+# inherits from XDF::BaseObject
+@ISA = ("XDF::BaseObject");
 
 # CLASS DATA
 my $Class_XML_Node_Name = "fixed";
@@ -56,7 +56,7 @@ my @Class_Attributes = qw (
                           );
 
 # add in super class attributes
-push @Class_Attributes, @{&XDF::Object::classAttributes};
+push @Class_Attributes, @{&XDF::BaseObject::classAttributes};
 
 # /** width
 # The entire width of this fixed field.
@@ -166,6 +166,16 @@ sub fortranNotation {
 }
 
 
+# Modification History
+#
+# $Log$
+# Revision 1.2  2000/10/16 17:37:20  thomas
+# Changed over to BaseObject Class from Object Class.
+# Added in History Modification section.
+#
+#
+#
+
 1;
 
 
@@ -186,7 +196,7 @@ XDF::FixedStyle - Perl Class for FixedStyle
 
  XDF::FixedStyle is an abstract class that describes (ASCII)  fixed (floating point) numbers. 
 
-XDF::FixedStyle inherits class and attribute methods of L<XDF::GenericObject>, L<XDF::Object>.
+XDF::FixedStyle inherits class and attribute methods of L<XDF::BaseObject>, L<XDF::GenericObject>.
 
 
 =over 4
@@ -231,6 +241,10 @@ The precision of this fixed field which is the number of digitsto the right of t
 
 A convenience method. Return the number of bytes this XDF::FixedStyle holds. 
 
+=item fortranNotation (EMPTY)
+
+The fortran style notation for this object. 
+
 =back
 
 =over 4
@@ -242,7 +256,7 @@ A change in the value of these attributes will change the functioning of ALL ins
 
 =over 4
 
-The following class attribute methods are inherited from L<XDF::Object>:
+The following class attribute methods are inherited from L<XDF::BaseObject>:
 B<Pretty_XDF_Output>, B<Pretty_XDF_Output_Indentation>, B<DefaultDataArraySize>.
 
 =back
@@ -257,8 +271,8 @@ B<Pretty_XDF_Output>, B<Pretty_XDF_Output_Indentation>, B<DefaultDataArraySize>.
 
 =over 4
 
-XDF::FixedStyle inherits the following instance methods of L<XDF::GenericObject>:
-B<new>, B<clone>, B<update>, B<setObjRef>.
+XDF::FixedStyle inherits the following instance methods of L<XDF::BaseObject>:
+B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<toXMLFileHandle>, B<toXMLFile>.
 
 =back
 
@@ -266,8 +280,8 @@ B<new>, B<clone>, B<update>, B<setObjRef>.
 
 =over 4
 
-XDF::FixedStyle inherits the following instance methods of L<XDF::Object>:
-B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<toXMLFileHandle>, B<toXMLFile>.
+XDF::FixedStyle inherits the following instance methods of L<XDF::GenericObject>:
+B<new>, B<clone>, B<update>, B<setObjRef>.
 
 =back
 
@@ -275,7 +289,7 @@ B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<toXMLFileHandle>, B<toXML
 
 =head1 SEE ALSO
 
-L< XDF::FixedDataFormat>, L< XDF::FixedDataType>, L<XDF::Object>
+L< XDF::FixedDataFormat>, L< XDF::FixedDataType>, L<XDF::BaseObject>
 
 =back
 

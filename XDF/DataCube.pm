@@ -36,7 +36,7 @@ package XDF::DataCube;
 # */
 
 use Carp;
-use XDF::Object;
+use XDF::BaseObject;
 
 # fields pragma requires Perl 5.005 support. what does this do exactly?? 
 # It does the following:
@@ -54,12 +54,13 @@ use integer;
 
 use vars qw ($AUTOLOAD %field @ISA);
 
-# inherits from XDF::Object
-@ISA = ("XDF::Object");
+# inherits from XDF::BaseObject
+@ISA = ("XDF::BaseObject");
 
 # CLASS DATA
 my $Class_XML_Node_Name = "data";
 my @Class_Attributes = qw (
+                             href
                              compression
                              dimension
                              maxDimensionIndex
@@ -82,7 +83,7 @@ my @Class_Attributes = qw (
 
 
 # add in super class attributes
-push @Class_Attributes, @{&XDF::Object::classAttributes};
+push @Class_Attributes, @{&XDF::BaseObject::classAttributes};
 
 # Initalization
 # set up object attributes.
@@ -111,7 +112,7 @@ sub classAttributes {
 # methods for our attributes (object fields).
 sub AUTOLOAD {
   my ($self,$val) = @_;
-  #&XDF::Object::AUTOLOAD($self, $val, $AUTOLOAD, \%{$XDF::DataCube::FIELDS} );
+  #&XDF::BaseObject::AUTOLOAD($self, $val, $AUTOLOAD, \%{$XDF::DataCube::FIELDS} );
   &XDF::GenericObject::AUTOLOAD($self, $val, $AUTOLOAD, \%field );
 }
 
@@ -148,56 +149,105 @@ sub clone {
 }
 
 # /** toXMLFileHandle
-# We overwrite the toXMLFileHandle method supplied by L<XDF::Object> to 
+# We overwrite the toXMLFileHandle method supplied by L<XDF::BaseObject> to 
 # have some special handling for the XDF::DataCube. The interface for this
 # method remains the same however. 
 # */
 # we dont want to write back out all the attributes, the data
 # needs special handling to write out, etc...
 sub toXMLFileHandle {
-  my ($self, $fileHandle, $junk, $indent) = @_;
-
-  my $readObj = $self->_parentArray->XmlDataIOStyle();
-
-  croak "DataCube can't write out. No format reference object defined.\n"
-     unless defined $readObj;
+  my ($self, $fileHandle, $junk, $indent, $newNodeNameString ) = @_;
 
   my $niceOutput = $self->Pretty_XDF_Output();
   $indent = "" unless defined $indent;
 
   my $nodeName = $self->classXMLNodeName;
+  $nodeName = $newNodeNameString if defined $newNodeNameString;
 
   # open the tagged data section
   print $fileHandle $indent if $niceOutput;
-  print $fileHandle "<" . $nodeName . ">";
+  print $fileHandle "<" . $nodeName ;
+  print $fileHandle " href=\"".$self->href."\"" if defined $self->href;
+  print $fileHandle " checksum=\"".$self->checksum."\"" if defined $self->checksum;
+  print $fileHandle ">";
 
-  my @size = @{$self->maxDimensionIndex()};
-
-  if (ref($readObj) eq 'XDF::TaggedXMLDataIOStyle' ) {
-
-     print $fileHandle "\n" if $niceOutput;
-     &_write_tagged_data($self, $fileHandle, $readObj, $indent, $niceOutput);
-
-  } elsif (ref($readObj) eq 'XDF::DelimitedXMLDataIOStyle' or
-           ref($readObj) eq 'XDF::FormattedXMLDataIOStyle' )
-  {
-
-    print $fileHandle "<![CDATA[";
-    &_write_untagged_data($self, $fileHandle, $readObj, $indent, $niceOutput);
-    print $fileHandle "]]>";
-    print $fileHandle "\n" if $niceOutput;
-
-  } else {
-
-     warn "Unknown read object: $readObj. $self cannot write itself out.\n";
-
-  } 
+  # write the data
+  $self->toFileHandle($fileHandle, $indent );
 
   # close the tagged data section
   print $fileHandle $indent if $niceOutput;
   print $fileHandle "</" . $nodeName . ">";
   print $fileHandle "\n" if $niceOutput;
 
+
+}
+
+# /** toFileHandle
+# Writes out just the data
+# */
+sub toFileHandle {
+  my ($self, $fileHandle, $indent, $dontPrintCDATATag ) = @_;
+
+  my $niceOutput = $self->Pretty_XDF_Output();
+  $indent = "" unless defined $indent;
+
+  my $readObj = $self->_parentArray->XmlDataIOStyle();
+
+  croak "DataCube can't write out. No format reference object defined.\n"
+     unless defined $readObj;
+
+  my @size = @{$self->maxDimensionIndex()};
+
+  my $href = $self->href;
+  my $dataFileHandle;
+  my $dataFileName;
+
+  if ( defined $href ) {
+
+      # BIG assumption: href is a file we want to read/write
+      # Better Handling in future is needed
+      if ($href =~ m/^file:\/\//) {
+        $dataFileName = $href;
+        $dataFileName =~ s/^file:\/\/(.*?)/$1/;
+        open(DFH, ">$dataFileName"); # we will write data to another file 
+                                     # as specified by the entity
+        $dataFileHandle = \*DFH;
+      } else {
+        croak "XDF::DataCube only takes files for href\n";
+      }      
+
+
+  } else {
+    $dataFileHandle = $fileHandle;
+  } 
+
+  croak "XDF::DataCube has no valid data filehandle" unless defined $dataFileHandle;
+
+  if (ref($readObj) eq 'XDF::TaggedXMLDataIOStyle' ) {
+
+     print $dataFileHandle "\n" if $niceOutput;
+     &_write_tagged_data($self, $dataFileHandle, $readObj, $indent, $niceOutput);
+
+  } elsif (ref($readObj) eq 'XDF::DelimitedXMLDataIOStyle' or
+           ref($readObj) eq 'XDF::FormattedXMLDataIOStyle' )
+  {
+    
+    print $dataFileHandle "<![CDATA[" unless $dontPrintCDATATag;
+    &_write_untagged_data($self, $dataFileHandle, $readObj, $indent, $niceOutput);
+    unless ($dontPrintCDATATag) {
+      print $dataFileHandle "]]>";
+      print $dataFileHandle "\n" if $niceOutput;
+    }
+
+  } else {
+
+     warn "Unknown read object: $readObj. $self cannot write itself out.\n";
+
+  }
+
+  if ( $dataFileName ) {
+    close DFH;
+  }
 
 }
 
@@ -518,6 +568,16 @@ sub getData {
   
 }
 
+# Modification History
+#
+# $Log$
+# Revision 1.2  2000/10/16 17:37:20  thomas
+# Changed over to BaseObject Class from Object Class.
+# Added in History Modification section.
+#
+#
+#
+
 1;
 
 
@@ -538,7 +598,7 @@ XDF::DataCube - Perl Class for DataCube
 
  Holds the data for a given L<XDF::Array>. It is designed to flexibly expand as data  is added/appended onto it. It doesnt treat swaping of large array data out to file currently. 
 
-XDF::DataCube inherits class and attribute methods of L<XDF::GenericObject>, L<XDF::Object>.
+XDF::DataCube inherits class and attribute methods of L<XDF::BaseObject>, L<XDF::GenericObject>.
 
 
 =over 4
@@ -565,6 +625,10 @@ These methods set the requested attribute if an argument is supplied to the meth
 
 =over 4
 
+=item href
+
+ 
+
 =item compression
 
 The STRING value which stores the type of compression algoritm usedto compress the data.  
@@ -587,9 +651,13 @@ The maximum index value along each dimension (Axis). Returns an ARRAY of SCALARS
 
 special method for dataCube. B<NOT IMPLEMENTED YET>. 
 
-=item toXMLFileHandle ($indent, $junk, $fileHandle)
+=item toXMLFileHandle ($newNodeNameString, $indent, $junk, $fileHandle)
 
-We overwrite the toXMLFileHandle method supplied by L<XDF::Object> to have some special handling for the XDF::DataCube. The interface for thismethod remains the same however. 
+We overwrite the toXMLFileHandle method supplied by L<XDF::BaseObject> to have some special handling for the XDF::DataCube. The interface for thismethod remains the same however. 
+
+=item toFileHandle ($dontPrintCDATATag, $indent, $fileHandle)
+
+Writes out just the data
 
 =item addData ($dontCheckBounds, $no_append, $data, $locator)
 
@@ -618,7 +686,7 @@ A change in the value of these attributes will change the functioning of ALL ins
 
 =over 4
 
-The following class attribute methods are inherited from L<XDF::Object>:
+The following class attribute methods are inherited from L<XDF::BaseObject>:
 B<Pretty_XDF_Output>, B<Pretty_XDF_Output_Indentation>, B<DefaultDataArraySize>.
 
 =back
@@ -633,8 +701,8 @@ B<Pretty_XDF_Output>, B<Pretty_XDF_Output_Indentation>, B<DefaultDataArraySize>.
 
 =over 4
 
-XDF::DataCube inherits the following instance methods of L<XDF::GenericObject>:
-B<new>, B<update>, B<setObjRef>.
+XDF::DataCube inherits the following instance methods of L<XDF::BaseObject>:
+B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<toXMLFile>.
 
 =back
 
@@ -642,8 +710,8 @@ B<new>, B<update>, B<setObjRef>.
 
 =over 4
 
-XDF::DataCube inherits the following instance methods of L<XDF::Object>:
-B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<toXMLFile>.
+XDF::DataCube inherits the following instance methods of L<XDF::GenericObject>:
+B<new>, B<update>, B<setObjRef>.
 
 =back
 
@@ -651,7 +719,7 @@ B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<toXMLFile>.
 
 =head1 SEE ALSO
 
-L< XDF::Array>, L<XDF::Object>
+L< XDF::Array>, L<XDF::BaseObject>
 
 =back
 

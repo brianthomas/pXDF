@@ -47,7 +47,7 @@ use integer;
 
 use vars qw ($AUTOLOAD %field @ISA);
 
-# inherits from XDF::Object and XDF::GroupObject
+# inherits from XDF::BaseObject and XDF::GroupObject
 @ISA = ("XDF::Group");
 
 # CLASS DATA
@@ -114,6 +114,16 @@ sub addParamGroup {
 # */
 sub removeParamGroup { my ($self, $obj) = @_; $self->removeMemberObject($obj); }
 
+# Modification History
+#
+# $Log$
+# Revision 1.2  2000/10/16 17:37:21  thomas
+# Changed over to BaseObject Class from Object Class.
+# Added in History Modification section.
+#
+#
+#
+
 1;
 
 
@@ -134,7 +144,7 @@ XDF::ParameterGroup - Perl Class for ParameterGroup
 
  An object to store information about how parameter objects are grouped relative to one another. Parameter group  objects may hold both XDF::Parameter and XDF::ParameterGroup objects as members. 
 
-XDF::ParameterGroup inherits class and attribute methods of L<XDF::GenericObject>, L<XDF::Group>, L<XDF::Object>.
+XDF::ParameterGroup inherits class and attribute methods of L<XDF::BaseObject>, L<XDF::GenericObject>, L<XDF::Group>.
 
 
 =over 4
@@ -178,7 +188,7 @@ A change in the value of these attributes will change the functioning of ALL ins
 
 =over 4
 
-The following class attribute methods are inherited from L<XDF::Object>:
+The following class attribute methods are inherited from L<XDF::BaseObject>:
 B<Pretty_XDF_Output>, B<Pretty_XDF_Output_Indentation>, B<DefaultDataArraySize>.
 
 =back
@@ -188,6 +198,15 @@ B<Pretty_XDF_Output>, B<Pretty_XDF_Output_Indentation>, B<DefaultDataArraySize>.
 =over 4
 
 =head2 INHERITED Other Methods
+
+
+
+=over 4
+
+XDF::ParameterGroup inherits the following instance methods of L<XDF::BaseObject>:
+B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<toXMLFileHandle>, B<toXMLFile>.
+
+=back
 
 
 
@@ -204,15 +223,6 @@ B<new>, B<clone>, B<update>, B<setObjRef>.
 
 XDF::ParameterGroup inherits the following instance methods of L<XDF::Group>:
 B<addMemberObject>, B<removeMemberObject>, B<hasMemberObj>.
-
-=back
-
-
-
-=over 4
-
-XDF::ParameterGroup inherits the following instance methods of L<XDF::Object>:
-B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<toXMLFileHandle>, B<toXMLFile>.
 
 =back
 

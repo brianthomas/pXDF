@@ -88,6 +88,16 @@ sub AUTOLOAD {
   &XDF::GenericObject::AUTOLOAD($self, $val, $AUTOLOAD, \%field );
 }
 
+# Modification History
+#
+# $Log$
+# Revision 1.2  2000/10/16 17:37:20  thomas
+# Changed over to BaseObject Class from Object Class.
+# Added in History Modification section.
+#
+#
+#
+
 1;
 
 
@@ -108,7 +118,7 @@ XDF::ExponentDataFormat - Perl Class for ExponentDataFormat
 
  The XDF::ExponentDataFormat class describes the data format of objects which  require such description (XDF::Field, XDF::Array). 
 
-XDF::ExponentDataFormat inherits class and attribute methods of L<XDF::ExponentStyle>, L<XDF::GenericObject>, L<XDF::Object>.
+XDF::ExponentDataFormat inherits class and attribute methods of L<XDF::BaseObject>, L<XDF::ExponentStyle>, L<XDF::GenericObject>.
 
 
 =over 4
@@ -138,7 +148,7 @@ A change in the value of these attributes will change the functioning of ALL ins
 
 =over 4
 
-The following class attribute methods are inherited from L<XDF::Object>:
+The following class attribute methods are inherited from L<XDF::BaseObject>:
 B<Pretty_XDF_Output>, B<Pretty_XDF_Output_Indentation>, B<DefaultDataArraySize>.
 
 =back
@@ -153,8 +163,17 @@ B<Pretty_XDF_Output>, B<Pretty_XDF_Output_Indentation>, B<DefaultDataArraySize>.
 
 =over 4
 
+XDF::ExponentDataFormat inherits the following instance methods of L<XDF::BaseObject>:
+B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<toXMLFileHandle>, B<toXMLFile>.
+
+=back
+
+
+
+=over 4
+
 XDF::ExponentDataFormat inherits the following instance methods of L<XDF::ExponentStyle>:
-B<bytes>.
+B<bytes>, B<fortranNotation>.
 
 =back
 
@@ -164,15 +183,6 @@ B<bytes>.
 
 XDF::ExponentDataFormat inherits the following instance methods of L<XDF::GenericObject>:
 B<new>, B<clone>, B<update>, B<setObjRef>.
-
-=back
-
-
-
-=over 4
-
-XDF::ExponentDataFormat inherits the following instance methods of L<XDF::Object>:
-B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<toXMLFileHandle>, B<toXMLFile>.
 
 =back
 

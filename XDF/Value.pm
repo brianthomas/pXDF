@@ -40,7 +40,7 @@
 
 package XDF::Value;
 
-use XDF::Object;
+use XDF::BaseObject;
 use Carp;
 
 use strict;
@@ -48,8 +48,8 @@ use integer;
 
 use vars qw ($AUTOLOAD %field @ISA);
 
-# inherits from XDF::Object
-@ISA = ("XDF::Object");
+# inherits from XDF::BaseObject
+@ISA = ("XDF::BaseObject");
 
 # CLASS DATA
 my $Class_XML_Node_Name = "value";
@@ -62,7 +62,7 @@ my @Class_Attributes = qw (
                           );
 
 # add in super class attributes
-push @Class_Attributes, @{&XDF::Object::classAttributes};
+push @Class_Attributes, @{&XDF::BaseObject::classAttributes};
 
 # Initalization
 # set up object attributes.
@@ -93,6 +93,16 @@ sub AUTOLOAD {
   &XDF::GenericObject::AUTOLOAD($self, $val, $AUTOLOAD, \%field );
 }
 
+# Modification History
+#
+# $Log$
+# Revision 1.2  2000/10/16 17:37:21  thomas
+# Changed over to BaseObject Class from Object Class.
+# Added in History Modification section.
+#
+#
+#
+
 1;
 
 
@@ -113,7 +123,7 @@ XDF::Value - Perl Class for Value
 
  An XDF::Value holds mathematical values. XDF::ErroredValue inherits from this object; this object is also used at every indice on an XDF::Axis object to denote the coordinate value of a given index. The XDF::Value can holds a scalar value. To hold a vector  (unit direction) value use XDF::UnitDirection instead. 
 
-XDF::Value inherits class and attribute methods of L<XDF::GenericObject>, L<XDF::Object>.
+XDF::Value inherits class and attribute methods of L<XDF::BaseObject>, L<XDF::GenericObject>.
 
 
 =over 4
@@ -171,7 +181,7 @@ A change in the value of these attributes will change the functioning of ALL ins
 
 =over 4
 
-The following class attribute methods are inherited from L<XDF::Object>:
+The following class attribute methods are inherited from L<XDF::BaseObject>:
 B<Pretty_XDF_Output>, B<Pretty_XDF_Output_Indentation>, B<DefaultDataArraySize>.
 
 =back
@@ -186,8 +196,8 @@ B<Pretty_XDF_Output>, B<Pretty_XDF_Output_Indentation>, B<DefaultDataArraySize>.
 
 =over 4
 
-XDF::Value inherits the following instance methods of L<XDF::GenericObject>:
-B<new>, B<clone>, B<update>, B<setObjRef>.
+XDF::Value inherits the following instance methods of L<XDF::BaseObject>:
+B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<toXMLFileHandle>, B<toXMLFile>.
 
 =back
 
@@ -195,8 +205,8 @@ B<new>, B<clone>, B<update>, B<setObjRef>.
 
 =over 4
 
-XDF::Value inherits the following instance methods of L<XDF::Object>:
-B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<toXMLFileHandle>, B<toXMLFile>.
+XDF::Value inherits the following instance methods of L<XDF::GenericObject>:
+B<new>, B<clone>, B<update>, B<setObjRef>.
 
 =back
 
@@ -204,7 +214,7 @@ B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<toXMLFileHandle>, B<toXML
 
 =head1 SEE ALSO
 
-L< XDF::Axis>, L< XDF::ErroredValue>, L< XDF::UnitDirection>, L<XDF::Object>
+L< XDF::Axis>, L< XDF::ErroredValue>, L< XDF::UnitDirection>, L<XDF::BaseObject>
 
 =back
 

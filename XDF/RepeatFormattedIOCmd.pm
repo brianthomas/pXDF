@@ -25,7 +25,7 @@ use integer;
 
 use vars qw ($AUTOLOAD %field @ISA);
 
-# inherits from XDF::Object
+# inherits from XDF::BaseObject
 @ISA = ("XDF::FormattedIOCmd");
 
 # CLASS DATA
@@ -251,6 +251,16 @@ sub _sprintfNotation {
 
 }
 
+# Modification History
+#
+# $Log$
+# Revision 1.2  2000/10/16 17:37:21  thomas
+# Changed over to BaseObject Class from Object Class.
+# Added in History Modification section.
+#
+#
+#
+
 1;
 
 
@@ -266,7 +276,7 @@ XDF::RepeatFormattedIOCmd - Perl Class for RepeatFormattedIOCmd
 
 =head1 DESCRIPTION
 
-XDF::RepeatFormattedIOCmd inherits class and attribute methods of L<XDF::FormattedIOCmd>, L<XDF::GenericObject>, L<XDF::Object>.
+XDF::RepeatFormattedIOCmd inherits class and attribute methods of L<XDF::BaseObject>, L<XDF::FormattedIOCmd>, L<XDF::GenericObject>.
 
 
 =over 4
@@ -326,7 +336,7 @@ A change in the value of these attributes will change the functioning of ALL ins
 
 =over 4
 
-The following class attribute methods are inherited from L<XDF::Object>:
+The following class attribute methods are inherited from L<XDF::BaseObject>:
 B<Pretty_XDF_Output>, B<Pretty_XDF_Output_Indentation>, B<DefaultDataArraySize>.
 
 =back
@@ -341,8 +351,8 @@ B<Pretty_XDF_Output>, B<Pretty_XDF_Output_Indentation>, B<DefaultDataArraySize>.
 
 =over 4
 
-XDF::RepeatFormattedIOCmd inherits the following instance methods of L<XDF::GenericObject>:
-B<new>, B<clone>, B<update>, B<setObjRef>.
+XDF::RepeatFormattedIOCmd inherits the following instance methods of L<XDF::BaseObject>:
+B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<toXMLFileHandle>, B<toXMLFile>.
 
 =back
 
@@ -350,8 +360,8 @@ B<new>, B<clone>, B<update>, B<setObjRef>.
 
 =over 4
 
-XDF::RepeatFormattedIOCmd inherits the following instance methods of L<XDF::Object>:
-B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<toXMLFileHandle>, B<toXMLFile>.
+XDF::RepeatFormattedIOCmd inherits the following instance methods of L<XDF::GenericObject>:
+B<new>, B<clone>, B<update>, B<setObjRef>.
 
 =back
 

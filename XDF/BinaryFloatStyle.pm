@@ -36,7 +36,7 @@
 
 package XDF::BinaryFloatStyle;
 
-use XDF::Object;
+use XDF::BaseObject;
 use Carp;
 
 use strict;
@@ -44,8 +44,8 @@ use integer;
 
 use vars qw ($AUTOLOAD %field @ISA);
 
-# inherits from XDF::Object
-@ISA = ("XDF::Object");
+# inherits from XDF::BaseObject
+@ISA = ("XDF::BaseObject");
 
 # CLASS DATA
 my $Def_BinaryFloat_Bits = 32;
@@ -55,7 +55,7 @@ my @Class_Attributes = qw (
                           );
 
 # add in super class attributes
-push @Class_Attributes, @{&XDF::Object::classAttributes};
+push @Class_Attributes, @{&XDF::BaseObject::classAttributes};
 
 # /** bits
 # The number of bits this XDF::BinaryFloatStyle holds.
@@ -161,6 +161,16 @@ sub fortranNotation {
   carp "There is no FORTRAN representation for binary data\n";
 }
 
+# Modification History
+#
+# $Log$
+# Revision 1.2  2000/10/16 17:37:20  thomas
+# Changed over to BaseObject Class from Object Class.
+# Added in History Modification section.
+#
+#
+#
+
 1;
 
 
@@ -181,7 +191,7 @@ XDF::BinaryFloatStyle - Perl Class for BinaryFloatStyle
 
  XDF::BinaryFloatStyle is an abstract class that describes binary floating  point numbers. 
 
-XDF::BinaryFloatStyle inherits class and attribute methods of L<XDF::GenericObject>, L<XDF::Object>.
+XDF::BinaryFloatStyle inherits class and attribute methods of L<XDF::BaseObject>, L<XDF::GenericObject>.
 
 
 =over 4
@@ -222,6 +232,10 @@ The number of bits this XDF::BinaryFloatStyle holds.
 
 A convenience method. Return the number of bytes this XDF::BinaryFloatStyle holds. 
 
+=item fortranNotation (EMPTY)
+
+The fortran style notation for this object. 
+
 =back
 
 =over 4
@@ -233,7 +247,7 @@ A change in the value of these attributes will change the functioning of ALL ins
 
 =over 4
 
-The following class attribute methods are inherited from L<XDF::Object>:
+The following class attribute methods are inherited from L<XDF::BaseObject>:
 B<Pretty_XDF_Output>, B<Pretty_XDF_Output_Indentation>, B<DefaultDataArraySize>.
 
 =back
@@ -248,8 +262,8 @@ B<Pretty_XDF_Output>, B<Pretty_XDF_Output_Indentation>, B<DefaultDataArraySize>.
 
 =over 4
 
-XDF::BinaryFloatStyle inherits the following instance methods of L<XDF::GenericObject>:
-B<new>, B<clone>, B<update>, B<setObjRef>.
+XDF::BinaryFloatStyle inherits the following instance methods of L<XDF::BaseObject>:
+B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<toXMLFileHandle>, B<toXMLFile>.
 
 =back
 
@@ -257,8 +271,8 @@ B<new>, B<clone>, B<update>, B<setObjRef>.
 
 =over 4
 
-XDF::BinaryFloatStyle inherits the following instance methods of L<XDF::Object>:
-B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<toXMLFileHandle>, B<toXMLFile>.
+XDF::BinaryFloatStyle inherits the following instance methods of L<XDF::GenericObject>:
+B<new>, B<clone>, B<update>, B<setObjRef>.
 
 =back
 
@@ -266,7 +280,7 @@ B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<toXMLFileHandle>, B<toXML
 
 =head1 SEE ALSO
 
-L< XDF::BinaryFloatDataType>, L< XDF::BinaryFloatDataFormat>, L<XDF::Object>
+L< XDF::BinaryFloatDataType>, L< XDF::BinaryFloatDataFormat>, L<XDF::BaseObject>
 
 =back
 

@@ -53,7 +53,7 @@ use integer;
 
 use vars qw ($AUTOLOAD %field @ISA);
 
-# inherits from XDF::Object
+# inherits from XDF::GenericObject
 # Technically, this is MORE than we want
 # we dont need the toXMLFile and related stuff at all.
 # Hopefully in the future we can split these objects appart.
@@ -66,7 +66,7 @@ my @Class_Attributes = qw (
                           );
 
 # add in super class attributes
-push @Class_Attributes, @{&XDF::Object::classAttributes};
+push @Class_Attributes, @{&XDF::GenericObject::classAttributes};
 
 # Initalization
 # set up object attributes.
@@ -113,7 +113,7 @@ sub new {
   return $self;
 }
 
-# private method called from XDF::Object->new
+# private method called from XDF::GenericObject->new
 sub _init {
   my ($self) = @_;
   $self->_locationList([]); 
@@ -279,6 +279,16 @@ sub toXMLFileHandle {
   warn "You made a silly error, this $self is not meant to be printed to XML.\n";
 }
 
+
+# Modification History
+#
+# $Log$
+# Revision 1.2  2000/10/16 17:37:21  thomas
+# Changed over to BaseObject Class from Object Class.
+# Added in History Modification section.
+#
+#
+#
 
 1;
 

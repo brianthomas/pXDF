@@ -29,7 +29,7 @@ use integer;
 
 use vars qw ($AUTOLOAD %field @ISA);
 
-# inherits from XDF::Object
+# inherits from XDF::BaseObject
 @ISA = ("XDF::XMLDataIOStyle");
 
 # CLASS DATA
@@ -106,6 +106,16 @@ sub _sprintfNotation {
   return $notation;
 }
 
+# Modification History
+#
+# $Log$
+# Revision 1.2  2000/10/16 17:37:20  thomas
+# Changed over to BaseObject Class from Object Class.
+# Added in History Modification section.
+#
+#
+#
+
 1;
 
 
@@ -123,7 +133,7 @@ XDF::DelimitedXMLDataIOStyle - Perl Class for DelimitedXMLDataIOStyle
 
  XDF::DelimitedDataIOStyle is a class that indicates how delimited ASCII  records are to be read in. 
 
-XDF::DelimitedXMLDataIOStyle inherits class and attribute methods of L<XDF::GenericObject>, L<XDF::XMLDataIOStyle>, L<XDF::Object>.
+XDF::DelimitedXMLDataIOStyle inherits class and attribute methods of L<XDF::BaseObject>, L<XDF::GenericObject>, L<XDF::XMLDataIOStyle>.
 
 
 =over 4
@@ -173,7 +183,7 @@ A change in the value of these attributes will change the functioning of ALL ins
 
 =over 4
 
-The following class attribute methods are inherited from L<XDF::Object>:
+The following class attribute methods are inherited from L<XDF::BaseObject>:
 B<Pretty_XDF_Output>, B<Pretty_XDF_Output_Indentation>, B<DefaultDataArraySize>.
 
 =back
@@ -183,6 +193,15 @@ B<Pretty_XDF_Output>, B<Pretty_XDF_Output_Indentation>, B<DefaultDataArraySize>.
 =over 4
 
 =head2 INHERITED Other Methods
+
+
+
+=over 4
+
+XDF::DelimitedXMLDataIOStyle inherits the following instance methods of L<XDF::BaseObject>:
+B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<toXMLFile>.
+
+=back
 
 
 
@@ -199,15 +218,6 @@ B<new>, B<clone>, B<update>, B<setObjRef>.
 
 XDF::DelimitedXMLDataIOStyle inherits the following instance methods of L<XDF::XMLDataIOStyle>:
 B<toXMLFileHandle>.
-
-=back
-
-
-
-=over 4
-
-XDF::DelimitedXMLDataIOStyle inherits the following instance methods of L<XDF::Object>:
-B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<toXMLFile>.
 
 =back
 

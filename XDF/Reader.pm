@@ -496,7 +496,7 @@ sub create_validating_parser {
 #@ 'debug'      => Set the reader to run with debugging messages. Defaults to 0 ('no'). 
 #@ 
 #@ 'axisSize'   => Set the number of indices to allocate along each dimension. This
-#@                 can speed up large file reads. Defaults to $XDF::Object::DefaultDataArraySize. 
+#@                 can speed up large file reads. Defaults to $XDF::BaseObject::DefaultDataArraySize. 
 #@ 
 #@ 'maxWarning" => Change the maximum allowed number of warnings before the XDF::Reader
 #@                 will halt its parse of the input file/fileHandle. 
@@ -703,7 +703,12 @@ sub handle_default {
   
 sub handle_external_ent {
    my ($parser_ref, $base, $sysid, $pubid) = @_;
-   &print_debug("H_EXTERN_ENT: $base, $sysid, $pubid \n");
+   my $entityString = "H_EXTERN_ENT: ";
+   $entityString .= ", Base:$base" if defined $base;
+   $entityString .= ", SYS:$sysid" if defined $sysid;
+   $entityString .= " PUB:$pubid" if defined $pubid;
+   $entityString .= "\n";
+   &print_debug($entityString);
 }
 
 sub handle_entity {
@@ -1968,6 +1973,16 @@ sub my_fail {
 }
 
 
+# Modification History
+#
+# $Log$
+# Revision 1.2  2000/10/16 17:37:21  thomas
+# Changed over to BaseObject Class from Object Class.
+# Added in History Modification section.
+#
+#
+#
+
 1;
 
 
@@ -2052,7 +2067,7 @@ A change in the value of these attributes will change the functioning of ALL ins
   'debug'      => Set the reader to run with debugging messages. Defaults to 0 ('no'). 
   
   'axisSize'   => Set the number of indices to allocate along each dimension. This
-                  can speed up large file reads. Defaults to $XDF::Object::DefaultDataArraySize. 
+                  can speed up large file reads. Defaults to $XDF::BaseObject::DefaultDataArraySize. 
   
   'maxWarning" => Change the maximum allowed number of warnings before the XDF::Reader
                   will halt its parse of the input file/fileHandle. 
