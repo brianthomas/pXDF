@@ -174,7 +174,7 @@ sub getIterationOrder {
 #/** setIterationOrder
 #  This will also result in a resetting the current (axis) indices to the origin
 #  location. 
-#  The last axis is considered the 'fastest' axis in the traversal.
+#  The first axis is considered the 'fastest' axis in the traversal.
 # */
 sub setIterationOrder {
   my ($self, $axisOrderListRef ) = @_;
@@ -349,6 +349,9 @@ sub _init {
 # Modification History
 #
 # $Log$
+# Revision 1.12  2001/03/26 18:11:43  thomas
+# Documentation was wrong (!). Fixed.
+#
 # Revision 1.11  2001/03/16 19:54:57  thomas
 # Documentation updated and improved, re-ran makeDoc on file.
 #
@@ -463,7 +466,7 @@ Returns a list of the current indices (present locator position in the dataCube)
 
 =item setIterationOrder ($axisOrderListRef)
 
-This will also result in a resetting the current (axis) indices to the originlocation. The last axis is considered the 'fastest' axis in the traversal.  
+This will also result in a resetting the current (axis) indices to the originlocation. The first axis is considered the 'fastest' axis in the traversal.  
 
 =item setAxisIndexByAxisValue ($axisValueOrValueObj, $axisObj)
 
