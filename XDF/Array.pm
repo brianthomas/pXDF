@@ -103,6 +103,10 @@ my @Class_XML_Attributes = qw (
                      infiniteValue
                      infiniteNegativeValue
                      noDataValue
+                     notANumberValue
+                     overFlowValue
+                     underFlowValue
+                     disabledValue
                                 paramList
                                 units
                                 dataFormat
@@ -356,6 +360,70 @@ sub setNoDataValue {
    my ($self, $value) = @_;
    $self->{NoDataValue} = $value;
 }
+
+# /** getNotANumberValue
+# 
+# */
+sub getNotANumberValue {
+   my ($self) = @_;
+   return $self->{NotANumberValue};
+}
+                                
+# /** setNotANumberValue            
+#     Set the notANumberValue attribute. 
+# */                            
+sub setNotANumberValue {            
+   my ($self, $value) = @_;     
+   $self->{NotANumberValue} = $value;
+} 
+
+# /** getOverFlowValue
+# 
+# */
+sub getOverFlowValue {
+   my ($self) = @_;
+   return $self->{OverFlowValue};
+}
+                                
+# /** setOverFlowValue            
+#     Set the overFlowValue attribute. 
+# */                            
+sub setOverFlowValue {            
+   my ($self, $value) = @_;     
+   $self->{OverFlowValue} = $value;
+}
+
+# /** getUnderFlowValue
+# 
+# */
+sub getUnderFlowValue {
+   my ($self) = @_;
+   return $self->{UnderFlowValue};
+}
+                                
+# /** setUnderFlowValue            
+#     Set the underFlowValue attribute. 
+# */                            
+sub setUnderFlowValue {            
+   my ($self, $value) = @_;     
+   $self->{UnderFlowValue} = $value;
+} 
+
+# /** getDisabledValue
+# 
+# */
+sub getDisabledValue {
+   my ($self) = @_;
+   return $self->{DisabledValue};
+}
+                                
+# /** setDisabledValue            
+#     Set the disabledValue attribute. 
+# */                            
+sub setDisabledValue {            
+   my ($self, $value) = @_;     
+   $self->{DisabledValue} = $value;
+} 
 
 # /** getDataCube
 # 

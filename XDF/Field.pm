@@ -123,6 +123,10 @@ my @Class_XML_Attributes = qw (
                       infiniteValue
                       infiniteNegativeValue
                       noDataValue
+                      notANumberValue
+                      overFlowValue
+                      underFlowValue
+                      disabledValue
                       units
                       dataFormat
                       relation
@@ -342,6 +346,70 @@ sub setNoDataValue {
    $self->{NoDataValue} = $value;
 }
 
+# /** getNotANumberValue
+# 
+# */
+sub getNotANumberValue {
+   my ($self) = @_;
+   return $self->{NotANumberValue};
+}
+
+# /** setNotANumberValue            
+#     Set the notANumberValue attribute. 
+# */                            
+sub setNotANumberValue {
+   my ($self, $value) = @_;
+   $self->{NotANumberValue} = $value;
+}
+
+# /** getOverFlowValue
+# 
+# */
+sub getOverFlowValue {
+   my ($self) = @_;
+   return $self->{OverFlowValue};
+}
+
+# /** setOverFlowValue            
+#     Set the overFlowValue attribute. 
+# */                            
+sub setOverFlowValue {
+   my ($self, $value) = @_;
+   $self->{OverFlowValue} = $value;
+}
+
+# /** getUnderFlowValue
+# 
+# */
+sub getUnderFlowValue {
+   my ($self) = @_;
+   return $self->{UnderFlowValue};
+}
+
+# /** setUnderFlowValue            
+#     Set the underFlowValue attribute. 
+# */                            
+sub setUnderFlowValue {
+   my ($self, $value) = @_;
+   $self->{UnderFlowValue} = $value;
+}
+
+# /** getDisabledValue
+# 
+# */
+sub getDisabledValue {
+   my ($self) = @_;
+   return $self->{DisabledValue};
+}
+
+# /** setDisabledValue            
+#     Set the disabledValue attribute. 
+# */                            
+sub setDisabledValue {
+   my ($self, $value) = @_;
+   $self->{DisabledValue} = $value;
+}
+
 # /** getUnits
 # */
 sub getUnits{
@@ -484,6 +552,10 @@ sub _init {
 # Modification History
 #
 # $Log$
+# Revision 1.14  2001/07/02 17:25:15  thomas
+# added notANumberValue, disabledValue, overflowValue,
+# and underflowValue attributes.
+#
 # Revision 1.13  2001/06/29 21:07:12  thomas
 # changed public add (and remove) methods to
 # conform to Java API standard: e.g. return boolean
