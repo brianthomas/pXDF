@@ -91,7 +91,7 @@ sub new {
     my $self = $proto->SUPER::new (%args);
 
     return $self;
-}
+} 
 
 sub parse {
    my ($self, $file) = @_;
@@ -160,7 +160,7 @@ sub _parseNodeIntoXDFObject {
    $newnode->setOwnerDocument($miniDOM);
    $miniDOM->appendChild($newnode);
 
-   my $reader = new XDF::Reader();
+   my $reader = new XDF::Reader(('validate' => 0, 'quiet' => 0,));
    my $XDFObject = $reader->parseString($miniDOM->toString());
 
    return $XDFObject;
@@ -169,6 +169,9 @@ sub _parseNodeIntoXDFObject {
 # Modification History
 #
 # $Log$
+# Revision 1.2  2001/04/10 22:09:16  thomas
+# minor change to invoked reader parameters.
+#
 # Revision 1.1  2001/03/23 21:55:14  thomas
 # Initial Version
 #
