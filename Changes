@@ -54,3 +54,8 @@ Revision history for Perl extension XDF.
           many bugs remain (!). 
 
 
+0.17-beta1 
+	- allow user-defined start, end, charData handlers.
+        - added XMLElement class to capture non-XDF nodes as per the XDF DTD.
+        - fixed starthandlers in Reader.pm to return the object they create (where possible)
+

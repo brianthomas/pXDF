@@ -1,5 +1,5 @@
 <!--  XDF.dtd - eXtensible Data Format - version 0.17
-	Date: July 17, 2000
+	Date: February 26, 2001
 	XML lanaguage Document Type Definition (DTD).
 
 	An XDF document contains arrays and data structures.  It  is
@@ -20,21 +20,25 @@
 <!ENTITY newLine "&#10;">
 <!ENTITY carriageReturn "&#13;">
 <!ENTITY space "&#32;">
-<!-- The XDF_KEYWORD_ADDITION allows subfield/specialty keywords to be added
+<!-- The entities _ADDITION allows subfield/specialty keywords to be added
 to the elements: XDF, structure, array, and field.  Do not change here.
 Rather create a subfieldML.dtd that overrides this and XDF_TYPE and
 calls XDF.dtd by a parameter entity.
 -->
-<!ENTITY % XDF_KEYWORD_ADDITION " ">
-<!ENTITY % XDF_AXIS_ADDITION " ">
+<!ENTITY % XDF_ELEMENTS_ADDITION " ">
+<!ENTITY % AXIS_ELEMENTS_ADDITION " ">
+<!ENTITY % ARRAY_ELEMENTS_ADDITION " ">
+<!ENTITY % STRUCTURE_ELEMENTS_ADDITION " ">
+<!ENTITY % FIELD_ELEMENTS_ADDITION " ">
 <!ENTITY % XDF_TYPE "basic">
-<!ELEMENT XDF (%XDF_KEYWORD_ADDITION;(structure | parameter | parameterGroup | array | note*)+)>
+
+<!ELEMENT XDF (%XDF_ELEMENTS_ADDITION;(structure | parameter | parameterGroup | array | note)+)>
 <!ATTLIST XDF
 	name CDATA #IMPLIED
 	description CDATA #IMPLIED
 	type   CDATA  "%XDF_TYPE;"
 >
-<!ELEMENT structure (%XDF_KEYWORD_ADDITION;(structure | parameter | parameterGroup | array | note*)+)>
+<!ELEMENT structure (%STRUCTURE_ELEMENTS_ADDITION;(structure | parameter | parameterGroup | array | note)+)>
 <!ATTLIST structure
 	name CDATA #IMPLIED
 	description CDATA #IMPLIED
@@ -159,23 +163,24 @@ calls XDF.dtd by a parameter entity.
         on each axis of the current array to properly assemble it.
 
 -->
-<!ELEMENT array (%XDF_KEYWORD_ADDITION;(parameter | parameterGroup)*, axis*, (fieldAxis | (units, dataFormat))?, axis*, read, data, notes?)>
+<!ELEMENT array (%ARRAY_ELEMENTS_ADDITION;(parameter | parameterGroup)*, axis*, (fieldAxis | (units, dataFormat)), axis*, read, data, notes?)>
 <!ATTLIST array
 	name CDATA #IMPLIED
 	description CDATA #IMPLIED
 	arrayId ID #IMPLIED
 	appendTo IDREF #IMPLIED
-	lessThanValue NMTOKEN #IMPLIED
-	lessThanOrEqualValue NMTOKEN #IMPLIED
-	greaterThanValue NMTOKEN #IMPLIED
-	greaterThanOrEqualValue NMTOKEN #IMPLIED
-	infiniteValue CDATA #IMPLIED
-	infiniteNegativeValue CDATA #IMPLIED
-	noDataValue CDATA #IMPLIED
-	notANumberValue   CDATA   #IMPLIED
-	underflowValue   CDATA   #IMPLIED
-	overflowValue     CDATA    #IMPLIED
-	disabled          CDATA    #IMPLIED
+	class (spatial|temporal) #IMPLIED
+	lessThanValue           NMTOKEN    #IMPLIED
+	lessThanOrEqualValue    NMTOKEN    #IMPLIED
+	greaterThanValue        NMTOKEN    #IMPLIED
+	greaterThanOrEqualValue NMTOKEN    #IMPLIED
+	infiniteValue           CDATA      #IMPLIED
+	infiniteNegativeValue   CDATA      #IMPLIED
+	noDataValue             CDATA      #IMPLIED
+	notANumberValue         CDATA      #IMPLIED
+	underflowValue          CDATA      #IMPLIED
+	overflowValue           CDATA      #IMPLIED
+	disabled                CDATA      #IMPLIED
 >
 <!--    Each dimension of an N-dimensional structure is introduced by
 	an axis element.  The order is not important because the read element
@@ -194,7 +199,7 @@ calls XDF.dtd by a parameter entity.
         to accomplish an array/@apppendTo.
 
 -->
-<!ELEMENT axis (((axisUnits, (value | valueList | valueGroup)+) | unitDirection)* %XDF_AXIS_ADDITION;)>
+<!ELEMENT axis (%AXIS_ELEMENTS_ADDITION;((axisUnits, (value | valueList | valueGroup)+) | unitDirection)*)>
 <!ATTLIST axis
 	name CDATA #IMPLIED
 	description CDATA #IMPLIED
@@ -239,24 +244,24 @@ calls XDF.dtd by a parameter entity.
 	axisId ID #IMPLIED
 	axisIdRef IDREF #IMPLIED
 >
-<!ELEMENT field (%XDF_KEYWORD_ADDITION;(units, dataFormat)?, relation?, note*)>
+<!ELEMENT field (%FIELD_ELEMENTS_ADDITION;(units, dataFormat)?, relation?, note*)>
 <!ATTLIST field
 	name CDATA #IMPLIED
 	description CDATA #IMPLIED
 	fieldId ID #IMPLIED
 	fieldIdRef IDREF #IMPLIED
-	class (coordinate) #IMPLIED
-	lessThanValue NMTOKEN #IMPLIED
-	lessThanOrEqualValue NMTOKEN #IMPLIED
-	greaterThanValue NMTOKEN #IMPLIED
-	greaterThanOrEqualValue NMTOKEN #IMPLIED
-	infiniteValue CDATA #IMPLIED
-	infiniteNegativeValue CDATA #IMPLIED
-	noDataValue CDATA #IMPLIED
-	notANumberValue   CDATA   #IMPLIED
-	underflowValue   CDATA   #IMPLIED
-	overflowValue     CDATA    #IMPLIED
-	disabled          CDATA    #IMPLIED
+	class (spatial|temporal) #IMPLIED
+	lessThanValue           NMTOKEN    #IMPLIED
+	lessThanOrEqualValue    NMTOKEN    #IMPLIED
+	greaterThanValue        NMTOKEN    #IMPLIED
+	greaterThanOrEqualValue NMTOKEN    #IMPLIED
+	infiniteValue           CDATA      #IMPLIED
+	infiniteNegativeValue   CDATA      #IMPLIED
+	noDataValue             CDATA      #IMPLIED
+	notANumberValue         CDATA      #IMPLIED
+	underflowValue          CDATA      #IMPLIED
+	overflowValue           CDATA      #IMPLIED
+	disabled                CDATA      #IMPLIED
 
 >
 <!-- 	Relationships between fields in a fieldGroup can be expressed with 
@@ -307,6 +312,7 @@ grouped together with name="position".
 	repeated until the end of the data. 
 -->
 <!ELEMENT dataFormat (float | integer | string | binaryInteger | binaryFloat)>
+
 <!ELEMENT read (for | tagToAxis+)>
 <!ATTLIST read
 	encoding (ANSI | ISO-8859-1 | UTF-8 | UTF-16) "ISO-8859-1"

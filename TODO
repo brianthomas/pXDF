@@ -4,16 +4,21 @@
       feature-complete release candidate.
    ---------------------------------------------------------------------------
 
-   - binary IO not fully tested (only on Linux so far). 
+   - binary IO not well tested (only on Linux so far). 
+
+   - Its possible to write non-valid XDF by adding XMLElements where they dont
+     belong (e.g. on classes other than Structure Array, Axis, Field and FieldAxis).
+     Restriction of this is needed.
 
    - Href stuff only supports files. Need Entity Resolver type behavior ala Java.
 
    - readId/readIdRef implemented, however problems will result if readIdRef
-     is specified AND the read node has child for nodes. We probably need to 
+     is specified AND the read node has child nodes. We probably need to 
      prevent the user from doing this in the DTD (err. schema).
 
    - minor irritation: order of the attributes written (psuedo-)randomly in
-     output XML. Need attribOrder as in Java.
+     output XML. Need attribOrder as in Java (and to fully adopt XMLAttribute
+     for holding attribute information).
 
    - Output of Notes/location stuff is yucky, need to use locator objects in
      the notes, same as we need to do in Java Package.
@@ -36,6 +41,10 @@
    - Although it works, grouping not consistently implemented??
      (fix addParamGroup in Array.pm for example)
 
+   - consistent implementation of "addObject" methods. Some take object reference,
+     others take attribute_hash_ref, others take both. All add methods should return
+     the object they are adding. Needs review!!.
+
    - Identify addtional convience methods that need to be implemented. Any Chaff to be removed?  
 
    - Problem wi/ External Entities. How to read in DTD to get the
@@ -47,13 +56,7 @@
 
    - Reconstitute ValueList from values when writing to XML (hurm.. not likely).
 
-   - Allow user defined handlers for start/end element and char data in XDF::Reader. 
-
    - Improve the documentation (check spelling! improve descriptions of methods).
-
-   - User evaluation of method calls. Anything that can be improved? Missing 
-     "convience" methods? (yes, this should have been done in object construction,
-     but alas, we can forsee *everything*). 
 
 
    -------------------------
