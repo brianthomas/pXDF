@@ -211,10 +211,10 @@ sub getValues {
 }
 
 #
-# Other Public Methods
+# Protected/Private Methods
 #
 
-sub toXMLFileHandle {
+sub _basicXMLWriter {
    my ($self, $fileHandle, $XMLDeclAttribs, $indent ) = @_;
 
    if(!defined $fileHandle) {
@@ -272,13 +272,7 @@ sub toXMLFileHandle {
 
    print $fileHandle "</valueList>";
 
-   print $fileHandle "\n" if $isPrettyXDFOutput;
-
 }
-
-#
-# Private methods 
-#
 
 sub _init {
    my ($self, $valueListRef, $delimiter, $noDataValue, $infiniteValue, $infiniteNegativeValue, $notANumberValue, $overflowValue, $underflowValue) = @_;
@@ -323,32 +317,7 @@ sub AUTOLOAD {
   &XDF::GenericObject::AUTOLOAD($self, $val, $AUTOLOAD, \%field );
 }
 
-# Modification History
-#
-# $Log$
-# Revision 1.5  2001/08/13 20:56:37  thomas
-# updated documentation via utils/makeDoc.pl for the release.
-#
-# Revision 1.4  2001/08/13 19:56:29  thomas
-# bug fix: use only local XML attributes for appendAttribs in _init
-#
-# Revision 1.3  2001/08/10 16:28:24  thomas
-# added local clone method (so work properly).
-# fixed toXMLFileHandle method to print properly.
-#
-# Revision 1.2  2001/07/23 15:58:07  thomas
-# added ability to add arbitary XML attribute to class.
-# getXMLattributes now an instance method, we
-# have old class method now called getClassXMLAttributes.
-#
-# Revision 1.1  2001/07/13 21:38:25  thomas
-# Initial Version
-#
-#
-#
-
 1;
-
 
 __END__
 

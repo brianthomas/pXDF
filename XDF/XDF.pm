@@ -180,7 +180,10 @@ sub loadFromXDFFile {
 
 }
 
-#/** toXMLFileHandle
+#
+# Protected/Private Methods 
+#
+
 # Write this structure and all the objects it owns to the supplied filehandle 
 # in XML (XDF) format. The first argument is the name of the filehandle and is required. 
 #@
@@ -194,8 +197,7 @@ sub loadFromXDFFile {
 #                      'standalone => 'no',
 #                    );
 #
-#*/
-sub toXMLFileHandle {
+sub _basicXMLWriter {
   my ($self, $fileHandle, $XMLDeclAttribs, $indent, $dontCloseNode, $newNodeNameString, $noChildObjectNodeName, $isRootNode  ) = @_;
 
   if(!defined $fileHandle) {
@@ -211,14 +213,9 @@ sub toXMLFileHandle {
      $self->_write_XML_decl_to_file_handle($fileHandle, $XMLDeclAttribs, $spec);
   }
 
-  $self->SUPER::toXMLFileHandle($fileHandle, $XMLDeclAttribs, $indent, $dontCloseNode, $newNodeNameString, $noChildObjectNodeName, $isRootNode);
+  $self->SUPER::_basicXMLWriter($fileHandle, $XMLDeclAttribs, $indent, $dontCloseNode, $newNodeNameString, $noChildObjectNodeName, $isRootNode);
 
 }
-
-
-#
-# Private Methods 
-#
 
 # This is called when we cant find any defined method
 # exists already. Used to handle general purpose set/get
@@ -295,39 +292,7 @@ sub _write_XML_decl_to_file_handle {
 
 }
 
-
-# Modification History
-#
-# $Log$
-# Revision 1.7  2001/08/13 22:03:25  thomas
-# small fix to documentation
-#
-# Revision 1.6  2001/08/13 20:56:37  thomas
-# updated documentation via utils/makeDoc.pl for the release.
-#
-# Revision 1.5  2001/08/13 19:54:43  thomas
-# bug fix: use only local XML attributes for appendAttribs in _init
-#
-# Revision 1.4  2001/08/10 16:29:28  thomas
-# Fixed inheritance bug, was repeating Structure attribs 2X.
-#
-# Revision 1.3  2001/07/23 15:58:07  thomas
-# added ability to add arbitary XML attribute to class.
-# getXMLattributes now an instance method, we
-# have old class method now called getClassXMLAttributes.
-#
-# Revision 1.2  2001/07/17 17:39:45  thomas
-# fine tuning to loadFromXDFFile method. Improved
-# documentation on toXMLFileHandle method.
-#
-# Revision 1.1  2001/07/13 21:39:44  thomas
-# Initial version
-#
-#
-#
-
 1;
-
 
 __END__
 

@@ -123,6 +123,10 @@ sub setXMLElementList {
   $self->{_childXMLElementList} = $listRef;
 }
 
+#
+# Protected/Private Methods
+#
+
 sub _init {
   my ($self) = @_;
 
@@ -134,10 +138,7 @@ sub _init {
 
 }
 
-#/** toXMLFileHandle
-#
-#*/
-sub toXMLFileHandle {
+sub _basicXMLWriter {
   my ($self, $fileHandle, $XMLDeclAttribs, $indent, $dontCloseNode, $newNodeNameString, $noChildObjectNodeName ) = @_;
 
   if(!defined $fileHandle) {
@@ -252,50 +253,7 @@ sub toXMLFileHandle {
 
   }
 
-  print $fileHandle "\n" if $Pretty_XDF_Output;
-
 }
-
-# Modification History
-#
-# $Log$
-# Revision 1.9  2001/08/13 20:56:36  thomas
-# updated documentation via utils/makeDoc.pl for the release.
-#
-# Revision 1.8  2001/08/13 19:58:03  thomas
-# bug fix: use only local XML attributes for appendAttribs in _init
-#
-# Revision 1.7  2001/07/23 15:58:07  thomas
-# added ability to add arbitary XML attribute to class.
-# getXMLattributes now an instance method, we
-# have old class method now called getClassXMLAttributes.
-#
-# Revision 1.6  2001/07/17 17:37:51  thomas
-# Removed printing of XMLDecl from toXMLFileHandle method.
-# Removed isRootNode var on toXMLFileHandle method.
-#
-# Revision 1.5  2001/07/13 21:43:19  thomas
-# small changes to yank code out of toXMLFileHandle and put in sub-methods
-#
-# Revision 1.4  2001/07/06 18:29:12  thomas
-# stripped out unneeded nodenames stuff in toXMLFileHandle.
-# Fixed bug in group printing in toXMLFileHandle.
-#
-# Revision 1.3  2001/06/29 21:07:12  thomas
-# changed public add (and remove) methods to
-# conform to Java API standard: e.g. return boolean
-# rather than an object. Also, these methods only
-# accept an object (in general) as input (instead of an attribute hash).
-#
-# Revision 1.2  2001/04/25 16:01:31  thomas
-# updated documentation
-#
-# Revision 1.1  2001/04/17 18:45:34  thomas
-# New class derived from BaseObject. Allows holding
-# of XMLElements within the object.
-#
-#
-#
 
 1;
 

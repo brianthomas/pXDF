@@ -244,6 +244,7 @@ sub isGroupMember {
   return exists %{$self->{_groupMemberHash}}->{$groupObj} ? 1 : undef;
 }
 
+
 # /** toXMLFileHandle
 # Write this structure and all the objects it owns to the supplied filehandle 
 # in XML (XDF) format. The first argument is the name of the filehandle and is required. 
@@ -254,6 +255,58 @@ sub isGroupMember {
 # hardwire a number of things to enforce DTD compliance.
 # -b.t.
 sub toXMLFileHandle {
+   my ($self, $fileHandle, $XMLDeclAttribs, $indent, $dontCloseNode, $newNodeNameString, $noChildObjectNodeName) = @_;
+
+   &_basicXMLWriter(@_);
+   print $fileHandle "\n" if XDF::Specification->getInstance()->isPrettyXDFOutput;
+}
+
+#/** toXMLString
+#  Print out the XML representation of this object.
+#  Similar to toXMLFileHandle method, takes the same arguments barring the
+#  first (e.g. the FileHandle reference) which is not needed for this method.
+#  Returns a string XML representation of the object.
+# */
+sub toXMLString {
+   my ($self, $XMLDeclAttribs, $indent, $dontCloseNode, $newNodeNameString, $noChildObjectNodeName ) = @_;
+
+   # we will capture output to special filehandle class
+   # defined at the end of this this file 
+   tie *CAPTURE, '_fileHandleToString';
+   $self->toXMLFileHandle(\*CAPTURE, $XMLDeclAttribs, $indent, $dontCloseNode,
+                          $newNodeNameString, $noChildObjectNodeName );
+   my $string = <CAPTURE>;
+   untie *CAPTURE;
+
+   return $string;
+}
+
+# /** toXMLFile
+# This is a convenience method which allows writing of this object and all 
+# the objects it owns to the indicated file in XML (XDF) format. The first argument 
+# is the name of the file and is required. The supplied filename will be OVERWRITTEN, 
+# not appended to. The second, optional, argument has the same meaning as for toXMLFileHandle.
+# */
+sub toXMLFile {
+  my ($self, $file, $XMLDeclAttribs) = @_;
+
+  if(!open(FILE, ">$file")) {
+    carp "Can't open file: $file for writing.\n";
+    return;
+  }
+
+  # write myself out
+  $self->toXMLFileHandle(\*FILE, $XMLDeclAttribs);
+
+  close FILE;
+
+}
+
+#
+# Private/Protected Methods
+#
+
+sub _basicXMLWriter { 
   my ($self, $fileHandle, $XMLDeclAttribs, $indent, $dontCloseNode, $newNodeNameString, $noChildObjectNodeName) = @_;
 
   if(!defined $fileHandle) {
@@ -360,55 +413,8 @@ sub toXMLFileHandle {
     }
 
   }
-
-  print $fileHandle "\n" if $Pretty_XDF_Output;# && $#nodenames > -1;
  
 }
-
-#/** toXMLString
-#  Print out the XML representation of this object.
-#  Similar to toXMLFileHandle method, takes the same arguments barring the
-#  first (e.g. the FileHandle reference) which is not needed for this method.
-#  Returns a string XML representation of the object.
-# */
-sub toXMLString {
-   my ($self, $XMLDeclAttribs, $indent, $dontCloseNode, $newNodeNameString, $noChildObjectNodeName ) = @_;
-
-   # we will capture output to special filehandle class
-   # defined at the end of this this file 
-   tie *CAPTURE, '_fileHandleToString';
-   $self->toXMLFileHandle(\*CAPTURE, $XMLDeclAttribs, $indent, $dontCloseNode, 
-                          $newNodeNameString, $noChildObjectNodeName );
-   my $string = <CAPTURE>;
-   untie *CAPTURE;
-
-   return $string;
-}
-
-# /** toXMLFile
-# This is a convenience method which allows writing of this object and all 
-# the objects it owns to the indicated file in XML (XDF) format. The first argument 
-# is the name of the file and is required. The supplied filename will be OVERWRITTEN, 
-# not appended to. The second, optional, argument has the same meaning as for toXMLFileHandle.
-# */
-sub toXMLFile {
-  my ($self, $file, $XMLDeclAttribs) = @_;
-
-  if(!open(FILE, ">$file")) {
-    carp "Can't open file: $file for writing.\n";
-    return;
-  }
-
-  # write myself out
-  $self->toXMLFileHandle(\*FILE, $XMLDeclAttribs);
-
-  close FILE;
-
-}
-
-#
-# Private/Protected Methods
-#
 
 sub _objectToXMLFileHandle { 
    my ($self, $fileHandle, $listRef, $indent, $Pretty_XDF_Output, $Pretty_XDF_Output_Indentation) = @_;
@@ -593,105 +599,6 @@ sub READLINE {
   #print STDERR "My object got msg:[",$self->{'MSG'},"]\n";
   return $self->{'MSG'};
 }
-
-
-# Modification History
-#
-# $Log$
-# Revision 1.23  2001/08/13 21:02:36  thomas
-#  moved VERSION from BaseObject to Constants class
-#
-# Revision 1.22  2001/08/13 20:56:36  thomas
-# updated documentation via utils/makeDoc.pl for the release.
-#
-# Revision 1.21  2001/08/13 19:58:03  thomas
-# bug fix: use only local XML attributes for appendAttribs in _init
-#
-# Revision 1.20  2001/07/30 19:48:28  thomas
-# added documentation to toXMLString method
-#
-# Revision 1.19  2001/07/23 15:58:07  thomas
-# added ability to add arbitary XML attribute to class.
-# getXMLattributes now an instance method, we
-# have old class method now called getClassXMLAttributes.
-#
-# Revision 1.18  2001/07/17 17:36:55  thomas
-# moved writeXMLDecl. and DOCTYPE to XDF.pm class. removed isRootNode var
-# on toXMLFileHandle method.
-#
-# Revision 1.17  2001/07/13 21:42:57  thomas
-# small changes to yank code out of toXMLFileHandle and put in sub-methods
-#
-# Revision 1.16  2001/07/06 18:29:33  thomas
-# stripped out unneeded nodenames stuff in toXMLFileHandle.
-# Fixed bug in group printing in toXMLFileHandle.
-#
-# Revision 1.15  2001/06/29 21:07:12  thomas
-# changed public add (and remove) methods to
-# conform to Java API standard: e.g. return boolean
-# rather than an object. Also, these methods only
-# accept an object (in general) as input (instead of an attribute hash).
-#
-# Revision 1.14  2001/04/17 18:58:55  thomas
-# Ripped a ton of stuff out and put into Specification class.
-#
-# Revision 1.13  2001/03/23 22:21:45  thomas
-# *** empty log message ***
-#
-# Revision 1.12  2001/03/23 20:37:17  thomas
-# added toXMLString method. Added new parameter
-# $isRootNode to toXMLFileHandle to allow printing
-# of structure object node as 'XDF' instead of
-# 'structure'. Broke up _printAttrributes lines
-# so that _fileHandleToString would work correctly.
-#
-# Revision 1.11  2001/03/21 20:19:23  thomas
-# Fixed documentation to show addXMLElement, etc. methods in perldoc
-#
-# Revision 1.10  2001/03/21 20:18:01  thomas
-# Added methods for XMLElement class. Fixed
-# toXMLFileHandle method so these would print
-# out.
-#
-# Revision 1.9  2001/03/16 19:54:56  thomas
-# Documentation updated and improved, re-ran makeDoc on file.
-#
-# Revision 1.8  2001/03/14 22:09:31  thomas
-# updated Version name of package.
-#
-# Revision 1.7  2001/03/14 21:32:33  thomas
-# Updated perldoc section using new version of
-# makeDoc.pl.
-#
-# Revision 1.6  2001/03/14 21:29:45  thomas
-# Minor documentation change.
-#
-# Revision 1.5  2001/01/02 02:39:31  thomas
-# Minor fix to prevent spurious messages from
-# toXMLFileHandle when only filehandle is passed
-# (but not the indent, etc). -b.t.
-#
-# Revision 1.4  2000/12/15 22:12:53  thomas
-# Added <!ENTITY> and <!NOTATION> output to the DOCTYPE
-# declaration line at the header of a file when XMLDecl are
-# defined in toXMLFileHandle method call. -b.t.
-#
-# Revision 1.3  2000/12/14 22:11:26  thomas
-# Big changes to the API. get/set methods, added Href/Entity stuff, deep cloning,
-# added Href, Notes, NotesLocationOrder nodes/classes. Ripped out _enlarge_array
-# from DataCube (not needed) and fixed problems outputing delimited/formatted
-# read nodes. -b.t.
-#
-# Revision 1.2  2000/12/01 20:03:37  thomas
-# Brought Pod docmentation up to date. Bumped up version
-# number. -b.t.
-#
-# Revision 1.1  2000/10/16 17:39:45  thomas
-# The old Object.pm. Moved to BaseObject name for consistency
-# with the Java code base.
-#
-#
-#
 
 1;
 

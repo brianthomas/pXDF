@@ -138,13 +138,11 @@ sub getAxisTags {
 }
 
 #
-# Other Public MEthods
+# Private/Protected Methods
 #
 
-# /** toXMLFileHandle
 # Write this object out to a filehandle in XDF formatted XML.
-# */
-sub toXMLFileHandle {
+sub _basicXMLWriter {
   my ($self, $fileHandle, $junk, $indent) = @_;
 
   my $spec = XDF::Specification->getInstance();
@@ -185,13 +183,8 @@ sub toXMLFileHandle {
   # close the read block
   print $fileHandle "$indent" if $niceOutput;
   print $fileHandle "</" . $self->classXMLNodeName . ">";
-  print $fileHandle "\n" if $niceOutput;
 
 }
-
-#
-# Private Methods
-#
 
 # This is called when we cant find any defined method
 # exists already. Used to handle general purpose set/get
@@ -239,73 +232,6 @@ sub _removeAxisTag {
   my ($self, $axisId) = @_;
   delete %{$self->{_tagHash}}->{"$axisId"};
 }
-
-
-# Modification History
-#
-# $Log$
-# Revision 1.17  2001/08/13 20:56:37  thomas
-# updated documentation via utils/makeDoc.pl for the release.
-#
-# Revision 1.16  2001/08/13 19:50:16  thomas
-# bug fix: use only local XML attributes for appendAttribs in _init
-#
-# Revision 1.15  2001/07/23 15:58:07  thomas
-# added ability to add arbitary XML attribute to class.
-# getXMLattributes now an instance method, we
-# have old class method now called getClassXMLAttributes.
-#
-# Revision 1.14  2001/04/25 16:01:31  thomas
-# updated documentation
-#
-# Revision 1.13  2001/04/17 19:00:51  thomas
-# Using Specification class now.
-# Properly calling superclass init now.
-#
-# Revision 1.12  2001/03/26 18:16:37  thomas
-# yanked overriding method of setWriteAxisOrderList,
-# makes docs look messy.
-#
-# Revision 1.11  2001/03/26 18:12:24  thomas
-# use writeAxisOrderList in toXMLFileHandle.
-#
-# Revision 1.10  2001/03/23 20:38:40  thomas
-# broke up printing of attributes in toXMLFileHandle
-# so that toXMLString will work properly.
-#
-# Revision 1.9  2001/03/16 19:54:57  thomas
-# Documentation updated and improved, re-ran makeDoc on file.
-#
-# Revision 1.8  2001/03/14 21:32:35  thomas
-# Updated perldoc section using new version of
-# makeDoc.pl.
-#
-# Revision 1.7  2001/03/02 20:28:16  thomas
-# Last fix not right. Now working for all cases.
-#
-# Revision 1.6  2001/03/02 19:59:29  thomas
-# added getAxisTag method. fixed init. need to consider when axis is added
-# in the array.
-#
-# Revision 1.5  2000/12/15 22:11:59  thomas
-# Regenerated perlDoc section in files. -b.t.
-#
-# Revision 1.4  2000/12/14 22:11:26  thomas
-# Big changes to the API. get/set methods, added Href/Entity stuff, deep cloning,
-# added Href, Notes, NotesLocationOrder nodes/classes. Ripped out _enlarge_array
-# from DataCube (not needed) and fixed problems outputing delimited/formatted
-# read nodes. -b.t.
-#
-# Revision 1.3  2000/12/01 20:03:38  thomas
-# Brought Pod docmentation up to date. Bumped up version
-# number. -b.t.
-#
-# Revision 1.2  2000/10/16 17:37:21  thomas
-# Changed over to BaseObject Class from Object Class.
-# Added in History Modification section.
-#
-#
-#
 
 1;
 

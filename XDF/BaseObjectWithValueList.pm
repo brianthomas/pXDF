@@ -131,15 +131,14 @@ sub _resetBaseValueListObjects {
 
 }
 
-
 #
-# Other Public Methods
+# Private/Protected methods
 #
 
 #/** toXMLFileHandle
 #
 #*/
-sub toXMLFileHandle {
+sub _basicXMLWriter {
   my ($self, $fileHandle, $XMLDeclAttribs, $indent, $dontCloseNode, $newNodeNameString, $noChildObjectNodeName) = @_;
 
   if(!defined $fileHandle) {
@@ -239,13 +238,7 @@ sub toXMLFileHandle {
 
   }
 
-  print $fileHandle "\n" if $Pretty_XDF_Output;
-
 }
-
-#
-# Private methods
-#
 
 sub _init {
   my ($self) = @_;
@@ -347,30 +340,6 @@ sub _hashesAreEquivalent {
 
    return 0;
 }
-
-# Modification History
-#
-# $Log$
-# Revision 1.5  2001/08/13 20:56:36  thomas
-# updated documentation via utils/makeDoc.pl for the release.
-#
-# Revision 1.4  2001/08/13 19:58:03  thomas
-# bug fix: use only local XML attributes for appendAttribs in _init
-#
-# Revision 1.3  2001/07/23 15:58:07  thomas
-# added ability to add arbitary XML attribute to class.
-# getXMLattributes now an instance method, we
-# have old class method now called getClassXMLAttributes.
-#
-# Revision 1.2  2001/07/17 17:37:51  thomas
-# Removed printing of XMLDecl from toXMLFileHandle method.
-# Removed isRootNode var on toXMLFileHandle method.
-#
-# Revision 1.1  2001/07/13 21:38:40  thomas
-# Initial Version
-#
-#
-#
 
 1;
 

@@ -217,14 +217,15 @@ sub getDimension {
 # Other Public methods 
 #
 
-# /** toXMLFileHandle
 # We overwrite the toXMLFileHandle method supplied by L<XDF::BaseObject> to 
 # have some special handling for the XDF::DataCube. The interface for this
 # method remains the same however. 
-# */
+#
 # we dont want to write back out all the attributes, the data
 # needs special handling to write out, etc...
-sub toXMLFileHandle {
+#
+# This is PRIVATE, just too lazy to move down to right section.. -b.t.
+sub _basicXMLWriter {
   my ($self, $fileHandle, $junk, 
       $indent, $newNodeNameString, $noChildObjectNodeName ) = @_;
 
@@ -1026,133 +1027,6 @@ sub _build_locator_string {
   }
   return $string;
 } 
-
-# Modification History
-#
-# $Log$
-# Revision 1.31  2001/08/13 20:56:37  thomas
-# updated documentation via utils/makeDoc.pl for the release.
-#
-# Revision 1.30  2001/08/13 19:57:13  thomas
-# fixed compressed file writing.
-# bug fix: use only local XML attributes for appendAttribs in _init
-#
-# Revision 1.29  2001/07/23 15:58:07  thomas
-# added ability to add arbitary XML attribute to class.
-# getXMLattributes now an instance method, we
-# have old class method now called getClassXMLAttributes.
-#
-# Revision 1.28  2001/07/06 18:28:24  thomas
-# print empty string if getData returns null on
-# delmited data.
-#
-# Revision 1.27  2001/06/29 21:07:12  thomas
-# changed public add (and remove) methods to
-# conform to Java API standard: e.g. return boolean
-# rather than an object. Also, these methods only
-# accept an object (in general) as input (instead of an attribute hash).
-#
-# Revision 1.26  2001/06/21 15:43:49  thomas
-# more changes related to new internal storage scheme:
-# fix to allow update of internal dataCube
-# indices when axis length is changed.
-#
-# Revision 1.25  2001/06/19 21:20:19  thomas
-# added compression of output data.
-#
-# Revision 1.24  2001/05/29 21:08:54  thomas
-# Fix bug in output of FloatDataFormat data for formatted case.
-#
-# Revision 1.23  2001/05/25 22:11:45  thomas
-# Fixed floatnumbers to pad w/ spaces for right justify. This
-# prevents the case of printf turning "-.9" into "-0.9" which
-# exceeds the width of the field. We will need another fix
-# to appropriately round the number, and throw a warning
-# when this happens.
-#
-# Revision 1.22  2001/05/23 17:24:14  thomas
-# change to allow right-justification of ASCII
-# numbers.
-#
-# Revision 1.21  2001/04/25 16:01:31  thomas
-# updated documentation
-#
-# Revision 1.20  2001/04/17 18:59:51  thomas
-# Using Specification class now.
-# Properly calling superclass init now.
-#
-# Revision 1.19  2001/04/10 22:07:09  thomas
-# minor but important bug fix, wasnt printing
-# out href attrib upon output correctly.
-#
-# Revision 1.18  2001/03/26 18:09:21  thomas
-# bug fix: use writeAxisOrderList to find the fastest
-# axis in toXMLFileHandle.
-#
-# Revision 1.17  2001/03/23 20:38:40  thomas
-# broke up printing of attributes in toXMLFileHandle
-# so that toXMLString will work properly.
-#
-# Revision 1.16  2001/03/16 19:54:56  thomas
-# Documentation updated and improved, re-ran makeDoc on file.
-#
-# Revision 1.15  2001/03/14 21:32:34  thomas
-# Updated perldoc section using new version of
-# makeDoc.pl.
-#
-# Revision 1.14  2001/03/14 16:14:27  thomas
-# *** empty log message ***
-#
-# Revision 1.13  2001/03/13 16:13:20  thomas
-# made writeDataToFileHandle public method.
-#
-# Revision 1.12  2001/03/12 17:27:48  thomas
-# Removed unneeded debugging line.
-#
-# Revision 1.11  2001/03/09 23:07:06  thomas
-# Implemented binary data writting under XDF standard
-# (non-native float writing now supported). Made
-# some calls to the Constant Class rather than
-# IntegerDataFormat. Fixed bug in while loop of
-# writeFormattedData subroutine.
-#
-# Revision 1.10  2001/03/09 22:05:31  thomas
-# added get/set methods for encoding attribute.
-# added Utility check for compression attribute
-# value.
-#
-# Revision 1.9  2001/03/07 23:13:27  thomas
-# added binary writing code from the Java package. Not complete yet
-# however.
-#
-# Revision 1.8  2001/03/01 21:10:44  thomas
-# remove extrantaneous error reporting.
-#
-# Revision 1.7  2001/02/22 19:38:17  thomas
-# Changed axisLocation calls to axisIndex.
-#
-# Revision 1.6  2000/12/15 22:11:58  thomas
-# Regenerated perlDoc section in files. -b.t.
-#
-# Revision 1.5  2000/12/14 22:11:25  thomas
-# Big changes to the API. get/set methods, added Href/Entity stuff, deep cloning,
-# added Href, Notes, NotesLocationOrder nodes/classes. Ripped out _enlarge_array
-# from DataCube (not needed) and fixed problems outputing delimited/formatted
-# read nodes. -b.t.
-#
-# Revision 1.4  2000/12/01 20:03:37  thomas
-# Brought Pod docmentation up to date. Bumped up version
-# number. -b.t.
-#
-# Revision 1.3  2000/10/16 18:32:22  thomas
-# Added in checksum attribute. (Opps!)
-#
-# Revision 1.2  2000/10/16 17:37:20  thomas
-# Changed over to BaseObject Class from Object Class.
-# Added in History Modification section.
-#
-#
-#
 
 1;
 

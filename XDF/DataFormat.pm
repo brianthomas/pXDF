@@ -251,10 +251,10 @@ sub numOfBytes {
 }
 
 #
-# Other Public Methods 
+# Private/Protected Methods
 #
 
-sub toXMLFileHandle {
+sub _basicXMLWriter {
   my ($self, $fileHandle, $XMLDeclAttribs, $indent, $dontCloseNode,
       $newNodeNameString, $noChildObjectNodeName ) = @_;
 
@@ -267,13 +267,9 @@ sub toXMLFileHandle {
       $newNodeNameString, $noChildObjectNodeName);
    $spec->setPrettyXDFOutput($output);
    print $fileHandle "</$DataFormat_Class_XML_Node_Name>";
-   print $fileHandle "\n" if $output;
+#   print $fileHandle "\n" if $output;
 
 }
-
-#
-# Private Methods
-#
 
 # This is called when we cant find any defined method
 # exists already. Used to handle general purpose set/get
@@ -283,67 +279,6 @@ sub AUTOLOAD {
   &XDF::GenericObject::AUTOLOAD($self, $val, $AUTOLOAD, \%field );
 }
 
-
-# Modification History
-#
-# $Log$
-# Revision 1.15  2001/08/13 20:56:37  thomas
-# updated documentation via utils/makeDoc.pl for the release.
-#
-# Revision 1.14  2001/08/13 19:46:36  thomas
-# bug fix: use only local XML attributes for appendAttribs in _init
-#
-# Revision 1.13  2001/07/23 15:58:07  thomas
-# added ability to add arbitary XML attribute to class.
-# getXMLattributes now an instance method, we
-# have old class method now called getClassXMLAttributes.
-#
-# Revision 1.12  2001/04/25 16:01:31  thomas
-# updated documentation
-#
-# Revision 1.11  2001/04/17 18:56:42  thomas
-# Now using Specification Class.
-# Properly calling superclass init now
-#
-# Revision 1.10  2001/03/16 19:54:56  thomas
-# Documentation updated and improved, re-ran makeDoc on file.
-#
-# Revision 1.9  2001/03/14 21:32:34  thomas
-# Updated perldoc section using new version of
-# makeDoc.pl.
-#
-# Revision 1.8  2001/02/22 19:36:48  thomas
-# Yanked lessthanvalue, etc from class
-# for the time being. These attributes temp
-# reside in either Field or Array.
-#
-# Revision 1.7  2001/02/15 17:50:31  thomas
-# changed getBytes to numOfBytes method as per
-# java API.
-#
-# Revision 1.6  2000/12/15 22:11:59  thomas
-# Regenerated perlDoc section in files. -b.t.
-#
-# Revision 1.5  2000/12/14 22:11:25  thomas
-# Big changes to the API. get/set methods, added Href/Entity stuff, deep cloning,
-# added Href, Notes, NotesLocationOrder nodes/classes. Ripped out _enlarge_array
-# from DataCube (not needed) and fixed problems outputing delimited/formatted
-# read nodes. -b.t.
-#
-# Revision 1.4  2000/12/01 20:03:37  thomas
-# Brought Pod docmentation up to date. Bumped up version
-# number. -b.t.
-#
-# Revision 1.3  2000/11/29 21:48:45  thomas
-# Fix to shrink down inheritance of sub-classes. No
-# more *Sytle.pm files. Fix to templateNotation method.
-#
-# Revision 1.2  2000/10/16 17:37:20  thomas
-# Changed over to BaseObject Class from Object Class.
-# Added in History Modification section.
-#
-#
-#
 
 1;
 
