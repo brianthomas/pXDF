@@ -60,12 +60,12 @@ my @Local_Class_XML_Attributes = qw (
                              valueListId
                              valueListIdRef
                              delimiter
-                             noData
-                             infinite
-                             infiniteNegative
-                             notANumber
-                             overflow
-                             underflow
+                             noDataValue 
+                             infiniteValue 
+                             infiniteNegativeValue 
+                             notANumberValue 
+                             overflowValue 
+                             underflowValue
                            );
 my @Local_Class_Attributes = qw ( 
                              values
@@ -210,6 +210,88 @@ sub getValues {
    return $self->{values};
 }
 
+# /** getNoDataValue
+# Return the particular value in the list that indicates a 'noData' value.
+# */
+sub getNoDataValue {
+  my ($self) = @_;
+  return $self->{noDataValue};
+}
+
+# /** setNoDataValue
+# Set the particular value in the list that indicates a 'noData' value.
+# */
+sub setNoDataValue {
+  my ($self, $value) = @_;
+  $self->{noDataValue} = $value;
+}
+
+# /** getInfiniteValue 
+# Return the particular value in the list that indicates an 'infinite' value.
+# */
+sub getInfiniteValue {
+  my ($self) = @_;
+  return $self->{infiniteValue};
+}
+
+# /** setInfiniteValue
+# Set the particular value in the list that indicates an 'infinite' value.
+# */
+sub setInfiniteValue {
+  my ($self, $value) = @_;
+  $self->{infiniteValue} = $value;
+}
+
+# /** getNotANumberValue
+# Return the particular value in the list that indicates an 'notANumber' value.
+# */
+sub getNotANumberValue {
+  my ($self) = @_;
+  return $self->{notANumberValue};
+}
+
+# /** setNotANumberValue
+# Set the particular value in the list that indicates an 'notANumber' value.
+# */
+sub setNotANumberValue {
+  my ($self, $value) = @_;
+  $self->{notANumberValue} = $value;
+}
+
+# /** getUnderflowValue
+# Return the particular value in the list that indicates an 'underflow' value.
+# */
+sub getUnderflowValue {
+  my ($self) = @_;
+  return $self->{underflowValue};
+}
+
+# /** setUnderflowValue
+# Set the particular value in the list that indicates an 'underflow' value.
+# */
+sub setUnderflowValue {
+  my ($self, $value) = @_;
+  $self->{underflowValue} = $value;
+}
+
+# /** getOverflowValue
+# Return the particular value in the list that indicates an 'overflow' value.
+# */
+sub getOverflowValue {
+  my ($self) = @_;
+  return $self->{overflowValue};
+}
+
+# /** setOverflowValue
+# Set the particular value in the list that indicates an 'overflow' value.
+# */
+sub setOverflowValue {
+  my ($self, $value) = @_;
+  $self->{overflowValue} = $value;
+}
+
+
+
 #
 # Protected/Private Methods
 #
@@ -229,16 +311,16 @@ sub _basicXMLWriter {
 
    print $fileHandle $indent if $isPrettyXDFOutput;
 
-   print $fileHandle "<valueList delimiter=\"".$self->{Delimiter}."\" repeatable=\"no\"";
+   print $fileHandle "<valueList delimiter=\"".$self->{delimiter}."\" repeatable=\"no\"";
    print $fileHandle " valueListId=\"".$self->{valueListId}."\"" if (defined $self->{valueListId});
    print $fileHandle " valueListIdRef=\"".$self->{valueListIdRef}."\"" if (defined $self->{valueListIdRef});
-   print $fileHandle " noDataValue=\"".$self->{NoData}."\"" if (defined $self->{NoData});
-   print $fileHandle " infiniteValue=\"".$self->{Infinite}."\"" if (defined $self->{Infinite});
-   print $fileHandle " infiniteNegativeValue=\"".$self->{InfiniteNegative}."\"" 
-                       if (defined $self->{InfiniteNegative});
-   print $fileHandle " notANumberValue=\"".$self->{NotANumber}."\"" if (defined $self->{NotANumber});
-   print $fileHandle " overflowValue=\"".$self->{Overflow}."\"" if (defined $self->{Overflow});
-   print $fileHandle " underflowValue=\"".$self->{Underflow}."\"" if (defined $self->{Underflow});
+   print $fileHandle " noDataValue=\"".$self->{noDataValue}."\"" if (defined $self->{noDataValue});
+   print $fileHandle " infiniteValue=\"".$self->{infinite}."\"" if (defined $self->{infinite});
+   print $fileHandle " infiniteNegativeValue=\"".$self->{infiniteNegative}."\"" 
+                       if (defined $self->{infiniteNegative});
+   print $fileHandle " notANumberValue=\"".$self->{notANumberValue}."\"" if (defined $self->{notANumberValue});
+   print $fileHandle " overflowValue=\"".$self->{overflowValue}."\"" if (defined $self->{overflowValue});
+   print $fileHandle " underflowValue=\"".$self->{underflowValue}."\"" if (defined $self->{underflowValue});
    print $fileHandle ">";
 
    my @values = @{$self->{values}};
@@ -249,17 +331,17 @@ sub _basicXMLWriter {
       my $specialValue = $thisValue->getSpecial();
       if(defined $specialValue) {
          if($specialValue eq &XDF::Constants::VALUE_SPECIAL_INFINITE) {
-            &_doValuePrint($fileHandle, $specialValue, $self->{Infinite});
+            &_doValuePrint($fileHandle, $specialValue, $self->{infiniteValue});
          } elsif($specialValue eq &XDF::Constants::VALUE_SPECIAL_INFINITE_NEGATIVE) {
-            &_doValuePrint($fileHandle, $specialValue, $self->{InfiniteNegative});
+            &_doValuePrint($fileHandle, $specialValue, $self->{infiniteNegativeValue});
          } elsif($specialValue eq &XDF::Constants::VALUE_SPECIAL_NODATA) {
-             &_doValuePrint($fileHandle, $specialValue, $self->{NoData});
+             &_doValuePrint($fileHandle, $specialValue, $self->{noDataValue});
          } elsif($specialValue eq &XDF::Constants::VALUE_SPECIAL_NOTANUMBER) {
-             &_doValuePrint($fileHandle, $specialValue, $self->{NotANumber});
+             &_doValuePrint($fileHandle, $specialValue, $self->{notANumberValue});
          } elsif($specialValue eq &XDF::Constants::VALUE_SPECIAL_UNDERFLOW) {
-             &_doValuePrint($fileHandle, $specialValue, $self->{Underflow});
+             &_doValuePrint($fileHandle, $specialValue, $self->{underflowValue});
          } elsif($specialValue eq &XDF::Constants::VALUE_SPECIAL_OVERFLOW) {
-             &_doValuePrint($fileHandle, $specialValue, $self->{Overflow});
+             &_doValuePrint($fileHandle, $specialValue, $self->{overflowValue});
          } 
 
       } else {
@@ -267,7 +349,7 @@ sub _basicXMLWriter {
       }
 
       # print delimiter except on last index.
-      print $fileHandle $self->{Delimiter} unless $valIndex eq $#values;
+      print $fileHandle $self->{delimiter} unless $valIndex eq $#values;
    }
 
    print $fileHandle "</valueList>";
@@ -277,14 +359,14 @@ sub _basicXMLWriter {
 sub _init {
    my ($self, $valueListRef, $delimiter, $noDataValue, $infiniteValue, $infiniteNegativeValue, $notANumberValue, $overflowValue, $underflowValue) = @_;
 
-   $self->{Delimiter} = defined $delimiter ? $delimiter : &XDF::Constants::DEFAULT_VALUELIST_DELIMITER;
+   $self->{delimiter} = defined $delimiter ? $delimiter : &XDF::Constants::DEFAULT_VALUELIST_DELIMITER;
 
-   $self->{NoData} = $noDataValue;
-   $self->{Infinite} = $infiniteValue;
-   $self->{InfiniteNegative} = $infiniteNegativeValue;
-   $self->{NotANumber} = $notANumberValue;
-   $self->{Overflow} = $overflowValue;
-   $self->{Underflow} = $underflowValue;
+   $self->{noDataValue} = $noDataValue;
+   $self->{infiniteValue} = $infiniteValue;
+   $self->{infiniteNegativeValue} = $infiniteNegativeValue;
+   $self->{notANumberValue} = $notANumberValue;
+   $self->{overflowValue} = $overflowValue;
+   $self->{underflowValue} = $underflowValue;
 
    # init values
    $self->{values} = [];
@@ -316,6 +398,7 @@ sub AUTOLOAD {
   my ($self, $val) = @_;
   &XDF::GenericObject::AUTOLOAD($self, $val, $AUTOLOAD, \%field );
 }
+
 
 1;
 
@@ -397,6 +480,50 @@ Set the valueListIdRef attribute.
 =item getValues (EMPTY)
 
 Return the list of values held in this object.  
+
+=item getNoDataValue (EMPTY)
+
+Return the particular value in the list that indicates a 'noData' value.  
+
+=item setNoDataValue ($value)
+
+Set the particular value in the list that indicates a 'noData' value.  
+
+=item getInfiniteValue (EMPTY)
+
+Return the particular value in the list that indicates an 'infinite' value.  
+
+=item setInfiniteValue ($value)
+
+Set the particular value in the list that indicates an 'infinite' value.  
+
+=item getNotANumberValue (EMPTY)
+
+Return the particular value in the list that indicates an 'notANumber' value.  
+
+=item setNotANumberValue ($value)
+
+Set the particular value in the list that indicates an 'notANumber' value.  
+
+=item getUnderflowValue (EMPTY)
+
+Return the particular value in the list that indicates an 'underflow' value.  
+
+=item setUnderflowValue ($value)
+
+Set the particular value in the list that indicates an 'underflow' value.  
+
+=item getOverflowValue (EMPTY)
+
+Return the particular value in the list that indicates an 'overflow' value.  
+
+=item setOverflowValue ($value)
+
+Set the particular value in the list that indicates an 'overflow' value.  
+
+=item toXMLFileHandle ($fileHandle, $XMLDeclAttribs, $indent)
+
+ 
 
 =back
 
