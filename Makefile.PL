@@ -113,7 +113,9 @@ WriteMakefile(
             'XDF/Utility.pm'      => "\$(INST_LIBDIR)/$install_dir/Utility.pm",
             'XDF/Value.pm'      => "\$(INST_LIBDIR)/$install_dir/Value.pm",
             'XDF/ValueGroup.pm'      => "\$(INST_LIBDIR)/$install_dir/ValueGroup.pm",
+            'XDF/XMLAttribute.pm'      => "\$(INST_LIBDIR)/$install_dir/XMLAttribute.pm",
             'XDF/XMLDataIOStyle.pm'      => "\$(INST_LIBDIR)/$install_dir/XMLDataIOStyle.pm",
+            'XDF/XMLElement.pm'      => "\$(INST_LIBDIR)/$install_dir/XMLElement.pm",
           },
     @extras
 
@@ -122,6 +124,9 @@ WriteMakefile(
 # Modification History
 #
 # $Log$
+# Revision 1.7  2001/03/21 20:17:18  thomas
+# Added XMLElement and XMLAttribute classes
+#
 # Revision 1.6  2001/03/09 21:56:35  thomas
 # Added Utility and Constants classes.
 #

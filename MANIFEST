@@ -46,6 +46,8 @@ XDF/Units.pm
 XDF/Utility.pm
 XDF/Value.pm
 XDF/ValueGroup.pm
+XDF/XMLAttribute.pm
+XDF/XMLElement.pm
 XDF/XMLDataIOStyle.pm
 t/runXDF.t
 samples/XDF_0.17.dtd
