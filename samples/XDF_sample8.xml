@@ -1,0 +1,81 @@
+<?xml version="1.0" standalone="no" ?>
+<!DOCTYPE XDF SYSTEM "XDF_0.17.dtd">
+
+<XDF name="A sample XDF document" 
+     description="This shows how to put any data into XDF format so that 2 arrays will append into 1."
+>
+
+      <parameter name="obsdate"><units><unitless/></units><value>01-12-99</value></parameter>
+
+      <array name="Raw Data" arrayId="array1" noDataValue="-9.99">
+
+          <parameter name="integration time"><units><unit>sec</unit></units>
+              <value>900</value>
+          </parameter>
+
+          <units><unit>counts</unit><unit power="-1">seconds</unit></units>
+          <dataFormat><float width="5" precision="2"/></dataFormat>
+
+          <axis name="x" axisId="x-axis" align="x" axisDatatype="integer" >
+             <axisUnits><unit>pixel</unit></axisUnits>
+             <valueList size="10" step="1" start="0" />
+          </axis>
+          <axis name="y" axisId="y-axis" align="y" axisDatatype="integer" >
+             <axisUnits><unit>pixel</unit></axisUnits>
+             <valueList size="4" delimiter=" " repeatable="yes">10  9 8 7</valueList>
+          </axis>
+
+             <read readId="readid1" >
+                <for axisIdRef="y-axis">
+                   <for axisIdRef="x-axis">
+                       <repeat count="9">
+                         <readCell />
+                         <skipChars count="1" />
+                       </repeat>
+                       <readCell />
+                       <skipChars count="1" output="&#10;" /> 
+                  </for>
+                </for>
+             </read>
+
+             <!-- note the recursive data node use -->
+             <data>
+                <data><![CDATA[76.53 78.75 67.78 32.59  5.97 68.77 25.39 51.86 30.69 29.03
+89.37 10.68 82.31 17.85 25.87 64.17 92.64 47.88  8.03 31.05
++7.48  1.09 -3.15  8.63 20.26  7.27 24.19 72.09  9.69 21.78
+75.43 86.23 48.53 43.22 18.81 54.50 11.99 44.20  6.37  3.47
+]]>
+                </data>
+             </data>
+
+          <notes>
+             <note>Improper cooling of the camera may have resulted in significant dark current.</note>
+          </notes>
+
+      </array>
+
+      <!-- the 2nd part of the raw data -->
+      <array appendTo="array1">
+          <units><unit>counts</unit><unit power="-1">seconds</unit></units>
+          <dataFormat><float width="5" precision="2"/></dataFormat>
+
+          <axis axisIdRef="x-axis" />
+
+          <axis name="y" axisId="y-axis" align="y" axisDatatype="integer" >
+             <axisUnits><unit>pixel</unit></axisUnits>
+             <valueList size="6" delimiter=" ">6 5 4 3 2 1</valueList>
+          </axis>
+
+          <read readIdRef="readid1"/>
+          <data><![CDATA[84.50 95.73 25.15 66.81 13.58 51.03 30.98  6.22 98.91 31.51
+91.27  6.39 76.60 94.42 15.01 96.86  1.69 39.20 68.95 62.38
+ 8.98 44.38 97.61 57.51 87.60 16.42 12.01 99.59 60.63 33.38
+14.05 45.13 14.11 39.21 11.93 27.70 90.23 42.91 33.92 56.14
+18.42 25.19 95.53 95.03 19.62 10.54 91.89 21.31 49.74 48.83
+32.69 58.72  5.22 30.30 16.23 92.81 46.72 28.24 92.40 72.35
+]]>
+          </data>
+      </array>
+
+</XDF>
+
