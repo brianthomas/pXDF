@@ -98,6 +98,17 @@ sub FLOATING_POINT_BITS_LIST {  (32, 64); }
 # bits sizes for binary data 
 sub INTEGER_BITS_LIST {  return (4, 16, 32, 64); } 
 
+sub COMPLEX_COMPONENT_LIST { ("real", "imaginary"); }
+
+sub TAGGED_DEFAULT_OUTPUTSTYLE { "default"; }
+sub TAGGED_BYCOL_OUTPUTSTYLE { "byColumn"; }
+sub TAGGED_BYCOLANDCELL_OUTPUTSTYLE { "byColumnAndCell"; }
+sub TAGGED_BYROW_OUTPUTSTYLE { "byRow"; }
+sub TAGGED_BYROWANDCELL_OUTPUTSTYLE { "byRowAndCell"; }
+sub SIMPLE_COLUMN_TAG { "column"; }
+sub SIMPLE_ROW_TAG { "row"; }
+sub SIMPLE_CELL_TAG { "cell"; }
+
 sub IO_ENCODING_UTF_8 { "UTF-8"; }
 sub IO_ENCODING_UTF_16 { "UTF-16"; }
 sub IO_ENCODING_ISO_8859_1 { "ISO-8859-1"; }
@@ -107,41 +118,63 @@ sub IO_ENCODINGS_LIST {  ( &IO_ENCODING_UTF_8, &IO_ENCODING_UTF_16,
                            &IO_ENCODING_ISO_8859_1, &IO_ENCODING_ANSI ); }
 
 # allowable roles for the (field) relation node
+# error | sensitivity | precision | positiveError | negativeError | 
+# weight | reference | noteMark
 sub RELATION_ROLE_LIST { ( "error" , "sensitivity" , "precision",
-                           "quality" , "positiveError" , "negativeError",
+                           "positiveError" , "negativeError",
                            "weight" , "reference" , "noteMark" ); 
                        }
 
+# this is used for parameters right now
 sub DATATYPE_INTEGER { "integer"; }
 sub DATATYPE_FIXED { "fixed"; }
 sub DATATYPE_STRING { "string"; }
 sub DATATYPE_URL {  "url"; }
-sub DATATYPE_LIST {  ( &DATATYPE_INTEGER, &DATATYPE_FIXED,
-                       &DATATYPE_STRING, &DATATYPE_URL ); }
+sub PARAMETER_DATATYPE_LIST {  ( &DATATYPE_INTEGER, &DATATYPE_FIXED,
+                                 &DATATYPE_STRING, &DATATYPE_URL ); }
+
+# this is used for parameters right now
+sub DATAFORMAT_ARRAY_REF {  "XDF::ArrayRefDataFormat"; }
+sub DATAFORMAT_BINARY_FLOAT {  "XDF::BinaryFloatDataFormat"; }
+sub DATAFORMAT_BINARY_INTEGER { "XDF::BinaryIntegerDataFormat"; }
+sub DATAFORMAT_INTEGER { "XDF::IntegerDataFormat"; }
+sub DATAFORMAT_FLOAT{ "XDF::FloatDataFormat"; }
+sub DATAFORMAT_STRING { "XDF::StringDataFormat"; }
+
+sub DATAFORMAT_LIST {  ( &DATAFORMAT_INTEGER, &DATAFORMAT_FLOAT,
+                                 &DATAFORMAT_STRING, &DATAFORMAT_BINARY_FLOAT,
+                                 &DATAFORMAT_BINARY_INTEGER, &DATAFORMAT_ARRAY_REF
+                        ); }
 
 sub DATA_ENCODING_UUENCODED { "uuencoded"; }
 sub DATA_ENCODING_BASE64 { "base64"; }
 sub DATA_ENCODING_LIST {  ( &DATA_ENCODING_UUENCODED, &DATA_ENCODING_BASE64 ); }
 
+# compression programs... should be auto-updated at "make" time
 sub DATA_COMPRESSION_ZIP { "zip"; }
 sub DATA_COMPRESSION_GZIP { "gzip"; }
 sub DATA_COMPRESSION_BZIP2 { "bzip2"; }
 sub DATA_COMPRESSION_XMILL { "XMILL"; }
 sub DATA_COMPRESSION_COMPRESS {  "compress"; }
-
-sub DATA_COMPRESSION_LIST { ( &DATA_COMPRESSION_ZIP, &DATA_COMPRESSION_GZIP,
-                              &DATA_COMPRESSION_BZIP2, &DATA_COMPRESSION_XMILL,
-                              &DATA_COMPRESSION_COMPRESS ); }
-
-sub LOGARITHM_NATURAL { "natural"; }
-sub LOGARITHM_BASE10  { "base10"; }
-sub LOGARITHM_LIST { (&LOGARITHM_NATURAL, &LOGARITHM_BASE10, ); }
-
 sub DATA_COMPRESSION_GZIP_PATH { "/usr/bin/gzip"; }
 sub DATA_COMPRESSION_BZIP2_PATH { "/usr/bin/bzip2"; }
 sub DATA_COMPRESSION_COMPRESS_PATH { "/usr/bin/compress"; }
 sub DATA_COMPRESSION_UNZIP_PATH { "/usr/bin/unzip"; }
 sub DATA_COMPRESSION_ZIP_PATH { "/usr/bin/zip"; }
+sub DATA_COMPRESSION_LIST { ( &DATA_COMPRESSION_ZIP, &DATA_COMPRESSION_GZIP,
+                              &DATA_COMPRESSION_BZIP2, &DATA_COMPRESSION_XMILL,
+                              &DATA_COMPRESSION_COMPRESS ); }
+
+sub LOGARITHM_NATURAL { "natural"; }
+sub LOGARITHM_BASE10  { "10"; }
+sub LOGARITHM_LIST { (&LOGARITHM_NATURAL, &LOGARITHM_BASE10, ); }
+
+sub TRUE { "true"; }
+sub FALSE { "false"; }
+sub TRUE_FALSE_LIST { (&TRUE, &FALSE); }
+ 
+sub ALGORITHM_LIST { ("XDF::Polynomial",); }
+
 
 sub VALUE_INEQUALITY_LESS_THAN { "lessThan"; }
 sub VALUE_INEQUALITY_LESS_THAN_OR_EQUAL { "lessThanOrEqual"; }
@@ -168,10 +201,10 @@ sub VALUE_SPECIAL_LIST { ( &VALUE_SPECIAL_INFINITE,  &VALUE_SPECIAL_INFINITE_NEG
 sub DEFAULT_AXIS_SIZE { 1; }
 
 sub DEFAULT_VALUELIST_SIZE { 0; }
-sub DEFAULT_VALUELIST_STEP { 1; }
-sub DEFAULT_VALUELIST_START { 0; }
-sub DEFAULT_VALUELIST_REPEATABLE { 0; }
+#sub DEFAULT_VALUELIST_STEP { 1; }
+#sub DEFAULT_VALUELIST_START { 0; }
 sub DEFAULT_VALUELIST_DELIMITER { " "; }
+sub DEFAULT_VALUELIST_REPEATABLE { "no"; }
 
 sub LOG_WARN_MSG_LEVEL { 2; }
 sub LOG_DEBUG_MSG_LEVEL { 1; }
@@ -191,17 +224,27 @@ sub XDF_ROOT_NODE_NAME {
 }
 
 sub XDF_NODE_NAMES { (
+                      'add' => 'add',
                       'array' => 'array',
+                      'arrayRef' => 'arrayRef',
                       'axis' => 'axis',
                       'axisUnits' => 'axisUnits',
                       'binaryFloat' => 'binaryFloat',
                       'binaryInteger' => 'binaryInteger',
+                      'cell' => 'cell',
                       'chars' => 'chars',
+                      'colAxis' => 'colAxis',
+                      'column' => 'column',
+                      'conversion' => 'conversion',
                       'data' => 'data',
+                      'dataStyle' => 'dataStyle',
                       'dataFormat' => 'dataFormat',
+                      'doInstruction' => 'doInstruction',
                       'delimiter' => 'delimiter',
                       'delimitedStyle' => 'delimited',
                       'delimitedReadInstructions' => 'delimitedInstruction',
+                      'exponent' => 'exponent',
+                      'exponentOn' => 'exponentOn',
                       'field' => 'field',
                       'fieldAxis' => 'fieldAxis',
                       'formattedStyle' => 'fixedWidth',
@@ -211,13 +254,19 @@ sub XDF_NODE_NAMES { (
                       'fieldGroup' => 'fieldGroup',
                       'index' => 'index',
                       'integer' => 'integer',
+                      'logarithmBase' => 'logarithmBase',
+                      'naturalLogarithm' => 'naturalLogarithm',
                       'locationOrder' => 'locationOrder',
+                      'multiply' => 'multiply',
                       'newline' => 'newLine',
                       'note' => 'note',
                       'notes' => 'notes',
                       'parameter' => 'parameter',
                       'parameterGroup' => 'parameterGroup',
+                      'polynomial' => 'polynomial',
                       'root' => 'XDF',   # beware setting this to the same name as structure 
+                      'rowAxis' => 'rowAxis',
+                      'row' => 'row',
                       'read' => 'dataStyle',
                       'readCell' => 'readCell',
                       'recordTerminator' => 'recordTerminator',
@@ -241,6 +290,7 @@ sub XDF_NODE_NAMES { (
                       'units' => 'units',
                       'unitless' => 'unitless',
                       'valueList' => 'valueList',
+                      'valueListAlgorithm' => 'valueListAlgorithm',
                       'value' => 'value',
                       'valueGroup' => 'valueGroup',
                       'vector' => 'unitDirection',
