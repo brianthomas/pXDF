@@ -249,13 +249,14 @@ sub toXMLFileHandle {
   my ($self, $fileHandle, $XMLDeclAttribs, $indent, $dontCloseNode,
       $newNodeNameString, $noChildObjectNodeName ) = @_;
 
-   my $output = $self->Pretty_XDF_Output();
+   my $spec = XDF::Specification->getInstance();
+   my $output = $spec->isPrettyXDFOutput;
    print $fileHandle $indent if $output;
    print $fileHandle "<$DataFormat_Class_XML_Node_Name>";
-   $self->Pretty_XDF_Output(0);
+   $spec->setPrettyXDFOutput(0);
    $self->SUPER::toXMLFileHandle($fileHandle, $XMLDeclAttribs, $indent, $dontCloseNode,
       $newNodeNameString, $noChildObjectNodeName);
-   $self->Pretty_XDF_Output($output);
+   $spec->setPrettyXDFOutput($output);
    print $fileHandle "</$DataFormat_Class_XML_Node_Name>";
    print $fileHandle "\n" if $output;
 
@@ -277,6 +278,10 @@ sub AUTOLOAD {
 # Modification History
 #
 # $Log$
+# Revision 1.11  2001/04/17 18:56:42  thomas
+# Now using Specification Class.
+# Properly calling superclass init now
+#
 # Revision 1.10  2001/03/16 19:54:56  thomas
 # Documentation updated and improved, re-ran makeDoc on file.
 #
@@ -391,7 +396,7 @@ This returns the number of bytes this object describes. Undef is returned if not
 =over 4
 
 The following class methods are inherited from L<XDF::BaseObject>:
-B<Pretty_XDF_Output>, B<Pretty_XDF_Output_Indentation>, B<DefaultDataArraySize>. 
+B<DefaultDataArraySize>. 
 
 =back
 
@@ -417,7 +422,7 @@ B<new>, B<clone>, B<update>.
 =over 4
 
 XDF::DataFormat inherits the following instance (object) methods of L<XDF::BaseObject>:
-B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLAttributes>, B<setXMLNotationHash>, B<toXMLFile>.
+B<addXMLElement>, B<removeXMLElement>, B<getXMLElementList>, B<setXMLElementList>, B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLAttributes>, B<setXMLNotationHash>, B<toXMLString>, B<toXMLFile>.
 
 =back
 
