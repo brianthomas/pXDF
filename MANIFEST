@@ -40,6 +40,7 @@ XDF/Parameter.pm
 XDF/ParameterGroup.pm
 XDF/ReadCellFormattedIOCmd.pm
 XDF/Reader.pm
+XDF/Reader/ValueList.pm
 XDF/RepeatFormattedIOCmd.pm
 XDF/SkipCharFormattedIOCmd.pm
 XDF/Specification.pm
@@ -51,6 +52,8 @@ XDF/UnitDirection.pm
 XDF/Units.pm
 XDF/Utility.pm
 XDF/Value.pm
+XDF/ValueListAlgorithm.pm
+XDF/ValueListDelimitedList.pm
 XDF/ValueGroup.pm
 XDF/XMLElement.pm
 XDF/XMLDataIOStyle.pm

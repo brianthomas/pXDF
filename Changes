@@ -88,6 +88,19 @@ Revision history for Perl extension XDF.
 	  from a valueList. Also support for notANumber, overflow, and underflow attribs too. 
         - Bug fix: output PCDATA now has angle brackets entified upon toXMLFileHandle call. 
         - Bug fix: attributes on ValueGroup not printing on toXMLFileHandle call.
+<<<<<<< Changes
         - finally bit the bullet and added valueList stuff to Axis, Parameter. This should
           save space for output. 
         - added XDF master structure class.
+        - small change to CDATA handling, now possible to read data from 'naked' data node
+          (e.g. w/o CDATA), however, because of the way in which the Perl parser works, whitespace
+          is separated out, and may be dropped causing a short block read error in some cases. 
+        - Added ability to add an arbitary XML attribute (e.g. previously undeclared
+          attribute that isnt a part of the class in the DTD) to any class that 
+          inherits from BaseObject.
+
+=======
+        - finally bit the bullet and added valueList stuff to Axis, Parameter. This should
+          save space for output. 
+        - added XDF master structure class.
+>>>>>>> 1.19
