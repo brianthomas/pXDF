@@ -172,14 +172,6 @@ sub setXMLAttributes {
 # /** toXMLFileHandle
 # Write this structure and all the objects it owns to the supplied filehandle 
 # in XML (XDF) format. The first argument is the name of the filehandle and is required. 
-# The second, optional, argument indicates whether/how to write out the XML declaration at 
-# the beginning of the file. This second argument may either be a string or hash table. 
-# As a string is means simply to write the XML declaration and DOCTYPE. As a hash table, 
-# the attributes of the XML declaration are arranged in attribute/value pairs, e.g.
-# 
-#  %XMLDeclAttribs = ( 'version' => "1.0",
-#                      'standalone => 'no',
-#                    );
 # */
 # write this object and all the objects it owns
 # to the supplied filehandle in XML (XDF) format. 
@@ -187,7 +179,7 @@ sub setXMLAttributes {
 # hardwire a number of things to enforce DTD compliance.
 # -b.t.
 sub toXMLFileHandle {
-  my ($self, $fileHandle, $XMLDeclAttribs, $indent, $dontCloseNode, $newNodeNameString, $noChildObjectNodeName, $isRootNode  ) = @_;
+  my ($self, $fileHandle, $XMLDeclAttribs, $indent, $dontCloseNode, $newNodeNameString, $noChildObjectNodeName) = @_;
 
   if(!defined $fileHandle) {
     carp "Can't write out object, filehandle not defined.\n";
@@ -200,12 +192,6 @@ sub toXMLFileHandle {
   my $Pretty_XDF_Output = $spec->isPrettyXDFOutput;
   my $Pretty_XDF_Output_Indentation = $spec->getPrettyXDFOutputIndentation;
 
-  if (defined $XMLDeclAttribs) {
-     $indent = ""; 
-     # write the XML && DOCTYPE decl
-     $self->_write_XML_decl_to_file_handle($fileHandle, $XMLDeclAttribs, $spec);
-  }
-
   # We need to invoke a little bit of Voodoo to keep the DTD happy; 
   # the first structure node is always called by the root node name
   # also, we may have nodes (w/o attributes) that just hold other nodes.
@@ -215,8 +201,8 @@ sub toXMLFileHandle {
   # open this node, print its attributes
   if ($nodename) {
      print $fileHandle $indent if $Pretty_XDF_Output;
-     $nodename = $spec->getXDFRootNodeName if ( (defined $XMLDeclAttribs || $isRootNode) 
-                                           && $self =~ m/XDF::Structure/);
+#     $nodename = $spec->getXDFRootNodeName if ( (defined $XMLDeclAttribs || $isRootNode) 
+#                                           && $self =~ m/XDF::Structure/);
      print $fileHandle "<" . $nodename;
   }
 
@@ -310,13 +296,13 @@ sub toXMLFileHandle {
 #  Returns a string XML representation of the object.
 # */
 sub toXMLString {
-   my ($self, $XMLDeclAttribs, $indent, $dontCloseNode, $newNodeNameString, $noChildObjectNodeName, $isRootNode  ) = @_;
+   my ($self, $XMLDeclAttribs, $indent, $dontCloseNode, $newNodeNameString, $noChildObjectNodeName ) = @_;
 
    # we will capture output to special filehandle class
    # defined at the end of this this file 
    tie *CAPTURE, '_fileHandleToString';
    $self->toXMLFileHandle(\*CAPTURE, $XMLDeclAttribs, $indent, $dontCloseNode, 
-                          $newNodeNameString, $noChildObjectNodeName, $isRootNode);
+                          $newNodeNameString, $noChildObjectNodeName );
    my $string = <CAPTURE>;
    untie *CAPTURE;
 
@@ -324,7 +310,7 @@ sub toXMLString {
 }
 
 # /** toXMLFile
-# This is a convenience method which allows writing of this structure and all 
+# This is a convenience method which allows writing of this object and all 
 # the objects it owns to the indicated file in XML (XDF) format. The first argument 
 # is the name of the file and is required. The supplied filename will be OVERWRITTEN, 
 # not appended to. The second, optional, argument has the same meaning as for toXMLFileHandle.
@@ -472,63 +458,6 @@ sub _init {
 
 }
 
-sub _write_XML_decl_to_file_handle {
-  my ($self, $fileHandle, $XMLDeclAttribs, $spec) = @_;
-
-# write the XML && DOCTYPE decl
-  if (defined $XMLDeclAttribs) {
-    print $fileHandle "<?xml ";
-    if (ref $XMLDeclAttribs) {
-
-      while (my ($attrib, $value) = each (%{$XMLDeclAttribs}) ) { 
-        print $fileHandle " $attrib=\"",$value,"\"";
-      } 
-      #foreach my $attrib (keys %{$XMLDeclAttribs}) {
-      #  print $fileHandle " $attrib=\"",%{$XMLDeclAttribs}->{$attrib},"\"";
-      #}
-    } else {
-      print $fileHandle "version =\"".$spec->getXMLSpecVersion."\"";
-    }
-    print $fileHandle "?>\n";
-    my $root_name = $spec->getXDFRootNodeName;
-    my $dtd_name = $spec->getXDFDTDName;
-    print $fileHandle "<!DOCTYPE $root_name SYSTEM \"$dtd_name\"";
-
-    # find all XML Href entities
-    my @HrefList = @{$self->_find_All_child_Href_Objects()};
-    my $entityString;
-    for (@HrefList) {
-       $entityString .= "  <!ENTITY " . $_->getName();
-       $entityString .= " BASE \"" . $_->getBase() . "\"" if defined $_->getBase();
-       $entityString .= " PUBLIC \"" . $_->getPubId() . "\"" if defined $_->getPubId();
-       $entityString .= " SYSTEM \"" . $_->getSysId() . "\"" if defined $_->getSysId();
-       $entityString .= " NDATA " . $_->getNdata() if defined $_->getNdata();
-       $entityString .= ">\n";
-    }
-
-    # find all XML notation
-    my $notationString;
-    while (my ($name, $notHashRef) = each (%{$spec->getXMLNotationHash})) { 
-       my %notationHash = %{$notHashRef};
-       $notationString .= "  <!NOTATION $name";
-       $notationString .= " BASE \"" . $notationHash{'base'} . "\"" if defined $notationHash{'base'};
-       $notationString .= " PUBLIC \"" . $notationHash{'pubid'}. "\"" if defined $notationHash{'pubid'};
-       $notationString .= " SYSTEM \"" . $notationHash{'sysid'}. "\"" if defined $notationHash{'sysid'};
-       $notationString .= ">\n";
-    }
-
-    if (defined $entityString or defined $notationString) {
-      print $fileHandle " [\n";
-      print $fileHandle "$entityString" if (defined $entityString);
-      print $fileHandle "$notationString" if (defined $notationString);
-      print $fileHandle "]";
-    }
-    print $fileHandle ">\n";
-
-  }
-
-}
-
 sub _find_All_child_Href_Objects {
   my ($self) = @_;
 
@@ -580,6 +509,10 @@ sub READLINE {
 # Modification History
 #
 # $Log$
+# Revision 1.18  2001/07/17 17:36:55  thomas
+# moved writeXMLDecl. and DOCTYPE to XDF.pm class. removed isRootNode var
+# on toXMLFileHandle method.
+#
 # Revision 1.17  2001/07/13 21:42:57  thomas
 # small changes to yank code out of toXMLFileHandle and put in sub-methods
 #
