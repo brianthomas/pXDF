@@ -36,7 +36,6 @@
 # */
 
 # /** SEE ALSO
-# XDF::DOM
 # XDF::DOM::Parser
 # XDF::DOM::Element
 # XDF::Structure
@@ -44,7 +43,9 @@
 
 package XDF::DOM::Document;
 
+use XDF::DOM;
 use vars qw { @ISA };
+
 @ISA = ( "XML::DOM::Document" );
 
 my $XDF_INDEX;
@@ -63,6 +64,22 @@ sub new {
 sub createXDFElement {
    my ($self, $XDFObjectRef) = @_;
    return new XDF::DOM::Element($self, $XDFObjectRef);
+}
+
+sub getXDFElements {
+  my ($self) = @_;
+
+  my $xdfElements = $self->getElementsByTagName($XDF::DOM::XDF_ROOT_NAME);
+  my $size = $xdfElements->getLength;
+  my @list;
+ 
+  for (my $i = 0; $i < $size; $i++)
+  {
+      my $node = $xdfElements->item ($i);
+      push @list, $node;
+  }
+  
+  return \@list;
 }
 
 1;
