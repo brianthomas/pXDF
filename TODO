@@ -5,6 +5,12 @@ TODO: In other words, WHY is this package still ALPHA?!?
 
    = Output of Notes/location stuff is broken.
 
+   - delimited data NOT printing back out OK, (read node printing as
+     <textDelimiter> rather than <read>). 
+
+   - for nodes not implemented correctly (ie cant change the iteration
+     order of the locator that will populate the dataCube. See java code)
+
    - Add functionality to attributes on data node.
      -- Href capability
      -- compression
