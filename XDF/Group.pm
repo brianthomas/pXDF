@@ -143,8 +143,10 @@ sub addMemberObject {
 
    return 0 unless defined $obj && ref $obj;
 
-   unless ( exists %{$self->{_memberObjHash}}->{$obj} ) {
-     %{$self->{_memberObjHash}}->{$obj} = $obj;
+   #unless ( exists %{$self->{_memberObjHash}}->{$obj} ) {
+   unless ( exists $self->{_memberObjHash}->{$obj} ) {
+     #%{$self->{_memberObjHash}}->{$obj} = $obj;
+     $self->{_memberObjHash}->{$obj} = $obj;
      return 1;
    }
 
@@ -160,8 +162,10 @@ sub removeMemberObject {
 
   return 0 unless defined $obj && ref $obj;
 
-  if ( exists %{$self->{_memberObjHash}}->{$obj} ) {
-    delete %{$self->{_memberObjHash}}->{$obj};
+#  if ( exists %{$self->{_memberObjHash}}->{$obj} ) {
+  if ( exists $self->{_memberObjHash}->{$obj} ) {
+    #delete %{$self->{_memberObjHash}}->{$obj};
+    delete $self->{_memberObjHash}->{$obj};
     return 1;
   }
   return 0;
@@ -174,7 +178,8 @@ sub removeMemberObject {
 sub hasMemberObj {
   my ($self, $obj) = @_;
   return unless defined $obj && ref $obj;
-  return exists %{$self->{_memberObjHash}}->{$obj} ? 1 : undef;
+  #return exists %{$self->{_memberObjHash}}->{$obj} ? 1 : undef;
+  return exists $self->{_memberObjHash}->{$obj} ? 1 : undef;
 }
 
 #
