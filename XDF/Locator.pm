@@ -568,6 +568,18 @@ sub _calculateLongArrayIndex
    $self->{_longArrayIndex} = $longIndex;
 }
 
+sub _dumpLocation {
+   my ($self) = @_;
+
+   print STDERR "Present Location :"; 
+   while (my ($axisObj, $index) = each %{$self->{_locationHash}}) {
+       my $id = $axisObj; #->getAxisId();
+       print STDERR "($id,$index)"; 
+   }
+   print STDERR "\n";
+
+}
+
 1;
 
 
