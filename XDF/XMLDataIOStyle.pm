@@ -82,7 +82,7 @@ my @Class_XML_Attributes = qw (
                              endian
                           );
 my @Class_Attributes = qw (
-                             writeAxisOrderList
+                             _writeAxisOrderList
                              _parentArray
                           );
 
@@ -198,7 +198,7 @@ sub setEndian {
 sub getWriteAxisOrderList {
   my ($self) =@_;
 
-  my $list_ref = $self->{WriteAxisOrderList};
+  my $list_ref = $self->{_writeAxisOrderList};
   $list_ref = $self->{_parentArray}->getAxisList() unless
       defined $list_ref || !defined $self->{_parentArray};
   return $list_ref;
@@ -222,7 +222,7 @@ sub setWriteAxisOrderList {
 
   # you must do it this way, or when the arrayRef changes it changes us here!
   my @list = @{$arrayRefValue};
-  $self->{WriteAxisOrderList} = \@list;
+  $self->{_writeAxisOrderList} = \@list;
 }
 
 
@@ -258,6 +258,9 @@ sub _init {
 # Modification History
 #
 # $Log$
+# Revision 1.12  2001/03/26 22:26:03  thomas
+# changed name of writeAxisOrderList to be 'private'
+#
 # Revision 1.11  2001/03/26 18:17:09  thomas
 # dont allow setWriteAxisOrderList to proceed if the object
 # is the tagged style.
