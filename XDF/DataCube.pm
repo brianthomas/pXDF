@@ -725,7 +725,6 @@ sub _doSkipCharFormattedIOCmdOutput
 sub _doReadCellFormattedIOCmdOutput {
    my ($fileHandle, $thisDataFormat, $formatsize, $template, $endian, $intFlagType, $datum) = @_;
 
-print STDERR "doReadCell:[$datum]\n";
    my $output;
 #   my $template = $thisDataFormat->_templateNotation(0);
 
@@ -814,6 +813,9 @@ sub _build_locator_string {
 # Modification History
 #
 # $Log$
+# Revision 1.12  2001/03/12 17:27:48  thomas
+# Removed unneeded debugging line.
+#
 # Revision 1.11  2001/03/09 23:07:06  thomas
 # Implemented binary data writting under XDF standard
 # (non-native float writing now supported). Made
