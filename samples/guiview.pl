@@ -261,7 +261,7 @@ sub update_table_viewer {
 
   # get info about the XDF structure
 
-  my $arrayObj = @{$XDF->arrayList}->[0];
+  my $arrayObj = @{$XDF->getArrayList()}->[0];
 
 
   return unless defined $arrayObj;
@@ -274,19 +274,20 @@ sub update_table_viewer {
   my $fieldFrame = $WIDGET{'fieldsFrame'};
   my $rowFieldFrame = $WIDGET{'rowFieldFrame'};
 
-  foreach my $fieldObj ($arrayObj->fieldAxis->getFields) { 
-    my $string = $fieldObj->name . "\n";
-    my $dataFObj = $fieldObj->dataFormat ? $fieldObj->dataFormat :
-                   $arrayObj->dataFormat;
+  die "Can't display file, it lacks a field Axis" unless defined $arrayObj->getFieldAxis();
 
-    my $width = defined $dataFObj ? $dataFObj->bytes() : 1;
+  foreach my $fieldObj (@{$arrayObj->getFieldAxis()->getFields}) { 
+    my $string = $fieldObj->getName() . "\n";
+    my $dataFObj = $fieldObj->getDataFormat ? $fieldObj->getDataFormat :
+                   $arrayObj->getDataFormat;
+
+    my $width = defined $dataFObj ? $dataFObj->getBytes() : 1;
 
     $width = length($string) if length($string) > $width;
   #  $width *= 2;
     push @dataFormatObjs, $dataFObj;
     push @field_size, $width;
-print STDERR "WIDTH : $width\n";
-    $string .= $fieldObj->units->value; # . "\n";
+    $string .= $fieldObj->getUnits()->getValue(); # . "\n";
     my $fieldLabel =  $fieldFrame->Label( width => $width,
                                           text => $string,
                                            bg => 'white',
@@ -296,10 +297,11 @@ print STDERR "WIDTH : $width\n";
 
    # dump the array
    # get the number of indices along each axis 
-   my @size = @{$arrayObj->maxDataIndices()};
 
-   my $rowAxis = @{$arrayObj->axisList}->[0];
-   my $colAxis = @{$arrayObj->axisList}->[1];
+   my $rowAxis = @{$arrayObj->getAxisList}->[0];
+   my $colAxis = @{$arrayObj->getAxisList}->[1];
+
+   my @size = ( $rowAxis->getLength(), $colAxis->getLength());
 
    my $locator = $arrayObj->createLocator;
 
@@ -315,8 +317,8 @@ print STDERR "WIDTH : $width\n";
        $locator->setAxisLocation($colAxis, $col);
        my $datum = $arrayObj->getData($locator);
        my $dataFObj = $dataFormatObjs[$row];
-       $datum = "---" if defined $datum && defined $dataFObj && defined $dataFObj->noDataValue &&
-                         $dataFObj->noDataValue eq $datum;
+       $datum = "---" if defined $datum && defined $dataFObj && defined $dataFObj->getNoDataValue &&
+                         $dataFObj->getNoDataValue eq $datum;
        $datum = " " x $field_size[$row] unless defined $datum;
        $data_separator = " " x $field_size[$row];
        $dataline .= $datum . $data_separator;

@@ -1,11 +1,13 @@
 <?xml version="1.0" standalone="no"?>
-<!DOCTYPE XDF SYSTEM "XDF_0.17.dtd">
+<!DOCTYPE XDF SYSTEM "XDF_0.17.dtd" [
+  <!ENTITY newline "&#10;">
+]>
 <XDF name="A sample XDF document" 
      description="This shows how to put any data into XDF format using tagged data."
 >
    <!-- A little table about 3 nearby galaxies -->
    <parameterGroup name="Structure Properties">
-     <parameter name="date">
+     <parameter name="date" datatype="string">
        <units><unitless/></units>
        <value>01-12-99</value>
        <note>This parameter is not accurate.</note>
@@ -13,7 +15,6 @@
      <parameter name="date2">
        <units><unitless/></units>
        <value>10-22-00</value>
-       <note>This parameter is not accurate either.</note>
      </parameter>
    </parameterGroup>
 
@@ -43,6 +44,14 @@
             <dataFormat><fixed width="4" precision="1" /></dataFormat>
             <relation fieldIdRefs="vmag" role="errors" />
          </field>
+         <field fieldId="idNumber" name="CDD ID">
+            <units><unitless/></units>
+            <dataFormat><integer width="1"/></dataFormat>
+         </field>
+         <field fieldId="enumber" name="A Sci. Number">
+            <units><unitless/></units>
+            <dataFormat><exponential width="8" precision="2" exponent="2" /></dataFormat>
+         </field>
          <field name="Reference" >
             <units><unitless/></units>
             <dataFormat><string length="40" /></dataFormat>
@@ -50,10 +59,10 @@
          </field>
       </fieldAxis>
 
-      <axis axisId="rows">
+      <axis axisId="rows" axisDatatype="integer">
          <axisUnits><unitless/></axisUnits>
          <valueGroup name="rows"> 
-           <valueList size="3"/>
+           <valueList delimiter=" " repeatable="yes">0 1  2</valueList> 
          </valueGroup> 
       </axis>
 
@@ -65,19 +74,20 @@
 
       <data>
          <d0>
-           <d1>M31</d1><d1>230.12098776</d1><d1>-34.3424911</d1>
-           <d1>12.6</d1><d1>0.5</d1>
-            <d1>ApJ Ref 1.</d1>
+            <d1>M31</d1><d1>230.12098776</d1><d1>-34.3424911</d1><d1>12.6</d1><d1>0.5</d1>
+            <d1>0</d1>
+            <d1>1.000E-3</d1><d1>ApJ Ref 1.</d1>
          </d0>
          <d0>
-            <d1>M33</d1><d1>130.09478492</d1><d1>+36.0000001</d1>
+            <d1>M33</d1><d1>130.094</d1><d1>+36.0000001</d1>
             <d1>14.6</d1><d1>1.5</d1>
+            <d1>0</d1>
+            <d1></d1>
             <d1></d1>
          </d0>
          <d0>
             <d1>M80</d1><d1>230.04429292</d1><d1>+74.2449499</d1>
-            <d1>12.8</d1><d1>0.5</d1>
-            <d1></d1>
+            <d1>12.8</d1><d1>0.5</d1><d1/><d1>3.3E33</d1><d1></d1>
          </d0>
       </data>
 
@@ -86,7 +96,8 @@
           <index axisIdRef="columns"/>
           <index axisIdRef="rows"/>
         </locationOrder>
-        <note>This is table 3 from the Zezajck article.</note>
+        <note location="1 1">This is table 3 from the Zezajck article. Newline:[&newline;].</note>
+        <note location="0 2">This is table 3 from the Zezajck article.</note>
         <note noteId="note1" location="0 1" >No data because of a cosmic ray hit</note>
         <note noteIdRef="note1" location="0 2" />
     </notes>

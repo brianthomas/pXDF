@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w -I .. 
 
-use XDF::Object;
+use XDF::BaseObject;
 use XDF::Reader;
 use strict;
 
@@ -39,10 +39,10 @@ my $QUIET = 1;
   $XDF->toXMLFileHandle(\*STDOUT, 1);
 
  
-  my $arrayObj = @{$XDF->arrayList()}->[0];
+  my $arrayObj = @{$XDF->getArrayList()}->[0];
 
-  my $axis0 = @{$arrayObj->axisList}->[0];
-  my $axis1 = @{$arrayObj->axisList}->[1];
+  my $axis0 = @{$arrayObj->getAxisList}->[0];
+  my $axis1 = @{$arrayObj->getAxisList}->[1];
 
   my $locator = $arrayObj->createLocator;
 
@@ -52,12 +52,12 @@ my $QUIET = 1;
   print "DATA at col=1 row=2 : [", $arrayObj->getData($locator), "]\n";
 
   # a little example of how to deal with notes
-  foreach my $noteObj (@{$arrayObj->noteList}) {
+  foreach my $noteObj (@{$arrayObj->getNoteList}) {
      print "NOTE: ";
   
-     if ( $noteObj->value() ) { # note has text in value
+     if ( $noteObj->getValue() ) { # note has text in value
 
-        print $noteObj->value();
+        print $noteObj->getValue();
 
      } elsif ($noteObj->refNoteObject()) { # note has refObj which holds the text 
 

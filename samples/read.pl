@@ -35,9 +35,11 @@ my $QUIET = 1;
 
   my $XDF = &XDF::Reader::createXDFObjectFromFile($file, \%options);
 
-  foreach my $arrayObj (@{$XDF->arrayList()}) {
-    print "ARRAY: ",$arrayObj->name, " of dimension: ",$arrayObj->dimension(),"\n";
-    &dump_2D_array(\*STDOUT, $arrayObj);
+  foreach my $arrayObj (@{$XDF->getArrayList()}) {
+    my $name = $arrayObj->getName;
+    $name = "" unless defined $name;
+    print "ARRAY: ",$arrayObj->getName, " of dimension: ",$arrayObj->getDimension(),"\n";
+    &dump_2D_array(\*STDOUT, $arrayObj) if $arrayObj->getDimension() == 2;
   }
 
   exit 0;
@@ -52,10 +54,11 @@ sub dump_2D_array {
 
    # dump the array
    # get the number of indices along each axis 
-   my @size = @{$arrayObj->maxDataIndices()};
 
-   my $rowAxis = @{$arrayObj->axisList}->[0];
-   my $colAxis = @{$arrayObj->axisList}->[1];
+   my $rowAxis = @{$arrayObj->getAxisList}->[0];
+   my $colAxis = @{$arrayObj->getAxisList}->[1];
+
+   my @size = ($rowAxis->getLength(), $colAxis->getLength());
 
    my $locator = $arrayObj->createLocator;
    foreach my $row (0 .. $size[0]) {

@@ -54,17 +54,17 @@ use strict;
 
 
   # dump the XDF structure..
-  foreach my $axisObj (@{$XDF->axisList()}) {
-    print "AXIS: ", $axisObj->name, " ", $axisObj->description, "\n";
-    foreach my $val ($axisObj->getAxisValues()) {
+  foreach my $axisObj (@{$XDF->getAxisList()}) {
+    print "AXIS: ", $axisObj->getName, " ", $axisObj->getDescription, "\n";
+    foreach my $val (@{$axisObj->getAxisValues()}) {
        print "      val: $val\n";
     }
   }
 
-  foreach my $obj (@{$XDF->paramList()}) {
-    print "Param: ",$obj->name(), " ", $obj->valueList(), "\n";
+  foreach my $obj (@{$XDF->getParamList()}) {
+    print "Param: ",$obj->getName(), " ", $obj->getValueList(), "\n";
   }
 
-  foreach my $noteObj ($XDF->getNotes) { print "NOTE: ",$noteObj->value(), "\n"; }
+  foreach my $noteObj (@{$XDF->getNoteList()}) { print "NOTE: ",$noteObj->getValue(), "\n"; }
 
   exit 0;

@@ -24,7 +24,7 @@
              <valueList size="10" delimiter=" ">10 9 8 7 6 5 4 3 2 1</valueList>
           </axis>
 
-             <read>
+             <read encoding="iso8859-1">
                 <for axisIdRef="y-axis">
                    <for axisIdRef="x-axis">
                      <textDelimiter repeatable="yes" recordTerminator="&#10;" />
