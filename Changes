@@ -4,11 +4,27 @@ Revision history for Perl extension XDF.
 	- original version; created by h2xs 1.19
 
 0.17l Mon Dec 16 02:51:36 2000
+        This one is a big leap forward. Many changes;
 	- Added correct href functionality for files.
           Other URL types not currently enabled.
+          Added Href class.
+        - Added ability to carry along XML Notation nodes
+          in the base object and print back out wi/ toXMLFileHandle
+        - <!ENTITY> stuff now printing out for href nodes. 
         - Changed method invocation to Java style, e.g.
           get/set. There is compatability mode for older
           attribute access (for now).
         - Fixed deep cloning (finally!). Removed silly
           setRef stuff from BaseObject class as a result.
+        - Notes node now will appear in output array w/ correct
+          layout, e.g. locationOrder + notes children. Added
+          Notes and NotesLocatorOrder classes.
+        - Delimited read section not printing correctly fixed. 
+        - Fixed ability to change order of read Axis (e.g. invert
+          an array) from the XML file. Does the right thing now
+          (see XDF_sample2 file). 
+        - Removed extraneous code (_enlarge_array, etc) from DataCube.
+        - Fixed numerous bugs in the Locator incl. its ability
+          to find the correct Axes from the parent and change its
+          iteration order and the order of traversal for next method.
           
