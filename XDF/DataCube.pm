@@ -366,6 +366,7 @@ sub getData {
   }
 
   my $result = eval "$get_string";
+#print STDERR "getData evalstring: [$get_string]\n";
   return $result;
 
 }
@@ -549,6 +550,9 @@ sub _build_locator_string {
 # Modification History
 #
 # $Log$
+# Revision 1.8  2001/03/01 21:10:44  thomas
+# remove extrantaneous error reporting.
+#
 # Revision 1.7  2001/02/22 19:38:17  thomas
 # Changed axisLocation calls to axisIndex.
 #
