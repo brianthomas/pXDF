@@ -617,7 +617,6 @@ sub _writeFormattedData {
 
    for (my $i = 0; $i <= $nrofDataFormats; $i++) {
       $pattern[$i] = $dataFormat[$i]->_templateNotation(0);
-#   my $template = $thisDataFormat->_templateNotation(0);
 
       $numOfBytes[$i] = $dataFormat[$i]->numOfBytes();
       if (ref($dataFormat[$i]) eq 'XDF::IntegerDataFormat')
@@ -684,7 +683,7 @@ sub _writeFormattedData {
           if ($nrofDataFormats > 0)
           {
              $currentDataFormat++;
-             if ( $currentDataFormat == $nrofDataFormats)
+             if ( $currentDataFormat > $nrofDataFormats)
              {
                       $currentDataFormat = 0;
              }
@@ -726,14 +725,12 @@ sub _doSkipCharFormattedIOCmdOutput
 sub _doReadCellFormattedIOCmdOutput {
    my ($fileHandle, $thisDataFormat, $formatsize, $template, $endian, $intFlagType, $datum) = @_;
 
+print STDERR "doReadCell:[$datum]\n";
    my $output;
 #   my $template = $thisDataFormat->_templateNotation(0);
 
    if (ref($thisDataFormat) eq 'XDF::StringDataFormat'
-        || ref($thisDataFormat) eq 'XDF::StringDataFormat'
         || ref($thisDataFormat) eq 'XDF::FloatDataFormat'
-        || ref($thisDataFormat) eq 'XDF::BinaryIntegerDataFormat'
-        || ref($thisDataFormat) eq 'XDF::BinaryFloatDataFormat' 
       )
    {
       $output = pack $template, $datum;
@@ -742,118 +739,25 @@ sub _doReadCellFormattedIOCmdOutput {
    {
      $output = pack $template, $datum;
       if (defined $intFlagType) {
-         if ($intFlagType eq XDF::IntegerDataFormat->typeOctal()) {
+         if ($intFlagType eq XDF::Constants::INTEGER_TYPE_OCTAL) {
             warn "Cant write OCTAL integers yet, aborting cell write";
             return;
-         } elsif ($intFlagType eq XDF::IntegerDataFormat->typeHexadecimal()) {
+         } elsif ($intFlagType eq XDF::Constants::INTEGER_TYPE_HEX) {
             warn "Cant write HEX integers yet, aborting cell write";
             return;
          }
       }
    }
-   elsif (0)
-   #elsif (ref($thisDataFormat) eq 'XDF::BinaryIntegerDataFormat') 
+   elsif (ref($thisDataFormat) eq 'XDF::BinaryIntegerDataFormat') 
    {
 
-      my $numOfBytes = $thisDataFormat->numOfBytes();
-      my @byteBuf;
-
-      # short
-      if ($numOfBytes == 2) {
-
-          my $i = pack $template, $datum;
-          $byteBuf[0] = ($i >>  8);
-          $byteBuf[1] = $i;
-
-      } elsif ($numOfBytes == 4) {
-
-          my $i = pack "b32", $datum;
-
-          $byteBuf[0] = ($i >> 24);
-          $byteBuf[1] = ($i >> 16);
-          $byteBuf[2] = ($i >>  8);
-          $byteBuf[3] = $i;
-
-      } elsif ($numOfBytes == 8) {
-
-          my $i = pack "b64", $datum;
-
-          $byteBuf[0] = ($i >> 56);
-          $byteBuf[1] = ($i >> 48);
-          $byteBuf[2] = ($i >> 40);
-          $byteBuf[3] = ($i >> 32);
-          $byteBuf[4] = ($i >> 24);
-          $byteBuf[5] = ($i >> 16);
-          $byteBuf[6] = ($i >>  8);
-          $byteBuf[7] = $i;
-
-      } else {
-          carp("Got weird number of bytes for BinaryIntegerDataFormat:$numOfBytes exiting.");
-          exit(-1);
-      }
-
-      if ($endian eq XDF::XMLDataIOStyle->getLittleEndian())
-      {
-         # reverse the byte order
-         @byteBuf = reverse @byteBuf;
-      }
-
-       $output = join '', @byteBuf;
-
+      $output = $thisDataFormat->convertIntegerToIntegerBits($datum, $endian);
 
    } 
-   elsif (0)
-   #elsif (ref($thisDataFormat) eq 'XDF::BinaryFloatDataFormat') 
+   elsif (ref($thisDataFormat) eq 'XDF::BinaryFloatDataFormat') 
    {
-       my $numOfBytes = $formatsize; #thisDataFormat->numOfBytes();
-       my @byteBuf;
 
-       if ($numOfBytes == 8)
-       {
-
-        #  my $lbits = Double.doubleToLongBits($datum);
-          #my $lbits = $datum;
-          my $lbits = pack "b64", $datum;
-
-          # note: '>>' was '>>>' in orig Java code. The meaning
-          # is 'signed shift'. Perl doesnt appear to have this.
-          $byteBuf[0] = ($lbits >> 56);
-          $byteBuf[1] = ($lbits >> 48);
-          $byteBuf[2] = ($lbits >> 40);
-          $byteBuf[3] = ($lbits >> 32);
-          $byteBuf[4] = ($lbits >> 24);
-          $byteBuf[5] = ($lbits >> 16);
-          $byteBuf[6] = ($lbits >>  8);
-          $byteBuf[7] = $lbits;
-
-       }
-       elsif ($numOfBytes == 4)
-       {
-
-          # Q: does this involve rounding??
-#          my $ibits = Float.floatToIntBits($datum);
-          my $ibits = pack "b32", $datum;
-
-          $byteBuf[0] = ($ibits >> 24);
-          $byteBuf[1] = ($ibits >> 16);
-          $byteBuf[2] = ($ibits >>  8);
-          $byteBuf[3] = $ibits;
-
-        }
-        else
-        {
-            carp("Got weird number of bytes for BinaryFloatDataFormat:$numOfBytes exiting.\n");
-            exit(-1);
-        }
-
-        # check for endianess
-        if ($endian eq XDF::XMLDataIOStyle->getLittleEndian())
-        {
-           # reverse the byte order
-           @byteBuf = reverse @byteBuf;
-        }
-
-        $output = join '', @byteBuf;
+      $output = $thisDataFormat->convertFloatToFloatBits($datum, $endian);
 
    } 
    else
@@ -910,6 +814,13 @@ sub _build_locator_string {
 # Modification History
 #
 # $Log$
+# Revision 1.11  2001/03/09 23:07:06  thomas
+# Implemented binary data writting under XDF standard
+# (non-native float writing now supported). Made
+# some calls to the Constant Class rather than
+# IntegerDataFormat. Fixed bug in while loop of
+# writeFormattedData subroutine.
+#
 # Revision 1.10  2001/03/09 22:05:31  thomas
 # added get/set methods for encoding attribute.
 # added Utility check for compression attribute
