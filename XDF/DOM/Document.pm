@@ -54,6 +54,7 @@ sub new {
   my ($proto, %args) = @_;
 
   my $self = $proto->SUPER::new (%args);
+  bless $self, $proto;
   return $self;
 }
 
