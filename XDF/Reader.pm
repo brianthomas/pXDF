@@ -353,6 +353,47 @@ sub parseFileHandle {
    return $self->{XDF};
 }
 
+# /** parseString
+# Reads in the given string and returns a full XDF Perl object (an L<XDF::Structure>
+# with at least one L<XDF::Array>). A second HASH argument may be supplied to 
+# specify runtime options for the XDF::Reader.
+# */
+sub parseString {
+  my ($self, $string, $optionsHashRef) = @_;
+
+  $self->{Options} = $optionsHashRef if defined $optionsHashRef && ref($optionsHashRef);
+
+  if ($self->{Options}->{validate} && ! eval { new XML::Checker::Parser } ) {
+    warn "Validating parser module (XML::Checker::Parser) not available on this system, using default non-validating parser XML::Parser.\n";
+    $self->{Options}->{validate} = 0;
+  }
+
+  if ($self->{Options}->{validate} ) {
+
+    my $parser = &_create_validating_parser($optionsHashRef);
+    
+    eval {
+       local $XML::Checker::FAIL = sub { $self->_my_fail(@_); };
+       $parser->parse($string);
+    };
+    
+    # Either XML::Parser (expat) threw an exception or my_fail() died.
+    if ($@) {
+       my ($msg, $loc) = split "\n", $@;
+       print "MSG: $msg\n"; # the error message 
+       print "$loc\n"; # print location 
+    }
+
+  } else {
+
+    my $parser = $self->_create_parser();
+    $parser->parse($string);
+
+  }
+
+  return $self->{XDF};
+ 
+}
 
 #
 # Object M E T H O D S 
@@ -2808,6 +2849,9 @@ sub _appendArrayToArray {
 # Modification History
 #
 # $Log$
+# Revision 1.23  2001/03/23 20:39:27  thomas
+# Added parseString method.
+#
 # Revision 1.22  2001/03/21 20:41:35  thomas
 # minor bug fix: misspelled 'fieldAxis' at line 2540 or so.
 # removed commented out _deal_with_options.
@@ -2969,13 +3013,17 @@ The following instance (object) methods are defined for XDF::Reader.
 
 sets the structure that the reader parses into.  
 
-=item parseFile ($optionsHashRef, $file)
+=item parseFile ($file, $optionsHashRef)
 
 Reads in the given file and returns a full XDF Perl object (an L<XDF::Structure>with at least one L<XDF::Array>). A second HASH argument may be supplied to specify runtime options for the XDF::Reader.  
 
-=item parseFileHandle ($optionsHashRef, $handle)
+=item parseFileHandle ($handle, $optionsHashRef)
 
 Similar to parseFile but takes an open filehandle as an argument (so you can parse ANY open fileHandle, e.g. files, sockets, etc. Whatever Perl supports.).  
+
+=item parseString ($string, $optionsHashRef)
+
+Reads in the given string and returns a full XDF Perl object (an L<XDF::Structure>with at least one L<XDF::Array>). A second HASH argument may be supplied to specify runtime options for the XDF::Reader.  
 
 =item addStartElementHandlers (%newHandlers)
 
@@ -3063,7 +3111,7 @@ This sets the subroutine which will handle all nodes which DONT match  an entry 
 
 =over 4
 
-L<XDF::Array>, L<XDF::BinaryFloatDataFormat>, L<XDF::BinaryIntegerDataFormat>, L<XDF::Constants>, L<XDF::DelimitedXMLDataIOStyle>, L<XDF::Field>, L<XDF::FieldRelation>, L<XDF::FloatDataFormat>, L<XDF::FormattedXMLDataIOStyle>, L<XDF::Href>, L<XDF::IntegerDataFormat>, L<XDF::Parameter>, L<XDF::RepeatFormattedIOCmd>, L<XDF::ReadCellFormattedIOCmd>, L<XDF::SkipCharFormattedIOCmd>, L<XDF::StringDataFormat>, L<XDF::Structure>, L<XDF::XMLDataIOStyle>
+L<XDF::Array>, L<XDF::BinaryFloatDataFormat>, L<XDF::BinaryIntegerDataFormat>, L<XDF::Constants>, L<XDF::DelimitedXMLDataIOStyle>, L<XDF::Field>, L<XDF::FieldRelation>, L<XDF::FloatDataFormat>, L<XDF::FormattedXMLDataIOStyle>, L<XDF::Href>, L<XDF::IntegerDataFormat>, L<XDF::Parameter>, L<XDF::RepeatFormattedIOCmd>, L<XDF::ReadCellFormattedIOCmd>, L<XDF::SkipCharFormattedIOCmd>, L<XDF::StringDataFormat>, L<XDF::Structure>, L<XDF::XMLDataIOStyle>, L<XDF::XMLElement>
 
 =back
 
