@@ -50,7 +50,6 @@ my @Class_XML_Attributes = qw (
                                  formatCmdList
                               );
 my @Class_Attributes = qw (
-                             writeAxisOrderList
                           );
 
 # add in class XML attributes
@@ -112,32 +111,6 @@ sub setFormatCmdList {
 #
 #  return $list[$index];
 #}
-
-#/** getWriteAxisOrderList 
-# This method sets the ordering of the fastest to slowest axis for
-# writing out formatted data. The default is to use the parent array
-# axisList ordering.
-# */
-sub getWriteAxisOrderList {
-  my ($self) =@_;
-
-  my $list_ref = $self->{WriteAxisOrderList};
-  $list_ref = $self->{_parentArray}->getAxisList() unless
-      defined $list_ref || !defined $self->{_parentArray};
-  return $list_ref;
-}
-
-#/** setWriteAxisOrderList 
-# This method sets the ordering of the fastest to slowest axis for
-# writing out formatted data. The fastest axis is the last in
-# the array.
-# */
-sub setWriteAxisOrderList {
-  my ($self, $arrayRefValue) = @_;
-  # you must do it this way, or when the arrayRef changes it changes us here!
-  my @list = @{$arrayRefValue};
-  $self->{WriteAxisOrderList} = \@list;
-}
 
 # /** getCommands
 #    This convenience method returns the command list (as
@@ -236,7 +209,9 @@ sub toXMLFileHandle {
   my $Untagged_Instruction_Node_Name = $self->untaggedInstructionNodeName();
   my $next_indent = $indent . $more_indent;
   #foreach my $axisObj (@{$self->{_parentArray}->getAxisList()}) {
-  foreach my $axisObj (@{$self->getWriteAxisOrderList()}) {
+  # we write this out in the *reverse* ordering. Why? because XDF
+  # DTD wants the fastest axis to be *last*
+  foreach my $axisObj (reverse @{$self->getWriteAxisOrderList()}) {
     my $axisId = $axisObj->getAxisId();
     push @indent, $next_indent;
     print $fileHandle "$next_indent" if $niceOutput;
@@ -402,6 +377,12 @@ sub _sprintfNotation {
 # Modification History
 #
 # $Log$
+# Revision 1.16  2001/03/26 18:11:15  thomas
+# moved setWriteAxisORder list and getWriteAxisOrderList
+# up to superclass. fixed toXMLFileHandle to write out
+# AxisOrder in *reverse* of getWriteAxisOrder list (fastest
+# axis should be written last, as the DTD proscribes).
+#
 # Revision 1.15  2001/03/23 20:38:40  thomas
 # broke up printing of attributes in toXMLFileHandle
 # so that toXMLString will work properly.
