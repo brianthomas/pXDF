@@ -60,14 +60,18 @@ use vars qw ($AUTOLOAD %field @ISA);
 @ISA = ("XDF::GenericObject");
 
 # CLASS DATA
-my @Class_Attributes = qw (
+my @Class_Attributes;
+my @Local_Class_Attributes = qw (
                              _hasNext
                              _locationList
                              _parentArray
                           );
 
-# add in super class attributes
+# get super class attributes
 push @Class_Attributes, @{&XDF::GenericObject::getClassAttributes};
+
+# add in local to overall class
+push @Class_Attributes, @Local_Class_Attributes;
 
 # Initalization
 # set up object attributes.
@@ -350,6 +354,9 @@ sub _init {
 # Modification History
 #
 # $Log$
+# Revision 1.16  2001/08/13 19:49:49  thomas
+# small change to init: now has "local attribs".
+#
 # Revision 1.15  2001/07/23 15:58:07  thomas
 # added ability to add arbitary XML attribute to class.
 # getXMLattributes now an instance method, we
