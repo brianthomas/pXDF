@@ -1,6 +1,5 @@
 <?xml version="1.0" standalone="no" ?>
-<!DOCTYPE XDF SYSTEM "XDF_017.dtd">
-
+<!DOCTYPE XDF SYSTEM "http://xml.gsfc.nasa.gov/DTD/XDF_017.dtd">
 <XDF name="A sample XDF document" 
      description="This shows how to put any data into XDF format"
 >

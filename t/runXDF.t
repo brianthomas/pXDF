@@ -1,7 +1,9 @@
 
 BEGIN {print "1..4\n";}
 END {print "not ok 1\n" unless $loaded;}
+use XDF::Array;
 use XDF::Structure;
+use XDF::Parameter;
 $loaded = 1;
 print "ok 1\n";
 
@@ -22,7 +24,8 @@ my $test = 1;
 
   # Test 1. add/get some parameters in the XDF structure
   foreach my $param (0 ... $#param_name) {
-    my $paramObj = $XDF->addParameter({ 'name' => $param_name[$param] });
+    my $paramObj = new XDF::Parameter({ 'name' => $param_name[$param] }); 
+    $XDF->addParameter($paramObj);
     my $valueObj = new XDF::Value(); 
     $paramObj->addValue($valueObj);
   }
@@ -37,10 +40,12 @@ my $test = 1;
 
   # Test 2. Add an axis to an array, add some tickmarks, then remove one tickmark 
   my $arrayObj = new XDF::Array(); 
-  my $axisObj = $arrayObj->addAxis({ 'name' => $axis[0], 
+  my $axisObj = new XDF::Axis ({ 'name' => $axis[0], 
                                      'description' => 'the first axis', 
                                      'axisId' => 'firstAxis' }
                                   );
+  $arrayObj->addAxis($axisObj);
+
   my $remove_tickmark;
   foreach my $val (@starting_tickmark_values) {
     $remove_tickmark = $axisObj->addAxisValue($val); 
