@@ -72,10 +72,9 @@ use XDF::Array;
 use XDF::BinaryFloatDataFormat;
 use XDF::BinaryIntegerDataFormat;
 use XDF::DelimitedXMLDataIOStyle;
-use XDF::ExponentialDataFormat;
 use XDF::Field;
 use XDF::FieldRelation;
-use XDF::FixedDataFormat;
+use XDF::FloatDataFormat;
 use XDF::FormattedXMLDataIOStyle;
 use XDF::Href;
 use XDF::IntegerDataFormat;
@@ -208,6 +207,7 @@ my $Flag_Octal = &XDF::IntegerDataFormat::typeOctal();
 
 # Now, Some defines based on XDF DTD 
 # change these to reflect new namings of same nodes as they occur.
+                      #'exponent' => 'exponential',
 my %XDF_node_name = ( 
                       'textDelimiter' => 'textDelimiter',
                       'array' => 'array',
@@ -217,10 +217,9 @@ my %XDF_node_name = (
                       'binaryInteger' => 'binaryInteger',
                       'data' => 'data',
                       'dataFormat' => 'dataFormat',
-                      'exponent' => 'exponential',
                       'field' => 'field',
                       'fieldAxis' => 'fieldAxis',
-                      'fixed' => 'fixed',
+                      'float' => 'float',
                       'for' => 'for',
                       'fieldGroup' => 'fieldGroup',
                       'index' => 'index',
@@ -258,6 +257,7 @@ my %XDF_node_name = (
                     );
 
 # dispatch table for the start node handler of the parser
+                     #  $XDF_node_name{'exponent'}     => sub { &exponentField_node_start(@_); },
 my %Start_Handler = (
                        $XDF_node_name{'array'}        => sub { &array_node_start(@_); },
                        $XDF_node_name{'axis'}         => sub { &axis_node_start(@_); },
@@ -266,10 +266,9 @@ my %Start_Handler = (
                        $XDF_node_name{'binaryInteger'} => sub { &binaryIntegerField_node_start(@_); },
                        $XDF_node_name{'data'}         => sub { &data_node_start(@_); },
                        $XDF_node_name{'dataFormat'}   => sub { &dataFormat_node_start(@_); },
-                       $XDF_node_name{'exponent'}     => sub { &exponentField_node_start(@_); },
                        $XDF_node_name{'field'}        => sub { &field_node_start(@_); },
                        $XDF_node_name{'fieldAxis'}    => sub { &fieldAxis_node_start(@_); },
-                       $XDF_node_name{'fixed'}        => sub { &fixedField_node_start(@_); },
+                       $XDF_node_name{'float'}        => sub { &floatField_node_start(@_); },
                        $XDF_node_name{'for'}          => sub { &for_node_start(@_); },
                        $XDF_node_name{'fieldGroup'}   => sub { &fieldGroup_node_start(@_); },
                        $XDF_node_name{'index'}        => sub { &note_index_node_start(@_); },
@@ -1010,7 +1009,7 @@ sub data_node_end {
     # set up appropriate instructions for reading
     if ( ref($formatObj) eq 'XDF::FormattedXMLDataIOStyle' ) {
       $template  = $formatObj->_templateNotation(1);
-      $recordSize = $formatObj->getBytes();
+      $recordSize = $formatObj->numOfBytes();
       $data_has_special_integers = $formatObj->hasSpecialIntegers;
     } elsif(ref($formatObj) eq 'XDF::DelimitedXMLDataIOStyle') {
       $regex = $formatObj->_regexNotation();
@@ -1122,12 +1121,11 @@ sub data_node_start {
        # A safety. We clear datablock when this is the first datanode we 
        # have entered DATABLOCK is used in cases where we read in untagged data
        $DATABLOCK = "" if $DATA_NODE_LEVEL == 0; 
+     }
        
-       if (defined (my $href = $CURRENT_ARRAY->getDataCube()->getHref())) {
-          # add to the datablock
-          $DATABLOCK .= &_getHrefData($href);
-       }
-
+     if (defined (my $href = $CURRENT_ARRAY->getDataCube()->getHref())) {
+        # add to the datablock
+        $DATABLOCK .= &_getHrefData($href);
      }
 
      # this declares we are now reading data, 
@@ -1263,7 +1261,7 @@ sub field_relationship_node_start {
 
 }
 
-sub fixedField_node_start {
+sub floatField_node_start {
   my (%attrib_hash) = @_;
 
   # this can waste memory, however these should always be quite small. 
@@ -1275,7 +1273,7 @@ sub fixedField_node_start {
   
   if (ref($dataTypeObj) eq 'XDF::Field' or ref($dataTypeObj) eq 'XDF::Array' ) {
   
-     $dataTypeObj->setDataFormat(new XDF::FixedDataFormat(\%merged_hash));
+     $dataTypeObj->setDataFormat(new XDF::FloatDataFormat(\%merged_hash));
   
   } else {
   
@@ -2160,6 +2158,10 @@ sub my_fail {
 # Modification History
 #
 # $Log$
+# Revision 1.10  2001/02/15 18:30:12  thomas
+# Added FloatDataFormat. Removed ExponentialDataFormat and FixedDataFormat
+# from handler. Changed getBytes method call to numOfBytes.
+#
 # Revision 1.9  2000/12/15 22:11:58  thomas
 # Regenerated perlDoc section in files. -b.t.
 #
@@ -2297,7 +2299,7 @@ A change in the value of these attributes will change the functioning of ALL ins
 
 =head1 SEE ALSO
 
-L<XDF::Array>, L<XDF::BinaryFloatDataFormat>, L<XDF::BinaryIntegerDataFormat>, L<XDF::DelimitedXMLDataIOStyle>, L<XDF::ExponentialDataFormat>, L<XDF::Field>, L<XDF::FieldRelation>, L<XDF::FixedDataFormat>, L<XDF::FormattedXMLDataIOStyle>, L<XDF::Href>, L<XDF::IntegerDataFormat>, L<XDF::Parameter>, L<XDF::RepeatFormattedIOCmd>, L<XDF::ReadCellFormattedIOCmd>, L<XDF::SkipCharFormattedIOCmd>, L<XDF::StringDataFormat>, L<XDF::Structure>, L<XDF::XMLDataIOStyle>
+L<XDF::Array>, L<XDF::BinaryFloatDataFormat>, L<XDF::BinaryIntegerDataFormat>, L<XDF::DelimitedXMLDataIOStyle>, L<XDF::Field>, L<XDF::FieldRelation>, L<XDF::FloatDataFormat>, L<XDF::FormattedXMLDataIOStyle>, L<XDF::Href>, L<XDF::IntegerDataFormat>, L<XDF::Parameter>, L<XDF::RepeatFormattedIOCmd>, L<XDF::ReadCellFormattedIOCmd>, L<XDF::SkipCharFormattedIOCmd>, L<XDF::StringDataFormat>, L<XDF::Structure>, L<XDF::XMLDataIOStyle>
 
 =back
 
