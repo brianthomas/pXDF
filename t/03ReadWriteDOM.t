@@ -6,21 +6,12 @@ BEGIN {
 
     if (eval { require XML::Checker::Parser; }) { $VALIDATE = 0; }
 
-    @test_file = qw (
-                     XDF_sample1.xml
-                     XDF_sample2.xml
-                     XDF_sample3.xml
-                     XDF_sample4.xml
-                     XDF_sample5.xml
-                     XDF_sample6.xml
-                     XDF_sample7.xml
-                     XDF_sample8.xml
-                     XDF_sample9.xml
-                     XDF_sample10.xml
-                     XDF_sample11.xml
-                     XDF_sample12.xml
-                     XDF_sample13.xml
-                     XDF_sample18.xml
+    @test_file = qw ( XDF_sample1.xml XDF_sample2.xml XDF_sample3.xml XDF_sample4.xml
+                     XDF_sample5.xml XDF_sample6.xml XDF_sample7.xml XDF_sample8.xml
+                     XDF_sample9.xml XDF_sample10.xml XDF_sample11.xml XDF_sample12.xml
+                     XDF_sample13.xml XDF_sample14.xml XDF_sample15.xml XDF_sample16.xml
+	 	     XDF_sample17.xml XDF_sample18.xml XDF_sample19.xml XDF_sample20.xml 
+	 	     XDF_sample21.xml XDF_sample22.xml XDF_sample23.xml XDF_sample24.xml 
                      document.xml
                    );
 
@@ -90,13 +81,14 @@ sub parse_string_to_string {
    my $DEBUG = 1;
    my $QUIET = 1;
    
-   my %options = ('quiet' => $QUIET, 'debug' => $DEBUG, );
+   my %options = ('quiet' => $QUIET, 'debug' => $DEBUG, 'loadDataOnDemand' => 0,);
    
    my $parser = new XDF::DOM::Parser(  
                                        validate => $validate,
                                        NoExpand => 0,
                                        ParseParamEnt => 0,
                                        ExpandParamEnt => 1,
+                                       'loadDataOnDemand' => 0,
                                     );
    
    my $XDF_DOM = $parser->parsestring($string);
@@ -120,13 +112,14 @@ sub parse_file_to_string {
    my $DEBUG = 1;
    my $QUIET = 1;
 
-   my %options = ('quiet' => $QUIET, 'debug' => $DEBUG, );
+   my %options = ('quiet' => $QUIET, 'debug' => $DEBUG, 'loadDataOnDemand' => 0,);
 
    my $parser = new XDF::DOM::Parser(
                                        validate => $validate,
                                        NoExpand => 0,
                                        ParseParamEnt => 0,
                                        ExpandParamEnt => 1,
+                                       'loadDataOnDemand' => 0,
                                     );
 
    my $XDF_DOM = $parser->parsefile($file);

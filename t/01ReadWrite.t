@@ -5,21 +5,15 @@ use vars qw (@test_file);
 BEGIN { 
 
     @test_file = qw (
-                     XDF_sample1.xml
-                     XDF_sample2.xml
-                     XDF_sample3.xml
-                     XDF_sample4.xml
-                     XDF_sample5.xml
-                     XDF_sample6.xml
-                     XDF_sample7.xml
-                     XDF_sample8.xml
-                     XDF_sample9.xml
-                     XDF_sample10.xml
-                     XDF_sample11.xml
-                     XDF_sample12.xml
-                     XDF_sample13.xml
-                     XDF_sample18.xml
-                   );
+                       XDF_sample1.xml XDF_sample2.xml XDF_sample3.xml XDF_sample4.xml
+                       XDF_sample5.xml XDF_sample6.xml XDF_sample7.xml XDF_sample8.xml
+                       XDF_sample9.xml XDF_sample10.xml XDF_sample11.xml XDF_sample12.xml
+                       XDF_sample13.xml XDF_sample14.xml XDF_sample15.xml XDF_sample16.xml
+                       XDF_sample17.xml XDF_sample18.xml XDF_sample19.xml XDF_sample20.xml
+                       XDF_sample21.xml XDF_sample22.xml XDF_sample23.xml XDF_sample24.xml
+                    );
+
+#Note: you can use 'SKIP_TEST' in place of filename (above) to skip running on it 
 
     my $test_number = $#test_file + 1;
     plan tests => $test_number
@@ -52,12 +46,15 @@ sub run_tests {
 
    $val = 0 unless defined $val;
    foreach my $file (@test_file) {
+#print STDERR "LOADING:$file\n";
       &test_file($file, $val); 
    }
 }
 
 sub test_file {
   my ($file, $validate) = @_;
+
+  return test_status(1) if ($file eq 'SKIP_TEST');
 
   my $string1 = &parse_file_to_string($file, $validate);
   unless ($string1) {
@@ -89,9 +86,12 @@ sub test_status {
 sub parse_string_to_string {
    my ($string, $validate) = @_;
 
+   # Important! loadDataOnDemand should be OFF in order to do the tests of
+   # external data files
    my %options = ( 'quiet' => $QUIET, 
                    'debug' => $DEBUG, 
                    'validate' => $validate,
+                   'loadDataOnDemand' => 0, 
                    NoExpand => 0,
                    ParseParamEnt => 0,
                    ExpandParamEnt => 1,
@@ -112,9 +112,12 @@ sub parse_string_to_string {
 sub parse_file_to_string {
    my ($file, $validate) = @_;
 
+   # Important! loadDataOnDemand should be OFF in order to do the tests of
+   # external data files
    my %options = ( 'quiet' => $QUIET,
                    'debug' => $DEBUG,
                    'validate' => $validate,
+                   'loadDataOnDemand' => 0, 
                    NoExpand => 0,
                    ParseParamEnt => 0,
                    ExpandParamEnt => 1,
