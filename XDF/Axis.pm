@@ -24,7 +24,7 @@ package XDF::Axis;
 # */
 
 use Carp;
-use XDF::BaseObject;
+use XDF::BaseObjectWithXMLElements;
 use XDF::UnitDirection;
 use XDF::ValueGroup;
 use XDF::Units;
@@ -79,8 +79,8 @@ use vars qw ($AUTOLOAD %field @ISA);
 #
 # */
 
-# inherits from XDF::BaseObject
-@ISA = ("XDF::BaseObject");
+# inherits from XDF::BaseObjectWithXMLElements
+@ISA = ("XDF::BaseObjectWithXMLElements");
 
 # CLASS DATA
 # /** name
@@ -138,7 +138,7 @@ my @Class_Attributes = qw (
 push @Class_Attributes, @Class_XML_Attributes;
 
 # add in super class attributes
-push @Class_Attributes, @{&XDF::BaseObject::classAttributes};
+push @Class_Attributes, @{&XDF::BaseObjectWithXMLElements::classAttributes};
 
 # Initalization
 # set up object attributes.
@@ -548,6 +548,9 @@ sub _init {
 # Modification History
 #
 # $Log$
+# Revision 1.12  2001/04/25 16:00:24  thomas
+# changed base class to BaseObjectWithXMLElements
+#
 # Revision 1.11  2001/04/17 18:57:38  thomas
 # Using Specification class now.
 # Properly calling superclass init now.
