@@ -3,6 +3,8 @@ TODO: In other words, WHY is this package still ALPHA?!?
 
    What is currently NOT implemented in this package:
 
+   = Output of Notes/location stuff is broken.
+
    - Add functionality to attributes on data node.
      -- Href capability
      -- compression
@@ -30,6 +32,11 @@ TODO: In other words, WHY is this package still ALPHA?!?
    ** AT This Point the package is a "BETA", but more will need to be done: **
    ---------------------------------------------------------------------------
 
+   - Bring classes/methods into alignment with the Java package.
+
+   - Although it works, grouping not consistently implemented 
+     (fix addParamGroup in Array.pm for example)
+
    - Identify addtional convience methods that need to be implemented. Any Chaff to be removed?  
 
    - Problem of what to do with referencing objects. In the case of simple scalar
@@ -38,9 +45,12 @@ TODO: In other words, WHY is this package still ALPHA?!?
 
    - Problem wi/ External Entities. How to read in DTD to get the
      defaults on the attributes (rather than define them in Objects) 
+     (This problem arises fundementally from the Perl XML parser, as parameter and
+      'external' entities arent implemented! We either need to make a bug fix to
+      the Perl code, or use a different Perl parser..apache has a DOM implementation
+      for example). 
 
    - Reconstitute ValueList from values when writing to XML (hurm.. not likely).
-     Along similar lines, do we really need the complication of repeatFormatIOCommand? 
 
    - Investigate the 'fields' pragma. Is faster primative-type datastorage
      possbile under Perl? 
