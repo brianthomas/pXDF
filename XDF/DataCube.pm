@@ -195,23 +195,26 @@ sub getXMLAttributes {
 # we dont want to write back out all the attributes, the data
 # needs special handling to write out, etc...
 sub toXMLFileHandle {
-  my ($self, $fileHandle, $junk, $indent, $newNodeNameString ) = @_;
+  my ($self, $fileHandle, $junk, 
+      $indent, $newNodeNameString, $noChildObjectNodeName ) = @_;
 
+  my $writeHrefAttribute = 0;
   my $niceOutput = $self->Pretty_XDF_Output();
   $indent = "" unless defined $indent;
-
   my $nodeName = $self->classXMLNodeName;
   $nodeName = $newNodeNameString if defined $newNodeNameString;
 
   # open the tagged data section
   print $fileHandle $indent if $niceOutput;
   print $fileHandle "<" . $nodeName ;
-  print $fileHandle " href=\"".$self->{Href}->getName()."\"" if defined $self->{Href};
   print $fileHandle " checksum=\"".$self->{Checksum}."\"" if defined $self->{Checksum};
+  print $fileHandle " compression=\"".$self->{Compression}."\"" if defined $self->{Compression};
+  print $fileHandle " encoding=\"".$self->{Encoding}."\"" if defined $self->{Encoding};
+  print $fileHandle " href=\"".$self->{Href}->getName()."\"" if defined $self->{Href};
   print $fileHandle ">";
 
   # write the data
-  $self->toFileHandle($fileHandle, $indent );
+  $self->_writeDataToFileHandle($fileHandle, $indent );
 
   # close the tagged data section
   print $fileHandle "</" . $nodeName . ">";
@@ -220,10 +223,10 @@ sub toXMLFileHandle {
 
 }
 
-# /** toFileHandle
+# /** writeDataToFileHandle
 # Writes out just the data
 # */
-sub toFileHandle {
+sub _writeDataToFileHandle {
   my ($self, $fileHandle, $indent) = @_;
 
   my $dontPrintCDATATag = 0;
@@ -235,10 +238,13 @@ sub toFileHandle {
   croak "DataCube can't write out. No format reference object defined.\n"
      unless defined $readObj;
 
+  # a couple of shortcuts
   my $href = $self->{Href};
+  my $parentArray = $self->{_parentArray};
+
   my $dataFileHandle;
   my $dataFileName;
-
+  # check for href
   if ( defined $href ) {
 
       # BIG assumption: href is a file we want to read/write
@@ -260,6 +266,29 @@ sub toFileHandle {
 
   croak "XDF::DataCube has no valid data filehandle" unless defined $dataFileHandle;
 
+  my $fastestAxis = $parentArray->getAxisList()->[0];
+  # stores the NoDataValues for the parentArray,
+  # used in writing out when NoDataException is caught
+  my @NoDataValues;
+
+  if (defined $parentArray->getFieldAxis()) {
+     # NoDataValues = new String[fastestAxis.getLength()];
+     my @dataFormatList = $parentArray->getDataFormatList();
+     for (my $i = 0; $i <= $#NoDataValues; $i++) {
+        my $d =  $dataFormatList[$i];
+        if (defined $d && defined $d->getNoDataValue())
+        {
+           $NoDataValues[$i] = $d->getNoDataValue();
+        }
+     }
+  }
+  else 
+  {
+     # If there is no fieldAxis, then no fields,
+     # and hence, only ONE noDataValue.
+     $NoDataValues[0] = $parentArray->getNoDataValue();
+  }
+
   # write the data
   #
   if (ref($readObj) eq 'XDF::TaggedXMLDataIOStyle' ) {
@@ -268,19 +297,30 @@ sub toFileHandle {
      &_write_tagged_data($self, $dataFileHandle, $readObj, $indent, $niceOutput);
      print $dataFileHandle "$indent" if $niceOutput;
 
-  } elsif (ref($readObj) eq 'XDF::DelimitedXMLDataIOStyle' or
-           ref($readObj) eq 'XDF::FormattedXMLDataIOStyle' )
-  {
-    
-    print $dataFileHandle "<![CDATA[" unless $dontPrintCDATATag;
-    &_write_untagged_data($self, $dataFileHandle, $readObj, $indent, $niceOutput);
-    unless ($dontPrintCDATATag) {
-      print $dataFileHandle "]]>";
-      print $dataFileHandle "\n$indent" if $niceOutput;
-    }
-
   } else {
-     warn "Unknown read object: $readObj. $self cannot write itself out.\n";
+
+     print $dataFileHandle "<![CDATA[" unless $dontPrintCDATATag;
+
+     if (ref($readObj) eq 'XDF::DelimitedXMLDataIOStyle')
+     {
+        &_write_untagged_data($self, $dataFileHandle, $readObj, $indent, $niceOutput, $fastestAxis);
+     } 
+      elsif (ref($readObj) eq 'XDF::FormattedXMLDataIOStyle' )
+     {
+   #     &_write_untagged_data($self, $dataFileHandle, $readObj, $indent, $niceOutput, $fastestAxis);
+        $self->_writeFormattedData($dataFileHandle, $parentArray, $readObj, $fastestAxis, \@NoDataValues );
+
+     } 
+     else 
+     {
+        carp "Unknown read object: $readObj. $self cannot write itself out.\n";
+     }
+
+     unless ($dontPrintCDATATag) {
+        print $dataFileHandle "]]>";
+        print $dataFileHandle "\n$indent" if $niceOutput;
+     }
+
   }
 
   if ( $dataFileName ) { close DFH; }
@@ -452,7 +492,7 @@ sub _write_tagged_data {
 }
 
 sub _write_untagged_data {
-  my ($self, $fileHandle, $formatObj, $indent) = @_;
+  my ($self, $fileHandle, $formatObj, $indent, $fastestAxis) = @_;
 
   # now we populate the data, if there are any dimensions 
   if ($self->{Dimension} > 0) {
@@ -525,6 +565,301 @@ sub _write_untagged_data {
 
 }
 
+sub _writeFormattedData {
+   my ($self, $fileHandle, $parentArray, $readObj, 
+       $fastAxisObj, $noDataValRef ) = @_;
+ 
+   my $locator = $parentArray->createLocator();
+
+   my @noDataValues = @{$noDataValRef};
+   my $nrofNoDataValues = $#noDataValues;
+
+   # print out the data as appropriate for the format
+   my @commands = $readObj->getCommands(); # returns expanded list (no repeat cmds) 
+
+   my $endian = $readObj->getEndian();
+   my $nrofCommands = $#commands;
+   my $currentCommand = 0;
+
+   # init important dataFormat information into arrays, this 
+   # will help speed up long writes.
+   my @dataFormat = $parentArray->getDataFormatList();
+   my $nrofDataFormats = $#dataFormat;
+   my $currentDataFormat = 0;
+   my @pattern;
+   my @intFlag;
+   my @numOfBytes;
+
+   for (my $i = 0; $i <= $nrofDataFormats; $i++) {
+      $pattern[$i] = $dataFormat[$i]->_templateNotation(0);
+#   my $template = $thisDataFormat->_templateNotation(0);
+
+      $numOfBytes[$i] = $dataFormat[$i]->numOfBytes();
+      if (ref($dataFormat[$i]) eq 'XDF::IntegerDataFormat')
+      {
+         $intFlag[$i] = $dataFormat[$i]->getType();
+      } else { 
+         $intFlag[$i] = undef;
+      }
+   }
+
+   # loop thru all of the dataCube until finished with all data and commands 
+   my $atEndOfDataCube = 0;
+   my $backToStartOfDataCube = 0;
+   while (!$backToStartOfDataCube)
+   {
+
+      my $command = $commands[$currentCommand];
+
+      if($atEndOfDataCube && $locator->getAxisIndex($fastAxisObj) == 0)
+      {
+          $backToStartOfDataCube = 1;
+      }
+
+      if (ref($command) eq 'XDF::ReadCellFormattedIOCmd')
+      {
+
+          if ($backToStartOfDataCube) { last; } # dont bother, we'd be re-printing data 
+
+          my $datum = $self->getData($locator);
+          if (defined $datum) {
+              &_doReadCellFormattedIOCmdOutput( $fileHandle,
+                                           $dataFormat[$currentDataFormat],
+                                           $numOfBytes[$currentDataFormat],
+                                           $pattern[$currentDataFormat],
+                                           $endian,
+                                           $intFlag[$currentDataFormat],
+                                           $datum);
+
+          } else {
+
+              # no data here, hurm. Print the noDataValue. 
+              # sloppy algorithm as a result of clean up after Kelly 
+              my $noData;
+
+              if ($nrofNoDataValues > 1)
+              {
+                 $noData = $noDataValues[$locator->getAxisIndex($fastAxisObj)];
+              } else {
+                 $noData = $noDataValues[0];
+              }
+
+              if (defined $noData) {
+                 print $fileHandle $noData;
+              } else {
+                 warn "Can't print out null data: noDataValue NOT defined.\n";
+              }
+
+          }
+
+          # advance the data location 
+          $locator->next();
+
+          # advance the DataFormat to be used  
+          if ($nrofDataFormats > 0)
+          {
+             $currentDataFormat++;
+             if ( $currentDataFormat == $nrofDataFormats)
+             {
+                      $currentDataFormat = 0;
+             }
+          }
+
+       }
+       elsif (ref($command) eq 'XDF::SkipCharFormattedIOCmd')
+       {
+
+          &_doSkipCharFormattedIOCmdOutput ( $fileHandle, $command);
+
+       }
+       else
+       {
+          carp("DataCube cannot write out, unimplemented format command:$command\n");
+       }
+
+       if($nrofCommands > 0)
+       {
+          $currentCommand++;
+          if ( $currentCommand > $nrofCommands) {
+              $currentCommand = 0;
+          }
+       }
+
+       if(!$atEndOfDataCube && !$locator->hasNext()) { $atEndOfDataCube = 1; } 
+
+
+   } # end of while loop 
+
+}
+
+sub _doSkipCharFormattedIOCmdOutput 
+{
+   my ($fileHandle, $skipCharCommand) = @_;
+   print $fileHandle $skipCharCommand->getOutput();
+}
+
+sub _doReadCellFormattedIOCmdOutput {
+   my ($fileHandle, $thisDataFormat, $formatsize, $template, $endian, $intFlagType, $datum) = @_;
+
+   my $output;
+#   my $template = $thisDataFormat->_templateNotation(0);
+
+   if (ref($thisDataFormat) eq 'XDF::StringDataFormat'
+        || ref($thisDataFormat) eq 'XDF::StringDataFormat'
+        || ref($thisDataFormat) eq 'XDF::FloatDataFormat'
+        || ref($thisDataFormat) eq 'XDF::BinaryIntegerDataFormat'
+        || ref($thisDataFormat) eq 'XDF::BinaryFloatDataFormat' 
+      )
+   {
+      $output = pack $template, $datum;
+   }
+   elsif (ref($thisDataFormat) eq 'XDF::IntegerDataFormat') 
+   {
+     $output = pack $template, $datum;
+      if (defined $intFlagType) {
+         if ($intFlagType eq XDF::IntegerDataFormat->typeOctal()) {
+            warn "Cant write OCTAL integers yet, aborting cell write";
+            return;
+         } elsif ($intFlagType eq XDF::IntegerDataFormat->typeHex()) {
+            warn "Cant write HEX integers yet, aborting cell write";
+            return;
+         }
+      }
+   }
+   elsif (0)
+   #elsif (ref($thisDataFormat) eq 'XDF::BinaryIntegerDataFormat') 
+   {
+
+      my $numOfBytes = $thisDataFormat->numOfBytes();
+      my @byteBuf;
+
+      # short
+      if ($numOfBytes == 2) {
+
+          my $i = pack $template, $datum;
+          $byteBuf[0] = ($i >>  8);
+          $byteBuf[1] = $i;
+
+      } elsif ($numOfBytes == 4) {
+
+          my $i = pack "b32", $datum;
+
+          $byteBuf[0] = ($i >> 24);
+          $byteBuf[1] = ($i >> 16);
+          $byteBuf[2] = ($i >>  8);
+          $byteBuf[3] = $i;
+
+      } elsif ($numOfBytes == 8) {
+
+          my $i = pack "b64", $datum;
+
+          $byteBuf[0] = ($i >> 56);
+          $byteBuf[1] = ($i >> 48);
+          $byteBuf[2] = ($i >> 40);
+          $byteBuf[3] = ($i >> 32);
+          $byteBuf[4] = ($i >> 24);
+          $byteBuf[5] = ($i >> 16);
+          $byteBuf[6] = ($i >>  8);
+          $byteBuf[7] = $i;
+
+      } else {
+          carp("Got weird number of bytes for BinaryIntegerDataFormat:$numOfBytes exiting.");
+          exit(-1);
+      }
+
+      if ($endian eq XDF::XMLDataIOStyle->getLittleEndian())
+      {
+         # reverse the byte order
+         @byteBuf = reverse @byteBuf;
+      }
+
+       $output = join '', @byteBuf;
+
+
+   } 
+   elsif (0)
+   #elsif (ref($thisDataFormat) eq 'XDF::BinaryFloatDataFormat') 
+   {
+       my $numOfBytes = $formatsize; #thisDataFormat->numOfBytes();
+       my @byteBuf;
+
+       if ($numOfBytes == 8)
+       {
+
+        #  my $lbits = Double.doubleToLongBits($datum);
+          #my $lbits = $datum;
+          my $lbits = pack "b64", $datum;
+
+          # note: '>>' was '>>>' in orig Java code. The meaning
+          # is 'signed shift'. Perl doesnt appear to have this.
+          $byteBuf[0] = ($lbits >> 56);
+          $byteBuf[1] = ($lbits >> 48);
+          $byteBuf[2] = ($lbits >> 40);
+          $byteBuf[3] = ($lbits >> 32);
+          $byteBuf[4] = ($lbits >> 24);
+          $byteBuf[5] = ($lbits >> 16);
+          $byteBuf[6] = ($lbits >>  8);
+          $byteBuf[7] = $lbits;
+
+       }
+       elsif ($numOfBytes == 4)
+       {
+
+          # Q: does this involve rounding??
+#          my $ibits = Float.floatToIntBits($datum);
+          my $ibits = pack "b32", $datum;
+
+          $byteBuf[0] = ($ibits >> 24);
+          $byteBuf[1] = ($ibits >> 16);
+          $byteBuf[2] = ($ibits >>  8);
+          $byteBuf[3] = $ibits;
+
+        }
+        else
+        {
+            carp("Got weird number of bytes for BinaryFloatDataFormat:$numOfBytes exiting.\n");
+            exit(-1);
+        }
+
+        # check for endianess
+        if ($endian eq XDF::XMLDataIOStyle->getLittleEndian())
+        {
+           # reverse the byte order
+           @byteBuf = reverse @byteBuf;
+        }
+
+        $output = join '', @byteBuf;
+
+   } 
+   else
+   {
+      # a failure to communicate :)
+      carp("Unknown Dataformat:".ref($thisDataFormat).
+           " is not implemented for formatted writes. Aborting.");
+      exit(-1);
+   }
+
+   # if we have some output, write it
+   if (defined $output) {
+
+      # pad with leading spaces
+      my $actualsize = length($output);
+      while ($actualsize < $formatsize)
+      {
+         print $fileHandle " ";
+         $actualsize++;
+      }
+
+      # now write the data out
+      print $fileHandle $output;
+
+   } else {
+      # throw error
+      carp("doReadCell got NO data\n");
+   }
+
+}
+
 sub _print_data {
   my ($self, $fileHandle, $locator, $startTag, $endTag, $emptyTag) = @_;
 
@@ -550,6 +885,10 @@ sub _build_locator_string {
 # Modification History
 #
 # $Log$
+# Revision 1.9  2001/03/07 23:13:27  thomas
+# added binary writing code from the Java package. Not complete yet
+# however.
+#
 # Revision 1.8  2001/03/01 21:10:44  thomas
 # remove extrantaneous error reporting.
 #
@@ -675,10 +1014,6 @@ This method returns the XMLAttributes of this class.
 =item toXMLFileHandle ($newNodeNameString, $indent, $junk, $fileHandle)
 
 We overwrite the toXMLFileHandle method supplied by L<XDF::BaseObject> to have some special handling for the XDF::DataCube. The interface for thismethod remains the same however. 
-
-=item toFileHandle ($indent, $fileHandle)
-
-Writes out just the data
 
 =item addData ($no_append, $data, $locator)
 
