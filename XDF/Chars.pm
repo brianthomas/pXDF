@@ -2,7 +2,7 @@
 # $Id$
 
 # /** COPYRIGHT
-#    Chars.pm Copyright (C) 2001 Brian Thomas,
+#    Chars.pm Copyright (C) 2002 Brian Thomas,
 #    ADC/GSFC-NASA, Code 631, Greenbelt MD, 20771
 #@ 
 #    This program is free software; it is licensed under the same terms
@@ -32,6 +32,7 @@
 # */
 
 # /** SEE ALSO
+# XDF::NewLine
 # */
 
 package XDF::Chars;
@@ -48,7 +49,8 @@ use vars qw ($AUTOLOAD %field @ISA);
 @ISA = ("XDF::BaseObject");
 
 # CLASS DATA
-my $Class_XML_Node_Name = "value";
+my $Class_XML_Node_Name = "chars";
+my $Default_Char_Data = " "; # single space
 my @Local_Class_XML_Attributes = qw (
                                        value
                                     );
@@ -107,8 +109,8 @@ sub getValue {
    return $self->{value};
 }
 
-# /** setChars
-#     Set the value attribute. 
+# /** setValue
+#     Set the character string this object will hold.
 # */
 sub setValue {
    my ($self, $value) = @_;
@@ -116,13 +118,45 @@ sub setValue {
 }
 
 #
-# Private methods 
+# Protected/Private methods 
 #
+
+# special method needed as normally "value" is converted to PCDATA
+sub _basicXMLWriter {
+  my ($self, $fileHandle, $indent, $dontCloseNode, $newNodeNameString, $noChildObjectNodeName) = @_;
+
+  my $niceOutput = XDF::Specification->getInstance->isPrettyXDFOutput();
+
+  if(!defined $fileHandle) {
+    carp "Can't write out object, filehandle not defined.\n";
+    return;
+  }
+
+  $indent = "" unless defined $indent;
+
+  print $fileHandle $indent if $niceOutput;
+
+  print $fileHandle "<" . $Class_XML_Node_Name;
+
+  #writeOutAttributes
+  my $value = $self->getValue();
+  if (defined $value)
+  {
+     print $fileHandle " value=\"$value\"";
+  }
+
+  print $fileHandle "/>";
+
+  return $Class_XML_Node_Name;
+
+}
 
 sub _init {
   my ($self) = @_;
   
   $self->SUPER::_init();
+
+  $self->setValue($Default_Char_Data);
 
   # adds to ordered list of XML attributes
   $self->_appendAttribsToXMLAttribOrder(\@Local_Class_XML_Attributes);
