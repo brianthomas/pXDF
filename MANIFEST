@@ -123,7 +123,6 @@ XDF/Units.pm
 XDF/Utility.pm
 XDF/ValueGroup.pm
 XDF/ValueListAlgorithm.pm
-XDF/ValueListAlgorithm.pm.bak
 XDF/ValueListDelimitedList.pm
 XDF/Value.pm
 XDF/XDF.pm
