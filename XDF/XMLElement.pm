@@ -191,6 +191,28 @@ sub appendCData {
    $self->appendChild($textNode);
 }
 
+# /** setCData
+#     Set the character data of this node. This is a short cut method,
+#   it actually deletes all existing child TEXT_NODES and then creates 
+#   a new, single child TEXT_NODE to hold the CDATA within the element.
+# */
+sub setCData {
+   my ($self, $text) = @_;
+
+   foreach my $childNode ($self->getChildNodes) {
+      if ($childNode->getNodeTypeName eq 'TEXT_NODE') {
+         $self->removeChild($childNode);
+         $childNode->dispose; # free memory 
+      }
+   }
+
+   return unless defined $text;
+
+   my $textNode = $self->getOwnerDocument->createTextNode($text);
+   $self->appendChild($textNode);
+}
+
+
 #
 # Other Public Methods
 #
@@ -258,6 +280,9 @@ sub toXMLFileHandle {
 # Modification History
 #
 # $Log$
+# Revision 1.5  2001/05/23 17:24:49  thomas
+# added setCData method.
+#
 # Revision 1.4  2001/04/25 16:01:31  thomas
 # updated documentation
 #
