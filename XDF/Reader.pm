@@ -905,7 +905,7 @@ sub data_node_end {
       if ( ref($formatObj) eq 'XDF::FormattedXMLDataIOStyle' ) {
 
         $DATABLOCK =~ s/(.{$recordSize})//s; 
-        die "Read Error: short read on datablock, improper specified format? \n" unless $1; 
+        die "Read Error: short read on datablock, improper specified format? (expected size=$recordSize)\n" unless $1; 
 
         @data = unpack($template, $1);
 
@@ -1976,6 +1976,9 @@ sub my_fail {
 # Modification History
 #
 # $Log$
+# Revision 1.4  2000/11/28 19:43:26  thomas
+# No change, just formatting of lines. -b.t.
+#
 # Revision 1.3  2000/11/01 22:25:28  thomas
 # Minor cleanup of code. (where??) -b.t.
 #
