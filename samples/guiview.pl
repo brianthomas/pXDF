@@ -1,4 +1,4 @@
-#!/usr/bin/perl -w -I ../ 
+#!/usr/bin/perl -w -I ../
 
 # a very simple viewer for XDF files.
 
@@ -21,45 +21,36 @@
 #
 # = Need to edit Axis Unit Values, Array Unit Values
 
-use Tk;
-#use Tk::Pane;
-#use Tk::TiedListbox;
-#use Tk::DialogBox;
-#use Tk::FileSelect;
-#use XDF::Reader;
+use Tk; # qw/HList Pane NoteBook Dialog DialogBox FileSelect/;
 
 BEGIN {
-
+  
   my $version = $Tk::VERSION;
-  my $reqVersion = 800.015;
-
+  my $reqVersion = 800.023;
+  
   die "Your version of Tk is $version, but $reqVersion is needed for $0" unless
       $version >= $reqVersion;
 
-  my @modlist = qw ( 
-                     Tk::HList
-                     Tk::Pane
-                     Tk::TiedListbox
-                     Tk::NoteBook
-                     Tk::Dialog
-                     Tk::DialogBox
-                     Tk::FileSelect
-                     XDF::DOM::Parser
-                     XDF::Specification
-                   );
-  for(@modlist) {
-    die "Could'nt load $_ module, please correct Perl path or install.\n$@" unless (eval "require $_" );
-  }
-
 }
 
-use vars qw/$STRUCTURE_IMAGE $PLAIN_ARRAY_IMAGE $FIELD_ARRAY_IMAGE $XML_ELEMENT_NODE_IMAGE/;
+use Tk::Pane;
+use Tk::TiedListbox;
+use Tk::NoteBook;
+use Tk::Dialog;
+use Tk::DialogBox;
+use Tk::FileSelect;
+use Tk::HList;
+
+use XDF::DOM::Parser; 
+use XDF::Specification; 
 
 # pragmas
+use vars qw/$STRUCTURE_IMAGE $PLAIN_ARRAY_IMAGE $FIELD_ARRAY_IMAGE $XML_ELEMENT_NODE_IMAGE/;
 use strict;
 
+
 # program defs
-my $VERSION = "0.5";
+my $VERSION = "0.51";
 my $TOOLNAME = "XDF Viewer Tool";
 
 # GLOBAL Variables
@@ -397,12 +388,13 @@ sub init_gui {
 
   $WIDGET{'xml_hlist'}->configure( -command => sub { &select_Hlist_item($_[0]); });
   $WIDGET{'xml_hlist'}->bind('<Button-1>' => sub { &select_Hlist_item($WIDGET{'xml_hlist'}->selectionGet()); });
-  $WIDGET{'xml_hlist'}->bind('<Right>' => sub {
+
+#  $WIDGET{'xml_hlist'}->bind('<Right>' => sub {
 #                                       &show_Hlist_item_children($WIDGET{'xml_hlist'}->selectionGet());
-                                           });
-  $WIDGET{'xml_hlist'}->bind('<Left>' => sub {
+#                                           });
+#  $WIDGET{'xml_hlist'}->bind('<Left>' => sub {
 #                                       &hide_Hlist_item_children($WIDGET{'xml_hlist'}->selectionGet());
-                                           });
+#                                           });
 
 
   &add_horizontal_scrollbar_to_widget($WIDGET{'xml_hlist'},$listFrame,'left',$WIDGET{'ylist_scroll'});
@@ -525,7 +517,7 @@ sub init_gui {
                                                       -font => $Font{$DISPLAY_SIZE},
                                                )->pack(fill => 'x', side=> 'top');
 
-   $WIDGET{'array_notebook'} = $arrayDataFrame->NoteBook( -dynamicgeometry => 'false',
+  $WIDGET{'array_notebook'} = $arrayDataFrame->NoteBook( -dynamicgeometry => 'false',
                                                         -bg => $BaseColor,
                                                         -font => $Font{$DISPLAY_SIZE},
                                                       )->pack(side => 'top', expand => 1, fill => 'both');
@@ -547,7 +539,7 @@ sub configure_array_notebook {
                );
 
    $widget->add( 'Note', -label => 'Notes',
-                 -raisecmd => sub { },
+                 -raisecmd => sub { &update_array_notelist_view(); },
                  -createcmd => sub { &init_notelist_gui('Array', @_);},
                );
 
@@ -557,13 +549,13 @@ sub configure_array_notebook {
                );
 
    $widget->add( 'Param', -label => 'Parameters',
-                 -raisecmd => sub { },
+                 -raisecmd => sub { &update_array_parameterlist_view(); },
                  -createcmd => sub { &init_parameterlist_gui('Array', @_);},
                );
 
    $widget->add( 'Unit', -label => 'Units',
-                  -raisecmd => sub { },
-                  -createcmd => sub { &init_unitlist_gui('Array', @_);},
+                 -raisecmd => sub { &update_array_unitlist_view(); },
+                 -createcmd => sub { &init_unitlist_gui('Array', @_);},
                );
 
 }
@@ -587,12 +579,12 @@ sub configure_struct_notebook {
    my ($widget) = @_;
 
    $widget->add( 'Note', -label => 'Notes',
-                 -raisecmd => sub { },
+                 -raisecmd => sub { &update_struct_notelist_view(); },
                  -createcmd => sub { &init_notelist_gui('Struct', @_);},
                );
 
    $widget->add( 'Param', -label => 'Parameters',
-                 -raisecmd => sub { },
+                 -raisecmd => sub { &update_struct_parameterlist_view(); },
                  -createcmd => sub { &init_parameterlist_gui('Struct', @_);},
                );
 
@@ -887,11 +879,13 @@ sub init_itemlist_gui {
    my $subFrame2 = $frame->Frame->pack(side => 'top');
 
    my $labelname = $what . '_' . $name . 'list_label';
+
    $WIDGET{$labelname} = $subFrame0->Label( -text => "\n$what $name List\n",
                                             -font => $Font{$DISPLAY_SIZE},
                                            )->pack();
 
    my $listboxname = $what . '_' . $name . 'list_listbox';
+
    $WIDGET{$listboxname} = $subFrame1->Scrolled ( 'Listbox', -scrollbars => 'se', 
                                            )->pack( side => 'top', expand => 1, fill => 'both');
    $WIDGET{$listboxname}->configure ( -font => $Font{$DISPLAY_SIZE}, ); 
@@ -918,6 +912,8 @@ sub reset_array_unitlist_view {
 sub update_array_unitlist_view {
 
    return unless defined $WIDGET{'Array_Unitlist_listbox'};
+   return unless defined $ARRAY;
+
    &reset_array_unitlist_view();
 
 #   return unless ($CURRENT_ITEM && $CURRENT_ITEM =~ m/Array/);
@@ -927,8 +923,7 @@ sub update_array_unitlist_view {
    foreach my $unitObj (@{$ARRAY->getUnits()->getUnitList()}) {
        my $name = 'Unit:';
        $name .= $unitObj->getValue() if defined $unitObj->getValue();
-       $name .= ':';
-       $name .= $unitObj->getPower() if defined $unitObj->getPower();
+       $name .= '^' . $unitObj->getPower() if defined $unitObj->getPower();
        $listbox->insert('end', $name);
    }
 
@@ -969,6 +964,7 @@ sub init_xmlNodeCDATA_gui {
 
 sub init_notelist_gui {
    my ($what, $frame) = @_;
+
    &init_itemlist_gui($what, $frame, 'Note', \&null_cmd);
 }
 
@@ -976,19 +972,42 @@ sub reset_array_notelist_view {
    $WIDGET{'Array_Notelist_listbox'}->delete(0,'end');
 }
 
+sub reset_struct_notelist_view {
+   $WIDGET{'Struct_Notelist_listbox'}->delete(0,'end');
+}
+
+sub update_struct_notelist_view {
+
+   return unless defined $WIDGET{'Struct_Notelist_listbox'};
+   return unless defined $CURRENT_ITEM;
+
+   &reset_struct_notelist_view();
+
+   my $listbox = $WIDGET{'Struct_Notelist_listbox'};
+
+   foreach my $noteObj (@{$CURRENT_ITEM->getNoteList()}) {
+       my $name = 'Note';
+       $name .= ':' . $noteObj->getNoteId() if defined $noteObj->getNoteId();
+       $name .= ':' . $noteObj->getValue() if defined $noteObj->getValue();
+       $listbox->insert('end', $name);
+   }
+
+}
+
 sub update_array_notelist_view {
 
    return unless defined $WIDGET{'Array_Notelist_listbox'};
+   return unless defined $ARRAY;
+
    &reset_array_notelist_view();
 #   return unless ($CURRENT_ITEM && $CURRENT_ITEM =~ m/Array/);
 
    my $listbox = $WIDGET{'Array_Notelist_listbox'};
 
    foreach my $noteObj (@{$ARRAY->getNoteList()}) {
-       my $name = 'Note:';
-       $name .= $noteObj->getNoteId() if defined $noteObj->getNoteId();
-       $name .= ':';
-       $name .= $noteObj->getValue() if defined $noteObj->getValue();
+       my $name = 'Note';
+       $name .= ':' . $noteObj->getNoteId() if defined $noteObj->getNoteId();
+       $name .= ':' . $noteObj->getValue() if defined $noteObj->getValue();
        $listbox->insert('end', $name);
    }
 
@@ -1003,18 +1022,76 @@ sub reset_array_parameterlist_view {
    $WIDGET{'Array_Parameterlist_listbox'}->delete(0,'end');
 }
 
+sub reset_struct_parameterlist_view {
+   $WIDGET{'Struct_Parameterlist_listbox'}->delete(0,'end');
+}
+
 sub update_array_parameterlist_view {
 
    return unless defined $WIDGET{'Array_Parameterlist_listbox'};
+   return unless defined $ARRAY;
+
    &reset_array_parameterlist_view();
-#   return unless ($CURRENT_ITEM && $CURRENT_ITEM =~ m/Array/); 
 
    my $listbox = $WIDGET{'Array_Parameterlist_listbox'};
 
    foreach my $paramObj (@{$ARRAY->getParamList()}) {
+      my $name = 'Parameter:';
+       $name .= $paramObj->getName() if defined $paramObj->getName();
+       $name .= $paramObj->getParamId() if defined $paramObj->getParamId();
+       $name .= ':' . $paramObj->getDescription() if defined $paramObj->getDescription();
+       $listbox->insert('end', $name);
+       
+       foreach my $valueObj (@{$paramObj->getValueList()}) {
+          my $valueString .= '   Value:[';
+          $valueString .= $valueObj->getValue() if defined $valueObj->getValue();
+          $valueString .= ']';
+          $listbox->insert('end', $valueString);
+       }
+
+       foreach my $noteObj (@{$paramObj->getNoteList()}) {
+          my $noteString .= '   Note:[';
+          $noteString .= 'id:' . $noteObj->getNoteId()  if defined $noteObj->getNoteId();
+          $noteString .= 'text:' . $noteObj->getValue() if defined $noteObj->getValue();
+          $noteString .= ']';
+          $listbox->insert('end', $noteString);
+       }
+
+
+   }
+
+}
+
+sub update_struct_parameterlist_view {
+
+   return unless defined $WIDGET{'Struct_Parameterlist_listbox'};
+   return unless defined $CURRENT_ITEM;
+
+   &reset_struct_parameterlist_view();
+
+   my $listbox = $WIDGET{'Struct_Parameterlist_listbox'};
+   foreach my $paramObj (@{$CURRENT_ITEM->getParamList()}) {
        my $name = 'Parameter:';
        $name .= $paramObj->getName() if defined $paramObj->getName();
+       $name .= $paramObj->getParamId() if defined $paramObj->getParamId();
+       $name .= ':' . $paramObj->getDescription() if defined $paramObj->getDescription();
        $listbox->insert('end', $name);
+
+       foreach my $valueObj (@{$paramObj->getValueList()}) {
+          my $valueString .= '   Value:[';
+          $valueString .= $valueObj->getValue() if defined $valueObj->getValue();
+          $valueString .= ']';   
+          $listbox->insert('end', $valueString);
+       }
+       
+       foreach my $noteObj (@{$paramObj->getNoteList()}) {
+          my $noteString .= '   Note:[';
+          $noteString .= 'id:' . $noteObj->getNoteId()  if defined $noteObj->getNoteId();
+          $noteString .= 'text:' . $noteObj->getValue() if defined $noteObj->getValue();
+          $noteString .= ']';
+          $listbox->insert('end', $noteString);
+       }
+
    }
 
 }
@@ -1070,6 +1147,7 @@ sub update_dataformat_view {
 
 #   return unless defined $CURRENT_ITEM && $CURRENT_ITEM =~ m/Array/;
    return unless defined $FRAME{'dataformat_edit'};
+   return unless defined $ARRAY;
 
    &reset_dataformat_view();
 
@@ -1443,8 +1521,10 @@ sub init_dataview_gui {
 
   my $leftTopFrame = $leftFrame->Frame->pack(expand => 0, fill => 'both', side => 'top');
   my $leftBottomFrame = $leftFrame->Frame->pack(expand => 1, fill => 'both', side => 'bottom');
-  my $vertAxisInfoFrame = $leftBottomFrame->Frame->pack(expand => 0, fill => 'y', side => 'left');
-  $FRAME{'row_listbox'} = $leftBottomFrame->Frame->pack(expand => 0, fill => 'both', side => 'left');
+  my $leftBottomBoxFrame = $leftBottomFrame->Frame->pack(expand => 1, fill => 'both');
+  my $leftBottomFillerFrame = $leftBottomFrame->Frame->pack(expand => 0, fill => 'both', side => 'bottom');
+  my $vertAxisInfoFrame = $leftBottomBoxFrame->Frame->pack(expand => 0, fill => 'y', side => 'left');
+  $FRAME{'row_listbox'} = $leftBottomBoxFrame->Frame->pack(expand => 0, fill => 'both', side => 'left');
   my $rightBottomFrame = $bottomFrame->Frame->pack(expand => 1, fill => 'both', side => 'right');
   my $yscrollFrame = $rightBottomFrame->Frame->pack(expand => 0, side => 'right', fill => 'y');
   my $tableFrame  = $rightBottomFrame->Frame->pack(expand => 1, side => 'top', fill => 'both');
@@ -1513,17 +1593,31 @@ sub init_dataview_gui {
 
   # some filler for the top right frame
   $WIDGET{'filler1_boldlabel'} = $leftTopFrame->Label( -text => ' ', -font => $BoldFont{$DISPLAY_SIZE},
-                        -bg => $BaseColor,
+                                                       -bg => $BaseColor,
+                                                       -relief => 'flat', -bd => 3,
                       )->pack(expand => 'no', side => 'top', fill => 'both' );
-  $WIDGET{'filler1_boldlabel'}->configure ( relief => 'flat', bd => 4, ); 
 
   $WIDGET{'filler2_boldlabel'} = $leftTopFrame->Label( -text => ' ', -font => $BoldFont{$DISPLAY_SIZE},
-                        -bg => $BaseColor,
+                                                       -relief => 'flat', -bd => 2,
+                                                       -bg => $BaseColor,
                       )->pack(expand => 'no', side => 'top', fill => 'both');
 
   $WIDGET{'filler3_boldlabel'} = $leftTopFrame->Label( -text => ' ', -font => $BoldFont{$DISPLAY_SIZE},
-                        -bg => $BaseColor,
+                                                       -relief => 'flat', -bd => 2,
+                                                       -bg => $BaseColor,
                       )->pack( expand => 'no', side => 'top', fill => 'both');
+
+  $WIDGET{'filler4_boldlabel'} = $leftTopFrame->Label( -text => ' ', -font => $BoldFont{$DISPLAY_SIZE},
+                                                       -relief => 'flat', -bd => 2,
+                                                       -bg => $BaseColor,
+                      )->pack( expand => 'no', side => 'top', fill => 'both');
+
+  $WIDGET{'filler5_boldlabel'} = $leftBottomFillerFrame->Label( -text => ' ', -font => $BoldFont{$DISPLAY_SIZE},
+                                                       -relief => 'flat', -bd => 2,
+                                                       -bg => $BaseColor,
+                      )->pack( expand => 'no', side => 'top', fill => 'both');
+
+
 
   $WIDGET{'row_listbox'} = $FRAME{'row_listbox'}->Listbox( -width => 4,
                                                          -height => $MaxDisplayListBoxHeight,
@@ -1847,9 +1941,6 @@ sub change_array_dataformat {
 
    my $obj = eval "new $DataFormatClass{$ARRAY_DATAFORMAT}"; 
    $ARRAY->setDataFormat($obj);
-
-print STDERR "new obj dataformat is : $obj\n";
-
    &update_dataformat_view();
 
 }
@@ -1858,9 +1949,6 @@ sub change_ostyle {
 
    my $obj = eval "new $XMLDataIOStyleClass{$ARRAY_OSTYLE}"; 
    $ARRAY->setXMLDataIOStyle($obj);
-
-print STDERR "new obj style is : $obj\n";
-
    &update_ostyle_view();
 
 }
@@ -2408,6 +2496,7 @@ sub update_plaintable_view {
 
    # this next line will fail when more than 2 axes exist in the array.
    my @axisOrder = ($CURRENT_VERT_AXIS, $CURRENT_HORZ_AXIS); # will fail if array has more than 2 axes 
+#   my @axisOrder = ($CURRENT_HORZ_AXIS, $CURRENT_VERT_AXIS); # will fail if array has more than 2 axes 
    #my @axisOrder = reverse @{$arrayObj->getAxisList()};
    $LOCATOR->setIterationOrder(\@axisOrder);
    foreach my $col (0 ... ($CURRENT_HORZ_AXIS->getLength()-1)) {
@@ -2415,45 +2504,52 @@ sub update_plaintable_view {
       # create new frame for the axis header + listbox
       # after the first ('row') header + listbox and preexisting header + listboxes 
       # frames
-      my $boxFrame = $FRAME{'listBox'}->Frame()->pack(expand => 1,
+      my $boxFrame = $FRAME{'listBox'}->Frame()->pack( expand => 1,
                                                        side => 'left', anchor => 'n',
-                                                       fill => 'both'); 
+                                                       fill => 'both' ); 
 
-      my $headerFrame = $boxFrame->Frame()->pack(expand => 0, side => 'top', fill => 'both' ); 
-      my $dataFrame = $boxFrame->Frame()->pack(expand => 1, side => 'top', fill => 'both' ); 
-      $headerFrame ->configure( relief => 'flat', bd => 2, bg => 'white');
-      $dataFrame->configure ( relief => 'raised', bd => 2, bg => $Black);
+      my $headerFrame = $boxFrame->Frame (
+                                           -relief => 'flat',
+                                           -bd => 2,
+                                           -bg => 'white',
+                                         )->pack(expand => 0, side => 'top', fill => 'both' ); 
+
+      my $dataFrame = $boxFrame->Frame (
+                                           -relief => 'raised',
+                                           -bd => 2,
+                                           -bg => $Black,
+                                         )->pack(expand => 1, side => 'top', fill => 'both' ); 
 
       push @DATA_FRAMES, $boxFrame;
 
       # use labels to store field header info
       # name is the column index 
-      my $name = $col;
-      my $axisLabelWidget = $headerFrame->Label(  text => $name, 
+      my $axisLabelWidget = $headerFrame->Label(  text => "Col:$col",
                                                 bg => $DataFrameColor, 
                                                 font => $Font{$DISPLAY_SIZE},
                                              )->pack( expand => 'no', side => 'top', fill => 'both');
-      push @LABELS, $axisLabelWidget;
 
       # this label empty
       my $emptyLabelWidget = $headerFrame->Label( text => ' ', -bg => $DataFrameColor, 
                          -font => $Font{$DISPLAY_SIZE},
                         )->pack(expand => 'no', side => 'top', fill => 'both');
-      push @LABELS, $emptyLabelWidget;
 
       # add new 'data' listbox holding that columns data
       my $listBox = $dataFrame->Listbox(-width => $width, 
                                         -exportselection => 0,
+                                        -bg => $column_color,
                                         -height => $MaxDisplayListBoxHeight,
                                         -selectmode => $ListBoxSelectionStyle,
                                         -font => $Font{$DISPLAY_SIZE},
                                         )->pack ( expand => 1,
                                                   side => 'bottom',
                                                   fill => 'both');
-      push @LISTBOXES, $listBox;
 
-      # set color bg of listbox 
-      $listBox->configure(-bg => $column_color);
+      # save some of these widgets in global lists
+      push @LISTBOXES, $listBox;
+      push @LABELS, $axisLabelWidget;
+      push @LABELS, $emptyLabelWidget;
+
 
       # mouse/keybindings
       $boxFrame->bind('<Enter>' => sub { $CURRENT_LISTBOX = $listBox; });
@@ -2462,6 +2558,7 @@ sub update_plaintable_view {
                                                  $axisLabelWidget->configure(-bg => $EventMouseOverColor); 
                                                  $emptyLabelWidget->configure(-bg => $EventMouseOverColor); 
                                               });
+
       $emptyLabelWidget->bind('<Enter>' => sub { 
                                                  $axisLabelWidget->configure(-bg => $EventMouseOverColor); 
                                                  $emptyLabelWidget->configure(-bg => $EventMouseOverColor); 
@@ -2862,11 +2959,14 @@ sub edit_listBox_item {
 
   my $index = $listBox->curselection();
 
-  $LOCATOR->setAxisIndex($CURRENT_HORZ_AXIS, $index);
-  $LOCATOR->setAxisIndex($CURRENT_VERT_AXIS, $colIndex);
+  return unless defined $index;
 
-  my $value = &popup_edit_window("Edit Data Value", $ARRAY->getData($LOCATOR));
-  $ARRAY->setData($LOCATOR, $value);
+  my $locator = $ARRAY->createLocator();
+  $locator->setAxisIndex($CURRENT_VERT_AXIS, $index);
+  $locator->setAxisIndex($CURRENT_HORZ_AXIS, $colIndex);
+
+  my $value = &popup_edit_window("Edit Data Value", $ARRAY->getData($locator));
+  $ARRAY->setData($locator, $value);
 
   $listBox->delete($index);
   $listBox->insert($index, $value);
@@ -2965,9 +3065,7 @@ sub update_fieldtable_view {
        $WIDGET{'array_notebook'}->raise('Data');
    }
 
-   my $fieldAxis = $CURRENT_HORZ_AXIS; #$arrayObj->getFieldAxis();
-
-   # horz axis
+   # horz (field) axis 
    my $axisInfo = &get_axis_title($CURRENT_HORZ_AXIS, 'horz');
    my $wname = 'horz' . 'Axis_edit_boldlabel';
    my $color = &get_horzAxisColor();
@@ -2979,10 +3077,7 @@ sub update_fieldtable_view {
    $color = &get_vertAxisColor();
    $WIDGET{$wname}->configure ( text => $axisInfo, bg => $color,);
 
-
-
    $FRAME{'listBox'}->configure(-height => 30, -width => 100);
-
 
    # we need to change the default iteration order
    my @axisOrder = ($CURRENT_VERT_AXIS, $CURRENT_HORZ_AXIS); # will fail if array has more than 2 axes 
@@ -2990,36 +3085,40 @@ sub update_fieldtable_view {
 
    my $col = 0;
    # geometry of the widget: a 'row' listbox followed by fieldlistboxes
-   foreach my $fieldObj ($fieldAxis->getFields()) 
+   foreach my $fieldObj ($CURRENT_HORZ_AXIS->getFields()) 
    {
       
       # create new frame for the field header + listbox
       # after the first ('row') header + listbox and preexisting header + listboxes 
       # frames
-      my $dataFrame = $FRAME{'listBox'}->Frame()->pack(expand => 'yes',
-                                                       side => 'left',
-                                                       fill => 'both'); 
-      $dataFrame->configure ( relief => 'raised', bd => 3, bg => 'black');
-      push @DATA_FRAMES, $dataFrame; 
+      my $dataFrame = $FRAME{'listBox'}->Frame (
+                                                 -relief => 'raised',
+                                                 -bd => 3,
+                                                 -bg => $Black,
+                                               )->pack(expand => 'yes', side => 'left', fill => 'both'); 
 
       # use labels to store field header info
       # field name
       my $name = defined $fieldObj->getName() ? $fieldObj->getName() : "";
-      my $labelWidget = $dataFrame->Label( text => $name, -bg => $DataFrameColor,
-                        -font => $Font{$DISPLAY_SIZE},
-                       )->pack(expand => 'no', 
-                                              side => 'top', 
-                                              fill => 'both'); 
-      push @LABELS, $labelWidget;
+      my $labelWidget = $dataFrame->Label( text => $name, 
+                                           -bg => $DataFrameColor,
+                                           -font => $Font{$DISPLAY_SIZE},
+                                         )->pack(expand => 'no', side => 'top', fill => 'both'); 
 
       # field units
-      my $units = defined $fieldObj->getUnits->getValue() ? 
-                       $fieldObj->getUnits()->getValue() : "";
+      my $units = defined $fieldObj->getUnits->getValue() ?  $fieldObj->getUnits()->getValue() : "";
       my $unitLabelWidget = $dataFrame->Label( text => "(".$units.")", -bg => $DataFrameColor,
                                                font => $Font{$DISPLAY_SIZE},
                                              )->pack(expand => 'no', side => 'top', 
                                                      fill => 'both');
-      push @LABELS, $unitLabelWidget;
+
+      # field format
+      my $format = defined $fieldObj->getDataFormat ? $fieldObj->getDataFormat()->fortranNotation() : ""; 
+      my $formatLabelWidget = $dataFrame->Label( text => $format, 
+                                                  -bg => $DataFrameColor,
+                                                 font => $Font{$DISPLAY_SIZE}, 
+                                               )->pack(expand => 'no', side => 'top', fill => 'both');
+
 
       # add new 'field' listbox holding that columns data
       my $listBox = $dataFrame->Listbox(
@@ -3031,16 +3130,44 @@ sub update_fieldtable_view {
                                                   side => 'bottom', 
                                                   fill => 'both'); 
       
+      # record these widgets in global arrays
+      push @DATA_FRAMES, $dataFrame; 
+      push @LABELS, $labelWidget;
+      push @LABELS, $unitLabelWidget;
       push @LISTBOXES, $listBox;
 
       # color bg of listbox by dataformat
       my $color = $ListBoxBgColor{ref($fieldObj->getDataFormat())};
       $listBox->configure(-bg => $color); 
 
+      # insert data into new listbox
+      my $rowLength = $CURRENT_VERT_AXIS->getLength();
+      my @records = @{$arrayObj->getRecords($LOCATOR,$rowLength)};
+      foreach my $datum (@records) {
+
+            # add this datum to the current data listBox
+            $listBox->insert('end', $datum);
+
+      }
+      $LOCATOR->forward($rowLength);
+
+      # only need to insert row numbers (should be AxisValues) IF 
+      # we are on the first column
+      if ($col == 0) {
+         my @axisValues = $CURRENT_VERT_AXIS->getAxisValues();
+         foreach my $value (@axisValues) {
+            $WIDGET{'row_listbox'}->insert('end', $value);
+         }
+      }
+
+
       # mouse/key bindings
       $dataFrame->bind('<Enter>' => sub { $CURRENT_LISTBOX = $listBox; });
+      $dataFrame->bind('<Leave>' => sub { $CURRENT_LISTBOX = undef; });
+
       $unitLabelWidget->bind('<Enter>' => sub { $unitLabelWidget->configure(-bg => $EventMouseOverColor); });
       $unitLabelWidget->bind('<Leave>' => sub { $unitLabelWidget->configure(-bg => $DataFrameColor); });
+
       $labelWidget->bind('<Enter>' => sub { $labelWidget->configure(-bg => $EventMouseOverColor); });
       $labelWidget->bind('<Leave>' => sub { $labelWidget->configure(-bg => $DataFrameColor); });
       $labelWidget->bind('<Button-1>' => sub {
@@ -3053,9 +3180,9 @@ sub update_fieldtable_view {
                                                   $fieldObj->setName($value);
                                                   $labelWidget->configure(-text => $value);
                                              });
-     $labelWidget->bind('<Button-2>' => sub {
-                                                print STDERR "options menu\n";
-                                             });
+#      $labelWidget->bind('<Button-2>' => sub {
+#                                                print STDERR "options menu\n";
+#                                             });
 
       $listBox->bind('<Button-1>' => sub {
                                              &unhighlight_all_table_labels($labelWidget, $DataFrameColor);
@@ -3065,7 +3192,7 @@ sub update_fieldtable_view {
                                          });
 
       my $colIndex = $col; # kludge for Perl Bug?. Cant seem to beable to use just $col here. :P
-      $listBox->bind('<Double-Button-1>' => sub {
+      $listBox->bind('<Control-Button-1>' => sub {
                                              &unhighlight_all_table_labels($labelWidget, $DataFrameColor);
                                              &unselect_all_listBoxes($listBox);
                                              &highlight_widget($labelWidget);
@@ -3073,17 +3200,8 @@ sub update_fieldtable_view {
                                              &edit_listBox_item($listBox, $colIndex);
                                          });
 
-      $dataFrame->bind('<Leave>' => sub { $CURRENT_LISTBOX = undef; });
 
-
-      # insert data into new listbox
-      my $row = 0;
-      while ($LOCATOR->hasNext() && $LOCATOR->getAxisIndex($fieldAxis) == $col) {
-         $listBox->insert('end', $arrayObj->getData($LOCATOR));
-         $WIDGET{'row_listbox'}->insert('end', $row) if $col == 0;
-         $row++;
-         $LOCATOR->next();
-      }
+      # bump up the column counter
       $col++;
    }
 
