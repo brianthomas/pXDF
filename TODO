@@ -4,20 +4,21 @@
       feature-complete release candidate.
    ---------------------------------------------------------------------------
 
-   - read external files with delmited/tagged data styles
+   - The XDF DTD is sufficently complex that the Perl Validating parser can no
+     longer understand it. This means you *cant* validate using the perl package 
+     until either: 1) XML::ValParser is improved/fixed or 2) the Perl XDF package
+     is ported to another underlying Perl impelementation which wont happen until
+     support for inheritence in packages which wrap C code improves in Perl.
+
+   - read external files with tagged data styles
 
    - binary IO not well tested (only on Linux so far). 
 
    - Href stuff only supports files. Need Entity Resolver type behavior ala Java.
      This may be a bug in libxml-enno that we need to patch.
   
-   - incorporate compression executable configuration for the package into 
+   - Incorporate compression executable configuration for the package into 
      the make proceedure.
-
-   - implement set/getRecord for dataCube.
-
-   - CDATA sections are needed to wrap data for proper reading. Shouldnt regular text
-     reading be supported too?
 
    - dataStyleId/dataStyleIdRef implemented, however problems will result if dataStyleIdRef
      is specified AND the dataStyle node has child nodes. We probably need to 
@@ -35,14 +36,23 @@
 
    - Review the functionality to attributes on data node.
      -- Href capability (Done for files only, what about other types of URLs?)
-     -- compression (Only BZIP2, GZIP and compress implemented and it only works on UNIX systems)
+     -- Compression (Only BZIP2, GZIP and compress(e.g. *.z) implemented and it only works on UNIX systems)
 
-   - Need a better treatment of relation node for multiple fields ids. 
+   - Need a better treatment of relation node for multiple ids.
 
-   - Identify addtional convience methods that need to be implemented. Any Chaff to be removed?  
+   - Identify addtional utility methods that need to be implemented. Any Chaff to be removed?  
      Probably the set/get "list" methods need to be removed. These may be quite dangerous.
 
    - Improve the documentation (check spelling! improve descriptions of methods).
+
+   - Need to implement a shadow array for precision on numbers within the dataCube.
+     We have made a stab at this with allowing relation node under array, but its
+     going to be a pain for the average user to utilize this. We need utility methods
+     that do the right thing. For example:
+     setData may adjust precision to be *lower* than declared in the relevant
+     dataFormat object but may *never* insert a number with *higher* precision than
+     currently exists in the dataCube. Need a $array->getPrecision($locator) method
+     to identify precision on each cell.
 
 
    -------------------------
@@ -52,26 +62,11 @@
    - Use of the XML::UM package. We need to handle non-UTF strings. XML::UM will
      convert UTF-8 strings to any encoding supported by XML::Encoding. 
 
-   - Move up to the XDF 0.20 DTD standard. A major change in this DTD is the 
+   - Move up to the XDF 0.19 DTD standard. A major change in this DTD is the 
      MathML/units treatment.
-
-   - Investigate and implement function nodes (see XDF_sample4.xml for an example).
-
-   - Investigate the 'fields' pragma. Is faster primative-type datastorage possbile 
-     under Perl? 
-
-   - Allow handling of large arrays which will swamp the available memory
-     (implement something like the Berkely DB module so the XDF object will act
-     just like a database :) ).
 
    - Allow improved efficiency of datacube operations (implement something
      like the PDL module/Math::RealMatrix).
-
-   - Need to implement a shadow array for precision on numbers within the dataCube.
-     setData may adjust precision to be *lower* than declared in the relevant
-     dataFormat object but may *never* insert a number with *higher* precision than
-     currently exists in the dataCube. Need a $array->getPrecision($locator) method
-     to identify precision on each cell.
 
    - Better control over Internal entities. Right now, XDF parser just replaces every
      thing. We should allow ability NOT to replace and to hang on to the entity list

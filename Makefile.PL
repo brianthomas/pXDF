@@ -15,7 +15,7 @@ use ExtUtils::MakeMaker;
 
 # CVS $Id$
 
-require 5.005;
+require 5.8.0;
 use strict;
 
 my $install_dir = 'XDF';
@@ -80,6 +80,19 @@ if ($@) {
     print " ok\n";
 }
 
+print "Checking for Tie::IxHash..........";
+eval {
+    require Tie::IxHash;
+};
+if ($@) {
+    print " missing, cant create XDF package. Please download and install Tie::IxHash from ftp.CPAN.org.\n";
+    $missing_modules++;
+    sleep(1);  # Don't hurry too much
+} else {
+    print " ok\n";
+}
+
+
 # See lib/ExtUtils/MakeMaker.pm for details of how to influence
 # the contents of the Makefile that is written.
 WriteMakefile(
@@ -88,16 +101,21 @@ WriteMakefile(
     dist      => { COMPRESS => 'gzip', SUFFIX => '.gz'},
     PREREQ_PM => { 'XML::Parser' => '2.27', },
     PM => { 
+            'XDF/Add.pm'  => "\$(INST_LIBDIR)/$install_dir/Add.pm",
             'XDF/Array.pm'  => "\$(INST_LIBDIR)/$install_dir/Array.pm",
+            'XDF/ArrayRefDataFormat.pm'  => "\$(INST_LIBDIR)/$install_dir/ArrayRefDataFormat.pm",
             'XDF/Axis.pm'       => "\$(INST_LIBDIR)/$install_dir/Axis.pm",
             'XDF/BaseObject.pm'     => "\$(INST_LIBDIR)/$install_dir/BaseObject.pm",
-            'XDF/BaseObjectWithXMLElements.pm'     => "\$(INST_LIBDIR)/$install_dir/BaseObjectWithXMLElements.pm",
             'XDF/BaseObjectWithValueList.pm'     => "\$(INST_LIBDIR)/$install_dir/BaseObjectWithValueList.pm",
+            'XDF/BaseObjectWithXMLElements.pm'     => "\$(INST_LIBDIR)/$install_dir/BaseObjectWithXMLElements.pm",
             'XDF/BaseObjectWithXMLElementsAndValueList.pm'     => "\$(INST_LIBDIR)/$install_dir/BaseObjectWithXMLElementsAndValueList.pm",
             'XDF/BinaryFloatDataFormat.pm'      => "\$(INST_LIBDIR)/$install_dir/BinaryFloatDataFormat.pm",
             'XDF/BinaryIntegerDataFormat.pm'      => "\$(INST_LIBDIR)/$install_dir/BinaryIntegerDataFormat.pm",
             'XDF/Chars.pm'      => "\$(INST_LIBDIR)/$install_dir/Chars.pm",
+            'XDF/ColAxis.pm'       => "\$(INST_LIBDIR)/$install_dir/ColAxis.pm",
             'XDF/Constants.pm'      => "\$(INST_LIBDIR)/$install_dir/Constants.pm",
+            'XDF/Conversion.pm'      => "\$(INST_LIBDIR)/$install_dir/Conversion.pm",
+            'XDF/ConversionComponent.pm'      => "\$(INST_LIBDIR)/$install_dir/ConversionComponent.pm",
             'XDF/DataCube.pm'   => "\$(INST_LIBDIR)/$install_dir/DataCube.pm",
             'XDF/DataFormat.pm'       => "\$(INST_LIBDIR)/$install_dir/DataFormat.pm",
             'XDF/Delimiter.pm'      => "\$(INST_LIBDIR)/$install_dir/Delimiter.pm",
@@ -109,10 +127,11 @@ WriteMakefile(
             'XDF/DOM/Parser.pm'       => "\$(INST_LIBDIR)/$install_dir/DOM/Parser.pm",
             'XDF/Entity.pm'      => "\$(INST_LIBDIR)/$install_dir/Entity.pm",
             'XDF/ErroredValue.pm'      => "\$(INST_LIBDIR)/$install_dir/ErroredValue.pm",
+            'XDF/Exponent.pm'      => "\$(INST_LIBDIR)/$install_dir/Exponent.pm",
+            'XDF/ExponentOn.pm'      => "\$(INST_LIBDIR)/$install_dir/ExponentOn.pm",
             'XDF/Field.pm'      => "\$(INST_LIBDIR)/$install_dir/Field.pm",
             'XDF/FieldAxis.pm'  => "\$(INST_LIBDIR)/$install_dir/FieldAxis.pm",
             'XDF/FieldGroup.pm'      => "\$(INST_LIBDIR)/$install_dir/FieldGroup.pm",
-            'XDF/FieldRelation.pm'  => "\$(INST_LIBDIR)/$install_dir/FieldRelation.pm",
             'XDF/FloatDataFormat.pm'      => "\$(INST_LIBDIR)/$install_dir/FloatDataFormat.pm",
             'XDF/FormattedIOCmd.pm'      => "\$(INST_LIBDIR)/$install_dir/FormattedIOCmd.pm",
             'XDF/FormattedXMLDataIOStyle.pm'      => "\$(INST_LIBDIR)/$install_dir/FormattedXMLDataIOStyle.pm",
@@ -120,7 +139,10 @@ WriteMakefile(
             'XDF/Group.pm'      => "\$(INST_LIBDIR)/$install_dir/Group.pm",
             'XDF/IntegerDataFormat.pm'      => "\$(INST_LIBDIR)/$install_dir/IntegerDataFormat.pm",
             'XDF/Locator.pm'       => "\$(INST_LIBDIR)/$install_dir/Locator.pm",
+            'XDF/LogarithmBase.pm'       => "\$(INST_LIBDIR)/$install_dir/LogarithmBase.pm",
             'XDF/Log.pm'       => "\$(INST_LIBDIR)/$install_dir/Log.pm",
+            'XDF/Multiply.pm'      => "\$(INST_LIBDIR)/$install_dir/Multiply.pm",
+            'XDF/NaturalLogarithm.pm'       => "\$(INST_LIBDIR)/$install_dir/NaturalLogarithm.pm",
             'XDF/NewLine.pm'      => "\$(INST_LIBDIR)/$install_dir/NewLine.pm",
             'XDF/NotationNode.pm'      => "\$(INST_LIBDIR)/$install_dir/NotationNode.pm",
             'XDF/Note.pm'       => "\$(INST_LIBDIR)/$install_dir/Note.pm",
@@ -128,11 +150,14 @@ WriteMakefile(
             'XDF/NotesLocationOrder.pm'       => "\$(INST_LIBDIR)/$install_dir/NotesLocationOrder.pm",
             'XDF/Parameter.pm'  => "\$(INST_LIBDIR)/$install_dir/Parameter.pm",
             'XDF/ParameterGroup.pm'  => "\$(INST_LIBDIR)/$install_dir/ParameterGroup.pm",
+            'XDF/Polynomial.pm'  => "\$(INST_LIBDIR)/$install_dir/Polynomial.pm",
             'XDF/ReadCellFormattedIOCmd.pm'     => "\$(INST_LIBDIR)/$install_dir/ReadCellFormattedIOCmd.pm",
             'XDF/Reader.pm'     => "\$(INST_LIBDIR)/$install_dir/Reader.pm",
             'XDF/RecordTerminator.pm'      => "\$(INST_LIBDIR)/$install_dir/RecordTerminator.pm",
+            'XDF/Relation.pm'  => "\$(INST_LIBDIR)/$install_dir/Relation.pm",
             'XDF/Reader/ValueList.pm'     => "\$(INST_LIBDIR)/$install_dir/Reader/ValueList.pm",
             'XDF/RepeatFormattedIOCmd.pm'     => "\$(INST_LIBDIR)/$install_dir/RepeatFormattedIOCmd.pm",
+            'XDF/RowAxis.pm'     => "\$(INST_LIBDIR)/$install_dir/RowAxis.pm",
             'XDF/SkipCharFormattedIOCmd.pm'  => "\$(INST_LIBDIR)/$install_dir/SkipCharFormattedIOCmd.pm",
             'XDF/Specification.pm'      => "\$(INST_LIBDIR)/$install_dir/Specification.pm",
             'XDF/StringDataFormat.pm'      => "\$(INST_LIBDIR)/$install_dir/StringDataFormat.pm",

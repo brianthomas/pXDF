@@ -1,18 +1,51 @@
 
 Revision history for Perl extension XDF.
 
-0.18-alpha2 ?? ?? 2002
+0.18-beta0 May 31 2003
+        - code cleanup of references that throw warnings in perl 5.8+
         - kludge fix for sync'ing up XDF::DOM entities and XDF entities upon 
           printout of XDF::DOM document.
+        - allow reading of non-CDATASectioned data nodes in all DataIOStyles.
+          (XDF_sample1.xml changed to illustrate the case)
         - merge in efficiency changes from stable version.
-        - merge in bug fixes from stable version:
+        - merge in bug fixes/feature addtions from stable version:
+           * made getValueListObjects method in BaseObjectWithValueList class public
+           * feature addition: added ability to handle large datasets by caching
+             the data to a file ala DB_File; The switch is in XDF::Array, using
+             method 'setCacheDataToDisk'. Parse time control over this behavior
+             can be invoked in the XDF Reader by pasing the parser directive
+             'cacheDataOnDisk' => 1.
+           * make the Reader default to loading data on demand (eg. no data is
+             actually parsed into the DataCube until the first getData call is made,
+             or the XDF object is written out).
+           * added getXMLAttribute method in BaseObject.pm
+           * bug fix: dont AUTOLOAD for undefined attr's in GenericObject class
            * bug fix for new method for XDF::DOM::Element not checking passed XDFobject correctly.
            * bug fix for setRecords, one case needed locator->forward call
            * bug fix: allow multiple hrefs in a single array
+           * bug fix: prevent empty NotesLocationOrderNodes from printing
+           * bug fix: special chars not properly entified in XML atttributes for output XML
            * bug fix: added missing accessor methods for valueListAlgorithm,
              ValueListDelimited Class attributes (noData, underflow, overflow, etc).
-           * allow reading of multiple href's (on child data nodes) for a single array.
+           * bug fix: Locator forward method not alwaysing setting internal hasNext field correctly.
+           * bug fix: added missing attribute description and accessor methods to FieldRelation class
+           * bug fix: added Tie::IxHash to preserve the correct order for opening of multiple group nodes.
+           * bug fix: allow reading of multiple href's (on child data nodes) for a single array.
         - Finally got around to adding in Java-like Log class.
+        - Allow external data to be delimited (tagged external data still not supported) 
+        - better handling of whitespace in PCDATA sections, removing multiple 
+          and leading/trailing before processing. 
+        - added in conversion node stuff
+        - moved special attributes and inequalities out of "Array" and "Field". These are respectively
+          under "dataFormat" and "notes" sections now. As a result of this change we no longer need
+          special data attributes on "valueList" or "valueListAlgorithm" nodes. Also, along this line,
+          parameter now has dataFormat node, and looses the "datatype" attribute.
+        - added array referencing in data cells so that its now possible to store N-D cube within a 
+          data cell. 
+        - added simple table prescription w/ "row" and "column" axes.
+        - until a real general use for this can be shown I have removed "class" attribute 
+          from FieldGroup and Field
+
 
 0.18-alpha1 Jan 24 2002
         - update nodenames, attribute information to 018 standard.
