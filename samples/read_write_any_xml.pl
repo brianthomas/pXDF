@@ -64,6 +64,7 @@ my $QUIET = 1;
      foreach my $arrayObj (@{$XDFObject->getArrayList}) {
         if (defined $arrayObj->getDataCube()->getHref()) {
            $arrayObj->getDataCube()->getHref()->setSystemId('table'.$index.'.dat');
+           print STDERR "changing output file to table$index.dat on entity:",$arrayObj->getDataCube()->getHref(),"\n";
         }
         $index++;
      }
@@ -72,9 +73,12 @@ my $QUIET = 1;
   # write back out ONLY the XDF portion 
 #  $XDF->toXMLFileHandle(\*STDOUT);
 
+exit 0;
+
   # use this method IF you want the whole document to write 
   # back out again.
-  print STDOUT $XDF_DOM->toString;
+  print STDOUT $XDF_DOM->toXMLString();
+
 
   my $arrayObj = @{$XDF->getArrayList()}->[0];
 
