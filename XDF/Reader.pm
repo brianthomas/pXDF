@@ -248,6 +248,7 @@ my %End_Handler = (
                        $XDF_node_name{'array'}        => sub { &_array_node_end(@_); },
                        $XDF_node_name{'data'}         => sub { &_data_node_end(@_); },
                        $XDF_node_name{'delimitedStyle'} => sub { &_asciiDelimiter_node_end(@_); },
+                       $XDF_node_name{'fieldAxis'}    => sub { &_fieldAxis_node_end(@_); },
                        $XDF_node_name{'fieldGroup'}   => sub { &_fieldGroup_node_end(@_); },
                        $XDF_node_name{'formattedStyle'} => sub { &_formattedStyle_node_end(@_); },
                        $XDF_node_name{'notes'}        => sub { &_notes_node_end(@_); },
@@ -1108,6 +1109,7 @@ sub _dataTag_node_end {
   my ($self) = @_;
 
   $self->{taggedLocatorObject}->next() if ($self->{currentDataTagLevel} == $self->{dataTagLevel});
+  debug("tag end (".$self->{currentDataTagLevel}.",".$self->{dataTagLevel}."); LOCATION IS NOW:".$self->{taggedLocatorObject}->_dumpLocation."\n");
   $self->{currentDataTagLevel}--;
 
 }
@@ -1360,8 +1362,26 @@ sub _field_node_start {
    return $fieldObj;
 }
 
+sub _fieldAxis_node_end {
+  my ($self) = @_;
+
+  # nothing to do here but check on the correctness of the declared size attrib.
+  my $actualFieldAxisSize = $self->_lastAxisObj()->getSize;
+
+  warn ("Warning: Meta-data incorrect? Got field Axis actual size:$actualFieldAxisSize vs. predetermined size:".$self->{fieldAxisSize}.". Using actual size.\n") if ($self->{fieldAxisSize} ne $actualFieldAxisSize);
+
+  # now clear out cached size value
+  $self->{fieldAxisSize} = undef;
+}
+
 sub _fieldAxis_node_start {
   my ($self, %attrib_hash) = @_;
+
+   # size is special, we shouldnt set it from here, but 
+   # rather let the number of fields input into the axis
+   # tell us what should be the actual size.
+   $self->{fieldAxisSize} = $attrib_hash{'size'};
+   $attrib_hash{'size'} = undef;
 
    my $axisObj = new XDF::FieldAxis(\%attrib_hash);
 
@@ -1988,7 +2008,8 @@ sub _taggedData_node_charData {
          # dont add this data unless it has more than just whitespace
          if (!$IGNORE_WHITESPACE_ONLY_DATA || $string !~ m/^\s*$/) {
 
-#       debug("ADDING DATA to ($self->{taggedLocatorObject}) : [$string]\n");
+#       my $location = $self->{taggedLocatorObject}->_dumpLocation;
+#       debug("ADDING DATA to:$location [$string]");
            $self->{dataTagLevel} = $self->{currentDataTagLevel};
            $self->{currentArray}->addData($self->{taggedLocatorObject}, $string);
          }
@@ -3643,7 +3664,7 @@ sub _appendArrayToArray {
 
       }
 
-      &_debug("Appending axisvalues to array axis\n");
+      &debug("Appending axisvalues to array axis\n");
       # 2. "Append" axis values to original axis. Because
       # there are 2 different ways to add in data we either
       # have a pre-existing axis value, in which case we dont
@@ -3659,11 +3680,17 @@ sub _appendArrayToArray {
          if (ref($addAxis) eq 'XDF::Axis' && ref($origAxis) eq 'XDF::Axis')
          {
             my @valuesToAdd = $addAxis->getAxisValues();
+
+            # increase axis size
+            #my $size_orig = $origAxis->getSize();
+            #my $size_increase = $addAxis->getSize();
+            #$origAxis->setSize($size_orig+$size_increase);
+
             foreach my $value (@valuesToAdd) {
                if (( $origAxis->getIndexFromAxisValue($value)) == -1) 
                {
                   my $valueObj = new XDF::Value($value);
-                  die "Cant add value to axis" unless $origAxis->addAxisValue($valueObj);
+                  $origAxis->addAxisValue($valueObj);
                }
             }
 
