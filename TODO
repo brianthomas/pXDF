@@ -11,6 +11,11 @@
 
    - Implement append Array/align axis functionality
 
+   - Unfortunately, binary transfer between machines of differing arch. is
+     difficult and not treated well. We need to explore the use of Data::Dumper
+     for binary streaming (Storable might be better, but doesnt come as a
+     standard module) as suggested by the Portable Perl document.  
+
    ---------------------------------------------------------------------------
    ** AT This Point the package is a "BETA", but more will need to be done: **
    ---------------------------------------------------------------------------
