@@ -23,7 +23,6 @@ package XDF::Reader;
 # TODO
 # - We also need to allow options to 
 #     1 - use parser other than Expat (?)
-#     2 - allow passing of addtional start/end handlers for user-defined nodes
 #
 
 # /** DESCRIPTION
@@ -37,21 +36,6 @@ package XDF::Reader;
 #    Astronomical Data Center <http://adc.gsfc.nasa.gov>
 #    NASA/Goddard Space Flight Center
 # */
-
-# VERSION HISTORY
-# 0.01 : Jun  6 2000 : first version, supports only tagged data
-# 0.05 : Jun  7 2000 : Using the Java interface moved it over to OO
-#                      can now read and store all metadata in XDF.
-#                      Cant yet write out Viewer table tho.
-# 0.10 : Jun  8 2000 : Fully functional for converting tagged XDF
-#                      to viewer formated tables. Used a kludge, 
-#                      $IGNORE_WHITESPACE_ONLY_DATA to avoid trying to
-#                      add in text (formating) nodes :P 
-# 0.15 : Jun  9 2000 : Now its a module, separated out viewer code, now
-#                      we do the right thing, just return an XDF object. 
-#                      Another, user-specified program can write the viewer file.
-# 0.17 : Jul 21 2000 : Finally got the ID/IDREF stuff sorted out.
-# 0.17d: Aug  1 2000 : Added in validating parser.
 
 # /** SYNOPSIS
 #
@@ -74,14 +58,19 @@ use XDF::BinaryFloatDataFormat;
 use XDF::BinaryIntegerDataFormat;
 use XDF::Constants;
 use XDF::DelimitedXMLDataIOStyle;
+use XDF::Delimiter;
+use XDF::DocumentType;
+use XDF::Entity;
 use XDF::Field;
 use XDF::FieldRelation;
 use XDF::FloatDataFormat;
 use XDF::FormattedXMLDataIOStyle;
-use XDF::Href;
+use XDF::NewLine;
+use XDF::NotationNode;
 use XDF::IntegerDataFormat;
 use XDF::Parameter;
 use XDF::Reader::ValueList;
+use XDF::RecordTerminator;
 use XDF::RepeatFormattedIOCmd;
 use XDF::ReadCellFormattedIOCmd;
 use XDF::SkipCharFormattedIOCmd;
@@ -91,6 +80,7 @@ use XDF::ValueListAlgorithm;
 use XDF::ValueListDelimitedList;
 use XDF::XMLDataIOStyle;
 use XDF::XMLElementNode;
+use XDF::XMLDeclaration;
 use XDF::XDF;
 
 use vars qw ($VERSION %field);
@@ -129,12 +119,14 @@ my @Class_Attributes = qw (
                               currentParamGroupList
                               currentDataTagLevel
                               dataTagLevel
+                              DoctypeObjectAttributes
                               Notation
                               UnParsedEntity
                               Entity
                               taggedLocatorObject
                               dataFormatAttribRef
                               dataIOStyleAttribRef
+                              ForceSetXMLHeaderStuff
                               nrofWarnings
                               ArrayObj
                               AxisObj
@@ -160,7 +152,7 @@ my @Class_Attributes = qw (
 # CLASS DATA
 #
 
-$VERSION = "0.17"; # the version of this module, what version of XDF
+$VERSION = "0.18"; # the version of this module, what version of XDF
                    # it will read in.
 my $Flag_Decimal = &XDF::Constants::INTEGER_TYPE_DECIMAL;
 my $Flag_Octal = &XDF::Constants::INTEGER_TYPE_OCTAL;
@@ -198,28 +190,37 @@ my %Start_Handler = (
                        $XDF_node_name{'axisUnits'}    => sub { &_axisUnits_node_start(@_); },
                        $XDF_node_name{'binaryFloat'}  => sub { &_binaryFloatField_node_start(@_); },
                        $XDF_node_name{'binaryInteger'} => sub { &_binaryIntegerField_node_start(@_); },
+                       $XDF_node_name{'chars'}        => sub { &_chars_node_start(@_); },
                        $XDF_node_name{'data'}         => sub { &_data_node_start(@_); },
                        $XDF_node_name{'dataFormat'}   => sub { &_dataFormat_node_start(@_); },
+                       $XDF_node_name{'delimiter'}    => sub { &_delimiter_node_start(@_); },
+                       $XDF_node_name{'delimitedStyle'} => sub { &_asciiDelimiter_node_start(@_); },
+                       $XDF_node_name{'delimitedReadInstructions'} => sub { &_null_cmd(@_); },
                        $XDF_node_name{'field'}        => sub { &_field_node_start(@_); },
                        $XDF_node_name{'fieldAxis'}    => sub { &_fieldAxis_node_start(@_); },
+                       $XDF_node_name{'formattedStyle'} => sub { &_formattedStyle_node_start(@_); },
+                       $XDF_node_name{'formattedReadInstructions'} => sub { &_null_cmd(@_); },
                        $XDF_node_name{'float'}        => sub { &_floatField_node_start(@_); },
                        $XDF_node_name{'for'}          => sub { &_for_node_start(@_); },
                        $XDF_node_name{'fieldGroup'}   => sub { &_fieldGroup_node_start(@_); },
                        $XDF_node_name{'index'}        => sub { &_note_index_node_start(@_); },
                        $XDF_node_name{'integer'}      => sub { &_integerField_node_start(@_); },
                        $XDF_node_name{'locationOrder'}=> sub { &_null_cmd(@_); },
+                       $XDF_node_name{'newline'}      => sub { &_newLine_node_start(@_); },
                        $XDF_node_name{'note'}         => sub { &_note_node_start(@_); },
                        $XDF_node_name{'notes'}        => sub { &_notes_node_start(@_); },
                        $XDF_node_name{'parameter'}    => sub { &_parameter_node_start(@_); },
                        $XDF_node_name{'parameterGroup'} => sub { &_parameterGroup_node_start(@_); },
                        $XDF_node_name{'read'}         => sub { &_read_node_start(@_);},
                        $XDF_node_name{'readCell'}     => sub { &_readCell_node_start(@_);},
+                       $XDF_node_name{'recordTerminator'} => sub { &_recordTerminator_node_start(@_); },
                        $XDF_node_name{'repeat'}       => sub { &_repeat_node_start(@_); },
                        $XDF_node_name{'relationship'} => sub { &_field_relationship_node_start(@_); },
                        $XDF_node_name{'root'}         => sub { &_root_node_start(@_); },
                        $XDF_node_name{'skipChar'}     => sub { &_skipChar_node_start(@_); },
                        $XDF_node_name{'string'}       => sub { &_stringField_node_start(@_); },
                        $XDF_node_name{'structure'}    => sub { &_structure_node_start(@_); },
+                       $XDF_node_name{'taggedStyle'}  => sub { &_taggedStyle_node_start(@_); },
                        $XDF_node_name{'tagToAxis'}    => sub { &_tagToAxis_node_start(@_);},
                        $XDF_node_name{'td0'}          => sub { &_dataTag_node_start(@_);},
                        $XDF_node_name{'td1'}          => sub { &_dataTag_node_start(@_);},
@@ -230,7 +231,6 @@ my %Start_Handler = (
                        $XDF_node_name{'td6'}          => sub { &_dataTag_node_start(@_);},
                        $XDF_node_name{'td7'}          => sub { &_dataTag_node_start(@_);},
                        $XDF_node_name{'td8'}          => sub { &_dataTag_node_start(@_);},
-                       $XDF_node_name{'textDelimiter'}=> sub { &_asciiDelimiter_node_start(@_); },
                        $XDF_node_name{'unit'}         => sub { &_unit_node_start(@_); },
                        $XDF_node_name{'units'}        => sub { &_units_node_start(@_); },
                        $XDF_node_name{'unitless'}     => sub { &_unitless_node_start(@_); },
@@ -245,11 +245,14 @@ my %Start_Handler = (
 my %End_Handler = (
                        $XDF_node_name{'array'}        => sub { &_array_node_end(@_); },
                        $XDF_node_name{'data'}         => sub { &_data_node_end(@_); },
+                       $XDF_node_name{'delimitedStyle'} => sub { &_asciiDelimiter_node_end(@_); },
                        $XDF_node_name{'fieldGroup'}   => sub { &_fieldGroup_node_end(@_); },
+                       $XDF_node_name{'formattedStyle'} => sub { &_formattedStyle_node_end(@_); },
                        $XDF_node_name{'notes'}        => sub { &_notes_node_end(@_); },
                        $XDF_node_name{'parameterGroup'} => sub { &_parameterGroup_node_end(@_); },
                        $XDF_node_name{'read'}         => sub { &_read_node_end(@_); },
                        $XDF_node_name{'repeat'}       => sub { &_repeat_node_end(@_); },
+                       $XDF_node_name{'taggedStyle'}  => sub { &_taggedStyle_node_end(@_); },
                        $XDF_node_name{'td0'}          => sub { &_dataTag_node_end(@_);},
                        $XDF_node_name{'td1'}          => sub { &_dataTag_node_end(@_);},
                        $XDF_node_name{'td2'}          => sub { &_dataTag_node_end(@_);},
@@ -267,7 +270,7 @@ my %End_Handler = (
 # dispatch table for the chardata handler of the parser
 my %CharData_Handler = (
 
-                          $XDF_node_name{'data'}=> sub { &_untaggedData_node_charData(@_); },
+                          $XDF_node_name{'data'}=> sub { &_data_node_charData(@_); },
                           $XDF_node_name{'td0'}=> sub { &_taggedData_node_charData(@_); },
                           $XDF_node_name{'td1'}=> sub { &_taggedData_node_charData(@_); },
                           $XDF_node_name{'td2'}=> sub { &_taggedData_node_charData(@_); },
@@ -307,6 +310,15 @@ sub getReaderXDFObject {
 sub setReaderXDFObject {
   my ($self, $XDF) = @_;
   $self->{XDF} = $XDF;
+}
+
+# /** If true it tells this DocumentHandler that it should go ahead and insert XMLHeader
+#  stuff even if the current parser doesnt support DTD events using reasonable
+#  values.
+#     */
+sub setForceSetXMLHeaderStuffOnXDFObject {
+   my ($self, $value) = @_;
+   $self->{ForceSetXMLHeaderStuff} = $value;
 }
 
 #/** getVersion
@@ -535,10 +547,19 @@ sub setDefaultCharDataHandler {
 #
 
 sub _handle_doctype {
-   my ($self, $parser_ref, @stuff) = @_;
-   &_printDebug("H_DOCTYPE: ");
-   foreach my $thing (@stuff) { &_printDebug($thing.", ") if defined $thing; }
-   &_printDebug("\n");
+   my ($self, $parser_ref, $name, $systemId, $publicId, $internal) = @_;
+
+   $systemId = "" unless defined $systemId;
+   $publicId = "" unless defined $publicId;
+   $internal = "" unless defined $internal;
+   &_printDebug("H_DOCTYPE: $name, $systemId, $publicId, $internal\n");
+
+   my %hashTable;
+   $hashTable{"name"} = $name;
+   $hashTable{"sysId"} = $systemId;
+   $hashTable{"pubId"} = $publicId;
+   $self->{DoctypeObjectAttributes} = \%hashTable;
+   return;
 }
 
 sub _handle_xml_decl {
@@ -572,7 +593,7 @@ sub _handle_unparsed {
 
    if (defined $notation) {
       $msgstring .= " NOTATION:$notation";
-      ${$self->{Entity}{$name}}{'notation'} = $notation;
+      ${$self->{Entity}{$name}}{'ndata'} = $notation;
    }
 
    $msgstring .= "\n";
@@ -586,19 +607,21 @@ sub _handle_notation {
    my $msgstring = "H_NOTATION: $notation ";
    $self->{Notation}->{$notation} = {}; # add a new entry
 
+   ${$self->{Notation}->{$notation}}{name} = $notation;
+
    if (defined $base) {
       $msgstring .= ", Base:$base";
-      ${$self->{Notation}->{$notation}}{'base'} = $base;
+      ${$self->{Notation}->{$notation}}{base} = $base;
    }
 
    if (defined $sysid) {
       $msgstring .= ", SYS:$sysid";
-      ${$self->{Notation}->{$notation}}{'sysid'} = $sysid;
+      ${$self->{Notation}->{$notation}}{systemId} = $sysid;
    }
 
    if (defined $pubid) {
       $msgstring .= " PUB:$pubid";
-      ${$self->{Notation}->{$notation}}{'pubid'} = $pubid;
+      ${$self->{Notation}->{$notation}}{publicId} = $pubid;
    }
 
    $msgstring .= "\n";
@@ -717,16 +740,51 @@ sub _handle_comment {
    &_print_extreme_debug("H_COMMENT: $data\n");
 }
 
+# the same as endDocument?
 sub _handle_final {
    my ($self, $parser_ref) = @_;
    &_printDebug("H_FINAL \n");
 
-   # set the entity, notation and unparsed lists for the XDF structure
-   my $spec= XDF::Specification->getInstance();
-   $spec->setXMLNotationHash($self->{Notation});
-  # $self->{XDF}->setXMLInternalEntityHash(\%Entity);
-  # $self->{XDF}->setXMLUnparsedEntityHash(\%UnParsedEntity);
-   # pass the populated structure back to calling routine
+   if (defined $self->{DoctypeObjectAttributes} || $self->{ForceSetXMLHeaderStuff} ) {
+
+      # bah, this doesnt belong here
+      my $xmlDecl = new XDF::XMLDeclaration();
+      $xmlDecl->setStandalone("no");
+
+      my $doctype = new XDF::DocumentType($self->{XDF});
+
+      # set the values of the DocumentType object appropriately
+      if (!$self->{ForceSetXMLHeaderStuff}) {
+         my %hash = %{$self->{DoctypeObjectAttributes}};
+         my $sysId = $hash{"sysId"};
+         my $pubId = $hash{"pubId"};
+         if (defined $sysId) {
+            $doctype->setSystemId($sysId);
+         }
+         if (defined $pubId) {
+            $doctype->setPublicId($pubId);
+         }
+      } else {
+         # we have to guess values
+         $doctype->setSystemId(&XDF::Constants::XDF_DTD_NAME);
+      }
+
+      $self->{XDF}->setXMLDeclaration($xmlDecl);
+      $self->{XDF}->setDocumentType($doctype);
+   }
+
+   # Now that it exists, lets
+   # set the notation hash for the XDF structure
+   my $documentType = $self->{XDF}->getDocumentType();
+   while ( my ($key, $notationAttribHash) = each %{$self->{Notation}}) {
+      # force having document type
+      if (!defined $documentType) {
+         $documentType = new XDF::DocumentType($self->{XDF});
+         $self->{XDF}->setDocumentType($documentType);
+      }
+      $self->{XDF}->getDocumentType()->addNotation(new XDF::NotationNode($notationAttribHash));
+   }
+
    return $self->{XDF};
 }
 
@@ -829,20 +887,35 @@ sub _asciiDelimiter_node_start {
   # if this is still defined, we havent init'd an
   # XMLDataIOStyle object for this array yet, do it now. 
   # set the format object in the current array
+  # (other case: we got a format object from a dataStyleIdRef and
+  #  already supplied correct stuff)
+  my $formatObj;
   if ( defined $self->{dataIOStyleAttribRef}) {
-    $self->{currentArray}->setXMLDataIOStyle(new XDF::DelimitedXMLDataIOStyle($self->{dataIOStyleAttribRef}));
-    $self->{currentArray}->getXMLDataIOStyle->setXMLAttributes(\%attrib_hash);
 
-    my $readId = $self->{currentArray}->getXMLDataIOStyle()->getReadId();
-    if (defined $readId ) {
-       $self->_printWarning( "Danger: More than one read node with readId=\"$readId\", using latest node.\n" )
-           if defined $self->{XMLDataIOStyleObj}{$readId};
-       $self->{XMLDataIOStyleObj}{$readId} = $self->{currentArray}->getXMLDataIOStyle();
+    $formatObj = new XDF::DelimitedXMLDataIOStyle($self->{dataIOStyleAttribRef});
+    # shortcut: since the current DTD sez
+    # we dont have any attributes on this node 
+    # we dont attempt to add anything more in
+    # $formatObj->setXMLAttributes(\%attrib_hash);
+
+    # set formatObj as the current Array XMLDataIOStyle
+    $self->{currentArray}->setXMLDataIOStyle($formatObj);
+
+    # add this to the current set of dataStyle objects we have cached
+    my $dataStyleId = $formatObj->getDataStyleId();
+    if (defined $dataStyleId ) {
+       $self->_printWarning( "Danger: More than one read node with dataStyleId=\"$dataStyleId\", using latest node.\n" )
+           if defined $self->{XMLDataIOStyleObj}{$dataStyleId};
+       $self->{XMLDataIOStyleObj}{$dataStyleId} = $formatObj;
     }
 
+    # clear this 
     $self->{dataIOStyleAttribRef} = undef;
-    push @{$self->{currentFormatObjectList}}, $self->{currentArray}->getXMLDataIOStyle();
+    # add to format list
+    push @{$self->{currentFormatObjectList}}, $formatObj;
 
+  } else {
+    die "Error: no Format Obj could be defined for delimited data (bad file format?)\n";
   }
 
   return $self->{currentArray}->getXMLDataIOStyle();
@@ -868,24 +941,19 @@ sub _array_node_end {
       my $retarray = $self->{currentStructure}->addArray($self->{currentArray});
    }
 
+   # make this undef so we dont re-use
+   $self->{noteLocatorOrder} = undef;
 }
 
 sub _array_node_start {
   my ($self, %attrib_hash) = @_;
 
-  # these are attribtes that go on the dataFormat, not the array
-  #my @attribList = qw /lessThanValue lessThanOrEqualValue infiniteValue 
-  #                      infiniteNegativeValue greaterThanValue greaterThanOrEqualValue 
-  #                      noDataValue/;
-  #my %dataFormatAttrib;
-  #for (@attribList) {
-  #   if (exists($attrib_hash{$_})) {
-  #      $dataFormatAttrib{$_} = $attrib_hash{$_};
-  #   }
-  #}
+  # first, a little init of internal variable
+  # allows us to store the ordering of the axisIDRef's in 
+  # the notes locationOrder tag (so we can cross link it)
+  $self->{noteLocatorOrder} = []; # list
 
   #$self->{currentArray} = $self->{currentStructure}->addArray(\%attrib_hash);
-
   my $newarray = new XDF::Array(\%attrib_hash);
 
   # add this array to our list of arrays if it has an ID
@@ -998,6 +1066,33 @@ sub _binaryIntegerField_node_start {
 
 }
 
+sub _chars_node_start {
+  my ($self, %attrib_hash) = @_;
+
+  my $charDataObj = new XDF::Chars(\%attrib_hash);
+
+  my $lastObject = $self->_lastObj();
+
+  die "Internal error: cant set chars, last object not defined\n" unless defined $lastObject;
+
+  if ( ref($lastObject) eq 'XDF::SkipCharFormattedIOCmd') {
+     $lastObject->setOutput($charDataObj);
+     return $charDataObj;
+  } elsif ( ref($lastObject) eq 'XDF::Delimiter') {
+     $lastObject->setValue($charDataObj);
+     return $charDataObj;
+  } elsif ( ref($lastObject) eq 'XDF::RecordTerminator') {
+     $lastObject->setValue($charDataObj);
+     return $charDataObj;
+  } else {
+     warn "Warning: cant add Chars object to parent:$lastObject not a valid object. Ignoring request\n";
+  }
+
+  return undef;
+
+}
+
+# for the tags in tagged data
 sub _dataTag_node_start {
   my ($self, %attrib_hash) = @_;
 
@@ -1006,6 +1101,7 @@ sub _dataTag_node_start {
   return undef;
 }
 
+# for the tags in tagged data
 sub _dataTag_node_end {
   my ($self) = @_;
 
@@ -1014,69 +1110,13 @@ sub _dataTag_node_end {
 
 }
   
-# what to do when we know this character data IS coming from within
-# the data node
-#sub _data_node_charData {
-#  my ($self, $string) = @_;
-
-#  my $readObj = $self->{currentArray}->getXMLDataIOStyle();
-
-#  if (ref ($readObj) eq 'XDF::TaggedXMLDataIOStyle' ) {
-
-    # dont add this data unless it has more than just whitespace
-#    if (!$IGNORE_WHITESPACE_ONLY_DATA || $string !~ m/^\s*$/) {
-
-#       &_printDebug("ADDING DATA to ($self->{taggedLocatorObject}) : [$string]\n");
-#       $self->{dataTagLevel} = $self->{currentDataTagLevel};
-#       $self->{currentArray}->addData($self->{taggedLocatorObject}, $string);
-#    }
-
-#  } elsif (ref($readObj) eq 'XDF::DelimitedXMLDataIOStyle' or
-#           ref($readObj) eq 'XDF::FormattedXMLDataIOStyle' )
-#  {
-
-    # I dont think that there is any need to require char data always be
-    # inside of a CDATA block?
-#   if ($self->{cdataIsArrayData}) {
-       # accumulate CDATA in the GLOBAL $self->{dataBlock} for later reading
-#       $self->{dataBlock} .= $string;
-#    }
-
-#  } else {
-
-#     die "UNSUPPORTED data_node_charData style\n";
-
-#  }
-
-#}
-
-sub _taggedData_node_charData {
-   my ($self, $string) = @_;
-
-   if ($self->{dataNodeLevel} > 0) { 
-
-      my $readObj = $self->{currentArray}->getXMLDataIOStyle();
-
-      if (ref ($readObj) eq 'XDF::TaggedXMLDataIOStyle' ) {
-
-         # dont add this data unless it has more than just whitespace
-         if (!$IGNORE_WHITESPACE_ONLY_DATA || $string !~ m/^\s*$/) {
-
-#       &_printDebug("ADDING DATA to ($self->{taggedLocatorObject}) : [$string]\n");
-           $self->{dataTagLevel} = $self->{currentDataTagLevel};
-           $self->{currentArray}->addData($self->{taggedLocatorObject}, $string);
-         }
-      }
-   }
-
-}
-
-sub _untaggedData_node_charData {
+# should only be relevant in untagged (delimited/formatted) cases
+sub _data_node_charData {
    my ($self, $string) = @_;
 
    # only do something here IF we are reading in data at the moment
    # is this needed?? 
-   if ($self->{dataNodeLevel} > 0) { 
+   if ($self->{dataNodeLevel} > 0) {
 
      my $readObj = $self->{currentArray}->getXMLDataIOStyle();
 
@@ -1085,10 +1125,10 @@ sub _untaggedData_node_charData {
      {
 
          # add it to the datablock if it isnt all whitespace ?? 
-         if ( (!$IGNORE_WHITESPACE_ONLY_DATA || $string !~ m/^\s*$/) 
+         if ( (!$IGNORE_WHITESPACE_ONLY_DATA || $string !~ m/^\s*$/)
              or $self->{inCdataBlock} )
          {
-           # &_printDebug("ADDING String to DataBlock: [$string]\n");
+            #&_printDebug("ADDING String to DataBlock: [$string]\n");
             $self->{dataBlock} .= $string;
          }
 
@@ -1105,6 +1145,25 @@ sub _data_node_end {
   # we might still be nested within a data node
   # if so, return now to accumulate more data within the DATABLOCK
   return unless $self->{dataNodeLevel} == 0;
+
+  # trim down the datablock, IF these are defined still
+  my $startByte = $self->{currentArray}->getDataCube->getStartByte();
+  my $endByte = $self->{currentArray}->getDataCube->getEndByte();
+
+  if ($startByte || $endByte) {
+
+    if ($endByte) {
+       my $length = $endByte - $startByte + 1;
+       $self->{dataBlock} = substr $self->{dataBlock}, $startByte, $length;
+    } else {
+       $self->{dataBlock} = substr $self->{dataBlock}, $startByte;
+    }
+
+    # only needed by the read part, we will only write relevant bytes on output
+    $self->{currentArray}->getDataCube->setStartByte(0);
+    $self->{currentArray}->getDataCube->setEndByte(undef);
+
+  }
 
   # now read in untagged data (both delimited/formmatted styles) 
   # from the $self->{dataBlock}
@@ -1229,7 +1288,8 @@ sub _data_node_start {
 
     # href is special
     if (exists $attrib_hash{'href'}) { 
-       my $hrefObj = new XDF::Href(); 
+
+       my $hrefObj = new XDF::Entity(); 
        my $hrefName = $attrib_hash{'href'};
 
        # this shouldnt happen, but does for unconsidered cases.
@@ -1237,10 +1297,10 @@ sub _data_node_start {
            unless exists $self->{Entity}{$hrefName}; 
 
        $hrefObj->setName($hrefName);
-       $hrefObj->setSysId(${$self->{Entity}{$hrefName}}{'sysid'});
+       $hrefObj->setSystemId(${$self->{Entity}{$hrefName}}{'sysid'});
        $hrefObj->setBase(${$self->{Entity}{$hrefName}}{'base'});
        $hrefObj->setNdata(${$self->{Entity}{$hrefName}}{'ndata'});
-       $hrefObj->setPubId(${$self->{Entity}{$hrefName}}{'pubid'});
+       $hrefObj->setPublicId(${$self->{Entity}{$hrefName}}{'pubid'});
        $self->{currentArray}->getDataCube()->setHref($hrefObj);
        delete $attrib_hash{'href'}; # prevent over-writing object with string 
 
@@ -1266,7 +1326,28 @@ sub _data_node_start {
        
      if (defined (my $href = $self->{currentArray}->getDataCube()->getHref())) {
         # add to the datablock
-        $self->{dataBlock} .= $self->_getHrefData($href);
+        my $startByte = $self->{currentArray}->getDataCube->getStartByte();
+        my $endByte = $self->{currentArray}->getDataCube->getEndByte();
+        my $text = $self->_getHrefData($startByte, $endByte, $href);
+
+        if ($startByte || $endByte) {
+     
+          if ($endByte) {
+             my $length = $endByte - $startByte;
+             $text = substr $text, $startByte, $length;
+          } else {
+             $text = substr $text, $startByte;
+          }
+     
+          # only needed by the read part, we will only write relevant bytes on output
+          $self->{currentArray}->getDataCube->setStartByte(0);
+          $self->{currentArray}->getDataCube->setEndByte(undef);
+     
+        }
+
+        # now, append onto the datablock
+        $self->{dataBlock} .= $text;
+
      }
 
      # this declares we are now reading data, 
@@ -1284,6 +1365,28 @@ sub _dataFormat_node_start {
   # save attribs for latter
   $self->{dataFormatAttribRef} = \%attrib_hash;
   return undef;
+}
+
+sub _delimiter_node_start {
+  my ($self, %attrib_hash) = @_;
+   
+  # create obj
+  my $delimiterObj = new XDF::Delimiter(\%attrib_hash);
+     
+  # okey, now that that is taken care off, we will go
+  # get the current format (read) object, and add the readCell
+  # command to it
+  my $formatObj = $self->_currentFormatObject();
+     
+  if ( ref($formatObj) eq 'XDF::DelimitedXMLDataIOStyle') {
+     $formatObj->setDelimiter($delimiterObj);
+     return $delimiterObj;
+  } else {
+     warn "Warning: cant add Delimiter object to parent($formatObj)..its not a DelimitedXMLDataIOStyle Object. Ignoring request\n";
+  }
+
+  return undef;
+
 }
 
 sub _field_node_start {
@@ -1344,7 +1447,7 @@ sub _fieldAxis_node_start {
    }
 
    # add the axis object to the array
-   $self->{currentArray}->addFieldAxis($axisObj, undef, 1);
+   $self->{currentArray}->setFieldAxis($axisObj);
 
    return $axisObj;
 }
@@ -1438,6 +1541,43 @@ sub _for_node_start {
   return undef;
 }
 
+sub _formattedStyle_node_end {
+  my ($self) = @_;
+  pop @{$self->{currentFormatObjectList}};
+}
+
+sub _formattedStyle_node_start {
+  my ($self, %attrib_hash) = @_;
+
+  # if this is still defined, we havent init'd an
+  # XMLDataIOStyle object for this array yet, do it now. 
+  # set the format object in the current array
+  # (other case: we got a format object from a dataStyleIdRef and
+  #  already supplied correct stuff)
+
+  my $formatObj;
+  if ( defined $self->{dataIOStyleAttribRef}) {
+    $formatObj = new XDF::FormattedXMLDataIOStyle($self->{dataIOStyleAttribRef});
+    $self->{currentArray}->setXMLDataIOStyle($formatObj);
+
+    my $dataStyleId = $formatObj->getDataStyleId();
+    if (defined $dataStyleId ) {
+       $self->_printWarning( "Danger: More than one read node with dataStyleId=\"$dataStyleId\", using latest node.\n" )   
+           if defined $self->{XMLDataIOStyleObj}{$dataStyleId};
+       $self->{XMLDataIOStyleObj}{$dataStyleId} = $formatObj;
+    }
+
+    # undefine so we wont init again.
+    $self->{dataIOStyleAttribRef} = undef;
+
+    # add to current format Object List
+    push @{$self->{currentFormatObjectList}}, $formatObj;
+  }
+
+  return $formatObj;
+}
+
+
 sub _integerField_node_start {
   my ($self, %attrib_hash) = @_;
 
@@ -1462,6 +1602,33 @@ sub _integerField_node_start {
 
   return $dataFormatObj;
 }
+
+sub _newLine_node_start {
+  my ($self, %attrib_hash) = @_;
+
+  my $newLineObj = new XDF::NewLine(\%attrib_hash);
+
+  my $lastObject = $self->_lastObj();
+
+  die "Internal error: cant set chars, last object not defined\n" unless defined $lastObject;
+
+  if ( ref($lastObject) eq 'XDF::SkipCharFormattedIOCmd') {
+     $lastObject->setOutput($newLineObj);
+     return $newLineObj;
+  } elsif ( ref($lastObject) eq 'XDF::Delimiter') {
+     $lastObject->setValue($newLineObj);
+     return $newLineObj;
+  } elsif ( ref($lastObject) eq 'XDF::RecordTerminator') {
+     $lastObject->setValue($newLineObj);
+     return $newLineObj;
+  } else {
+     warn "Warning: cant add NewLine object to parent:$lastObject not a valid object. Ignoring request\n";
+  }
+
+  return undef;
+
+}
+
 
 sub _note_node_charData {
   my ($self, $string) = @_;
@@ -1543,9 +1710,11 @@ sub _notes_node_end {
 
    my $notesParentObj = $self->{lastNotesParentObject};
 
-   if (exists $notesParentObj->{Notes}) { 
-      my $notesObj = $notesParentObj->{Notes}; 
-      for (@{$self->{noteLocatorOrder}}) { $notesObj->addAxisIdToLocatorOrder($_); }
+   if (defined $notesParentObj->getNotes()) { 
+      my $notesObj = $notesParentObj->getNotes();
+      for (@{$self->{noteLocatorOrder}}) { 
+          $notesObj->addAxisIdToLocatorOrder($_); 
+      }
    }
 
    # reset the location order 
@@ -1699,27 +1868,27 @@ sub _read_node_start {
   # do we have an idREf? if so, copy the object, otherwise we will 
   # save these for later, when we know what kind of dataIOstyle we got
   # use reference object, if refId exists 
-  my $readIdRef = $attrib_hash{'readIdRef'};
+  my $dataStyleIdRef = $attrib_hash{'dataStyleIdRef'};
   my $readObj;
-  if (defined $readIdRef) {
+  if (defined $dataStyleIdRef) {
 
      # clone from the reference object
-     $readObj = $self->{XMLDataIOStyleObj}{$readIdRef}->clone();
+     $readObj = $self->{XMLDataIOStyleObj}{$dataStyleIdRef}->clone();
 
      # override with local values
      $readObj->setXMLAttributes(\%attrib_hash);
 
      # set ID attribute to unique name 
-     $readObj->setReadId($self->_getUniqueIdName($readIdRef, \%{$self->{XMLDataIOStyleObj}}));
-     $readObj->setReadIdRef(undef); # unset IDREF attribute 
+     $readObj->setDataStyleId($self->_getUniqueIdName($dataStyleIdRef, \%{$self->{XMLDataIOStyleObj}}));
+     $readObj->setDataStyleIdRef(undef); # unset IDREF attribute 
 
      $self->{currentArray}->setXMLDataIOStyle($readObj);
 
-     push @{$self->{currentFormatObjectList}}, $self->{currentArray}->getXMLDataIOStyle();
+     push @{$self->{currentFormatObjectList}}, $readObj; #,$self->{currentArray}->getXMLDataIOStyle();
 
      # populate readorder array. We will have problems if someone specifies
-     # readIdRef AND has child for nodes on the read node. fef.  
-     my $oldArrayObj = $self->{XMLDataIOStyleObj}{$readIdRef}->{_parentArray}; #shouldnt be allowed to do this 
+     # dataStyleIdRef AND has child for nodes on the read node. fef.  
+     my $oldArrayObj = $self->{XMLDataIOStyleObj}{$dataStyleIdRef}->{_parentArray}; #shouldnt be allowed to do this 
      # note: we *must* run in reverse here to simulate it being read in 
      # by the for nodes, which occur in that reverse ordering.
      foreach my $oldAxisObj (reverse @{$self->{readAxisOrderHash}{$oldArrayObj}}) {
@@ -1732,7 +1901,7 @@ sub _read_node_start {
      }
    
      # add this object to the lookup array
-     my $id = $readObj->getReadId();
+     my $id = $readObj->getDataStyleId();
      $self->{XMLDataIOStyleObj}{$id} = $readObj;
 
   } else { 
@@ -1746,28 +1915,33 @@ sub _read_node_start {
 sub _readCell_node_start { 
    my ($self, %attrib_hash) = @_;
 
-  # if this is still defined, we havent init'd an
-  # XMLDataIOStyle object for this array yet, do it now. 
-  if ( defined $self->{dataIOStyleAttribRef}) {
-    $self->{currentArray}->setXMLDataIOStyle(new XDF::FormattedXMLDataIOStyle($self->{dataIOStyleAttribRef}));
-
-    my $readId = $self->{currentArray}->getXMLDataIOStyle()->getReadId();
-    if (defined $readId ) {
-       $self->_printWarning( "Danger: More than one read node with readId=\"$readId\", using latest node.\n" )          
-           if defined $self->{XMLDataIOStyleObj}{$readId};
-       $self->{XMLDataIOStyleObj}{$readId} = $self->{currentArray}->getXMLDataIOStyle();
-
-    }
-
-    $self->{dataIOStyleAttribRef} = undef;
-    push @{$self->{currentFormatObjectList}}, $self->{currentArray}->getXMLDataIOStyle();
-  } 
-
   my $formatObj = $self->_currentFormatObject();
   my $readCellObj = new XDF::ReadCellFormattedIOCmd(\%attrib_hash);
   return unless $formatObj->addFormatCommand($readCellObj);
 
   return $readCellObj;
+}
+
+sub _recordTerminator_node_start {
+  my ($self, %attrib_hash) = @_;
+
+  # create obj
+  my $recordTerminatorObj = new XDF::RecordTerminator(\%attrib_hash); 
+
+  # okey, now that that is taken care off, we will go 
+  # get the current format (read) object, and add the readCell
+  # command to it
+  my $formatObj = $self->_currentFormatObject();
+
+  if ( ref($formatObj) eq 'XDF::DelimitedXMLDataIOStyle') {
+     $formatObj->setRecordTerminator($recordTerminatorObj);
+     return $recordTerminatorObj;
+  } else {
+     warn "Warning: cant add RecordTerminator object to parent($formatObj)..its not a DelimitedXMLDataIOStyle Object. Ignoring request\n";
+  }
+
+  return undef;
+
 }
 
 sub _repeat_node_end { 
@@ -1777,23 +1951,6 @@ sub _repeat_node_end {
 
 sub _repeat_node_start {
    my ($self, %attrib_hash) = @_;
-
-  # If this is still defined, we havent init'd an
-  # XMLDataIOStyle object for this array yet, do it now. 
-  if ( defined $self->{dataIOStyleAttribRef}) {
-    $self->{currentArray}->setXMLDataIOStyle(new XDF::FormattedXMLDataIOStyle($self->{dataIOStyleAttribRef}));
-
-    my $readId = $self->{currentArray}->getXMLDataIOStyle()->getReadId();
-    if ( defined $readId ) {
-       $self->_printWarning( "Danger: More than one read node with readId=\"$readId\", using latest node.\n" )          
-           if defined $self->{XMLDataIOStyleObj}{$readId};
-       $self->{XMLDataIOStyleObj}{$readId} = $self->{currentArray}->getXMLDataIOStyle();
-
-    }
-
-    $self->{dataIOStyleAttribRef} = undef;
-    push @{$self->{currentFormatObjectList}}, $self->{currentArray}->getXMLDataIOStyle();
-  } 
 
   my $formatObj = $self->_currentFormatObject();
   my $repeatObj = new XDF::RepeatFormattedIOCmd(\%attrib_hash);
@@ -1825,23 +1982,6 @@ sub _root_node_start {
 
 sub _skipChar_node_start {
    my ($self, %attrib_hash) = @_;
-
-  # If this is still defined, we havent init'd an
-  # XMLDataIOStyle object for this array yet, do it now. 
-  if ( defined $self->{dataIOStyleAttribRef}) {
-    $self->{currentArray}->setXMLDataIOStyle(new XDF::FormattedXMLDataIOStyle($self->{dataIOStyleAttribRef}));
-
-    my $readId = $self->{currentArray}->getXMLDataIOStyle()->getReadId();
-    if (defined $readId ) {
-       $self->_printWarning( "Danger: More than one read node with readId=\"$readId\", using latest node.\n" )          
-           if defined $self->{XMLDataIOStyleObj}{$readId};
-       $self->{XMLDataIOStyleObj}{$readId} = $self->{currentArray}->getXMLDataIOStyle();
-
-    }
-
-    $self->{dataIOStyleAttribRef} = undef;
-    push @{$self->{currentFormatObjectList}}, $self->{currentArray}->getXMLDataIOStyle();
-  }
 
   my $formatObj = $self->_currentFormatObject();
   my $skipCharObj = new XDF::SkipCharFormattedIOCmd(\%attrib_hash);
@@ -1889,25 +2029,65 @@ sub _structure_node_start {
    return $self->{currentStructure};
 }
 
-sub _tagToAxis_node_start {
-   my ($self, %attrib_hash) = @_;
+sub _taggedData_node_charData {
+   my ($self, $string) = @_;
 
-  # well, if we see tagToAxis nodes, must have tagged data, the 
-  # default style. No need for initing further. 
+   if ($self->{dataNodeLevel} > 0) {
+
+      my $readObj = $self->{currentArray}->getXMLDataIOStyle();
+
+      if (ref ($readObj) eq 'XDF::TaggedXMLDataIOStyle' ) {
+
+         # dont add this data unless it has more than just whitespace
+         if (!$IGNORE_WHITESPACE_ONLY_DATA || $string !~ m/^\s*$/) {
+
+#       &_printDebug("ADDING DATA to ($self->{taggedLocatorObject}) : [$string]\n");
+           $self->{dataTagLevel} = $self->{currentDataTagLevel};
+           $self->{currentArray}->addData($self->{taggedLocatorObject}, $string);
+         }
+      }
+   }
+
+}
+
+sub _taggedStyle_node_end { 
+  my ($self) = @_;
+
+  # remove from format list
+  pop @{$self->{currentFormatObjectList}}; 
+
+}
+
+sub _taggedStyle_node_start {
+  my ($self, %attrib_hash) = @_;
+
+  my $formatObj;
   if ( defined $self->{dataIOStyleAttribRef}) {
-    $self->{currentArray}->setXMLDataIOStyle(new XDF::TaggedXMLDataIOStyle($self->{dataIOStyleAttribRef}));
 
-    my $readId = $self->{currentArray}->getXMLDataIOStyle()->getReadId();
-    if (defined $readId) {
-       $self->_printWarning( "Danger: More than one read node with readId=\"$readId\", using latest node.\n" )          
-           if defined $self->{XMLDataIOStyleObj}->{$readId};
-       $self->{XMLDataIOStyleObj}->{$readId} = $self->{currentArray}->getXMLDataIOStyle();
+    $formatObj = new XDF::TaggedXMLDataIOStyle($self->{dataIOStyleAttribRef});
 
+    $self->{currentArray}->setXMLDataIOStyle($formatObj); 
+
+    my $dataStyleId = $formatObj->getDataStyleId();
+    if (defined $dataStyleId) {
+       $self->_printWarning( "Danger: More than one read node with dataStyleId=\"$dataStyleId\", using latest node.\n" )          
+           if defined $self->{XMLDataIOStyleObj}->{$dataStyleId};
+       $self->{XMLDataIOStyleObj}->{$dataStyleId} = $formatObj;
     }
+
+    # so we dont init again (which is unlikely in the tagged case..)
+    $self->{dataIOStyleAttribRef} = undef;
+
+    # add to format list (probably not needed, but lets do for sake of good form..) 
+    push @{$self->{currentFormatObjectList}}, $formatObj;
 
   }
 
-  $self->{dataIOStyleAttribRef} = undef;
+  return $formatObj;
+}
+
+sub _tagToAxis_node_start {
+   my ($self, %attrib_hash) = @_;
 
   # add in the axis, tag information
   $self->{currentArray}->getXMLDataIOStyle()->setAxisTag($attrib_hash{'tag'}, $attrib_hash{'axisIdRef'});
@@ -2813,10 +2993,6 @@ sub _init {
 #  $self->{tagCount} = {}; # hash; (tagged read only) stores the number count of each 
 #                          # tag read in 
 
-  # allows us to store the ordering of the axisIDRef's in 
-  # the notes locationOrder tag (so we can cross link it)
-  $self->{noteLocatorOrder} = []; # array
-  
   # need this in order to properly simulate action of valueList node
   my %valueListHash = ( 'parent_node' => "",
                         'delimiter' => "",
@@ -3211,17 +3387,23 @@ sub _exec_default_CData_Handler {
    }
 }
 
+# 'protected' method
+sub _getForceSetXMLHeaderStuffOnXDFObject {
+  my ($self) = @_;
+  return $self->{ForceSetXMLHeaderStuff};
+}
+
 # only deals with files right now. Bleah.
 # we need some form of entityResolving in Perl to do this right.
 sub _getHrefData {
-   my ($self, $href) = @_;
+   my ($self, $startByte, $endByte, $href) = @_;
 
    my $file;
    my $text; 
 
-   if (defined $href->getSysId) {
+   if (defined $href->getSystemId) {
        $file = $href->getBase() if $href->getBase();
-       $file .= $href->getSysId();
+       $file .= $href->getSystemId();
 
        my $openstatement = $file;
        my $compression_prog = $self->_getCurrentDataDeCompression;
@@ -3245,6 +3427,7 @@ sub _getHrefData {
    } else {
       die "XDF::Reader can't read Href data, SYSID is not defined!\n";
    }
+
    return $text;
 } 
 
@@ -3404,7 +3587,6 @@ sub _appendArrayToArray {
   # return $arrayToAppendTo;
 }
 
-
 # /** ADDITIONAL SECTION Reader Options
 # The following options are currently supported:
 #@   
@@ -3439,178 +3621,3 @@ sub _appendArrayToArray {
 
 1;
 
-__END__
-
-=head1 NAME
-
-XDF::Reader - Perl Class for Reader
-
-=head1 SYNOPSIS
-
-
-    my $DEBUG = 1;
-
-    # test file for reading in XDF files.
-
-    my $file = $ARGV[0];
-    my %options = ('quiet' => $DEBUG, 'validate' => 0);
-
-    my $XDFReader = new XDF::Reader(\%options);
-    my $XDFObject = $XDFReader->parseFile($file);
-
-
-
-...
-
-=head1 DESCRIPTION
-
- This class allows the user to create XDF objects from XDF files.  XDF::Reader will read in both Binary and ASCII data and tagged/delimited/ and formatted XDF data styles are supported. 
-
-
-
-=head1 METHODS
-
-=over 4
-
-=head2 CLASS Methods
-
-The following methods are defined for the class XDF::Reader.
-
-=over 4
-
-=item getVersion (EMPTY)
-
-returns the version of the XDF DTD supported by this parser.  
-
-=item new ($optionsHashRef)
-
-Create a new reader object. Returns the reader object if successfull. It takes an optional argument of an option HASH Reference  to initialize the object options.   
-
-=back
-
-=head2 INSTANCE (Object) Methods
-
-The following instance (object) methods are defined for XDF::Reader.
-
-=over 4
-
-=item getReaderXDFObject (EMPTY)
-
-returns the XDF object that the reader parses into.  
-
-=item setReaderXDFObject ($XDF)
-
-Sets the XDF object that the reader parses into.  
-
-=item parseFile ($file, $optionsHashRef)
-
-Reads in the given file and returns a full XDF Perl object (an L<XDF::Structure>with at least one L<XDF::Array>). A second HASH argument may be supplied to specify runtime options for the XDF::Reader.  
-
-=item parseFileHandle ($handle, $optionsHashRef)
-
-Similar to parseFile but takes an open filehandle as an argument (so you can parse ANY open fileHandle, e.g. files, sockets, etc. Whatever Perl supports.).  
-
-=item parseString ($string, $optionsHashRef)
-
-Reads in the given string and returns a full XDF Perl object (an L<XDF::Structure>with at least one L<XDF::Array>). A second HASH argument may be supplied to specify runtime options for the XDF::Reader.  
-
-=item addStartElementHandlers (%newHandlers)
-
-Add new handlers to the internal XDF::Parser start element handler. The form of  the entries in the passed hash should be 'nodename' => sub { &handler_for_nodename(@_); }; If a 'nodename' for a handler already exists in the XDF start handler table,  this method will override it with the new handler. Returns 1 on success, 0 on failure.  
-
-=item addEndElementHandlers (%newHandlers)
-
-Add new handlers to the internal XDF::Parser end element handler. The form of  the entries in the passed hash should be 'nodename' => sub { &handler_for_nodename(@_); }; If a 'nodename' for a handler already exists in the XDF end handler table,  this method will override it with the new handler. Returns 1 on success, 0 on failure.  
-
-=item addCharDataHandlers (%newHandlers)
-
-Add new handlers to the internal XDF::Parser CDATA element handler. The form of  the entries in the passed hash should be 'nodename' => sub { &handler_for_nodename(@_); }; If a 'nodename' for a handler already exists in the XDF CDATA handler table,  this method will override it with the new handler. returns 1 on success, 0 on failure.  
-
-=item setDefaultStartElementHandler ($codeRef)
-
-This sets the subroutine which will handle all nodes which DONT match  an entry within the start element handler table.  
-
-=item setDefaultEndElementHandler ($codeRef)
-
-This sets the subroutine which will handle all nodes which DONT match  an entry within the end element handler table.  
-
-=item setDefaultCharDataHandler ($codeRef)
-
-This sets the subroutine which will handle all nodes which DONT match  an entry within the CDATA handler table.  
-
-=back
-
-
-
-=head2 INHERITED Class Methods
-
-=over 4
-
-=back
-
-
-
-=head2 INHERITED INSTANCE Methods
-
-=over 4
-
-=back
-
-=back
-
-=head1 Reader Options 
-
-
-
-=over 4
-
- The following options are currently supported:    
-  
-  'validate'   => Set the reader to use a validating parser (XML::Parser::Checker). 
-                  Defaults to 0 ('no'). 
-    
-  'msgThresh'  => Set the reader parser message threshold. Messages BELOW this 
-                  number will be displayed. Has no effect unless XML::Parser::Checker
-                  is the parser. Defaults to 200. 
-    
-  'noExpand'   => Don't expand entities in output if true. Default is false. 
- 
-  'ExpandParamEnt' => Expand parameter entities in output if true. Default is true. 
- 
-  'nameSpaces' => When this option is given with a true value, then the parser does namespace
-                  processing. By default, namespace processing is turned off.
- 
-  'parseParamEnt' => Unless standalone is set to "yes" in the XML declaration, setting this to
-                     a true value allows the external DTD to be read, and parameter entities
-                     to be parsed and expanded. The default is false. 
- 
-  'quiet'      => Set the reader to run quietly. Defaults to 1 ('yes'). 
-  
-  'axisSize'   => Set the number of indices to allocate along each dimension. This
-                  can speed up large file reads. Defaults to $XDF::BaseObject::DefaultDataArraySize. 
-  
-  'maxWarning" => Change the maximum allowed number of warnings before the XDF::Reader
-                  will halt its parse of the input file/fileHandle. 
-  
-
-
-=back
-
-=head1 SEE ALSO
-
-
-
-=over 4
-
-L<XDF::Array>, L<XDF::BinaryFloatDataFormat>, L<XDF::BinaryIntegerDataFormat>, L<XDF::Constants>, L<XDF::DelimitedXMLDataIOStyle>, L<XDF::Field>, L<XDF::FieldRelation>, L<XDF::FloatDataFormat>, L<XDF::FormattedXMLDataIOStyle>, L<XDF::Href>, L<XDF::IntegerDataFormat>, L<XDF::Parameter>, L<XDF::Reader::ValueList>, L<XDF::RepeatFormattedIOCmd>, L<XDF::ReadCellFormattedIOCmd>, L<XDF::SkipCharFormattedIOCmd>, L<XDF::StringDataFormat>, L<XDF::Structure>, L<XDF::ValueListAlgorithm>, L<XDF::ValueListDelimitedList>, L<XDF::XMLDataIOStyle>, L<XDF::XMLElementNode>, L<XDF::XDF>
-
-=back
-
-=head1 AUTHOR
-
-    Brian Thomas  (thomas@adc.gsfc.nasa.gov)
-    Astronomical Data Center <http://adc.gsfc.nasa.gov>
-    NASA/Goddard Space Flight Center
- 
-
-=cut
