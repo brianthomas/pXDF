@@ -72,6 +72,7 @@ my @Class_Attributes = qw (
                              maxDimensionIndex
                              _parentArray
                              _data
+                             _axisLookupIndexArray
                           );
 
 # /** dimension
@@ -388,44 +389,16 @@ sub writeDataToFileHandle {
 # /** addData
 # This routine will append data to a cell unless directed to do otherwise.
 # */
-# the self evaluation part will make this SLOW for large arrays. :P
 sub addData {
   my ($self, $locator, $data, $no_append ) = @_;
 
-  # safety
-  unless (defined $locator && defined $data) {
-    carp "Please specify location and data value. Ignoring addData request.";
-    return;
-  }
-
-  # add the data to the right array in the $self->{_data} list
-
-  # We first check that the location exists! 
-  # fix the array if it doesnt
-  my $eval_string = &_build_locator_string($self->{_parentArray}, $locator);
-
-  $data =~ s/"/\\"/g; # without this, we get eval errors
-
-  if($no_append) {
-    $eval_string = $eval_string . " = \"$data\"";
+  if ($no_append) {
+     $self->setData($locator, $data);
   } else {
-    $eval_string = $eval_string . " .= \"$data\"";
+     my $old = $self->getData($locator);
+     $old = "" unless defined $old;
+     $self->setData($locator, $old . $data);
   }
-
-  if (0) {
-my $locationPos;
-my $locationName;
-for (@{$locator->getIterationOrder()}) {
-   $locationName .= $_->getAxisId() . ",";
-   $locationPos .= $locator->getAxisIndex($_) . ",";
-}
-chop $locationPos;
-chop $locationName;
-
-print STDERR "ADD EVAL STRING ($locationName)($locationPos): $eval_string\n";
-  }
-
-  eval " $eval_string; ";
 
 }
 
@@ -437,20 +410,123 @@ sub removeData {
   carp "Remove_data not currently implemented.\n";
 } 
   
-# /** setData
-# Set the SCALAR value of the requested datacell at indicated location (see LOCATOR REF section).
-# Overwrites existing datacell value if any.
+#/** setData
+# Set the value of the requested datacell. 
+# Overwrites existing datacell value if already populated with a value.
 # */
 sub setData {
-  my ($self, $locator, $datum ) = @_;
-  $self->addData($locator, $datum, 1);
-} 
+   my ($self, $locator, $datum ) = @_;
+
+   # safety check
+   $self->_updateInternalLookupIndices() if ($#{$self->{_data}} == -1);
+
+   # data are stored in a huge 2D array. The long array axis
+   # mirrors all dimensions but the 2nd axis. The 2nd axis gives
+   # the index on the 'short' internal array.
+   my $longIndex = $self->_getLongArrayIndex($locator);
+#   my $shortIndex = $self->_getShortArrayIndex($locator);
+
+   # Bounds checking
+#   &checkDataArrayBounds($longIndex, $shortIndex);
+
+   # Set the Data
+#   byte realValue = 1;
+   # indicate its corresponding datacell holds valid data
+#   java.lang.reflect.Array.setByte(longDataArray.get(longIndex), shortIndex, realValue);
+
+#print STDERR "setData($datum) @($longIndex)\n";
+
+   # put data into the requested datacell
+   $self->{_data}->[$longIndex] = $datum;
+
+}
+
+# This whole routine should probably be in the locator.
+# and update ONLY when the current location is changed.
+# Note that because of complications in storing values from fieldAxis
+# which is always the at the 0 index position (if it exists)
+# we can't simply treat index0 as the short axis. Instead, we
+# have to use the axis at index1 (if it exists).
+sub _getLongArrayIndex {
+   my ($self, $locator) = @_;
+
+   my $longIndex = 0;
+
+   my @axisList = @{$self->{_parentArray}->getAxisList()};
+   my $numOfAxes = ($#axisList+1); # should be internal variable updated on add/removeAxis in Array 
+
+   if ($numOfAxes > 0) {
+      my $axis = $axisList[0];
+      $longIndex = $locator->getAxisIndex($axis);
+
+      # we skip over axis at index 1, that is the "short axis"
+      # each of the higher axes contribute 2**(i-1) * index
+      # to the overall long axis value.
+      my $array_ref = $self->{_axisLookupIndexArray};
+      my @mult = @{$array_ref};
+      for (my $i = 1; $i < $numOfAxes; $i++) {
+         $axis = $axisList[$i];
+         $longIndex += $locator->getAxisIndex($axis) * $mult[$i];
+      }
+   }
+
+   return $longIndex;
+
+}
+
+# Should be hardwired w/ private variable. Only
+# updates when addAxis is called by parentArray.
+sub _getShortArrayIndex {
+   my ($self, $locator) = @_; 
+
+   my $shortIndex = 0;
+
+   my $shortaxis = $self->_getShortAxis();
+   if (defined $shortaxis ) {
+        $shortIndex = $locator->getAxisIndex($shortaxis);
+   }
+
+   return $shortIndex;
+}
+
+# get the axis that represents the short axis
+# short axis is axis "1" (not "0"; causes complications when
+# we have a fieldAxis, which is at 0).
+sub _getShortAxis {
+   my ($self) = @_;
+
+   my $shortAxis;
+
+   my @axisList = @{$self->{_parentArray}->getAxisList()};
+   if ($#axisList > 0) {
+        $shortAxis = $axisList[1];
+   }
+
+   return $shortAxis;
+}
 
 # /** getData
+#   We return whatever is stored in the datacell.
+# */
+sub getData {
+   my ($self, $locator) = @_;
+
+   my $longIndex = $self->_getLongArrayIndex($locator);
+#   my $shortIndex = $self->_getShortArrayIndex($locator);
+
+   my $value = $self->{_data}->[$longIndex];
+
+   return $value;
+
+}
+
+
+
+# /** getData_old 
 # Retrieve the SCALAR value of the requested datacell.
 # */
 # do we need to do some bounds checking here??
-sub getData {
+sub getData_old {
   my ($self, $locator) = @_;
 
   unless (defined $locator and ref($locator) eq 'XDF::Locator') {
@@ -519,10 +595,27 @@ sub _init {
   # dimensionality, but defaults to 0 at start. 
   $self->{Dimension} = 0;
   $self->{_data} = [];
+  $self->{_axisLookupIndexArray} = [];
 
   # set the minimum array size (essentially the size of the axis)
   my $spec= XDF::Specification->getInstance();
   $#{$self->{_data}} = $spec->getDefaultDataArraySize();
+
+}
+
+sub _updateInternalLookupIndices {
+   my ($self) = @_;
+
+#print STDERR "updateInternal Lookup table\n";
+
+   $self->{_axisLookupIndexArray} = [];
+   push @{$self->{_axisLookupIndexArray}}, 0; # first axis is always 0
+   my @axisList = @{$self->{_parentArray}->getAxisList()};
+   my $mult = 1;
+   foreach my $axisNum (1 .. $#axisList) {
+      $mult *= $axisList[$axisNum-1]->getLength();
+      push @{$self->{_axisLookupIndexArray}}, $mult;
+   }
 
 }
 
@@ -917,6 +1010,11 @@ sub _build_locator_string {
 # Modification History
 #
 # $Log$
+# Revision 1.26  2001/06/21 15:43:49  thomas
+# more changes related to new internal storage scheme:
+# fix to allow update of internal dataCube
+# indices when axis length is changed.
+#
 # Revision 1.25  2001/06/19 21:20:19  thomas
 # added compression of output data.
 #
