@@ -2051,20 +2051,22 @@ sub _valueList_node_charData {
   if ($self->{currentValueList}->{'parent_node'} eq $XDF_node_name{'axis'} )
   {
 
-      # adding values to the last axis in the array
-      my $axisObj = $self->_lastAxisObj();
-      foreach my $val (@values) { 
-         my $valueObj = _create_valueList_value_object($val, %{$self->{currentValueList}->{'attrib_hash'}});
-         die "cant add value to axis" unless $axisObj->addAxisValue($valueObj); 
-         push @valueObjList, $valueObj;
-      }
+     # adding values to the last axis in the array
+     my $axisObj = $self->_lastAxisObj();
+     foreach my $val (@values) { 
+        my $valueObj = _create_valueList_value_object($val, %{$self->{currentValueList}->{'attrib_hash'}});
+        die "cant add value to axis" unless $axisObj->addAxisValue($valueObj); 
+        push @valueObjList, $valueObj;
+     }
 
   } elsif ($self->{currentValueList}->{'parent_node'} eq $XDF_node_name{'parameter'} ) {
 
      # adding values to the last axis in the array
      my $paramObj = $self->{lastParamObject};
      foreach my $val (@values) { 
-        push @valueObjList, $paramObj->addValue($val); 
+        my $valueObj = _create_valueList_value_object($val, %{$self->{currentValueList}->{'attrib_hash'}});
+        die "cant add value to parameter" unless $paramObj->addValue($valueObj); 
+        push @valueObjList, $valueObj;
      }
 
   } elsif ($self->{currentValueList}->{'parent_node'} eq $XDF_node_name{'valueGroup'} ) {
@@ -2081,8 +2083,9 @@ sub _valueList_node_charData {
 
      # adding values to the last axis in the array
      foreach my $val (@values) { 
-        my $valueObj = new XDF::Value($val);
-        die "cant add value" unless $self->{lastValueGroupParentObject}->$method($valueObj);
+        # my $valueObj = new XDF::Value($val);
+        my $valueObj = _create_valueList_value_object($val, %{$self->{currentValueList}->{'attrib_hash'}});
+        die "cant add value to lastValueGroup\n" unless $self->{lastValueGroupParentObject}->$method($valueObj);
         push @valueObjList, $valueObj;
      }
 
@@ -2136,17 +2139,20 @@ sub _valueList_node_start {
         }
 
         foreach my $val (@values) { 
-           push @valueObjList, $self->{lastValueGroupParentObject}->$method($val); 
+           my $valueObj = _create_valueList_value_object($val, %attrib_hash);
+           die "cant add value to lastValueGroup\n" unless $self->{lastValueGroupParentObject}->$method($val); 
+           push @valueObjList, $valueObj;
         }
 
       } elsif($parent_node eq $XDF_node_name{'parameter'}) {
 
-         my $paramObj = $self->{lastParamObject};
-         foreach my $val (@values) { 
-            my $valueObj = new XDF::Value($val);
-            die "cant add value to parameter" unless $paramObj->addValue($valueObj); 
-            push @valueObjList, $valueObj;
-         }
+        my $paramObj = $self->{lastParamObject};
+        foreach my $val (@values) { 
+           # my $valueObj = new XDF::Value($val);
+           my $valueObj = _create_valueList_value_object($val, %attrib_hash);
+           die "cant add value to parameter" unless $paramObj->addValue($valueObj); 
+           push @valueObjList, $valueObj;
+        }
 
       } else {
 
@@ -2296,7 +2302,7 @@ sub _create_valueList_value_object {
 
    my $valueObj = new XDF::Value(); 
 
-   if ($string_val) {
+   if (defined $string_val) {
       if (exists $attrib{'infiniteValue'} && $attrib{'infiniteValue'} eq $string_val)
       {
          $valueObj->setSpecial('infinite');
@@ -3034,6 +3040,10 @@ sub _appendArrayToArray {
 # Modification History
 #
 # $Log$
+# Revision 1.33  2001/07/03 17:56:19  thomas
+# bug fix. valueList will create values w/ special
+# attribute now.
+#
 # Revision 1.32  2001/07/02 17:27:00  thomas
 # added support for valueList creation of values with
 # 'special' attribute flag set: e.g. noData, infinite, etc.
