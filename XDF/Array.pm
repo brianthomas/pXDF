@@ -629,7 +629,16 @@ sub addAxis {
   # bump up the number of dimensions
   $self->{DataCube}->{Dimension} = $self->{DataCube}->{Dimension} + 1;
 
+  $self->_updateInternalLookupIndices();
+
+  $axisObj->setParentArray($self);
+
   return $axisObj;
+}
+
+sub _updateInternalLookupIndices {
+  my ($self) = @_;
+  $self->{DataCube}->_updateInternalLookupIndices();
 }
 
 # Can we add this axisObject to the array?
@@ -649,13 +658,16 @@ sub _can_add_axisObj_to_array {
 # Remove an XDF::Axis object from the list of XDF::Axes
 # held within this object. This method takes either the list index 
 # number or an object reference as its argument.
-# RETURNS : 1 on success, undef on failure.
+# RETURNS : removed object on success, undef on failure.
 # */
 sub removeAxis {
-  my ($self, $indexOrObjectRef) = @_;
-  # NOT the whole story. We have to deal with clearing up the 
-  # DataIOStyle object (see addAxis above)
-  $self->_remove_from_list($indexOrObjectRef, $self->{AxisList}, 'axisList');
+   my ($self, $indexOrObjectRef) = @_;
+   # NOT the whole story. We have to deal with clearing up the 
+   # DataIOStyle object (see addAxis above)
+   my $axisObj = $self->_remove_from_list($indexOrObjectRef, $self->{AxisList}, 'axisList');
+
+   $axisObj->setParentArray(undef);
+   return $axisObj;
 }
 
 # /** addUnit
@@ -797,20 +809,28 @@ sub addFieldAxis {
 
   # bump up the number of dimensions
   $self->{DataCube}->{Dimension} = $self->{DataCube}->getDimension() + 1;
+  $self->_updateInternalLookupIndices();
+
+  $fieldAxisObj->setParentArray($self);
 
   return $fieldAxisObj;
 }
 
 # /** removeFieldAxis
 # Removes the L<XDF::FieldAxis> object in this Array.
+# Returns the removed axis on success, undef on failure.
 # */
 sub removeFieldAxis { 
   my ($self) = @_; 
 
+  my $fieldAxis;
   if (ref(@{$self->{AxisList}}[0]) eq 'XDF::FieldAxis') {
-     shift @{$self->{AxisList}};
+     $fieldAxis = shift @{$self->{AxisList}};
      $self->dimension( $self->dimension() - 1 );
+     $fieldAxis->setParentArray(undef);
   }
+
+  return $fieldAxis;
 }
 
 #

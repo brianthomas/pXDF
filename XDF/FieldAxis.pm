@@ -72,6 +72,7 @@ my @Class_XML_Attributes = qw (
                           );
 my @Class_Attributes = qw (
                       _length
+                      _parentArray
                       _fieldGroupOwnedHash
                           );
 
@@ -298,6 +299,10 @@ sub addField {
   # bump up the size of this axis
   $self->{_length}++;
 
+  if (defined $self->{_parentArray}) {
+     $self->{_parentArray}->_updateInternalLookupIndices();
+  }
+
   # add the parameter to the list
 #  push @{$self->{FieldList}}, $fieldObj;
 
@@ -355,6 +360,12 @@ sub setField {
   # we raise the length of the axis by 1
   if (!defined @{$self->{FieldList}}->[$index]) {
      $self->{_length}++;
+    
+     # also means that length changed, so we need to update this too
+     if (defined $self->{_parentArray}) {
+        $self->{_parentArray}->_updateInternalLookupIndices();
+     }
+
   }
 
   # add the field
@@ -374,6 +385,11 @@ sub removeField {
   my ($self, $indexOrObjectRef) = @_;
   my $ret_val = $self->_remove_from_list($indexOrObjectRef, $self->{FieldList}, 'fieldList');
   $self->{_length}-- if defined $ret_val;
+
+  if (defined $self->{_parentArray}) {
+     $self->{_parentArray}->_updateInternalLookupIndices();
+  }
+
   return $ret_val;
 }
 
@@ -437,10 +453,29 @@ sub _init {
 
 }
 
+# /** getParentArray
+# */
+sub getParentArray { # PRIVATE 
+   my ($self) = @_;
+   return $self->{_parentArray};
+}
+
+# /** setParentArray
+# */
+sub setParentArray { # PRIVATE
+   my ($self, $value) = @_;
+   $self->{_parentArray} = $value;
+}
+
+
 
 # Modification History
 #
 # $Log$
+# Revision 1.12  2001/06/21 15:44:05  thomas
+# fix to allow update of internal dataCube
+# indices when axis length is changed.
+#
 # Revision 1.11  2001/04/25 16:01:31  thomas
 # updated documentation
 #

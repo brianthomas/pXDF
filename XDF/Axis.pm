@@ -131,6 +131,7 @@ my @Class_XML_Attributes = qw (
 
 my @Class_Attributes = qw (
                              _length
+                             _parentArray
                              _valueGroupOwnedHash
                           ); 
 
@@ -341,7 +342,12 @@ sub addAxisValue {
   # bump up the size of this axis
   $self->{_length} = $self->{_length} + 1;
 
+  if (defined $self->{_parentArray}) {
+     $self->{_parentArray}->_updateInternalLookupIndices();
+  }
+
   return $obj;
+
 }
 
 # /** setAxisValue
@@ -375,6 +381,12 @@ sub setAxisValue {
   # the length of the axis by 1
   if (!defined @{$self->{ValueList}}->[$index]) {
      $self->{_length} = $self->{_length} + 1;
+
+     # also means length changed, so lets update array internal datacube 
+     if (defined $self->{_parentArray}) {
+        $self->{_parentArray}->_updateInternalLookupIndices();
+     }
+
   }
 
   @{$self->{ValueList}}->[$index] = $valueObj;
@@ -399,6 +411,10 @@ sub addAxisUnitDirection {
      @{$self->{ValueList}}->[$index] = $obj;
   }
 
+  if (defined $self->{_parentArray}) {
+     $self->{_parentArray}->_updateInternalLookupIndices();
+  }
+
   return $obj;
 }
 
@@ -411,6 +427,11 @@ sub removeAxisValue {
   $self->_remove_from_list($what, $self->{ValueList}, 'valueList');
   # bump down size of the axis 
   $self->{_length} = $self->{_length} -1;
+
+  if (defined $self->{_parentArray}) {
+     $self->{_parentArray}->_updateInternalLookupIndices();
+  }
+
 }
 
 # /** getAxisValue 
@@ -545,9 +566,27 @@ sub _init {
 
 }
 
+# /** getParentArray
+# */
+sub getParentArray { # PRIVATE 
+   my ($self) = @_;
+   return $self->{_parentArray};
+}
+
+# /** setParentArray
+# */
+sub setParentArray { # PRIVATE
+   my ($self, $value) = @_;
+   $self->{_parentArray} = $value;
+}
+
 # Modification History
 #
 # $Log$
+# Revision 1.13  2001/06/21 15:43:11  thomas
+# fix to allow update of internal dataCube
+# indices when axis length is changed.
+#
 # Revision 1.12  2001/04/25 16:00:24  thomas
 # changed base class to BaseObjectWithXMLElements
 #
