@@ -35,8 +35,8 @@ eval {
     require XML::Parser;
     my $ver = $XML::Parser::VERSION;
     $ver =~ s/_//;
-    die "XML::Parser version 2.27 needed, installed module is only $XML::Parser::VERSION\n"
-        unless $ver >= 2.27;
+    die "XML::Parser version 2.30 needed, installed module is only $XML::Parser::VERSION\n"
+        unless $ver >= 2.30;
 };
 if ($@) {
     print " failed\n";
@@ -46,7 +46,7 @@ $@
 The XML::Parser module must be installed.
 
 EOT
-    sleep(2);  # Don't hurry too much
+    sleep(1);  # Don't hurry too much
 } else {
     print " ok\n";
 }
@@ -58,12 +58,26 @@ eval {
 if ($@) {
     print " missing, only non-validated parsing will be allowed.\n";
     $missing_modules++;
-    sleep(2);  # Don't hurry too much
+    sleep(1);  # Don't hurry too much
 } else {
     print " ok\n";
 }
 
+print "Checking for XML::DOM..............";
+eval {
+    require XML::DOM;
+    my $ver = $XML::DOM::VERSION;
+    die "XML::DOM version 1.28 needed, installed module is only $XML::DOM::VERSION\n"
+        unless $ver >= 1.28;
 
+};
+if ($@) {
+    print " missing, XDF::DOM and decendent classes may not be used.\n";
+    $missing_modules++;
+    sleep(1);  # Don't hurry too much
+} else {
+    print " ok\n";
+}
 
 # See lib/ExtUtils/MakeMaker.pm for details of how to influence
 # the contents of the Makefile that is written.
@@ -71,7 +85,7 @@ WriteMakefile(
     'NAME'	=> 'XDF',
     'VERSION_FROM' => 'XDF/BaseObject.pm', # finds $VERSION
     dist      => { COMPRESS => 'gzip', SUFFIX => '.gz'},
-    PREREQ_PM => { 'XML::Parser' => '2.27' },
+    PREREQ_PM => { 'XML::Parser' => '2.30', 'XML::DOM' => '1.28' },
     PM => { 
             'XDF/Array.pm'  => "\$(INST_LIBDIR)/$install_dir/Array.pm",
             'XDF/Axis.pm'       => "\$(INST_LIBDIR)/$install_dir/Axis.pm",
@@ -82,6 +96,10 @@ WriteMakefile(
             'XDF/DataCube.pm'   => "\$(INST_LIBDIR)/$install_dir/DataCube.pm",
             'XDF/DataFormat.pm'       => "\$(INST_LIBDIR)/$install_dir/DataFormat.pm",
             'XDF/DelimitedXMLDataIOStyle.pm'       => "\$(INST_LIBDIR)/$install_dir/DelimitedXMLDataIOStyle.pm",
+            'XDF/DOM.pm'       => "\$(INST_LIBDIR)/$install_dir/DOM.pm",
+            'XDF/DOM/Document.pm'       => "\$(INST_LIBDIR)/$install_dir/DOM/Document.pm",
+            'XDF/DOM/Element.pm'       => "\$(INST_LIBDIR)/$install_dir/DOM/Element.pm",
+            'XDF/DOM/Parser.pm'       => "\$(INST_LIBDIR)/$install_dir/DOM/Parser.pm",
             'XDF/ErroredValue.pm'      => "\$(INST_LIBDIR)/$install_dir/ErroredValue.pm",
             'XDF/Field.pm'      => "\$(INST_LIBDIR)/$install_dir/Field.pm",
             'XDF/FieldAxis.pm'  => "\$(INST_LIBDIR)/$install_dir/FieldAxis.pm",
@@ -124,6 +142,9 @@ WriteMakefile(
 # Modification History
 #
 # $Log$
+# Revision 1.8  2001/03/23 22:21:32  thomas
+# *** empty log message ***
+#
 # Revision 1.7  2001/03/21 20:17:18  thomas
 # Added XMLElement and XMLAttribute classes
 #

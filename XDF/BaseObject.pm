@@ -54,7 +54,7 @@ use integer;
 use vars qw ($VERSION @ISA %field);
 
 # the version of this module
-$VERSION = "0.17-beta0";
+$VERSION = "0.17-beta1";
 
 # inherits from XDF::GenericObject
 @ISA = ("XDF::GenericObject");
@@ -688,6 +688,9 @@ sub READLINE {
 # Modification History
 #
 # $Log$
+# Revision 1.13  2001/03/23 22:21:45  thomas
+# *** empty log message ***
+#
 # Revision 1.12  2001/03/23 20:37:17  thomas
 # added toXMLString method. Added new parameter
 # $isRootNode to toXMLFileHandle to allow printing

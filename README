@@ -3,9 +3,13 @@
 INTRODUCTION
 ------------
 
-This is the XDF Perl Package courtesy of the 
-Astronomical Data Center (ADC) at NASA/Goddard
-Space Flight Center.
+This is the XDF Perl Package courtesy of the Astronomical Data 
+Center (ADC) at NASA/Goddard Space Flight Center.
+XDF is the 'eXtensible Data Format' and is an attempt to make
+XML behave nicely with scientific, mathematical data. This package
+provides the classes for easy manipulation and IO of XDF objects
+(which are written in XML, see our website: http://xml.gsfc.nasa.gov
+and linkage within for more information).
 
 Please refer to the TODO list for an idea of what remains to
 be done to bring this package to full featuredom.
@@ -25,12 +29,29 @@ Please refer LICENCE file.
 INSTALL
 -------
 
-This package should work on both W32 and UNIX platforms.
-To make it, do the standard drill:
+This package should work on both W9x and UNIX platforms (and
+perhaps others, but thats all I've tested on so far); Note
+that the makefiles only compliant with UNIX make so W9x users
+will have to install by hand. One day, when I have the time, 
+I will look into creatation of a PPD file for this distribution.
+
+You will need to install the following packages:
+
+   XML-Parser 
+   libxml-enno
+ 
+which you may both get from CPAN. I understand that there are more 
+advanced version of libxml-enno than you can normally get off
+of the CPAN site available from the maintainers website 
+(http://tjmather.com/CPAN). 
+
+After having met the above requirements, make the package
+via the standard Perl drill:
 
 > perl Makefile.PL; make ; make test ; make install
 
-(W32 users substitute NMAKE for 'make' in the above )
+Additional HTML documentation may be made by running the script
+util/makeHTMLDoc.pl AFTER you have built the distribution.
 
 
 Problems with Perl Package
@@ -38,11 +59,11 @@ Problems with Perl Package
 
 Having said the above, I have noticed that problems will occur
 with the handling of external entities (e.g. they arent currently
-supported) using the libxml-enno validating parser. I have also
-had problems with the recent XML-Parser-2.30 release. I develop
-this package using XML-Parser-2.29. Im interested in trying to 
-use the XML parser that I hear the apache group is developing for
-Perl. More work on that is to come I hope.
+supported) using the libxml-enno validating parser.
+
+Im interested in trying to use the Xerces parser that I hear the 
+Apache group is developing for Perl (http://xml.apache.org). 
+More work on that is to come I hope.
 
 
 CVS Repository Access
@@ -68,8 +89,7 @@ the last step is needed to obtain a copy from CVS.
 
 ---
 
-Maintainer : Brian Thomas (thomas@adc.gsfc.nasa.gov)
-
+Perl XDF Package Maintainer : Brian Thomas (thomas@adc.gsfc.nasa.gov)
 
 
 
