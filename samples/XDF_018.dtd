@@ -1,6 +1,6 @@
-<!-- edited with XML Spy v4.2 (http://www.xmlspy.com) by Ed Shaya (NASA) -->
+<!-- edited with XML Spy v4.3 (http://www.xmlspy.com) by Ed Shaya (NASA) -->
 <!--  XDF.dtd - eXtensible Data Format - version 0.18
-	Date: Feb 19, 2002
+	Date: May 17, 2002
 	XML lanaguage Document Type Definition (DTD).
 
 	An XDF document contains arrays and data structures.  It  is
@@ -20,29 +20,44 @@ with cut-in-heads.
 <!-- no-break space = non-breaking space,
                                   U+00A0 ISOnum> -->
 <!ENTITY space "&#32;">
-<!-- The entities *_CHILDREN allows subfield/specialty keywords to be added
-to the elements: XDF, structure, array, and field.  Do not change here.
-Rather create a subfieldML.dtd that overrides this and XDF_TYPE and
+<!-- The following entities allow subfield/specialty keywords to be added
+to the elements: XDF, structure, array, axis, and field.  Do not change here.
+Rather create a subfieldML.dtd that overrides/reverses these and XDF_TYPE and
 calls XDF.dtd by a parameter entity.  Yes, DTDs can have inheritance.  It is
 a bit more restrictive than Schema, but that is not necessarily bad.
 -->
-<!ENTITY % XDF_CHILDREN " ">
-<!ENTITY % AXIS_CHILDREN " ">
-<!ENTITY % ARRAY_CHILDREN " ">
-<!ENTITY % STRUCTURE_CHILDREN " ">
-<!ENTITY % FIELD_CHILDREN " ">
+<!ENTITY % INCLUDE_XDF_CHILDREN 'IGNORE'>
+<!ENTITY % BASIC_XDF 'INCLUDE'>
+<!ENTITY % INCLUDE_STRUCTURE_CHILDREN 'IGNORE'>
+<!ENTITY % BASIC_STRUCTURE 'INCLUDE'>
+<!ENTITY % INCLUDE_ARRAY_CHILDREN 'IGNORE'>
+<!ENTITY % BASIC_ARRAY 'INCLUDE'>
+<!ENTITY % INCLUDE_AXIS_CHILDREN 'IGNORE'>
+<!ENTITY % BASIC_AXIS 'INCLUDE'>
+<!ENTITY % INCLUDE_FIELD_CHILDREN 'IGNORE'>
+<!ENTITY % BASIC_FIELD 'INCLUDE'>
 <!--The attribute value XDF_TYPE is changed from "basic" if one is using the 
 above *_CHILDREN to add more elements.  Some examples of these are  
 "FITSML" and "CDFML" for converted FITS and CDF files-->
 <!ENTITY % XDF_TYPE "basic">
 <!--Here is the root element!-->
-<!ELEMENT XDF (%XDF_CHILDREN;(array | parameter | parameterGroup | structure | note)+)>
+<![ %BASIC_XDF; [ 
+<!ELEMENT  XDF ((structure | parameter | parameterGroup | array | note)+)>
+]]>
+<![ %INCLUDE_XDF_CHILDREN; [ 
+<!ELEMENT  XDF (xdf_children,(structure | parameter | parameterGroup | array | note)+)>
+]]>
 <!ATTLIST XDF
 	name CDATA #IMPLIED
 	description CDATA #IMPLIED
 	type CDATA "%XDF_TYPE;"
 >
-<!ELEMENT structure (%STRUCTURE_CHILDREN;(array|parameter|parameterGroup|note|structure)+)>
+<![ %BASIC_STRUCTURE; [ 
+<!ELEMENT structure ((array|parameter|parameterGroup|note|structure)+)>
+]]>
+<![ %INCLUDE_STRUCTURE_CHILDREN; [ 
+<!ELEMENT structure (structure_children,(array|parameter|parameterGroup|note|structure)+)>
+]]>
 <!ATTLIST structure
 	name CDATA #IMPLIED
 	description CDATA #IMPLIED
@@ -77,9 +92,10 @@ Units can begin with a constant multiplier in float format (F) exponential
 This element will be superseded in a future version by a system in which the units are mathematically handled followining to MathML methods.-->
 <!ELEMENT units (unit+)>
 <!ATTLIST units
-	factor CDATA #IMPLIED
 	name CDATA #IMPLIED
 	description CDATA #IMPLIED
+	factor CDATA #IMPLIED
+	offset CDATA #IMPLIED
 >
 <!ELEMENT unit (#PCDATA)>
 <!ATTLIST unit
@@ -87,6 +103,12 @@ This element will be superseded in a future version by a system in which the uni
 	description CDATA #IMPLIED
 >
 <!ELEMENT unitless EMPTY>
+<!ATTLIST unitless
+	name CDATA #IMPLIED
+	description CDATA #IMPLIED
+	factor CDATA #IMPLIED
+	offset CDATA #IMPLIED
+>
 <!--    For the 'value' of the parameter, the attribute special is used
 	to set the data to infinity, negative infinity, noData.  The  element is left empty in these cases.
         A noData implies that the value is unknown. 
@@ -110,12 +132,11 @@ This element will be superseded in a future version by a system in which the uni
 	valueRef IDREF #IMPLIED
 	special (infinite | infiniteNegative | noData | notANumber | underflow | overflow) #IMPLIED
 	inequality (lessThan | lessThanOrEqual | greaterThan | greaterThanOrEqual) #IMPLIED
-	upperErrorValue NMTOKEN #IMPLIED
-	lowerErrorValue NMTOKEN #IMPLIED
+	positiveErrorValue NMTOKEN #IMPLIED
+	negativeErrorValue NMTOKEN #IMPLIED
 >
 <!--
-	One can fill valueList with value elements or a 
-	delimited set of values,  
+	One can fill valueList with value elements or a delimited set of values,  
 	repeatable="yes" would mean that the delimiter can repeat several
 	times in a row and still represent a single demarcation.
 -->
@@ -152,20 +173,69 @@ This element will be superseded in a future version by a system in which the uni
 	 Hopefully, in the future we will support scripts as well.
 	[Note: If using Perl XML::DOM::Parser need KeepCDATA=1]
 	-->
-<!-- 	An array is a set of mixed native datatype data (strings
+<!-- An array is a set of mixed native datatype data (strings
 	or numbers) that are to be read into an N-dimensioned variable.  
 	It is embedded in a coordinate space and therefore will have 
-	axis information.
-	Only one fieldAxis is permitted otherwise one could have conflicting 
-	data units.
-        array/@appendTo will extend the axis referred to with the current
-        array.  This makes it possible to assemble tiles of data that piece
-        together into a very large array.  It is necessary to use axis/@align
-        on each axis of the current array to properly assemble it.
+	axis information.  Only one fieldAxis is permitted otherwise one could 
+	have conflicting data units.
+	array/@appendTo will extend the axis referred to with the current
+	array.  This makes it possible to assemble tiles of data that piece
+	 together into a very large array.  It is necessary to use axis/@align
+	 on each axis of the current array to properly assemble it.
 
 -->
-<!ELEMENT array (%ARRAY_CHILDREN;(parameter | parameterGroup)*, (( (fieldAxis,axis*,dataStyle)|(fieldAxis,(rowAxis|colAxis) ) |( (units|unitless), dataFormat,((axis*,dataStyle)|(colAxis,rowAxis)|(rowAxis,colAxis))  )), data, notes?))
+<![ %BASIC_ARRAY; [
+<!ELEMENT array
+( 	
+	 (parameter | parameterGroup)*, 	
+		(
+			( 
+				(fieldAxis,axis*,dataStyle)
+				 |
+				(fieldAxis,(rowAxis|colAxis)) 
+			)
+			 |
+			(
+				 (units|unitless), dataFormat,
+				 	(
+				 		(axis*,dataStyle)
+				 		 |
+						(colAxis,rowAxis?) 
+						| 
+						(rowAxis,colAxis?)
+					)  
+			)
+		), 
+	data, notes?
+)
 >
+]]>
+<![ %INCLUDE_ARRAY_CHILDREN; [
+<!ELEMENT array
+( 	
+	array_children, (parameter | parameterGroup)*, 	
+		(
+			( 
+				(fieldAxis,axis*,dataStyle) 
+				|
+				(fieldAxis,(rowAxis|colAxis)) 
+			) 
+		|
+			(
+				 (units|unitless), dataFormat,
+				 	(
+				 		(axis*,dataStyle)
+				 		 |
+						(colAxis,rowAxis?) 
+						| 
+						(rowAxis,colAxis?)
+					)  
+			)
+		), 
+	data, notes?
+)
+>
+]]>
 <!ATTLIST array
 	name CDATA #IMPLIED
 	description CDATA #IMPLIED
@@ -197,7 +267,12 @@ This element will be superseded in a future version by a system in which the uni
         to accomplish an array/@apppendTo.
 
 -->
-<!ELEMENT axis (%AXIS_CHILDREN; ((units|unitless), (value | valueList | valueGroup)?) )>
+<![ %BASIC_AXIS; [ 
+<!ELEMENT axis  ((units|unitless), (value | valueList | valueGroup)?) >
+]]>
+<![ %INCLUDE_AXIS_CHILDREN; [ 
+<!ELEMENT axis (axis_children,((units|unitless), (value | valueList | valueGroup)?) )>
+]]>
 <!ATTLIST axis
 	name CDATA #IMPLIED
 	description CDATA #IMPLIED
@@ -207,20 +282,30 @@ This element will be superseded in a future version by a system in which the uni
 	axisDatatype (integer | float | exponential | string | url) #IMPLIED
 	size CDATA #REQUIRED
 >
-<!ELEMENT colAxis (%AXIS_CHILDREN; ((units|unitless), (value | valueList | valueGroup)?) )>
+<![ %BASIC_AXIS; [ 
+<!ELEMENT colAxis  ((units|unitless)?, (value | valueList | valueGroup)?) >
+]]>
+<![ %INCLUDE_AXIS_CHILDREN; [ 
+<!ELEMENT colAxis  (axis_children,(units|unitless)?, (value | valueList | valueGroup)?) >
+]]>
 <!ATTLIST colAxis
 	name CDATA #IMPLIED
 	description CDATA #IMPLIED
 	align IDREF #IMPLIED
-	axisDatatype (integer | float | exponential | string ) #IMPLIED
+	axisDatatype (integer | float | exponential | string) #IMPLIED
 	size CDATA #REQUIRED
 >
-<!ELEMENT rowAxis (%AXIS_CHILDREN; ((units|unitless), (value | valueList | valueGroup)?) )>
+<![ %BASIC_AXIS; [ 
+<!ELEMENT rowAxis  ((units|unitless)?, (value | valueList | valueGroup)?) >
+]]>
+<![ %INCLUDE_AXIS_CHILDREN; [ 
+<!ELEMENT rowAxis  (axis_children,(units|unitless)?, (value | valueList | valueGroup)?) >
+]]>
 <!ATTLIST rowAxis
 	name CDATA #IMPLIED
 	description CDATA #IMPLIED
 	align IDREF #IMPLIED
-	axisDatatype (integer | float | exponential | string ) #IMPLIED
+	axisDatatype (integer | float | exponential | string) #IMPLIED
 	size CDATA #REQUIRED
 >
 <!-- a table or a set of tables can be formatted in XDF. In the same
@@ -237,7 +322,7 @@ This element will be superseded in a future version by a system in which the uni
 	each coordinate. Each map is of the same size as 
 	the initial data.
 -->
-<!-- A vector field requires additional components  represented by an fieldAxis with unitDirection fields.  These  could be named "x-hat",
+<!-- A vector field requires additional components  represented by a fieldAxis with unitDirection fields.  These  could be named "x-hat",
 "y-hat", and "z-hat". When the direction is along one of the
  axes, the unitDirectionAxisIdRef attribute should refer to that axis.
 A fieldAxis can also be used to hold complex number with the 
@@ -253,7 +338,12 @@ way to define n-tuples.
 	axisIdRef IDREF #IMPLIED
 	size CDATA #REQUIRED
 >
-<!ELEMENT field (%FIELD_CHILDREN;((units|unitless), dataFormat), relation?, note*)>
+<![ %BASIC_FIELD; [ 
+<!ELEMENT field ((units|unitless), dataFormat, relation?, note*)>
+]]>
+<![ %INCLUDE_FIELD_CHILDREN; [ 
+<!ELEMENT field (field_children,(units|unitless), dataFormat, relation?, note*)>
+]]>
 <!ATTLIST field
 	name CDATA #IMPLIED
 	description CDATA #IMPLIED
@@ -343,7 +433,7 @@ are expected to be read or written as E-format.  One can not mix E and F-format.
 >
 <!ELEMENT string EMPTY>
 <!ATTLIST string
-	width NMTOKEN #REQUIRED
+	length NMTOKEN #REQUIRED
 >
 <!ELEMENT binaryInteger EMPTY>
 <!ATTLIST binaryInteger
@@ -408,7 +498,7 @@ to skip over the new-Line character. The chars that are
 skipped over are not kept nor are they checked to match
 the chars/@value value.  If a particular character is desired 
 on output, it may be specified using  the chars/@value or
-newLine child elements.  The default is a single space.
+newLine child elements.  The default skip is one char with output of a single space.
 -->
 <!ELEMENT skip ((chars | newLine)+)>
 <!-- note: you cant put in a newline in any XML attribute (e.g. value for chars element). 
@@ -473,8 +563,8 @@ The elements d2,d3,etc allow extension to higher dimensions.-->
 <!ELEMENT d7 (#PCDATA)>
 <!-- these allow the user to specify space-delimited data for 
      row/column in  a 1 or 2-D table -->
-<!ELEMENT row (#PCDATA)>
-<!ELEMENT column (#PCDATA)>
-
+<!ELEMENT row (#PCDATA | cell | cells)*>
+<!ELEMENT column (#PCDATA | cell | cells)*>
+<!ELEMENT cell (#PCDATA)>
+<!ELEMENT cells (#PCDATA)>
 <!-- End of XDF.dtd -->
-
