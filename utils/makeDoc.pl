@@ -271,15 +271,15 @@ if ($MAKE_SUMMARY) {
 #    }
 #  }
 
-  print STDOUT "ATTRIBS:\n";
-  if ($#Attributes >= 0) {
-    for (@Attributes) {
-      $_ =~ s/(.*?)\s*?\(.*?\)/$1/;
-      print STDOUT "\t$_\n";
-    }
-  }
+#  print STDOUT "ATTRIBS:\n";
+#  if ($#Attributes >= 0) {
+#    for (@Attributes) {
+#      $_ =~ s/(.*?)\s*?\(.*?\)/$1/;
+#      print STDOUT "\t$_\n";
+#    }
+#  }
 
-  print STDOUT "OTHER METHODS:\n";
+  print STDOUT "METHODS:\n";
   if ($#Method >= 0) {
     for (@Method) {
       $_ =~ s/(.*?)\s*?\(.*?\)/$1/;
@@ -287,7 +287,7 @@ if ($MAKE_SUMMARY) {
     }
   }
 
-  print STDOUT "INHERITED OTHER METHODS:\n";
+  print STDOUT "INHERITED METHODS:\n";
   foreach my $superClass (@keys) {
 
       my @Super_Method = ();
@@ -338,6 +338,8 @@ sub make_POD_doc_in_file {
   } 
   print FILE "\n\n";
 
+  print FILE "=head1 METHODS\n\n";
+
   print FILE "=over 4\n\n";
 
 # sort the class and other methods
@@ -361,27 +363,28 @@ sub make_POD_doc_in_file {
     print FILE "=back\n\n";
   } 
   
-  if ($#Attributes >= 0) {
-     print FILE "=head2 ATTRIBUTE Methods\n\n"; 
-     print FILE "These methods set the requested attribute if an argument is supplied to the method. Whether or not an argument is supplied the current value of the attribute is always returned. Values of these methods are always SCALAR (may be number, string, or reference).\n\n"; 
-    print FILE "=over 4\n\n"; 
-    for (@Attributes) { 
-      print FILE "=item $_\n\n";
-      $_ =~ s/(.*?)\s*?\(.*?\)/$1/;
-      print FILE $Method_Comment{$_} if exists $Method_Comment{$_};
-      print FILE " \n\n"; 
-    }
-    print FILE "=back\n\n";
-  }
+#  if ($#Attributes >= 0) {
+#     print FILE "=head2 ATTRIBUTE Methods\n\n"; 
+#     print FILE "These methods set the requested attribute if an argument is supplied to the method. Whether or not an argument is supplied the current value of the attribute is always returned. Values of these methods are always SCALAR (may be number, string, or reference).\n\n"; 
+#    print FILE "=over 4\n\n"; 
+#    for (@Attributes) { 
+#      print FILE "=item $_\n\n";
+#      $_ =~ s/(.*?)\s*?\(.*?\)/$1/;
+#      print FILE $Method_Comment{$_} if exists $Method_Comment{$_};
+#      print FILE " \n\n"; 
+#    }
+#    print FILE "=back\n\n";
+#  }
   
   if ($#Method >= 0) {
-    print FILE "=head2 OTHER Methods\n\n"; 
+    print FILE "=head2 INSTANCE Methods\n\n"; 
+    print FILE "The following instance methods are defined for $packagename\:\:$ClassName.\n"; 
     print FILE "=over 4\n\n"; 
     for (@Method) { 
       print FILE "=item $_\n\n";
       $_ =~ s/(.*?)\s*?\(.*?\)/$1/;
       print FILE $Method_Comment{$_} if exists $Method_Comment{$_};
-      print FILE "\n\n"; 
+      print FILE " \n\n"; 
     }
     print FILE "=back\n\n";
   }
@@ -407,14 +410,14 @@ sub make_POD_doc_in_file {
         my $list = join '>, B<', @Super_Class_Method;
         $list = 'B<' . $list . '>.' if $list;
         print FILE $list;
-        print FILE "\n\n=back\n\n";
+        print FILE " \n\n=back\n\n";
       }
   
     }
   
     print FILE "=back\n\n";
   
-    print FILE "=over 4\n\n=head2 INHERITED Other Methods\n\n"; 
+    print FILE "=over 4\n\n=head2 INHERITED INSTANCE Methods\n\n"; 
   
     foreach my $superClass (@keys) {
   
@@ -430,12 +433,12 @@ sub make_POD_doc_in_file {
         my $list = join '>, B<', @Super_Method;
         $list = 'B<' . $list . '>.' if $list;
         print FILE $list;
-        print FILE "\n\n=back\n\n";
+        print FILE " \n\n=back\n\n";
       }
   
     }
   
-    print FILE "=back\n\n";
+    print FILE "=back\n\n" if $#Super_Method == 0;
   
   }
   
@@ -443,7 +446,7 @@ sub make_POD_doc_in_file {
     print FILE "\n\n=over 4\n\n";
     print FILE "=head1",$_->{'name'}," \n\n";
     print FILE $_->{'text'};
-    print FILE "\n\n=back\n\n";
+    print FILE " \n\n=back\n\n";
   }
   
   print FILE "=head1 SEE ALSO\n\n";
@@ -452,11 +455,11 @@ sub make_POD_doc_in_file {
     $string = 'L<' . $string . '>';
     print FILE $string;
   }
-  print FILE "\n\n=back\n\n";
+  print FILE " \n\n=back\n\n";
   
   print FILE "=head1 AUTHOR\n\n"; 
   print FILE $Class_Author if defined $Class_Author;
-  print FILE "\n\n";
+  print FILE " \n\n";
   
   print FILE "=cut\n";
   
