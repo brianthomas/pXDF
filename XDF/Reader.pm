@@ -1008,7 +1008,7 @@ sub _data_node_charData {
     # dont add this data unless it has more than just whitespace
     if (!$IGNORE_WHITESPACE_ONLY_DATA || $string !~ m/^\s*$/) {
 
-       &_printDebug("ADDING DATA to ($self->{taggedLocatorObject}) : [$string]\n");
+#       &_printDebug("ADDING DATA to ($self->{taggedLocatorObject}) : [$string]\n");
        $self->{dataTagLevel} = $self->{currentDataTagLevel};
        $self->{currentArray}->addData($self->{taggedLocatorObject}, $string);
     }
@@ -1123,9 +1123,8 @@ sub _data_node_end {
            if $data_has_special_integers;
 
         for (@data) {
-          $self->{currentArray}->addData($locator, $_);
-
-          &_printDebug("ADDING DATA [$locator]($self->{currentArray}) : [".$_."]\n");
+#          &_printDebug("ADDING DATA [$locator]($self->{currentArray}) : [".$_."]\n");
+          $self->{currentArray}->setData($locator, $_);
           $locator->next();
         }
 
@@ -2934,6 +2933,10 @@ sub _appendArrayToArray {
 # Modification History
 #
 # $Log$
+# Revision 1.29  2001/06/21 15:44:48  thomas
+# commented out addData dbug statement
+# in vain attempt to improve read performance.
+#
 # Revision 1.28  2001/06/19 21:21:39  thomas
 # added reading of compressed files.
 #
