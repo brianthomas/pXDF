@@ -23,6 +23,7 @@ use XDF::XDF;
 use XDF::Reader;
 use strict;
 
+my $VALIDATE = 0;
 my $DEBUG = 0;
 my $QUIET = 1;
 
@@ -32,6 +33,7 @@ my $QUIET = 1;
 
   my $spec = XDF::Specification->getInstance;
 
+  $spec->setLogMessageLevel(2);
   $spec->setLogMessageLevel(0) if $DEBUG;
   #open (LOG, ">logfile");
   $spec->setLogFileHandle(\*STDERR);
@@ -41,7 +43,7 @@ my $QUIET = 1;
 
   print STDERR "Reading in XDF object from file: $file \n";
 
-  my %options = ('quiet' => $QUIET, 'debug' => $DEBUG, );
+  my %options = ('validate' => $VALIDATE, 'quiet' => $QUIET, 'debug' => $DEBUG, 'loadDataOnDemand' => 0);
 
   my $XDF = new XDF::XDF();
   $XDF->loadFromXDFFile($file, \%options);
@@ -52,10 +54,13 @@ my $QUIET = 1;
 
   # make this safe for writting, change the external 
   # file name to write out to (should it exist)
+  # NOTE: this will only work if 'loadDataOnDemand' is OFF in the options, otherwise, we will
+  # not read the file until we are forced to write out, and by that point, we will have changed
+  # the data receptical to this new one, which is empty 
   my $index = 0;
   foreach my $arrayObj (@{$XDF->getArrayList}) {
-    if (defined $arrayObj->getDataCube()->getHref()) {
-       $arrayObj->getDataCube()->getHref()->setSystemId('table'.$index.'.dat');
+    if (defined $arrayObj->getDataCube()->getOutputHref()) {
+       $arrayObj->getDataCube()->getOutputHref()->setSystemId('table'.$index.'.dat');
     }
     $index++;
   }
