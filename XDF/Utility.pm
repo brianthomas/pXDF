@@ -124,6 +124,19 @@ sub isValidDataCompression {
    return 0;
 }
 
+# /** isValidLogarithm
+# Determine if the passed quanity is an allowed value for the logarithm
+# attribute on the Units object.
+# */
+sub isValidLogarithm {
+   my ($value) = @_;
+   # it ok to be undefined
+   return 1 unless defined $value;
+   for (&XDF::Constants::LOGARITHM_LIST) { return 1 if ($_ eq $value); }
+   return 0;
+}
+
+
 # /** isValidFloatBits
 # Determine if the passed quanity is an allowed value for the bits attribute
 # of the BinaryFloatDataFormat object.
@@ -236,6 +249,9 @@ sub reverse64BitStringByteOrder {
 # Modification History
 #
 # $Log$
+# Revision 1.6  2001/06/21 17:23:49  thomas
+# added isValidLogarithm method.
+#
 # Revision 1.5  2001/04/25 16:01:31  thomas
 # updated documentation
 #
