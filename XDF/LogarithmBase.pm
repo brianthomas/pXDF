@@ -34,15 +34,15 @@
 
 package XDF::LogarithmBase;
 
-use XDF::Component; 
+use XDF::ConversionComponent; 
 
 use strict;
 use integer;
 
 use vars qw ($AUTOLOAD %field @ISA);
 
-# inherits from XDF::Component
-@ISA = ("XDF::Component");
+# inherits from XDF::ConversionComponent
+@ISA = ("XDF::ConversionComponent");
 
 # CLASS DATA
 my $Class_XML_Node_Name = "logarithmBase";
@@ -58,8 +58,8 @@ my @Class_XML_Attributes;
 push @Local_Class_Attributes, @Local_Class_XML_Attributes;
 
 # get super class attributes
-push @Class_XML_Attributes, @{&XDF::Component::getClassXMLAttributes};
-push @Class_Attributes, @{&XDF::Component::getClassAttributes};
+push @Class_XML_Attributes, @{&XDF::ConversionComponent::getClassXMLAttributes};
+push @Class_Attributes, @{&XDF::ConversionComponent::getClassAttributes};
 
 # add in local to overall class
 push @Class_XML_Attributes, @Local_Class_XML_Attributes;
