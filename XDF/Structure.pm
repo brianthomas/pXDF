@@ -469,6 +469,25 @@ sub _init {
 
 }
 
+sub _find_All_child_Href_Objects {
+  my ($self) = @_;
+
+  my @list;
+
+  if (ref($self) eq 'XDF::XDF') {
+     foreach my $arrayObj (@{$self->getArrayList()}) {  
+        my $hrefObj = $arrayObj->getDataCube()->getHref();
+        push @list, $hrefObj if defined $hrefObj;
+     }
+  
+     foreach my $structObj (@{$self->getStructList()}) { 
+        push @list, @{$structObj->_find_All_child_Href_Objects()};
+     }
+  }
+
+  return \@list;
+}
+
 1;
 
 
