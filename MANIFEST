@@ -9,6 +9,7 @@ UML-XDF.gif
 XDF/Array.pm
 XDF/Axis.pm
 XDF/BaseObject.pm
+XDF/BaseObjectWithXMLElements.pm
 XDF/BinaryFloatDataFormat.pm
 XDF/BinaryIntegerDataFormat.pm
 XDF/Constants.pm
@@ -41,6 +42,7 @@ XDF/ReadCellFormattedIOCmd.pm
 XDF/Reader.pm
 XDF/RepeatFormattedIOCmd.pm
 XDF/SkipCharFormattedIOCmd.pm
+XDF/Specification.pm
 XDF/StringDataFormat.pm
 XDF/Structure.pm
 XDF/TaggedXMLDataIOStyle.pm
@@ -50,7 +52,6 @@ XDF/Units.pm
 XDF/Utility.pm
 XDF/Value.pm
 XDF/ValueGroup.pm
-XDF/XMLAttribute.pm
 XDF/XMLElement.pm
 XDF/XMLDataIOStyle.pm
 t/runXDF.t

@@ -90,6 +90,7 @@ WriteMakefile(
             'XDF/Array.pm'  => "\$(INST_LIBDIR)/$install_dir/Array.pm",
             'XDF/Axis.pm'       => "\$(INST_LIBDIR)/$install_dir/Axis.pm",
             'XDF/BaseObject.pm'     => "\$(INST_LIBDIR)/$install_dir/BaseObject.pm",
+            'XDF/BaseObjectWithXMLElements.pm'     => "\$(INST_LIBDIR)/$install_dir/BaseObjectWithXMLElements.pm",
             'XDF/BinaryFloatDataFormat.pm'      => "\$(INST_LIBDIR)/$install_dir/BinaryFloatDataFormat.pm",
             'XDF/BinaryIntegerDataFormat.pm'      => "\$(INST_LIBDIR)/$install_dir/BinaryIntegerDataFormat.pm",
             'XDF/Constants.pm'      => "\$(INST_LIBDIR)/$install_dir/Constants.pm",
@@ -122,6 +123,7 @@ WriteMakefile(
             'XDF/Reader.pm'     => "\$(INST_LIBDIR)/$install_dir/Reader.pm",
             'XDF/RepeatFormattedIOCmd.pm'     => "\$(INST_LIBDIR)/$install_dir/RepeatFormattedIOCmd.pm",
             'XDF/SkipCharFormattedIOCmd.pm'  => "\$(INST_LIBDIR)/$install_dir/SkipCharFormattedIOCmd.pm",
+            'XDF/Specification.pm'      => "\$(INST_LIBDIR)/$install_dir/Specification.pm",
             'XDF/StringDataFormat.pm'      => "\$(INST_LIBDIR)/$install_dir/StringDataFormat.pm",
             'XDF/Structure.pm'  => "\$(INST_LIBDIR)/$install_dir/Structure.pm",
             'XDF/TaggedXMLDataIOStyle.pm'       => "\$(INST_LIBDIR)/$install_dir/TaggedXMLDataIOStyle.pm",
@@ -131,7 +133,6 @@ WriteMakefile(
             'XDF/Utility.pm'      => "\$(INST_LIBDIR)/$install_dir/Utility.pm",
             'XDF/Value.pm'      => "\$(INST_LIBDIR)/$install_dir/Value.pm",
             'XDF/ValueGroup.pm'      => "\$(INST_LIBDIR)/$install_dir/ValueGroup.pm",
-            'XDF/XMLAttribute.pm'      => "\$(INST_LIBDIR)/$install_dir/XMLAttribute.pm",
             'XDF/XMLDataIOStyle.pm'      => "\$(INST_LIBDIR)/$install_dir/XMLDataIOStyle.pm",
             'XDF/XMLElement.pm'      => "\$(INST_LIBDIR)/$install_dir/XMLElement.pm",
           },
@@ -142,6 +143,9 @@ WriteMakefile(
 # Modification History
 #
 # $Log$
+# Revision 1.9  2001/04/17 18:42:18  thomas
+# *** empty log message ***
+#
 # Revision 1.8  2001/03/23 22:21:32  thomas
 # *** empty log message ***
 #

@@ -55,9 +55,9 @@ Revision history for Perl extension XDF.
 
 0.17-beta1 
 	- allow user-defined start, end, charData handlers.
-        - added XMLElement class to capture non-XDF nodes as per the XDF DTD.
-        - added XMLAttribute class to capture non-XDF nodes attributes. Unlike
-          in the Java package, this class is not used for XDF classes (yet) :P
+        - added XMLElement class to capture interior XML nodes as per the XDF DTD.
+        - added BaseObjectWithXMLElements class to provide needed additional methods
+          for some classes to hold interior XML Element nodes.
         - fixed starthandlers in Reader.pm to return the object they create (where possible)
         - regularized the axis ordering between the IterationOrderlist for the 
           locator and the writeAxisOrderList for XMLDataIOStyle. The first axis
@@ -67,4 +67,7 @@ Revision history for Perl extension XDF.
           and XDF::DOM::Element. These allow the IO and manipulation of any
           XML document and still may use the XDF API on the XDF bits of the XML 
           document for easier handling.
+        - added Specification class singleton as per Java package.
+        - added toString output method in BaseObject.
+
 
