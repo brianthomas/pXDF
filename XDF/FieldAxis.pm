@@ -47,7 +47,7 @@ package XDF::FieldAxis;
 # */
 
 use Carp;
-use XDF::Object;
+use XDF::BaseObject;
 use XDF::Field;
 use XDF::FieldGroup;
 
@@ -56,8 +56,8 @@ use integer;
 
 use vars qw ($AUTOLOAD %field @ISA);
 
-# inherits from XDF::Object
-@ISA = ("XDF::Object");
+# inherits from XDF::BaseObject
+@ISA = ("XDF::BaseObject");
 
 # CLASS DATA
 my $Class_Node_Name = "fieldAxis";
@@ -75,7 +75,7 @@ my @Class_Attributes = qw (
                           );
 
 # add in super class attributes
-push @Class_Attributes, @{&XDF::Object::classAttributes};
+push @Class_Attributes, @{&XDF::BaseObject::classAttributes};
 
 # /** name
 # The STRING description (short name) of this object.
@@ -236,11 +236,11 @@ sub dataFormatList {
   my ($self) = @_;
 
   my @list;
-  foreach my $field (@{$self->fieldList}) {
-    if (defined $field->dataFormat->type) {
-      push @list, $field->dataFormat->type();
-    } else {
-      carp "FieldAxis dataFormatList request has problem: $field does not have dataFormat type defined, ignoring\n";
+  foreach my $field ($self->getFields) {
+    if (!defined $field->dataFormat) {
+      carp "Error! FieldAxis dataFormatList request has problem: $field does not have dataFormat defined, ignoring (probably will cause an IO error)\n";
+    } else { 
+      push @list, $field->dataFormat();
     }
   }
 
@@ -278,6 +278,19 @@ sub removeFieldGroup {
   delete %{$self->_fieldGroupOwnedHash}->{$hashKey};
 }
 
+# Modification History
+#
+# $Log$
+# Revision 1.2  2000/10/16 17:38:57  thomas
+# Fixed a method that was calling fieldList instead
+# of getFields (which accounts for null entries on
+# the field list accurately).
+# Added Modification History.
+# Changed over to BaseObject from Object.pm
+#
+#
+#
+
 1;
 
 
@@ -300,7 +313,7 @@ XDF::FieldAxis - Perl Class for FieldAxis
  
  Unlike L<XDF::Axis> no units are assocated  with the field axis but rather with each individual field contained in the field axis. The units specified for the fields (one for  every indice of the field axis) is the same meaning as for the  units of XDF::Array. It is illegal to specify BOTH units on the array object AND have a field axis. 
 
-XDF::FieldAxis inherits class and attribute methods of L<XDF::GenericObject>, L<XDF::Object>.
+XDF::FieldAxis inherits class and attribute methods of L<XDF::BaseObject>, L<XDF::GenericObject>.
 
 
 =over 4
@@ -404,7 +417,7 @@ A change in the value of these attributes will change the functioning of ALL ins
 
 =over 4
 
-The following class attribute methods are inherited from L<XDF::Object>:
+The following class attribute methods are inherited from L<XDF::BaseObject>:
 B<Pretty_XDF_Output>, B<Pretty_XDF_Output_Indentation>, B<DefaultDataArraySize>.
 
 =back
@@ -419,8 +432,8 @@ B<Pretty_XDF_Output>, B<Pretty_XDF_Output_Indentation>, B<DefaultDataArraySize>.
 
 =over 4
 
-XDF::FieldAxis inherits the following instance methods of L<XDF::GenericObject>:
-B<new>, B<clone>, B<update>, B<setObjRef>.
+XDF::FieldAxis inherits the following instance methods of L<XDF::BaseObject>:
+B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<toXMLFileHandle>, B<toXMLFile>.
 
 =back
 
@@ -428,8 +441,8 @@ B<new>, B<clone>, B<update>, B<setObjRef>.
 
 =over 4
 
-XDF::FieldAxis inherits the following instance methods of L<XDF::Object>:
-B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<toXMLFileHandle>, B<toXMLFile>.
+XDF::FieldAxis inherits the following instance methods of L<XDF::GenericObject>:
+B<new>, B<clone>, B<update>, B<setObjRef>.
 
 =back
 
@@ -437,7 +450,7 @@ B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<toXMLFileHandle>, B<toXML
 
 =head1 SEE ALSO
 
-L< XDF::Array>, L< XDF::Axis>, L<XDF::Object>, L<XDF::Field>, L<XDF::FieldGroup>
+L< XDF::Array>, L< XDF::Axis>, L<XDF::BaseObject>, L<XDF::Field>, L<XDF::FieldGroup>
 
 =back
 
