@@ -213,7 +213,7 @@ sub _outputSkipCharArray {
   }
   
   my @repeat_array = @outArray;
-  for (1 .. ($self->getCount - 1)) { push @outArray, @repeat_array; }
+  for (my $x = 1; $x <= ($self->getCount - 1); $x++) { push @outArray, @repeat_array; }
 
   return (\@outArray, \@dataFormatList);
 }
@@ -250,7 +250,7 @@ print STDERR "Repeat add notation:[".$readObj->_templateNotation($endian,$encodi
   }
 
   my $repeat_notation = $notation;
-  for (1 .. ($self->getCount() - 1)) { $notation .= $repeat_notation; }
+  for (my $x = 1; $x <= ($self->getCount() - 1); $x++) { $notation .= $repeat_notation; }
 
 print STDERR "Repeat gets notation:[".$notation."]\n"; 
   return ($notation, \@dataFormatList);
@@ -284,7 +284,7 @@ sub _regexNotation {
   }
 
   my $repeat_notation = $notation;
-  for (1 .. ($self->getCount() - 1)) { $notation .= $repeat_notation; }
+  for (my $x = 1; $x <= ($self->getCount() - 1); $x++) { $notation .= $repeat_notation; }
 
   return ($notation, \@dataFormatList);
 
@@ -318,7 +318,7 @@ sub _sprintfNotation {
   }
 
   my $repeat_notation = $notation;
-  for (1 .. ($self->getCount() - 1)) { $notation .= $repeat_notation; }
+  for ( my $x = 1; $x <= ($self->getCount() - 1); $x++) { $notation .= $repeat_notation; }
 
   return ($notation, \@dataFormatList);
 
@@ -327,6 +327,11 @@ sub _sprintfNotation {
 # Modification History
 #
 # $Log$
+# Revision 1.7  2001/01/02 17:41:46  thomas
+# changed 1 .. $number statements in methods
+# in anticipation of running package on platforms
+# with small or no virtual memory. -b.t.
+#
 # Revision 1.6  2000/12/15 22:11:59  thomas
 # Regenerated perlDoc section in files. -b.t.
 #
