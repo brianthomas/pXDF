@@ -1,5 +1,6 @@
 <?xml version="1.0" standalone="no"?>
-<!DOCTYPE XDF SYSTEM "XDF_017.dtd" [ 
+<!DOCTYPE XDF SYSTEM "XDF_018.dtd" [ 
+   <!ENTITY newLine "&#10;"> 
    <!ENTITY table1 SYSTEM "XDF_sample10.dat.bz2" NDATA xdf>
    <!NOTATION xdf PUBLIC "application/xdf">
 ]> 
@@ -43,7 +44,7 @@
          <field name="V-band Error" >
             <units><unit>magnitude</unit></units>
             <dataFormat><float width="4" precision="1" /></dataFormat>
-            <relation fieldIdRefs="vmag" role="errors" />
+            <relation fieldIdRefs="vmag" role="error" />
          </field>
          <field fieldId="ccdNumber" name="CCD ID Number">
             <units><unitless/></units>
@@ -56,29 +57,34 @@
          <field name="Reference" >
             <units><unitless/></units>
             <dataFormat><string length="10" /></dataFormat>
-            <relation fieldIdRefs="gname" role="references" />
+            <relation fieldIdRefs="gname" role="reference" />
          </field>
       </fieldAxis>
 
       <axis axisId="rows" axisDatatype="integer">
          <axisUnits><unitless/></axisUnits>
          <valueGroup name="rows"> 
-           <valueList delimiter=" " size="3">0 1 2</valueList> 
+           <valueList delimiter=" ">0 1 2</valueList> 
          </valueGroup> 
       </axis>
 
      <!-- declare the ordering of how to read this in, assoc. of axis to data -->
       <read encoding="UTF-8">
-         <for axisIdRef="rows">
-            <for axisIdRef="fields"> <!-- the "fast" axis --> 
-               <repeat count="7">
-                  <readCell/>
-                  <skipChars count="1" output=" "/>
-               </repeat>
-               <readCell/>
-               <skipChars count="1" output="&#010;"/>
-            </for>
-         </for>
+         <fixedWidthStyle>
+           <fixedWidthReadInstructions>
+             <repeat count="7">
+                <readCell/>
+                <skip/>
+             </repeat>
+             <readCell/>
+             <skip><newLine/></skip>
+           </fixedWidthReadInstructions>
+           <for axisIdRef="rows">
+              <for axisIdRef="fields"> <!-- the "fast" axis --> 
+                <doReadInstructions/>
+              </for>
+           </for>
+         </fixedWidthStyle>
       </read>
 
       <data href="table1" compression="bzip2"/>

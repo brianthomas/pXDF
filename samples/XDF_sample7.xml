@@ -1,7 +1,7 @@
 <?xml version ="1.0"?>
-<!DOCTYPE XDF SYSTEM "XDF_017.dtd" [
+<!DOCTYPE XDF SYSTEM "XDF_018.dtd" [
   <!NOTATION xdf PUBLIC "application/xdf">
-  <!ENTITY ApJ "&#10;">
+  <!ENTITY newLine "&#10;">
   <!ENTITY table1 SYSTEM "binarytable0" NDATA xdf>
 ]>
 <XDF name="A sample XDF document" description="This shows how to put any data into XDF using formatted data IO Style.">
@@ -21,9 +21,6 @@
     </parameter>
   </parameterGroup>
   <array name="Galaxy Data">
-    <units>
-      <unitless/>
-    </units>
     <fieldAxis axisId="fields">
       <field name="galaxy name" fieldId="gname">
         <units>
@@ -56,30 +53,26 @@
           <unit>magnitude</unit>
         </units>
         <dataFormat><binaryFloat bits="32"/></dataFormat>
-        <relation fieldIdRefs="vmag" role="errors"/>
+        <relation fieldIdRefs="vmag" role="error"/>
       </field>
       <field name="CCD ID Number" fieldId="ccdNumber">
         <units>
           <unitless/>
         </units>
-        <dataFormat><binaryInteger signed="1" bits="16"/></dataFormat>
+        <dataFormat><binaryInteger signed="yes" bits="16"/></dataFormat>
       </field>
       <field name="A Sci. Number" fieldId="enumber">
         <units>
           <unitless/>
         </units>
         <dataFormat><float width="8" precision="3" exponent="2"/></dataFormat>
-<!--
-        <dataFormat><string length="8"/></dataFormat>
-        <dataFormat><binaryFloat bits="64"/></dataFormat>
--->
       </field>
       <field name="Reference">
         <units>
           <unitless/>
         </units>
         <dataFormat><string length="10"/></dataFormat>
-        <relation fieldIdRefs="gname" role="references"/>
+        <relation fieldIdRefs="gname" role="reference"/>
       </field>
     </fieldAxis>
     <axis axisDatatype="integer" axisId="rows">
@@ -93,16 +86,21 @@
       </valueGroup>
     </axis>
     <read encoding="UTF-8" endian="LittleEndian">
-      <for axisIdRef="rows">
-        <for axisIdRef="fields">
+      <fixedWidthStyle>
+        <fixedWidthReadInstructions> 
           <repeat count="7">
             <readCell/>
-            <skipChars count="1" output=" "/>
+            <skip/>
           </repeat>
           <readCell/>
-          <skipChars count="1" output="&#10;"/>
+          <skip><newLine/></skip>
+        </fixedWidthReadInstructions> 
+        <for axisIdRef="rows">
+          <for axisIdRef="fields">
+             <doReadInstructions/>
+          </for>
         </for>
-      </for>
+      </fixedWidthStyle>
     </read>
     <data href="table1"></data> 
     <notes>
