@@ -61,6 +61,7 @@ use vars qw ($AUTOLOAD %field @ISA);
 
 # CLASS DATA
 my @Class_Attributes = qw (
+                             _hasNext
                              _locationList
                              _parentArray
                           );
@@ -88,20 +89,6 @@ sub new {
   my $self = bless( { }, $class);
 
   $self->_init($parentArray); # init of class specific stuff
-
-  # now, since we KNOW _parentArray is defined
-  # (has to be intanciated via XDF::Array ONLY)
-  # we can proceed to initialize the axis, index positions
-  # to the origin (ie index 0 for each axis).
-  # We choose the parent Array axisList ordering for our
-  # default location ordering.
-  foreach my $axisObj (@{$self->{_parentArray}->getAxisList()}) {
-     my %location = (
-                       'axis'  => $axisObj,
-                       'index' => 0,
-                    );
-     push @{$self->{_locationList}}, \%location;
-  }
 
   return $self;
 }
@@ -131,7 +118,7 @@ sub setAxisIndex {
 sub getAxisIndex {
   my ($self, $axisObj ) = @_;
 
-  return unless defined $axisObj;
+  return undef unless defined $axisObj;
 
   for (@{$self->{_locationList}}) {
      if (%{$_}->{'axis'} eq $axisObj) {
@@ -187,7 +174,6 @@ sub setIterationOrder {
 
      push @{$self->{_locationList}}, \%location;
   }
-
 }
 
 # /** setAxisLocationByAxisValue
@@ -212,15 +198,16 @@ sub setIterationOrder {
 sub hasNext {
   my ($self) = @_;
 
-  my $outOfDataCells = 1;
-
-  for (@{$self->{_locationList}}) {
-    if (%{$_}->{'index'} < (%{$_}->{'axis'}->getLength()-1) ) {
-      $outOfDataCells = 0;
-      last;
-    }
-  }
-  return $outOfDataCells ? 0 : 1;
+  return $self->{_hasNext};
+#  my $outOfDataCells = 1;
+#
+#  for (@{$self->{_locationList}}) {
+#    if (%{$_}->{'index'} < (%{$_}->{'axis'}->getLength()-1) ) {
+#      $outOfDataCells = 0;
+#      last;
+#    }
+#  }
+#  return $outOfDataCells ? 0 : 1;
 }
 
 # /** next
@@ -234,17 +221,47 @@ sub next {
 
   my $outOfDataCells = 1;
 
-  for (reverse @{$self->{_locationList}}) {
-  #for (@{$self->{_locationList}}) {
-    if (%{$_}->{'index'} < (%{$_}->{'axis'}->getLength()-1) ) {
-      %{$_}->{'index'} += 1;
-      $outOfDataCells = 0;
-      last;
-    }
-    $_->{'index'} = 0;
+  $self->{_hasNext} = 1;
+
+  my @axisOrderList = @{$self->{_locationList}};
+  my $size = $#axisOrderList;
+  for (my $i = 0; $i <= $size ; $i++) {
+
+      my $axis = $axisOrderList[$i]->{'axis'};
+      my $index = $axisOrderList[$i]->{'index'};
+
+      # are we still within the axis?
+      if ($index < ($axis->getLength()-1)) 
+      {
+        $outOfDataCells = 0;
+        # advance current index by one 
+        #$index++;
+        $axisOrderList[$i]->{'index'}++;
+        last;  # get out of the for loop
+      }
+
+      # reset index back to the origin of this axis 
+      $axisOrderList[$i]->{'index'} = 0; 
+
   }
 
-  return $outOfDataCells ? 0 : 1;
+  # we cycled back to the origin. Set the global
+  # to let us know
+  $self->{_hasNext} = 0 if ($outOfDataCells);
+
+  return !$outOfDataCells;
+
+#  for (reverse @{$self->{_locationList}}) {
+#  #for (@{$self->{_locationList}}) {
+#    if (%{$_}->{'index'} < (%{$_}->{'axis'}->getLength()-1) ) {
+#      %{$_}->{'index'} += 1;
+#      $outOfDataCells = 0;
+#      last;
+#    }
+#    $_->{'index'} = 0;
+#  }
+#
+#  return $outOfDataCells ? 0 : 1;
 }
 
 # /** prev
@@ -306,13 +323,17 @@ sub AUTOLOAD {
 sub _init {
   my ($self, $parentArray) = @_;
   $self->{_parentArray} = $parentArray;
-  $self->{_locationList} = [];
+  $self->setIterationOrder($parentArray->getAxisList());
+  $self->{_hasNext} = 1;
 }
  
 
 # Modification History
 #
 # $Log$
+# Revision 1.8  2001/03/01 21:11:31  thomas
+# Fixed HasNext. Fixed next method.
+#
 # Revision 1.7  2001/02/23 17:08:54  thomas
 # Undid prior change (!) was correct.
 #
