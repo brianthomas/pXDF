@@ -11,6 +11,8 @@
 
    - Move Fixed and Exponential Data formats over to FloatDataFormat
 
+   - check locator hasNext funct. make like Java
+
    - Implement append Array/align axis functionality
 
    - readId/readIdRef not implemented yet.
