@@ -843,6 +843,17 @@ sub asciiDelimiter_node_start {
 sub array_node_start {
   my (%attrib_hash) = @_;
 
+  # these are attribtes that go on the dataFormat, not the array
+  #my @attribList = qw /lessThanValue lessThanOrEqualValue infiniteValue 
+  #                      infiniteNegativeValue greaterThanValue greaterThanOrEqualValue 
+  #                      noDataValue/;
+  #my %dataFormatAttrib;
+  #for (@attribList) {
+  #   if (exists($attrib_hash{$_})) {
+  #      $dataFormatAttrib{$_} = $attrib_hash{$_};
+  #   }
+  #}
+
   $CURRENT_ARRAY = $CURRENT_STRUCTURE->addArray(\%attrib_hash);
   $CURRENT_DATATYPE_OBJECT = $CURRENT_ARRAY;
   my %tmpHash;
@@ -1055,7 +1066,7 @@ my $locationPos;
 my $locationName;
 for (@{$locator->getIterationOrder()}) {
    $locationName .= $_->getAxisId() . ",";
-   $locationPos .= $locator->getAxisLocation($_) . ",";
+   $locationPos .= $locator->getAxisIndex($_) . ",";
 }
 chop $locationName;
 print STDERR "ADDING DATA [$locationName]($locationPos) : [$_]\n";
@@ -2158,6 +2169,9 @@ sub my_fail {
 # Modification History
 #
 # $Log$
+# Revision 1.11  2001/02/22 19:39:42  thomas
+# changed locator getAxisLocation call to new name getAxisIndex
+#
 # Revision 1.10  2001/02/15 18:30:12  thomas
 # Added FloatDataFormat. Removed ExponentialDataFormat and FixedDataFormat
 # from handler. Changed getBytes method call to numOfBytes.
