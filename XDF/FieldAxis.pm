@@ -423,12 +423,15 @@ sub AUTOLOAD {
 sub _init {
   my ($self) = @_;
 
+  $self->SUPER::_init();
+
   # initialize lists
   $self->{FieldList} = [];
   $self->{_fieldGroupOwnedHash} = {};
 
   # set the minimum array size (essentially the size of the axis)
-  $#{$self->{FieldList}} = $self->DefaultDataArraySize();
+  my $spec= XDF::Specification->getInstance();
+  $#{$self->{FieldList}} = $spec->getDefaultDataArraySize();
 
   $self->{_length} = 0;
 
@@ -438,6 +441,10 @@ sub _init {
 # Modification History
 #
 # $Log$
+# Revision 1.10  2001/04/17 19:00:10  thomas
+# Using Specification class now.
+# Properly calling superclass init now.
+#
 # Revision 1.9  2001/03/21 20:19:23  thomas
 # Fixed documentation to show addXMLElement, etc. methods in perldoc
 #

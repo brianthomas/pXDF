@@ -224,7 +224,9 @@ sub toXMLFileHandle {
       $indent, $newNodeNameString, $noChildObjectNodeName ) = @_;
 
   my $writeHrefAttribute = 0;
-  my $niceOutput = $self->Pretty_XDF_Output();
+  my $spec = XDF::Specification->getInstance();
+  my $niceOutput = $spec->isPrettyXDFOutput;
+
   $indent = "" unless defined $indent;
   my $nodeName = $self->classXMLNodeName;
   $nodeName = $newNodeNameString if defined $newNodeNameString;
@@ -274,7 +276,8 @@ sub writeDataToFileHandle {
   my ($self, $fileHandle, $indent) = @_;
 
   my $dontPrintCDATATag = 0;
-  my $niceOutput = $self->Pretty_XDF_Output();
+  my $spec = XDF::Specification->getInstance();
+  my $niceOutput = $spec->isPrettyXDFOutput;
   $indent = "" unless defined $indent;
 
   # a couple of shortcuts
@@ -342,7 +345,7 @@ sub writeDataToFileHandle {
   if (ref($readObj) eq 'XDF::TaggedXMLDataIOStyle' ) {
 
      print $dataFileHandle "\n" if $niceOutput;
-     &_write_tagged_data($self, $dataFileHandle, $readObj, $indent, $niceOutput);
+     &_write_tagged_data($self, $dataFileHandle, $readObj, $indent, $niceOutput, $spec);
      print $dataFileHandle "$indent" if $niceOutput;
 
   } else {
@@ -475,6 +478,8 @@ sub AUTOLOAD {
 sub _init {
   my ($self) = @_;
 
+  $self->SUPER::_init();
+
   # declare the _data attribute as an array 
   # as we add data (below) it may grow in
   # dimensionality, but defaults to 0 at start. 
@@ -482,7 +487,8 @@ sub _init {
   $self->{_data} = [];
 
   # set the minimum array size (essentially the size of the axis)
-  $#{$self->{_data}} = $self->DefaultDataArraySize();
+  my $spec= XDF::Specification->getInstance();
+  $#{$self->{_data}} = $spec->getDefaultDataArraySize();
 
 }
 
@@ -493,7 +499,7 @@ sub _init {
 # tag names for the axes. In this case, we use 'd0','d1' ...'d8' tag 
 # notation.
 sub _write_tagged_data {
-  my ($self, $fileHandle, $readObj, $indent, $niceOutput) = @_;
+  my ($self, $fileHandle, $readObj, $indent, $niceOutput, $spec) = @_;
 
   # now we populate the data , if there are any dimensions 
   if ($self->{Dimension} > 0) {
@@ -505,7 +511,7 @@ sub _write_tagged_data {
     my @AXIS_TAG = reverse $readObj->getAxisTags(); 
 
     # now build the formatting stuff. 
-    my $data_indent = $indent . $self->Pretty_XDF_Output_Indentation;
+    my $data_indent = $indent . $spec->getPrettyXDFOutputIndentation;
     my $startDataRecordTag = $data_indent;
     my $endDataRecordTag = "";
     foreach my $axis (0 .. ($#axisList-1)) {
@@ -837,6 +843,10 @@ sub _build_locator_string {
 # Modification History
 #
 # $Log$
+# Revision 1.20  2001/04/17 18:59:51  thomas
+# Using Specification class now.
+# Properly calling superclass init now.
+#
 # Revision 1.19  2001/04/10 22:07:09  thomas
 # minor but important bug fix, wasnt printing
 # out href attrib upon output correctly.
@@ -1007,15 +1017,15 @@ Set the encoding attribute.
 
  
 
-=item writeDataToFileHandle ($indent, $fileHandle)
+=item writeDataToFileHandle ($fileHandle, $indent)
 
 Writes out just the data to the proscribed filehandle.  
 
-=item addData ($no_append, $data, $locator)
+=item addData ($locator, $data, $no_append)
 
 This routine will append data to a cell unless directed to do otherwise.  
 
-=item setData ($datum, $locator)
+=item setData ($locator, $datum)
 
 Set the SCALAR value of the requested datacell at indicated location (see LOCATOR REF section). Overwrites existing datacell value if any.  
 
@@ -1036,7 +1046,7 @@ Retrieve the SCALAR value of the requested datacell.
 =over 4
 
 The following class methods are inherited from L<XDF::BaseObject>:
-B<Pretty_XDF_Output>, B<Pretty_XDF_Output_Indentation>, B<DefaultDataArraySize>. 
+B<DefaultDataArraySize>. 
 
 =back
 
@@ -1062,7 +1072,7 @@ B<new>, B<clone>, B<update>.
 =over 4
 
 XDF::DataCube inherits the following instance (object) methods of L<XDF::BaseObject>:
-B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLAttributes>, B<setXMLNotationHash>, B<toXMLFile>.
+B<addXMLElement>, B<removeXMLElement>, B<getXMLElementList>, B<setXMLElementList>, B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLAttributes>, B<setXMLNotationHash>, B<toXMLString>, B<toXMLFile>.
 
 =back
 

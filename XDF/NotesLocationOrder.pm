@@ -104,7 +104,8 @@ sub toXMLFileHandle {
     return;
   }
 
-  my $Pretty_XDF_Output = $self->Pretty_XDF_Output;
+  my $spec = XDF::Specification->getInstance();
+  my $Pretty_XDF_Output = $spec->isPrettyXDFOutput;
 
   if (defined $XMLDeclAttribs) {
      $indent = ""; #$Pretty_XDF_Output_Indentation;
@@ -124,7 +125,7 @@ sub toXMLFileHandle {
    }
 
   # print out index sub-nodes
-  my $indexIndent = $indent . $self->Pretty_XDF_Output_Indentation;
+  my $indexIndent = $indent . $spec->getPrettyXDFOutputIndentation;
   foreach my $indexNodeAxisIdRef (@{$self->{LocationOrderList}}) {
      print $fileHandle $indexIndent if $Pretty_XDF_Output;
     # next 3 lines: have to break up printing of '"' or toXMLString will behave badly
@@ -156,6 +157,7 @@ sub AUTOLOAD {
 
 sub _init {
   my ($self) = @_;
+  $self->SUPER::_init();
 
   $self->{LocationOrderList} = [];
 
@@ -164,6 +166,10 @@ sub _init {
 # Modification History
 #
 # $Log$
+# Revision 1.7  2001/04/17 19:00:10  thomas
+# Using Specification class now.
+# Properly calling superclass init now.
+#
 # Revision 1.6  2001/03/26 16:07:29  thomas
 # bug fix to toXMLFileHandle, node not closed properly.
 #
@@ -264,7 +270,7 @@ Set the locationOrderList attribute.
 =over 4
 
 The following class methods are inherited from L<XDF::BaseObject>:
-B<Pretty_XDF_Output>, B<Pretty_XDF_Output_Indentation>, B<DefaultDataArraySize>. 
+B<DefaultDataArraySize>. 
 
 =back
 
@@ -290,7 +296,7 @@ B<new>, B<clone>, B<update>.
 =over 4
 
 XDF::NotesLocationOrder inherits the following instance (object) methods of L<XDF::BaseObject>:
-B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLAttributes>, B<setXMLNotationHash>, B<toXMLFile>.
+B<addXMLElement>, B<removeXMLElement>, B<getXMLElementList>, B<setXMLElementList>, B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLAttributes>, B<setXMLNotationHash>, B<toXMLString>, B<toXMLFile>.
 
 =back
 

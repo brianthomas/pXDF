@@ -191,10 +191,11 @@ sub addFormatCommand {
 sub toXMLFileHandle {
   my ($self, $fileHandle, $junk, $indent) = @_;
 
-  my $niceOutput = $self->Pretty_XDF_Output;
+  my $spec = XDF::Specification->getInstance();
+  my $niceOutput = $spec->isPrettyXDFOutput;
 
   $indent = "" unless defined $indent;
-  my $more_indent = $self->Pretty_XDF_Output_Indentation;
+  my $more_indent = $spec->getPrettyXDFOutputIndentation;
 
   print $fileHandle "$indent" if $niceOutput;
 
@@ -377,6 +378,10 @@ sub _sprintfNotation {
 # Modification History
 #
 # $Log$
+# Revision 1.17  2001/04/17 19:00:10  thomas
+# Using Specification class now.
+# Properly calling superclass init now.
+#
 # Revision 1.16  2001/03/26 18:11:15  thomas
 # moved setWriteAxisORder list and getWriteAxisOrderList
 # up to superclass. fixed toXMLFileHandle to write out
@@ -492,14 +497,6 @@ The following instance (object) methods are defined for XDF::FormattedXMLDataIOS
 
  
 
-=item getWriteAxisOrderList (EMPTY)
-
-This method sets the ordering of the fastest to slowest axis forwriting out formatted data. The default is to use the parent arrayaxisList ordering.  
-
-=item setWriteAxisOrderList ($arrayRefValue)
-
-This method sets the ordering of the fastest to slowest axis forwriting out formatted data. The fastest axis is the last inthe array.  
-
 =item getCommands (EMPTY)
 
 This convenience method returns the command list (asan ARRAY Ref). Repeat commands are expanded into their component parts.   
@@ -512,7 +509,7 @@ This convenience method returns the command list (asan ARRAY Ref). Repeat comman
 
  
 
-=item toXMLFileHandle ($indent, $junk, $fileHandle)
+=item toXMLFileHandle ($fileHandle, $junk, $indent)
 
  
 
@@ -529,7 +526,7 @@ This convenience method returns the command list (asan ARRAY Ref). Repeat comman
 =over 4
 
 The following class methods are inherited from L<XDF::BaseObject>:
-B<Pretty_XDF_Output>, B<Pretty_XDF_Output_Indentation>, B<DefaultDataArraySize>. 
+B<DefaultDataArraySize>. 
 
 =back
 
@@ -555,7 +552,7 @@ B<new>, B<clone>, B<update>.
 =over 4
 
 XDF::FormattedXMLDataIOStyle inherits the following instance (object) methods of L<XDF::BaseObject>:
-B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLAttributes>, B<setXMLNotationHash>, B<toXMLFile>.
+B<addXMLElement>, B<removeXMLElement>, B<getXMLElementList>, B<setXMLElementList>, B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLAttributes>, B<setXMLNotationHash>, B<toXMLString>, B<toXMLFile>.
 
 =back
 
@@ -564,7 +561,7 @@ B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLAttributes>, B<setX
 =over 4
 
 XDF::FormattedXMLDataIOStyle inherits the following instance (object) methods of L<XDF::XMLDataIOStyle>:
-B<untaggedInstructionNodeName>, B<getReadId{>, B<setReadId>, B<getReadIdRef>, B<setReadIdRef>, B<getEncoding{>, B<setEncoding>, B<getEndian{>, B<setEndian>.
+B<untaggedInstructionNodeName>, B<getReadId{>, B<setReadId>, B<getReadIdRef>, B<setReadIdRef>, B<getEncoding{>, B<setEncoding>, B<getEndian{>, B<setEndian>, B<getWriteAxisOrderList>, B<setWriteAxisOrderList>.
 
 =back
 

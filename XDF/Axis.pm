@@ -524,6 +524,8 @@ sub AUTOLOAD {
 sub _init {
   my ($self) = @_;
 
+  $self->SUPER::_init();
+
   $self->{AxisUnits} = new XDF::Units();
   $self->{AxisUnits}->setXMLNodeName("axisUnits");
 
@@ -533,7 +535,8 @@ sub _init {
   $self->{ValueList} = [];
 
   # set the minimum array size (essentially the size of the axis)
-  $#{$self->{ValueList}} = $self->DefaultDataArraySize();
+  my $spec = XDF::Specification->getInstance();
+  $#{$self->{ValueList}} = $spec->getDefaultDataArraySize();
 
   # this variable is needed because $#{$self->{ValueList}}
   # is pre-allocated in prior statement, and is not necess.
@@ -545,6 +548,10 @@ sub _init {
 # Modification History
 #
 # $Log$
+# Revision 1.11  2001/04/17 18:57:38  thomas
+# Using Specification class now.
+# Properly calling superclass init now.
+#
 # Revision 1.10  2001/03/21 20:19:23  thomas
 # Fixed documentation to show addXMLElement, etc. methods in perldoc
 #

@@ -137,10 +137,11 @@ sub getXMLAttributes {
 sub toXMLFileHandle {
   my ($self, $fileHandle, $junk, $indent) = @_;
 
-  my $niceOutput = $self->Pretty_XDF_Output;
+  my $spec = XDF::Specification->getInstance();
+  my $niceOutput = $spec->isPrettyXDFOutput;
 
   $indent = "" unless defined $indent;
-  my $more_indent = $indent . $self->Pretty_XDF_Output_Indentation;
+  my $more_indent = $indent . $spec->getPrettyXDFOutputIndentation;
 
   print $fileHandle "$indent" if $niceOutput;
 
@@ -229,6 +230,10 @@ sub _removeAxisTag {
 # Modification History
 #
 # $Log$
+# Revision 1.13  2001/04/17 19:00:51  thomas
+# Using Specification class now.
+# Properly calling superclass init now.
+#
 # Revision 1.12  2001/03/26 18:16:37  thomas
 # yanked overriding method of setWriteAxisOrderList,
 # makes docs look messy.
@@ -352,7 +357,7 @@ Write this object out to a filehandle in XDF formatted XML.
 =over 4
 
 The following class methods are inherited from L<XDF::BaseObject>:
-B<Pretty_XDF_Output>, B<Pretty_XDF_Output_Indentation>, B<DefaultDataArraySize>. 
+B<DefaultDataArraySize>. 
 
 =back
 
