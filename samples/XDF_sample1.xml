@@ -23,13 +23,17 @@
       <units>
         <unit>pixel</unit>
       </units>
-      <valueListAlgorithm size="10" step="1" start="0"/>
+      <valueGroup name="vertical pixels">
+         <valueListAlgorithm size="10" step="1" start="0"/>
+      </valueGroup>
     </axis>
     <axis name="y" axisId="y-axis" axisDatatype="integer" size="10">
       <units>
         <unit>pixel</unit>
       </units>
-      <valueList delimiter=" " repeatable="yes">10  9 8 7 6 5 4 3 2 1</valueList>
+      <valueGroup name="horizontal pixels">
+         <valueList delimiter=" " repeatable="yes">10  9 8 7 6 5 4 3 2 1</valueList>
+      </valueGroup>
     </axis>
     <dataStyle encoding="UTF-8">
       <fixedWidth>
@@ -54,15 +58,28 @@
         </for>
       </fixedWidth>
     </dataStyle>
-<!-- note the recursive data node use -->
+<!-- Note the recursive data node use AND the child data nodes are 
+     written both with and without CDATASections. This is important: 
+     IF you have fixed width reading (as in this file) you had better 
+     be very careful about having data nodes WITHOUT CDATA
+     Sections. This is because  all of the multi-whitespace chars are 
+     (by XML standard) translated into single spaces when character data
+     ARENT CDATA-wrapped. This means that without CDATA wrappers, you 
+     could easily get non-parseable data IF you were counting on 2 or 
+     more spaces to hold the possition of the field/column (as is the
+     case in the second, CDATASection-wrapped, data node below). In order
+     to go without CDATASections, you need to insure all fields will
+     conform to format without resorting to whitespace. In the case below, 
+     (the first child data node) plusses have been added to fields 
+     where number is less than 10.
+  -->
+ 
     <data>
-      <data>
-<![CDATA[76.53 78.75 67.78 32.59  5.97 68.77 25.39 51.86 30.69 29.03
-89.37 10.68 82.31 17.85 25.87 64.17 92.64 47.88  8.03 31.05
-+7.48 -0.09 -3.15  8.63 20.26  7.27 24.19 72.09  9.69 21.78
-75.43 86.23 48.53 43.22 18.81 54.50 11.99 44.20  6.37  3.47
-]]>
-      </data>
+      <data>76.53 78.75 67.78 32.59 +5.97 68.77 25.39 51.86 30.69 29.03
+89.37 10.68 82.31 17.85 25.87 64.17 92.64 47.88 +8.03 31.05
++7.48 -0.09 -3.15 +8.63 20.26 +7.27 24.19 72.09 +9.69 21.78
+75.43 86.23 48.53 43.22 18.81 54.50 11.99 44.20 +6.37 +3.47
+</data>
       <data>
 <![CDATA[84.50 95.73 25.15 66.81 13.58 51.03 30.98  6.22 98.91 31.51
 91.27  6.39 76.60 94.42 15.01 96.86  1.69 39.20 68.95 62.38
