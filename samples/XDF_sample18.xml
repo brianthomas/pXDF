@@ -113,7 +113,7 @@
      things this way results in combining the data together in this array. -->
     <data>
       <data href="table1" startByte="13"/>
-      <data href="table2"/>
+      <data href="table2" startByte="5"/> <!-- start byte calculated from start of 'table2' -->
     </data>
     <notes>
       <locationOrder>
