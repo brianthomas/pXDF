@@ -84,10 +84,6 @@ use vars qw( @ISA @SupportedHandlers );
 @SupportedHandlers = qw( Init Final Char Start End Default Doctype
                          CdataStart CdataEnd XMLDecl Entity Notation Proc 
                          Default Comment Attlist Element Unparsed );
-my $DEBUG = 0;
-my $QUIET = 1;
-my $VALIDATE = 0;
-
 sub new {
     my ($proto, %args) = @_;
 
@@ -98,21 +94,22 @@ sub new {
         $handlers{$_} = \&$domHandler;
     }
     $args{Handlers} = \%handlers;
-    my $debug = $DEBUG;
-    my $quiet = $QUIET;
-    my $validate = $VALIDATE;
-    my $dontLoadYet = 0;
+#    my $debug = $DEBUG;
+#    my $quiet = $QUIET;
+#    my $validate = $VALIDATE;
+#    my $dontLoadYet = 0;
 
-    if ( exists $args{'debug'}) { $debug = $args{'debug'}; }
-    if ( exists $args{'quiet'}) { $quiet = $args{'quiet'}; }
-    if ( exists $args{'validate'}) { $validate = $args{'validate'}; }
-    if ( exists $args{'dontLoadHrefData'}) { $dontLoadYet = $args{'dontLoadHrefData'}; }
+#    if ( exists $args{'debug'}) { $debug = $args{'debug'}; }
+    #if ( exists $args{'quiet'}) { $quiet = $args{'quiet'}; }
+    #if ( exists $args{'validate'}) { $validate = $args{'validate'}; }
+    #if ( exists $args{'loadDataOnDemand'}) { $dontLoadYet = $args{'loadDataOnDemand'}; }
 
     my $self = $proto->SUPER::new (%args);
-    $self->{'DEBUG'} = $debug;
-    $self->{'QUIET'} = $quiet;
-    $self->{'VALIDATE'} = $validate;
-    $self->{'DONT_LOAD_DATA_YET'} = $dontLoadYet;
+    $self->{options} = \%args;
+    #$self->{'DEBUG'} = $debug;
+    #$self->{'QUIET'} = $quiet;
+    #$self->{'VALIDATE'} = $validate;
+    #$self->{'DONT_LOAD_DATA_YET'} = $dontLoadYet;
 
     return $self;
 } 
@@ -227,8 +224,9 @@ sub _parseNodeIntoXDFObject {
    $newnode->setOwnerDocument($miniDOM);
    $miniDOM->appendChild($newnode);
 
-   my %options = ('validate' => $self->{'VALIDATE'}, 'quiet' => $self->{'QUIET'}, 'debug' => $self->{'DEBUG'}, 'dontLoadHrefData' => $self->{'DONT_LOAD_DATA_YET'});
-   my $reader = new XDF::Reader(\%options);
+#   my %options = %{$self->{'args'}};
+#('validate' => $self->{'VALIDATE'}, 'quiet' => $self->{'QUIET'}, 'debug' => $self->{'DEBUG'}, 'loadDataOnDemand' => $self->{'DONT_LOAD_DATA_YET'});
+   my $reader = new XDF::Reader($self->{options});
    my $XDFObject = $reader->parseString($miniDOM->toString());
 
    # remove XMLDecl and XMLDocumentType as this info is 
