@@ -29,6 +29,7 @@ my $packagename = "XDF";
 my $ClassName;
 my $SuperClass; 
 my @IncludeObject;
+my @Class_Method;
 my @Methods;
 my @SuperMethods;
 my @Attributes;
@@ -53,33 +54,47 @@ while (<FILE>) {
 
      my $item = $_;
     
-     $Methods[$#Methods] .= " (";
+     my $things = " (";
+     my $isClassMethod = 1;
 
      if ($item =~ m/^\s*?my.*?\@_;/) {
        $item =~ s/^.*?\(//;
        $item =~ s/\).*?$//;
 
        my @things = split ',', $item; 
-    
+
+       # if it has $self, it is a 'instance method' otherwise itsa class method
        while (@things) {
          my $thing = pop @things;
          $thing =~ s/^\s+//;
          $thing =~ s/\s+$//;
-         $Methods[$#Methods] .= "$thing, " unless $thing =~ m/\$(self|proto)/; 
+         $isClassMethod = 0 if $thing =~ m/\$self/; 
+         #$Methods[$#Methods] .= "$thing, " unless $thing =~ m/\$(self|proto)/; 
+         $things .= "$thing, " unless $thing =~ m/\$(self|proto)/; 
        }
 
-       if ($Methods[$#Methods] =~ m/\($/) {
-         $Methods[$#Methods] .= "EMPTY";
+       if ($things =~ m/\($/) {
+          $things .= "EMPTY";
        } else {
-         chop $Methods[$#Methods];
-         chop $Methods[$#Methods];
+          chop $things;
+          chop $things;
        }
 
      } else { 
-       $Methods[$#Methods] .= "EMPTY";  
+       #$Methods[$#Methods] .= "EMPTY";  
+       $things .= "EMPTY";  
      }
 
-     $Methods[$#Methods] .= ")";  
+     $things .= ")";  
+
+     if ($isClassMethod) 
+     {
+        my $method_name_line = $Methods[$#Methods] . $things;
+        pop @Methods; # remove from (instance) method list
+        $Class_Method[$#Class_Method+1] = $method_name_line;
+     } else {
+        $Methods[$#Methods] .= $things;
+     }
 
      $gotAMethod = 0;
      next;
@@ -353,7 +368,7 @@ sub make_POD_doc_in_file {
   
   if ($#Class_Method >= 0) {
     print FILE "=head2 CLASS Methods\n\n"; 
-    print FILE "A change in the value of these class attributes will change the value for ALL instances of $packagename\:\:$ClassName.\n\n=over 4\n\n";
+    print FILE "The following methods are defined for the class $packagename\:\:$ClassName.\n\n=over 4\n\n";
     for (@Class_Method) { 
       print FILE "=item $_\n\n";
       $_ =~ s/(.*?)\s*?\(.*?\)/$1/;
@@ -377,8 +392,8 @@ sub make_POD_doc_in_file {
 #  }
   
   if ($#Method >= 0) {
-    print FILE "=head2 INSTANCE Methods\n\n"; 
-    print FILE "The following instance methods are defined for $packagename\:\:$ClassName.\n"; 
+    print FILE "=head2 INSTANCE (Object) Methods\n\n"; 
+    print FILE "The following instance (object) methods are defined for $packagename\:\:$ClassName.\n\n"; 
     print FILE "=over 4\n\n"; 
     for (@Method) { 
       print FILE "=item $_\n\n";
@@ -388,12 +403,11 @@ sub make_POD_doc_in_file {
     }
     print FILE "=back\n\n";
   }
-  
+
   if (defined (my @keys = keys %SuperClassHash)) {
   
-    print FILE "=over 4\n\n=head2 INHERITED Class Methods\n\n"; 
-  
-    print FILE "A change in the value of these attributes will change the functioning of ALL instances of these objects that inherit from the indicated super class.\n"; 
+    print FILE "\n\n=head2 INHERITED Class Methods\n\n"; 
+    print FILE "=over 4\n\n"; 
   
     foreach my $superClass (@keys) {
   
@@ -406,7 +420,7 @@ sub make_POD_doc_in_file {
     
       if ($#Super_Class_Method >= 0) {
   
-        print FILE "\n\n=over 4\n\nThe following class attribute methods are inherited from L<$superClass>:\n";
+        print FILE "\n\n=over 4\n\nThe following class methods are inherited from L<$superClass>:\n";
         my $list = join '>, B<', @Super_Class_Method;
         $list = 'B<' . $list . '>.' if $list;
         print FILE $list;
@@ -414,10 +428,10 @@ sub make_POD_doc_in_file {
       }
   
     }
-  
     print FILE "=back\n\n";
   
-    print FILE "=over 4\n\n=head2 INHERITED INSTANCE Methods\n\n"; 
+    print FILE "\n\n=head2 INHERITED INSTANCE Methods\n\n"; 
+    print FILE "=over 4\n\n"; 
   
     foreach my $superClass (@keys) {
   
@@ -429,33 +443,34 @@ sub make_POD_doc_in_file {
       }
   
       if ($#Super_Method >= 0) {
-        print FILE "\n\n=over 4\n\n$packagename\:\:$ClassName inherits the following instance methods of L<$superClass>:\n";
+        print FILE "\n\n=over 4\n\n$packagename\:\:$ClassName inherits the following instance (object) methods of L<$superClass>:\n";
         my $list = join '>, B<', @Super_Method;
         $list = 'B<' . $list . '>.' if $list;
         print FILE $list;
-        print FILE " \n\n=back\n\n";
+        print FILE "\n\n=back\n\n";
       }
   
     }
-  
-    print FILE "=back\n\n" if $#Super_Method == 0;
+    print FILE "=back\n\n";
   
   }
+  print FILE "=back\n\n"; # end of method section
   
   for (@AddSection) {
-    print FILE "\n\n=over 4\n\n";
     print FILE "=head1",$_->{'name'}," \n\n";
+    print FILE "\n\n=over 4\n\n";
     print FILE $_->{'text'};
-    print FILE " \n\n=back\n\n";
+    print FILE "\n\n=back\n\n";
   }
   
   print FILE "=head1 SEE ALSO\n\n";
+  print FILE "\n\n=over 4\n\n";
   if ($#IncludeObject >= 0) {
     my $string = join '>, L<', @IncludeObject;
     $string = 'L<' . $string . '>';
     print FILE $string;
   }
-  print FILE " \n\n=back\n\n";
+  print FILE "\n\n=back\n\n";
   
   print FILE "=head1 AUTHOR\n\n"; 
   print FILE $Class_Author if defined $Class_Author;
