@@ -17,6 +17,7 @@ package XDF::SkipCharFormattedIOCmd;
 # */
 
 use XDF::FormattedIOCmd;
+use XDF::Chars;
 use Carp;
 
 use strict;
@@ -30,7 +31,7 @@ use vars qw ($AUTOLOAD %field @ISA);
 # CLASS DATA
 my $Def_Count = 1;
 my $Def_Output_Char = " ";
-my $Class_XML_Node_Name = "skipChars";
+my $Class_XML_Node_Name = "skip";
 my @Local_Class_XML_Attributes = qw (
                              count
                              output
@@ -106,8 +107,13 @@ sub getOutput {
 #     Set the output attribute. 
 # */
 sub setOutput {
-   my ($self, $value) = @_;
-   $self->{output} = $value;
+   my ($self, $object) = @_;
+
+   if (&XDF::Utility::isValidCharOutput($object)) {
+      $self->{output} = $object;
+   } else {
+      warn "Cant set $object as output for XDF::Char class, ignoring request\n"; 
+   }
 }
 
 sub numOfBytes { 
@@ -133,7 +139,7 @@ sub _init {
   $self->SUPER::_init();
 
   $self->{count} = $Def_Count;
-  $self->{output} = $Def_Output_Char;
+  $self->{output} = new XDF::Chars();
   
   # adds to ordered list of XML attributes
   $self->_appendAttribsToXMLAttribOrder(\@Local_Class_XML_Attributes);
