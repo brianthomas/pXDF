@@ -290,42 +290,7 @@ sub toXMLFileHandle {
 # Private methods 
 #
 
-# Modification History
-#
-# $Log$
-# Revision 1.2  2001/08/13 20:56:37  thomas
-# updated documentation via utils/makeDoc.pl for the release.
-#
-# Revision 1.1  2001/08/13 19:54:17  thomas
-# from old 'XMLElement' class
-#
-# Revision 1.7  2001/07/23 15:58:07  thomas
-# added ability to add arbitary XML attribute to class.
-# getXMLattributes now an instance method, we
-# have old class method now called getClassXMLAttributes.
-#
-# Revision 1.6  2001/06/29 21:07:12  thomas
-# changed public add (and remove) methods to
-# conform to Java API standard: e.g. return boolean
-# rather than an object. Also, these methods only
-# accept an object (in general) as input (instead of an attribute hash).
-#
-# Revision 1.5  2001/05/23 17:24:49  thomas
-# added setCData method.
-#
-# Revision 1.4  2001/04/25 16:01:31  thomas
-# updated documentation
-#
-# Revision 1.3  2001/04/17 18:47:26  thomas
-# Completely redone. This class is now derived from XML::DOM::Element
-# (as it should be) with added methods to make that class
-# interoperate with XDF package classes (like toXMLFilehandle method).
-#
-#
-#
-
 1;
-
 
 __END__
 

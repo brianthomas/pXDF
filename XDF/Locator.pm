@@ -346,77 +346,7 @@ sub _init {
 }
  
 
-# Modification History
-#
-# $Log$
-# Revision 1.18  2001/12/11 20:28:43  thomas
-# removed toXMLFileHandle method, was confusing
-#
-# Revision 1.17  2001/08/13 20:56:37  thomas
-# updated documentation via utils/makeDoc.pl for the release.
-#
-# Revision 1.16  2001/08/13 19:49:49  thomas
-# small change to init: now has "local attribs".
-#
-# Revision 1.15  2001/07/23 15:58:07  thomas
-# added ability to add arbitary XML attribute to class.
-# getXMLattributes now an instance method, we
-# have old class method now called getClassXMLAttributes.
-#
-# Revision 1.14  2001/04/25 16:01:31  thomas
-# updated documentation
-#
-# Revision 1.13  2001/04/17 18:54:43  thomas
-# Properly calling superclass init now
-#
-# Revision 1.12  2001/03/26 18:11:43  thomas
-# Documentation was wrong (!). Fixed.
-#
-# Revision 1.11  2001/03/16 19:54:57  thomas
-# Documentation updated and improved, re-ran makeDoc on file.
-#
-# Revision 1.10  2001/03/14 21:32:34  thomas
-# Updated perldoc section using new version of
-# makeDoc.pl.
-#
-# Revision 1.9  2001/03/14 16:12:04  thomas
-# re-enabled setAxisIndexByAxisValue. added the java
-# method getAxisValue.
-#
-# Revision 1.8  2001/03/01 21:11:31  thomas
-# Fixed HasNext. Fixed next method.
-#
-# Revision 1.7  2001/02/23 17:08:54  thomas
-# Undid prior change (!) was correct.
-#
-# Revision 1.6  2001/02/22 19:39:10  thomas
-# changed *AxisLocation method names to *AxisIndex methods.
-# un-reversed axis traversal in next, prev methods. I cant imagine
-# how that ever worked.
-#
-# Revision 1.5  2000/12/14 22:11:26  thomas
-# Big changes to the API. get/set methods, added Href/Entity stuff, deep cloning,
-# added Href, Notes, NotesLocationOrder nodes/classes. Ripped out _enlarge_array
-# from DataCube (not needed) and fixed problems outputing delimited/formatted
-# read nodes. -b.t.
-#
-# Revision 1.4  2000/12/01 20:03:38  thomas
-# Brought Pod docmentation up to date. Bumped up version
-# number. -b.t.
-#
-# Revision 1.3  2000/11/28 19:54:19  thomas
-# Added hasNext method. Its not very performance
-# oriented. Need better implementation. -b.t.
-#
-# Revision 1.2  2000/10/16 17:37:21  thomas
-# Changed over to BaseObject Class from Object Class.
-# Added in History Modification section.
-#
-#
-#
-
 1;
-
 
 __END__
 
