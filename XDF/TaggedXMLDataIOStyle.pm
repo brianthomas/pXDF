@@ -50,6 +50,8 @@ my $Tag_To_Axis_Node_Name = "tagToAxis";
 my @Class_XML_Attributes = ();
 my @Class_Attributes = qw (
                              _tagHash
+                             _parentArray
+                             _HAS_INIT_AXIS_TAGS
                           );
 
 # add in super class attributes
@@ -88,6 +90,8 @@ sub setAxisTag {
     return;
   }
 
+  $self->_initAxisTags();
+
   # insert in hash table, return tag value
   return %{$self->{_tagHash}}->{$axisId} = $tag;
 
@@ -95,6 +99,7 @@ sub setAxisTag {
 
 sub getAxisTag {
   my ($self, $axisId ) = @_;
+  $self->_initAxisTags();
   return %{$self->{_tagHash}}->{$axisId};
 }
 
@@ -104,15 +109,12 @@ sub getAxisTag {
 sub getAxisTags {
   my ($self) = @_;
 
+  $self->_initAxisTags();
+
   my @tags;
-#  my $counter = $#{$self->{_parentArray}->getAxisList()};
   foreach my $axisObj (@{$self->{_parentArray}->getAxisList()}) {
     my $axisId = $axisObj->getAxisId();
-#    my $tag = 'd' . $counter--; # the default 
-    # should it exist, we use whats in the tag hash.
-    # otherwize we go w/ the default (as assigned above)
-    $tag = %{$self->{_tagHash}}->{$axisId}; # if exists %{$self->{_tagHash}}->{$axisId};
-    push @tags, $tag;
+    push @tags, %{$self->{_tagHash}}->{$axisId};
   }
   return @tags;
 
@@ -187,15 +189,24 @@ sub _init {
   $self->SUPER::_init(@_);
   $self->{_tagHash} = {};
 
-  my $counter = $#{$self->{_parentArray}->getAxisList()};
-  foreach my $axisObj (@{$self->{_parentArray}->getAxisList()}) {
-    my $axisId = $axisObj->getAxisId();
-    my $tag = 'd' . $counter--; # the default 
-    %{$self->{_tagHash}}->{$axisId} = $tag;
-  }
-
   return $self;
 
+}
+
+sub _initAxisTags {
+  my ($self) = @_;
+
+   return if $self->{_HAS_INIT_AXIS_TAGS};
+   return unless defined $self->{_parentArray};
+
+   my $counter = $#{$self->{_parentArray}->getAxisList()};
+   foreach my $axisObj (@{$self->{_parentArray}->getAxisList()}) {
+     my $axisId = $axisObj->getAxisId();
+     my $tag = 'd' . $counter--; # the default 
+     %{$self->{_tagHash}}->{$axisId} = $tag;
+   }
+
+   $self->{_HAS_INIT_AXIS_TAGS} = 1;
 }
 
 # /** _removeAxisTag
@@ -211,6 +222,9 @@ sub _removeAxisTag {
 # Modification History
 #
 # $Log$
+# Revision 1.7  2001/03/02 20:28:16  thomas
+# Last fix not right. Now working for all cases.
+#
 # Revision 1.6  2001/03/02 19:59:29  thomas
 # added getAxisTag method. fixed init. need to consider when axis is added
 # in the array.
