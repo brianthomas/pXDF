@@ -193,22 +193,6 @@ sub getXMLAttributes {
 }
 
 #
-# Other Public Methods
-#
-
-# /** fortranNotation
-# The fortran style notation for this object.
-# */
-sub fortranNotation {
-  my ($self) = @_;
-
-  my $notation = "E";
-  $notation .= $self->{Width};
-  $notation .= '.' . $self->{Precision};
-  return $notation;
-}
-
-#
 # Private Methods 
 #
 
@@ -267,6 +251,9 @@ sub _sprintfNotation {
 # Modification History
 #
 # $Log$
+# Revision 1.2  2001/02/15 18:27:37  thomas
+# removed fortranNotation from class.
+#
 # Revision 1.1  2001/02/15 17:51:53  thomas
 # Initial Version. Created from ExponentialDataFormat. This
 # version has problems w/ some IO routines.

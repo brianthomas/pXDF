@@ -168,21 +168,6 @@ sub getXMLAttributes {
 }
 
 #
-# Other Public Methods 
-#
-
-# /** fortranNotation
-# The fortran style notation for this object.
-# */
-sub fortranNotation {
-  my ($self) = @_;
-
-  my $notation = "I";
-  $notation .= $self->{Width};
-  return $notation;
-}
-
-#
 # Private Methods 
 #
 
@@ -245,6 +230,9 @@ sub _sprintfNotation {
 # Modification History
 #
 # $Log$
+# Revision 1.8  2001/02/15 18:27:37  thomas
+# removed fortranNotation from class.
+#
 # Revision 1.7  2001/02/15 17:50:31  thomas
 # changed getBytes to numOfBytes method as per
 # java API.
@@ -677,10 +665,6 @@ A convenience method. Return the number of bytes this XDF::BinaryFloatField hold
 =item getXMLAttributes (EMPTY)
 
 This method returns the XMLAttributes of this class. 
-
-=item fortranNotation (EMPTY)
-
-The fortran style notation for this object. 
 
 =back
 

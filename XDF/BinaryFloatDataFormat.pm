@@ -196,17 +196,12 @@ sub _sprintfNotation {
    carp "_sprintfNotation shouldnt be called for binary numbers\n";
 }
 
-# /** fortranNotation
-# The fortran style notation for this object.
-# */
-sub fortranNotation {
-  my ($self) = @_;
-  carp "There is no FORTRAN representation for binary data\n";
-}
-
 # Modification History
 #
 # $Log$
+# Revision 1.9  2001/02/15 18:27:37  thomas
+# removed fortranNotation from class.
+#
 # Revision 1.8  2001/02/15 17:50:31  thomas
 # changed getBytes to numOfBytes method as per
 # java API.
@@ -501,10 +496,6 @@ A convenience method. Return the number of bytes this XDF::BinaryFloatDataFormat
 =item getXMLAttributes (EMPTY)
 
 This method returns the XMLAttributes of this class. 
-
-=item fortranNotation (EMPTY)
-
-The fortran style notation for this object. 
 
 =back
 

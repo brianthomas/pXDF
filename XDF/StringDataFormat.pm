@@ -194,6 +194,9 @@ sub _sprintfNotation {
 # Modification History
 #
 # $Log$
+# Revision 1.8  2001/02/15 18:27:37  thomas
+# removed fortranNotation from class.
+#
 # Revision 1.7  2001/02/15 17:50:30  thomas
 # changed getBytes to numOfBytes method as per
 # java API.
@@ -486,10 +489,6 @@ A convenience method. Return the number of bytes this XDF::StringDataFormat hold
 =item getXMLAttributes (EMPTY)
 
 This method returns the XMLAttributes of this class. 
-
-=item fortranNotation (EMPTY)
-
-The fortran style notation for this object. 
 
 =back
 
