@@ -29,7 +29,7 @@ use XDF::UnitDirection;
 use XDF::ValueGroup;
 use XDF::Units;
 use XDF::Utility;
-use XDF::Value;
+use XDF::ValueListAlgorithm;
 
 use strict;
 # Does this help??
@@ -67,7 +67,12 @@ use vars qw ($AUTOLOAD %field @ISA);
 # 
 #    my $axisObj = new XDF::Axis();
 #    $axisObj->name("first axis");
-#    $axisObj->addAxisValue(9); # the axis value at index 0 has value "9" 
+#    my $valueObj = new XDF::Value('9');
+#    $axisObj->addAxisValue($valueObj); # the axis value at index 0 has value "9" 
+#
+#    or 
+#
+#    my $axisObj = new XDF::Axis(10); # create axis wi/ length 10 and 10 values numbered 0 thru 9. 
 #
 #    or 
 # 
@@ -415,6 +420,23 @@ sub setParentArray { # PRIVATE
 # Other Public Methods
 #
 
+sub new {
+  my ($proto, $attribHashOrSize) = @_;
+
+   my $size;
+   unless (ref $attribHashOrSize) {
+     $size = $attribHashOrSize;
+     $attribHashOrSize = undef;
+   }
+   my $self = $proto->SUPER::new($attribHashOrSize);
+
+   if (defined $size) {
+      my $valueListObj = new XDF::ValueListAlgorithm(0,1,$size);
+      $self->addAxisValueList($valueListObj);
+   }
+   return $self;
+}
+
 # /** resetValues
 # The valueList (which holds either Value or UnitDirection objects) is
 # reset to be empty by this method.
@@ -709,6 +731,10 @@ sub _addAxisValue {
 # Modification History
 #
 # $Log$
+# Revision 1.18  2001/08/13 20:56:10  thomas
+# updated documentation via utils/makeDoc.pl for the release.
+# Added convience 'new' method.
+#
 # Revision 1.17  2001/08/13 19:44:45  thomas
 # bug fix: use only local XML attributes for appendAttribs in _init
 # changed _length field to length.
@@ -784,3 +810,242 @@ sub _addAxisValue {
 
 1;
 
+
+__END__
+
+=head1 NAME
+
+XDF::Axis - Perl Class for Axis
+
+=head1 SYNOPSIS
+
+ 
+    my $axisObj = new XDF::Axis();
+    $axisObj->name("first axis");
+    my $valueObj = new XDF::Value('9');
+    $axisObj->addAxisValue($valueObj); # the axis value at index 0 has value "9" 
+
+    or 
+
+    my $axisObj = new XDF::Axis(10); # create axis wi/ length 10 and 10 values numbered 0 thru 9. 
+
+    or 
+ 
+    my @axisValueList = qw ( $axisValueObjRef1 $axisValueObjRef2 );
+    my $axisObj = new XDF::Axis( { 'name' => 'first axis',
+                                   'valueList' => \@axisValueList,
+                                 }
+                               );
+
+
+
+...
+
+=head1 DESCRIPTION
+
+ There must be one axis (or fieldAxis) for every dimension in the datacube. There are n indices for every axis (n>= 1).  Each axis declaration defines the values of ALL the indices  along that dimension. Values of the indices in that axis need  not follow any algorthm for progression BUT each must be unique within the axis. A unit may be assocated with the axis.  Note that the unit specified for the axis indices is not the  same as the unit of the data held within the data cube. 
+
+XDF::Axis inherits class and attribute methods of L< = (>, L<XDF::BaseObjectWithXMLElementsAndValueList>.
+
+
+=head1 METHODS
+
+=over 4
+
+=head2 CLASS Methods
+
+The following methods are defined for the class XDF::Axis.
+
+=over 4
+
+=item classXMLNodeName (EMPTY)
+
+This method returns the class node name for XDF::Axis; This method takes no arguments may not be changed.  
+
+=item getClassAttributes (EMPTY)
+
+This method returns a list reference containing the namesof the class attributes for this class. This method takes no arguments may not be changed.  
+
+=item getClassXMLAttributes (EMPTY)
+
+This method returns the XMLAttributes of this class.  
+
+=item new ($attribHashOrSize)
+
+ 
+
+=back
+
+=head2 INSTANCE (Object) Methods
+
+The following instance (object) methods are defined for XDF::Axis.
+
+=over 4
+
+=item getName (EMPTY)
+
+ 
+
+=item setName ($value)
+
+Set the name attribute.  
+
+=item getDescription (EMPTY)
+
+ 
+
+=item setDescription ($value)
+
+ 
+
+=item getAxisDatatype (EMPTY)
+
+ 
+
+=item setAxisDatatype ($value)
+
+Set the axisDatatype attribute.  
+
+=item getAxisUnits (EMPTY)
+
+ 
+
+=item setAxisUnits ($value)
+
+Set the axisUnits attribute.  
+
+=item getAxisId (EMPTY)
+
+ 
+
+=item setAxisId ($value)
+
+Set the axisId attribute.  
+
+=item getAxisIdRef (EMPTY)
+
+ 
+
+=item setAxisIdRef ($value)
+
+Set the axisIdRef attribute.  
+
+=item getAlign (EMPTY)
+
+ 
+
+=item setAlign ($value)
+
+Set the align attribute.  
+
+=item getValueList (EMPTY)
+
+ 
+
+=item setValueList ($arrayOrValueListObjRefValue)
+
+Set the valueList attribute. You may either pass an array of Valueobjects OR a valueList object (either ValueListAlgorithm or ValueListDelimitedList). Either way, (axis) Value objects will be added to the axis and its size set to their number. Using a valueList *object* will result in a more compact description of the passed values when the parameter is printed out.  
+
+=item getLength (EMPTY)
+
+Get the length of this axis (eg number of axis value objects)  
+
+=item getAxisValue ($index)
+
+Returns the axis XDF::Value object at the specified index.  
+
+=item setAxisValue ($index, $valueObj)
+
+Set the value of this axis at the given index.  
+
+=item getAxisValues (EMPTY)
+
+This is a convenience method which returns all of the values (as strings) on this axis.  
+
+=item resetValues (EMPTY)
+
+The valueList (which holds either Value or UnitDirection objects) isreset to be empty by this method.  
+
+=item addAxisValue ($valueObj)
+
+Add an XDF::AxisValue object to this axis. RETURNS : 1 on success, 0 on failure.  
+
+=item addAxisUnitDirection ($obj)
+
+Add an XDF::UnitDirection object to this axis. Returns 1 on success , 0 on failure.  
+
+=item removeAxisValue ($obj)
+
+Remove either an XDF::Value or XDF::UnitDirection object from this axis. Returns 1 on success , 0 on failure.  
+
+=item addAxisValueList ($arrayOrValueListObjRefValue)
+
+Append a list of (axis) Values held by the passed ValueListObject (or Array of Values)into this Axis object.  
+
+=item addUnit ($unitObj)
+
+Add an XDF::Unit object to the XDF::Units object contained in this axis. Returns 1 on success , 0 on failure.  
+
+=item removeUnit ($indexOrObjectRef)
+
+Remove an XDF::Unit object from the XDF::Units object contained in this axis. Returns 1 on success , 0 on failure.  
+
+=item addValueGroup ($valueGroupObj)
+
+Insert a ValueGroup object into this object to group the axisValues. Returns 1 on success , 0 on failure.  
+
+=item removeValueGroup ($hashKey)
+
+Remove a ValueGroup object from this object Returns 1 on success , 0 on failure.  
+
+=item getIndexFromAxisValue ($valueOrValueObj)
+
+Return the axis index for the given (scalar) value. Does not currently work for unitDirection objects that resideon an axis. Returns -1 if it cant find an index for the given value.  
+
+=back
+
+
+
+=head2 INHERITED Class Methods
+
+=over 4
+
+=back
+
+
+
+=head2 INHERITED INSTANCE Methods
+
+=over 4
+
+
+
+=over 4
+
+XDF::Axis inherits the following instance (object) methods of L<XDF::BaseObjectWithXMLElementsAndValueList>:
+B<toXMLFileHandle>.
+
+=back
+
+=back
+
+=back
+
+=head1 SEE ALSO
+
+
+
+=over 4
+
+L<XDF::BaseObjectWithXMLElementsAndValueList>, L<XDF::UnitDirection>, L<XDF::ValueGroup>, L<XDF::Units>, L<XDF::Utility>, L<XDF::ValueListAlgorithm>
+
+=back
+
+=head1 AUTHOR
+
+    Brian Thomas  (thomas@adc.gsfc.nasa.gov)
+    Astronomical Data Center <http://adc.gsfc.nasa.gov>
+    NASA/Goddard Space Flight Center
+ 
+
+=cut

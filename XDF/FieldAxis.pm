@@ -38,6 +38,16 @@ package XDF::FieldAxis;
 # */
 
 # /** SYNOPSIS
+# 
+#    my $fieldAxisObj = new XDF::FieldAxis();
+#    $axisObj->name("first axis");
+#    $axisObj->addField($fieldObj); # add a field to this field axis, it is now size '1'
+#
+#    or 
+#
+#    my $fieldAxisObj = new XDF::FieldAxis(10,5); # create a field axis wi/ length 10 
+#                                                 # and 10 fields named 0 thru 9 each 
+#                                                 # with stringDataFormat of length '5'. 
 #
 # */
 
@@ -49,6 +59,7 @@ package XDF::FieldAxis;
 use Carp;
 use XDF::BaseObject;
 use XDF::Field;
+use XDF::StringDataFormat;
 use XDF::FieldGroup;
 
 use strict;
@@ -279,6 +290,27 @@ sub getLength {
 # Other Public Methods
 #
 
+sub new {
+  my ($proto, $attribHashOrSize, $fieldWidth) = @_;
+
+   my $size;
+   unless (ref $attribHashOrSize) {
+     $size = $attribHashOrSize;
+     $attribHashOrSize = undef;
+   }
+   my $self = $proto->SUPER::new($attribHashOrSize);
+
+   if (defined $size) {
+      $fieldWidth = 1 unless defined $fieldWidth;
+      foreach my $fieldNumber (0 .. ($size-1)) {
+         my $fieldObj = new XDF::Field({'name' => $fieldNumber});
+         $fieldObj->setDataFormat(new XDF::StringDataFormat({'length' => $fieldWidth}));
+         $self->addField($fieldObj);
+      }
+   }
+   return $self;
+}
+
 # /** addField
 # Adds a field to this field Axis. 
 # Returns 1 on success, 0 on failure.
@@ -485,6 +517,10 @@ sub setParentArray { # PRIVATE
 # Modification History
 #
 # $Log$
+# Revision 1.16  2001/08/13 20:56:10  thomas
+# updated documentation via utils/makeDoc.pl for the release.
+# Added convience 'new' method.
+#
 # Revision 1.15  2001/08/13 19:48:30  thomas
 # bug fix: use only local XML attributes for appendAttribs in _init
 #
@@ -562,6 +598,16 @@ XDF::FieldAxis - Perl Class for FieldAxis
 
 =head1 SYNOPSIS
 
+ 
+    my $fieldAxisObj = new XDF::FieldAxis();
+    $axisObj->name("first axis");
+    $axisObj->addField($fieldObj); # add a field to this field axis, it is now size '1'
+
+    or 
+
+    my $fieldAxisObj = new XDF::FieldAxis(10,5); # create a field axis wi/ length 10 
+                                                 # and 10 fields named 0 thru 9 each 
+                                                 # with stringDataFormat of length '5'. 
 
 
 
@@ -590,13 +636,17 @@ The following methods are defined for the class XDF::FieldAxis.
 
 This method returns the class node name for XDF::FieldAxis; This method takes no arguments may not be changed.  
 
-=item classAttributes (EMPTY)
+=item getClassAttributes (EMPTY)
 
 This method returns a list reference containing the namesof the class attributes for XDF::FieldAxis; This method takes no arguments may not be changed.  
 
-=item getXMLAttributes (EMPTY)
+=item getClassXMLAttributes (EMPTY)
 
 This method returns the XMLAttributes of this class.  
+
+=item new ($attribHashOrSize, $fieldWidth)
+
+ 
 
 =back
 
@@ -662,9 +712,9 @@ Set the align attribute.
 
 return the length of this field axis (eg number of field objects)  
 
-=item addField ($attribHashOrObjectRef)
+=item addField ($fieldObj)
 
-Adds a field to this field Axis. Takes either an attribute HASHreference (the attributes in the hash must correspond to thoseof L<XDF::Field>) or an XDF::Field object reference as its argument. Returns the field object reference on success, undef on failure.  
+Adds a field to this field Axis. Returns 1 on success, 0 on failure.  
 
 =item getField ($index)
 
@@ -678,17 +728,17 @@ Convenience method that returns ALL field objects held in this field axis. Retur
 
 Set the field object at indicated index. This method may also be used to 'remove'a field, the user requests that the index location be set to 'undef'. In eithercase this method returns the object that was set at the indicated index. If themethod cannot set the field at the index location, the methodreturns undef on failure.  
 
-=item removeField ($indexOrObjectRef)
+=item removeField ($fieldObj)
 
 Remove a field object from the list of fieldsheld within this object. This method takes either the list index number or an object reference as its argument. RETURNS : 1 on success, undef on failure.  
 
-=item addFieldGroup ($attribHashOrObjectRef)
+=item addFieldGroup ($fieldGroupObj)
 
-Insert a fieldGroup object into this object. Returns fieldGroup object on success, undef on failure.  
+Insert a fieldGroup object into this object. Returns 1 on success, 0 on failure.  
 
 =item removeFieldGroup ($hashKey)
 
-Remove a fieldGroup object from this object.  
+Remove a fieldGroup object from this object. Returns 1 on success, 0 on failure.  
 
 =back
 
@@ -711,7 +761,7 @@ Remove a fieldGroup object from this object.
 =over 4
 
 XDF::FieldAxis inherits the following instance (object) methods of L<XDF::GenericObject>:
-B<new>, B<clone>, B<update>.
+B<clone>, B<update>.
 
 =back
 
@@ -720,7 +770,7 @@ B<new>, B<clone>, B<update>.
 =over 4
 
 XDF::FieldAxis inherits the following instance (object) methods of L<XDF::BaseObject>:
-B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLAttributes>, B<toXMLFileHandle>, B<toXMLString>, B<toXMLFile>.
+B<getXMLAttributes>, B<setXMLAttributes>, B<setXMLAttribute>, B<addXMLAttribute>, B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<toXMLFileHandle>, B<toXMLString>, B<toXMLFile>.
 
 =back
 
@@ -734,7 +784,7 @@ B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLAttributes>, B<toXM
 
 =over 4
 
-L< XDF::Array>, L< XDF::Axis>, L<XDF::BaseObject>, L<XDF::Field>, L<XDF::FieldGroup>
+L< XDF::Array>, L< XDF::Axis>, L<XDF::BaseObject>, L<XDF::Field>, L<XDF::StringDataFormat>, L<XDF::FieldGroup>
 
 =back
 
