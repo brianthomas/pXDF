@@ -93,25 +93,25 @@ sub setFormatCmdList {
    $self->{FormatCmdList} = \@list;
 }
 
-sub getFormatCommands {
-  my ($self) = @_;
-  return $self->getFormatCmdList();
-}
+#sub getFormatCommands {
+#  my ($self) = @_;
+#  return $self->getFormatCmdList();
+#}
 
-sub getFormatCommand {
-  my ($self, $index, $expandRepeatCommands) = @_;
-
-  return unless defined $index && $index >= 0;
-
-  my @list;
-  if ($expandRepeatCommands) {
-    @list = $self->getCommands();
-  } else { 
-    @list = $self->getFormatCommands();
-  }
-
-  return $list[$index];
-}
+#sub getFormatCommand {
+#  my ($self, $index, $expandRepeatCommands) = @_;
+#
+#  return unless defined $index && $index >= 0;
+#
+#  my @list;
+#  if ($expandRepeatCommands) {
+#    @list = $self->getCommands();
+#  } else { 
+#    @list = $self->getFormatCommands();
+#  }
+#
+#  return $list[$index];
+#}
 
 #/** getWriteAxisOrderList 
 # This method sets the ordering of the fastest to slowest axis for
@@ -399,6 +399,9 @@ sub _sprintfNotation {
 # Modification History
 #
 # $Log$
+# Revision 1.12  2001/03/14 21:30:21  thomas
+# Removed getFormatCommands.
+#
 # Revision 1.11  2001/03/14 16:41:48  thomas
 # removed self->WriteReadAxisOrder in _init
 # because _parentArray may not be defined.
@@ -496,13 +499,6 @@ These methods set the requested attribute if an argument is supplied to the meth
 
 =item setFormatCmdList ($arrayRefValue)
 
-
-
-=item getFormatCommands (EMPTY)
-
-
-
-=item getFormatCommand ($expandRepeatCommands, $index)
 
 =item getCommands (EMPTY)
 
