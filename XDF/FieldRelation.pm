@@ -89,6 +89,10 @@ sub getRole {
 # */
 sub setRole {
    my ($self, $value) = @_;
+
+   carp "Cant set role to $value, not allowed \n"
+      unless (&XDF::Utility::isValidRelationRole($value));
+
    $self->{Role} = $value;
 }
 
@@ -122,6 +126,9 @@ sub AUTOLOAD {
 # Modification History
 #
 # $Log$
+# Revision 1.6  2001/03/09 21:52:41  thomas
+# Added Utility check on role attribute.
+#
 # Revision 1.5  2000/12/15 22:11:59  thomas
 # Regenerated perlDoc section in files. -b.t.
 #
