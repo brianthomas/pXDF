@@ -95,6 +95,24 @@ sub getClassXMLAttributes {
 # Get/Set Methods
 #
 
+# /** getNoDataValue
+# 
+# */
+sub getNoDataValue { # PROTECTED 
+   my ($self) = @_;
+   error("cant getnoDataValue on arrayRef class\n");
+   return undef;
+}
+
+# /** setNoDataValue
+#     Set the noDataValue attribute. 
+# */
+sub setNoDataValue { # PROTECTED
+   my ($self, $value) = @_;
+   error("cant set noDataValue on arrayRef class\n");
+}
+
+
 #
 # Private Methods 
 #
