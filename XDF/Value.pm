@@ -144,7 +144,7 @@ sub setSpecial {
 
 # /** getInequality
 # */
-sub getInequality{
+sub getInequality {
    my ($self) = @_;
    return $self->{Inequality};
 }
@@ -163,7 +163,7 @@ sub setInequality {
 
 # /** getValue
 # */
-sub getValue{
+sub getValue {
    my ($self) = @_;
    return $self->{Value};
 }
@@ -229,6 +229,9 @@ sub AUTOLOAD {
 # Modification History
 #
 # $Log$
+# Revision 1.10  2001/07/03 17:56:40  thomas
+# trivial typeset change.
+#
 # Revision 1.9  2001/04/25 16:01:31  thomas
 # updated documentation
 #
