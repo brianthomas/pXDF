@@ -513,6 +513,7 @@ sub _setRecords {
        $self->{_data}->[$longIndex] = $datum;
        $longIndex++;
      }
+     $locator->forward($#{$data_array_ref}+1);
 
    } else {
      # have to do this the slow way
