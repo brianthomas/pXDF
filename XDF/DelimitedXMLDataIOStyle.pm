@@ -128,11 +128,11 @@ sub setRecordTerminator {
 # */
 sub getWriteAxisOrderList {
   my ($self) =@_;
-  my $list_ref = $self->{WriteAxisOrderList}; 
-  $list_ref = $self->{_parentArray}->getAxisList() unless 
+  my $list_ref = $self->{WriteAxisOrderList};
+  $list_ref = $self->{_parentArray}->getAxisList() unless
       defined $list_ref || !defined $self->{_parentArray};
   return $list_ref;
-} 
+}
 
 #/** setWriteAxisOrderList 
 # This method sets the ordering of the fastest to slowest axis for
@@ -177,6 +177,7 @@ sub toXMLFileHandle {
   my @indent;
   my $Untagged_Instruction_Node_Name = $self->untaggedInstructionNodeName();
   my $next_indent = $indent . $more_indent;
+  #foreach my $axisObj (@{$self->{_parentArray}->getAxisList()}) {
   foreach my $axisObj (@{$self->getWriteAxisOrderList()}) {
     my $axisId = $axisObj->getAxisId();
     push @indent, $next_indent;
@@ -254,6 +255,9 @@ sub _sprintfNotation {
 # Modification History
 #
 # $Log$
+# Revision 1.6  2001/03/14 16:36:11  thomas
+# No changes, just line layout changed.
+#
 # Revision 1.5  2000/12/15 22:11:58  thomas
 # Regenerated perlDoc section in files. -b.t.
 #
@@ -351,14 +355,6 @@ Set the repeatable attribute.
 =item setRecordTerminator ($value)
 
 Set the recordTerminator attribute. 
-
-=item getWriteAxisOrderList (EMPTY)
-
-This method sets the ordering of the fastest to slowest axis forwriting out delimited data. The default is to use the parent arrayaxisList ordering. 
-
-=item setWriteAxisOrderList ($arrayRefValue)
-
-This method sets the ordering of the fastest to slowest axis forwriting out delimited data. The fastest axis is the last inthe array. 
 
 =item getXMLAttributes (EMPTY)
 

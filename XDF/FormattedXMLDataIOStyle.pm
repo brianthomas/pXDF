@@ -120,8 +120,9 @@ sub getFormatCommand {
 # */
 sub getWriteAxisOrderList {
   my ($self) =@_;
+
   my $list_ref = $self->{WriteAxisOrderList};
-  $list_ref = $self->{_parentArray}->getAxisList() unless 
+  $list_ref = $self->{_parentArray}->getAxisList() unless
       defined $list_ref || !defined $self->{_parentArray};
   return $list_ref;
 }
@@ -234,6 +235,7 @@ sub toXMLFileHandle {
   my @indent;
   my $Untagged_Instruction_Node_Name = $self->untaggedInstructionNodeName();
   my $next_indent = $indent . $more_indent;
+  #foreach my $axisObj (@{$self->{_parentArray}->getAxisList()}) {
   foreach my $axisObj (@{$self->getWriteAxisOrderList()}) {
     my $axisId = $axisObj->getAxisId();
     push @indent, $next_indent;
@@ -279,6 +281,7 @@ sub _init {
 
   # set defaults
   $self->{FormatCmdList} = []; 
+  $self->{WriteAxisOrderList} = $self->{_parentArray}->getAxisList();
 
 }
 
@@ -397,6 +400,9 @@ sub _sprintfNotation {
 # Modification History
 #
 # $Log$
+# Revision 1.10  2001/03/14 16:36:31  thomas
+# No changes, just line layout changed.
+#
 # Revision 1.9  2001/03/09 21:54:59  thomas
 # removed hasSPecialIntegers method. Now code is in reader.
 #
@@ -494,16 +500,6 @@ These methods set the requested attribute if an argument is supplied to the meth
 
 
 =item getFormatCommand ($expandRepeatCommands, $index)
-
-
-
-=item getWriteAxisOrderList (EMPTY)
-
-This method sets the ordering of the fastest to slowest axis forwriting out formatted data. The default is to use the parent arrayaxisList ordering. 
-
-=item setWriteAxisOrderList ($arrayRefValue)
-
-This method sets the ordering of the fastest to slowest axis forwriting out formatted data. The fastest axis is the last inthe array. 
 
 =item getCommands (EMPTY)
 
