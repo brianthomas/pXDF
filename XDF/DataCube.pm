@@ -712,6 +712,7 @@ sub _write_untagged_data {
 
       while ($there_is_more_data) {
         my $this_data = $self->getData($locator);
+        $this_data = "" unless defined $this_data; # bad, we should use noData value here (or throw error).
         $dataNumb++;
         if( $dataNumb >= $fast_axis_length ) {
           print $fileHandle $this_data . $terminator;
@@ -1015,6 +1016,10 @@ sub _build_locator_string {
 # Modification History
 #
 # $Log$
+# Revision 1.28  2001/07/06 18:28:24  thomas
+# print empty string if getData returns null on
+# delmited data.
+#
 # Revision 1.27  2001/06/29 21:07:12  thomas
 # changed public add (and remove) methods to
 # conform to Java API standard: e.g. return boolean
