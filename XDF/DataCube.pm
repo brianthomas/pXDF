@@ -295,7 +295,7 @@ sub addData {
   my ($self, $locator, $data, $no_append ) = @_;
 
   # safety
-  unless (defined $locator || defined $data) {
+  unless (defined $locator && defined $data) {
     carp "Please specify location and data value. Ignoring addData request.";
     return;
   }
@@ -318,7 +318,7 @@ my $locationPos;
 my $locationName;
 for (@{$locator->getIterationOrder()}) {
    $locationName .= $_->getAxisId() . ",";
-   $locationPos .= $locator->getAxisLocation($_) . ",";
+   $locationPos .= $locator->getAxisIndex($_) . ",";
 }
 chop $locationPos;
 chop $locationName;
@@ -361,7 +361,7 @@ sub getData {
 
   my $get_string = "\$self->{_data}";
   foreach my $axisObj (@{$self->{_parentArray}->getAxisList()}) {
-     my $loc = $locator->getAxisLocation($axisObj);
+     my $loc = $locator->getAxisIndex($axisObj);
      $get_string = $get_string . "->[$loc]";
   }
 
@@ -541,7 +541,7 @@ sub _build_locator_string {
 
   my $string = '$self->{_data}';
   foreach my $axisObj (@{$parentArray->getAxisList()}) {
-    $string = $string . "->[" . $locator->getAxisLocation($axisObj) . "]";
+    $string = $string . "->[" . $locator->getAxisIndex($axisObj) . "]";
   }
   return $string;
 } 
@@ -549,6 +549,9 @@ sub _build_locator_string {
 # Modification History
 #
 # $Log$
+# Revision 1.7  2001/02/22 19:38:17  thomas
+# Changed axisLocation calls to axisIndex.
+#
 # Revision 1.6  2000/12/15 22:11:58  thomas
 # Regenerated perlDoc section in files. -b.t.
 #
