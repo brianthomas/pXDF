@@ -1,5 +1,5 @@
 
-BEGIN {print "1..3\n";}
+BEGIN {print "1..4\n";}
 END {print "not ok 1\n" unless $loaded;}
 use XDF::Structure;
 $loaded = 1;
@@ -23,36 +23,38 @@ my $test = 1;
   # Test 1. add/get some parameters in the XDF structure
   foreach my $param (0 ... $#param_name) {
     my $paramObj = $XDF->addParameter({ 'name' => $param_name[$param] });
-    my $valueObj = new XDF::Value(); #$param_value[$param]);
+    my $valueObj = new XDF::Value(); 
     $paramObj->addValue($valueObj);
   }
 
-  foreach my $obj (@{$XDF->paramList()}) {
-    push @ret_param_name, $obj->name();
-    push @ret_param_value, $obj->value();
+  foreach my $obj (@{$XDF->getParamList()}) {
+    push @ret_param_name, $obj->getName();
+    push @ret_param_value, @{$obj->getValueList()}[0];
   }
 
   &datamodel_ok($ret_param_name[1] eq $param_name[1]);
 
 
-  # Test 2. Add an axis, add some tickmarks, then remove one tickmark 
-  my $axisObj = $XDF->addAxis({ 'name' => $axis[0], 
-                                 'description' => 'the first axis'}
-                              );
+  # Test 2. Add an axis to an array, add some tickmarks, then remove one tickmark 
+  my $arrayObj = new XDF::Array(); 
+  my $axisObj = $arrayObj->addAxis({ 'name' => $axis[0], 
+                                     'description' => 'the first axis', 
+                                     'axisId' => 'firstAxis' }
+                                  );
   my $remove_tickmark;
   foreach my $val (@starting_tickmark_values) {
-    $remove_tickmark = $axisObj->addTickMark($val); 
+    $remove_tickmark = $axisObj->addAxisValue($val); 
   }
-  &datamodel_ok (   defined $axisObj->remove_tickmark($remove_tickmark) &&
+  &datamodel_ok (   defined $axisObj->removeAxisValue($remove_tickmark) &&
                     $ending_tickmark_values[$#ending_tickmark_values] eq 
                     $starting_tickmark_values[1]
                  );
 
 
   # Test 3. Add some notes to the structure, then remove one 
-  $XDF->addNote({'mark' => '1', 'value' => "one way to add a note"}) || die "Cant add note\n";
+  my $firstNoteObj = $XDF->addNote({'mark' => '1', 'value' => "one way to add a note"}); 
   my $remove_obj = $XDF->addNote("A note that I will remove.");
-  &datamodel_ok (defined $XDF->remove_note($remove_obj));
+  &datamodel_ok (defined $XDF->removeNote($remove_obj));
 
 sub datamodel_ok {
     my $ok = shift;
