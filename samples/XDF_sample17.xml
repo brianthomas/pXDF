@@ -1,0 +1,41 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE XDF SYSTEM "XDF_018.dtd">
+<XDF name="XDF" description="The simple XDF table format using columns">
+  <parameter name="obsdate">
+    <unitless/>
+    <value>01-12-99</value>
+  </parameter>
+  <array name="Raw Frame Data">
+     <parameter name="integration time">
+         <units><unit>sec</unit></units>
+         <value>900</value>
+     </parameter>
+     <units>
+        <unit>counts</unit>
+        <unit power="-1">seconds</unit>
+     </units>
+     <dataFormat>
+        <float width="5" precision="2"/>
+     </dataFormat>
+     <colAxis name="X axis" size="10"/>
+     <rowAxis name="Y axis" size="10"/>
+ <!-- this array is transposed from that in sample 16 -->
+     <data>
+        <column>76.53 78.75 67.78 32.59 05.97 68.77 25.39 51.86  2.48 40.29</column>
+        <column>89.37 10.68 82.31 17.85 25.87 64.17 92.64 47.88 44.54 85.05</column>
+        <column> 7.48  1.09  3.15  8.63 20.26  7.27 24.19 72.09  9.69 69.78</column>
+        <column>75.43 86.23 48.53 43.22 18.81 54.50 11.99 44.20  6.37 14.47</column>
+        <column>84.50 95.73 25.15 66.81 13.58 51.03 30.98  6.22 98.91 75.51</column>
+        <column>91.27  6.39 76.60 94.42 15.01 96.86  1.69 39.20 68.95 11.38</column>
+        <column> 8.98 44.38 97.61 57.51 87.60 16.42 12.01 99.59 60.63 18.38</column>
+        <column>14.05 45.13 14.11 39.21 11.93 27.70 90.23 42.91 33.92 89.14</column>
+        <column>18.42 25.19 95.53 95.03 19.62 10.54 91.89 21.31 49.74 60.83</column>
+        <column>32.69 58.72  5.22 30.30 16.23 92.81 46.72 28.24 92.40  7.35</column>
+     </data>
+     <notes>
+        <note>Improper cooling of the camera may have resulted in significant dark current.</note>
+        <note noteId="note2" location="6 2">No data because of a cosmic ray hit</note>
+        <note noteIdRef="note2" location="8 3"/>
+     </notes>
+  </array>
+</XDF>
