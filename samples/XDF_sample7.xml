@@ -1,6 +1,8 @@
 <?xml version ="1.0"?>
 <!DOCTYPE XDF SYSTEM "XDF_0.17.dtd" [
-  <!ENTITY table SYSTEM "binarytable0">
+  <!NOTATION xdf PUBLIC "application/xdf">
+  <!ENTITY ApJ "&#10;">
+  <!ENTITY table1 SYSTEM "binarytable0" NDATA xdf>
 ]>
 <XDF name="A sample XDF document" description="This shows how to put any data into XDF using formatted data IO Style.">
   <parameterGroup>
@@ -34,26 +36,26 @@
           <units>
             <unit>degrees</unit>
           </units>
-          <dataFormat><binaryFloat bits="64"/></dataFormat>
+          <dataFormat><binaryFloat bits="32"/></dataFormat>
         </field>
         <field name="declination">
           <units>
             <unit>degrees</unit>
           </units>
-          <dataFormat><binaryFloat bits="64"/></dataFormat>
+          <dataFormat><binaryFloat bits="32"/></dataFormat>
         </field>
       </fieldGroup>
       <field name="V-band Flux" fieldId="vmag">
         <units>
           <unit>magnitude</unit>
         </units>
-        <dataFormat><binaryFloat bits="64"/></dataFormat>
+        <dataFormat><binaryFloat bits="32"/></dataFormat>
       </field>
       <field name="V-band Error">
         <units>
           <unit>magnitude</unit>
         </units>
-        <dataFormat><binaryFloat bits="64"/></dataFormat>
+        <dataFormat><binaryFloat bits="32"/></dataFormat>
         <relation fieldIdRefs="vmag" role="errors"/>
       </field>
       <field name="CCD ID Number" fieldId="ccdNumber">
@@ -67,6 +69,10 @@
           <unitless/>
         </units>
         <dataFormat><float width="8" precision="3" exponent="2"/></dataFormat>
+<!--
+        <dataFormat><string length="8"/></dataFormat>
+        <dataFormat><binaryFloat bits="64"/></dataFormat>
+-->
       </field>
       <field name="Reference">
         <units>
@@ -86,7 +92,7 @@
         <value>2</value>
       </valueGroup>
     </axis>
-    <read encoding="UTF-8">
+    <read encoding="UTF-8" endian="LittleEndian">
       <for axisIdRef="rows">
         <for axisIdRef="fields">
           <repeat count="7">
@@ -98,7 +104,7 @@
         </for>
       </for>
     </read>
-    <data href="table"></data>
+    <data href="table1"></data> 
     <notes>
       <locationOrder>
         <index axisIdRef="fields"/>
