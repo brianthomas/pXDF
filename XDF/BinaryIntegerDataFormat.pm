@@ -34,6 +34,8 @@ package XDF::BinaryIntegerDataFormat;
 # /** SEE ALSO
 # */
 
+use XDF::Constants;
+use XDF::Utility;
 use XDF::DataFormat;
 use Carp;
 
@@ -46,14 +48,17 @@ use vars qw ($AUTOLOAD %field @ISA);
 @ISA = ("XDF::DataFormat");
 
 # CLASS DATA
-my $Def_BinaryInteger_Bits = 32;
+my $Def_BinaryInteger_Bits = 16;
 my $Def_BinaryInteger_Signed = 'yes';
 my $Class_XML_Node_Name = "binaryInteger";
 my @Class_XML_Attributes = qw (
                              signed
                              bits
                           );
-my @Class_Attributes = ();
+my @Class_Attributes = qw (
+                             _templateNotation
+                             _unpackTemplateNotation
+                          );
 
 #add in class XML attributes
 push @Class_Attributes, @Class_XML_Attributes;
@@ -114,9 +119,11 @@ sub getBits {
 # */
 sub setBits {
    my ($self, $value) = @_;
-   carp "Cant set bits to value other than 16, 32 or 64 \n"
-      unless (defined $value && ($value == 64 or $value == 32 or $value == 16));
+
+   carp "Cant set bits to $value, not allowed \n"
+      unless (&XDF::Utility::isValidIntegerBits($value));
    $self->{Bits} = $value;
+   $self->_updateTemplate;
 }
 
 # /** getSigned
@@ -131,7 +138,42 @@ sub getSigned{
 # */
 sub setSigned {
    my ($self, $value) = @_;
+   carp "Cant set signed to $value, not allowed \n"
+      unless (&XDF::Utility::isValidBinaryIntegerSigned($value));
    $self->{Signed} = $value;
+}
+
+#
+# Other Public Methods
+# 
+
+#/** convertBitStringToIntegerBits
+# * Convert the string representation of bits into the binary
+# * integer bits as specified by an instance of a BinaryIntegerDataFormat object.
+# * The desired endianness of the output data bits must be supplied.
+# * The actual integer bits are returned. 
+# */
+sub convertBitStringToIntegerBits {
+  my ($self, $bitString, $dataEndian) = @_;
+
+  return undef unless defined $bitString && defined $dataEndian;
+
+  # this check could slow down things.
+  unless (length($bitString) == $self->{Bits})
+  {
+     warn "XDF::BinaryIntegerDataFormat->convertBitStringToInteger got different number of bits than specified in the dataformat object, cannot convert passed string.\n";
+     return undef;
+  }
+
+  if ($dataEndian ne &XDF::Constants::PLATFORM_ENDIAN) {
+     $bitString = XDF::Utility::reverseBitStringByteOrder($bitString, $self->{Bits});
+  } 
+
+  my $packtemplate = $self->{_templateNotation};
+  my $unpacktemplate = $self->{_unpackTemplateNotation};
+
+  return unpack $unpacktemplate, pack $packtemplate, $bitString;
+
 }
 
 # /** numOfBytes
@@ -168,85 +210,58 @@ sub _init {
 
   $self->{Bits} = $Def_BinaryInteger_Bits;
   $self->{Signed} = $Def_BinaryInteger_Signed;
+  $self->_updateTemplate;
 }
-
 
 sub _templateNotation {
   my ($self) = @_;
-  my $width = $self->{Bits};
-  my $template = $self->getEndian() eq $self->SUPER::getLittleEndian ? "b" : "B";
-  return $template;
+  return $self->{_templateNotation};
 }
 
-# Yes, this is sub-optimal. We dont treat having littleEndian AND
-# unsigned or 64-bit AND littleEndian. Need to reformulate a more
-# basic subroutine. -b.t. 
-sub _oldtemplateNotation {
-  my ($self, $endian, $encoding) = @_;
+sub _updateTemplate {
+  my ($self) = @_;
 
-  my $width = $self->numOfBytes()/4; 
+  my $bits = $self->{Bits};
+  $self->{_templateNotation} = "B" . $bits;
 
-  # we have 32 bit numbers as default
-  die "XDF::BinaryInteger cant handle > 32 bit Integer Numbers\n" unless ($width <= 1);
-
-  #ok, lets find our template symbol
-  my $symbol;
-  my $bitsize = $self->{Bits};
-  # we hardwired 'BigEndian" response here. Bad!
-  my $isBigEndian = !defined $endian  || $endian eq 'BigEndian' ? 1 : 0;
-  my $isSigned = $self->{Signed};
- 
-  if ($bitsize <= 16) {
-     $symbol = "v";
-     $symbol = "n" if $isBigEndian;
-  } elsif ($bitsize <= 32) {
-     $symbol = "V";
-     $symbol = "N" if $isBigEndian;
-  } elsif ($bitsize <= 64) {
-     # we get a 'quad'. No idea what endianess this is :P.
-     $symbol = "Q";
-     $symbol = "q" if $isSigned;
+  # determine unpack template from number of bits 
+  # Yes, we make the assumption here that the platform
+  # is POSIX 32 bit machine (e.g short is 16 bits, etc).
+  if ($bits == 16) {
+     $self->{_unpackTemplateNotation} = "s";
+  } elsif ($bits == 32) {
+     $self->{_unpackTemplateNotation} = "i";
+  } elsif ($bits == 64) {
+     $self->{_unpackTemplateNotation} = "l";
+  } else {
+    die "Got weird number of bits $bits, cant assign unpackTemplate for BinaryIntegerDataFormat.\n";
   }
 
-  # what if we are signed?
-  $symbol = 
-
-  return "$symbol";
+  # if signed, then perl wants a capital letter
+  if ($self->{Signed}) {
+     $self->{_unpackTemplateNotation} = ucfirst $self->{_unpackTemplateNotation}; 
+  }
 
 }
 
 sub _regexNotation {
-  my ($self) = @_;
-
-  my $width = $self->numOfBytes();
-  my $symbol = $Perl_Regex_Field_BinaryInteger;
-
-  my $notation = '(';
-#  my $before_whitespace = $width - 1;
-#  $notation .= '\s' . "{0,$before_whitespace}" if($before_whitespace > 0);
-  $notation .= $symbol . '{' . $width . '}';
-  $notation .= ')';
-
-  return $notation;
-
+  carp "_regexNotation shouldnt be called for binary numbers\n";
 }
 
 # returns sprintf field notation
 sub _sprintfNotation {
-  my ($self) = @_;
-
-  my $notation = '%';
-  my $field_symbol = $Perl_Sprintf_Field_BinaryInteger;
-
-  $notation .= $self->{Width}; 
-  $notation .= $field_symbol;
-
-  return $notation;
+  carp "_sprintfNotation shouldnt be called for binary numbers\n";
 }
 
 # Modification History
 #
 # $Log$
+# Revision 1.11  2001/03/09 22:06:40  thomas
+# Shunted some class data to Constants class. Added checks from Uiltity
+# package on setting some attributes. Added method to correctly change
+# bitString into binary representation for integer as proscribed by an
+# instance of this class.
+#
 # Revision 1.10  2001/03/07 23:12:57  thomas
 # messing with templateNotation. changed for time being.
 #
