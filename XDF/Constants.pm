@@ -41,7 +41,7 @@ use integer;
 use vars qw { $VERSION };
 
 # the version of this module
-$VERSION = "0.17-beta2";
+$VERSION = "0.18-alpha1";
 
 # This is used by XMLElement for referencing a document. Only
 # because the DOM spec requires that a document be specified 
@@ -49,7 +49,7 @@ $VERSION = "0.17-beta2";
 # object would suffice. Nevertheless, we can save memory by always
 # using this single document.
 my $InternalDOMDocument;
-my $XDF_DTD_NAME = "XDF_017.dtd"; 
+my $XDF_DTD_NAME = "XDF_018.dtd"; 
 
 # internal thing. 
 my $PCDATA_Attribute = 'value';
@@ -170,40 +170,56 @@ sub DEFAULT_VALUELIST_START { 0; }
 sub DEFAULT_VALUELIST_REPEATABLE { 0; }
 sub DEFAULT_VALUELIST_DELIMITER { " "; }
 
+sub XDF_NOTATION_NAME {
+  return 'xdf'; 
+}
+
+sub XDF_NOTATION_PUBLICID {
+  return 'application/xdf'; 
+}
+
 sub XDF_ROOT_NODE_NAME {
   my %hash = &XDF_NODE_NAMES; 
   return $hash{'root'};
 }
 
 sub XDF_NODE_NAMES { (
-                      'textDelimiter' => 'textDelimiter',
                       'array' => 'array',
                       'axis' => 'axis',
                       'axisUnits' => 'axisUnits',
                       'binaryFloat' => 'binaryFloat',
                       'binaryInteger' => 'binaryInteger',
+                      'chars' => 'chars',
                       'data' => 'data',
                       'dataFormat' => 'dataFormat',
+                      'delimiter' => 'delimiter',
+                      'delimitedStyle' => 'delimited',
+                      'delimitedReadInstructions' => 'delimitedInstruction',
                       'field' => 'field',
                       'fieldAxis' => 'fieldAxis',
+                      'formattedStyle' => 'fixedWidth',
+                      'formattedReadInstructions' => 'fixedWidthInstruction',
                       'float' => 'float',
                       'for' => 'for',
                       'fieldGroup' => 'fieldGroup',
                       'index' => 'index',
                       'integer' => 'integer',
                       'locationOrder' => 'locationOrder',
+                      'newline' => 'newLine',
                       'note' => 'note',
                       'notes' => 'notes',
                       'parameter' => 'parameter',
                       'parameterGroup' => 'parameterGroup',
                       'root' => 'XDF',   # beware setting this to the same name as structure 
-                      'read' => 'read',
+                      'read' => 'dataStyle',
                       'readCell' => 'readCell',
+                      'recordTerminator' => 'recordTerminator',
                       'repeat' => 'repeat',
                       'relationship' => 'relation',
-                      'skipChar' => 'skipChars',
+                      'skipChar' => 'skip',
                       'structure' => 'structure',
                       'string' => 'string',
+                      'taggedStyle' => 'tagged',
                       'tagToAxis' => 'tagToAxis',
                       'td0' => 'd0',
                       'td1' => 'd1',
