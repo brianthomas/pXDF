@@ -2436,36 +2436,6 @@ sub _deal_with_special_integer_data {
   return @data;
 }
 
-
-#sub _deal_with_options {
-#  my ($options_ref) = @_;
-
-#  while (my ($option, $value) = each (%{$options_ref})) {
-#     if($option eq 'quiet') {
-#        $QUIET = $value;
-#     } elsif($option eq 'debug') {
-#        $DEBUG = $value;
-#     } elsif($option eq 'axisSize') {
-#        $DEF_ARRAY_AXIS_SIZE = $value;
-#     } elsif($option eq 'validate') {
-#         $USE_VALIDATING_PARSER = $value;
-#     } elsif($option eq 'msgThresh') {
-#       $PARSER_MSG_THRESHOLD = $value;
-#     } elsif($option eq 'maxWarning') {
-#       $MAX_WARNINGS = $value;
-#     } elsif( $option eq 'noExpand'
-#             or $option eq 'parseParamEnt'
-#             or $option eq 'namespaces'
-#            )
-#     {
-#       # do nothing here. The parser will use these
-#     } else {
-#        &_printError("Unknown option: $option, Ignoring\n") unless $QUIET;
-#     }
-#  }
-
-#}
-
 # very limited. We want to just treat the linear
 # insertion case 
 sub _get_valueList_node_values {
@@ -2493,14 +2463,13 @@ sub _get_valueList_node_values {
 
 # this is the actual default start handler for the Reader.
 # (see Default_Handler hash)
+# This subroutine WONT be used if the user uses the method
+# setDefaultStartHandler().
 sub _default_start_handler {
    my ($self,$e, $attrib_hash_ref) = @_;
 
    my $parentNodeName = $self->_parentNodeName();
    my $newelement;
-
-print STDERR "Parent Node name:[$parentNodeName] ",join ',', @_,"\n"; 
-print STDERR "\tpath:", join '/', @{$self->{currentNodePath}} ,"\n";
 
    # the DTD sez that if we get non-xdf defined nodes, it IS 
    # allowed as long as these are children of the following 
@@ -2511,27 +2480,27 @@ print STDERR "\tpath:", join '/', @{$self->{currentNodePath}} ,"\n";
      ) 
    {
 
-     $newelement = &_create_new_element($e, $attrib_hash_ref);
+     $newelement = &_create_new_XMLelement($e, $attrib_hash_ref);
      $self->{currentStructure}->addXMLElement($newelement);
 
    } elsif( $parentNodeName eq $XDF_node_name{'array'} ) { 
 
-     $newelement = &_create_new_element($e, $attrib_hash_ref);
+     $newelement = &_create_new_XMLelement($e, $attrib_hash_ref);
      $self->{currentArray}->addXMLElement($newelement);
 
-   } elsif( $parentNodeName eq $XDF_node_name{'fieldaxis'} ) { 
+   } elsif( $parentNodeName eq $XDF_node_name{'fieldAxis'} ) { 
 
-     $newelement = &_create_new_element($e, $attrib_hash_ref);
+     $newelement = &_create_new_XMLelement($e, $attrib_hash_ref);
      $self->{currentArray}->getFieldAxis->addXMLElement($newelement);
 
    } elsif( $parentNodeName eq $XDF_node_name{'axis'} ) { 
 
-     $newelement = &_create_new_element($e, $attrib_hash_ref);
+     $newelement = &_create_new_XMLelement($e, $attrib_hash_ref);
      $self->_lastAxisObj->addXMLElement($newelement);
 
    } elsif( $parentNodeName eq $XDF_node_name{'field'} ) { 
 
-     $newelement = &_create_new_element($e, $attrib_hash_ref);
+     $newelement = &_create_new_XMLelement($e, $attrib_hash_ref);
      $self->_lastFieldObj()->addXMLElement($newelement);
 
    } else {
@@ -2539,9 +2508,9 @@ print STDERR "\tpath:", join '/', @{$self->{currentNodePath}} ,"\n";
       my $lastObj = $self->_lastObj; 
       if (defined $lastObj && ref($lastObj) eq 'XDF::XMLElement') {
 
-print STDERR "add to existing xmlelement obj ($parentNodeName)\n";
-         $newelement = &_create_new_element($e, $attrib_hash_ref);
+         $newelement = &_create_new_XMLelement($e, $attrib_hash_ref);
          $lastObj->addXMLElement($newelement);
+
       } else {
          $self->_printWarning("Warning: ILLEGAL NODE:[$e] (child of $parentNodeName) encountered. Ignoring.\n") 
             unless $self->{Options}->{quiet}; 
@@ -2552,7 +2521,8 @@ print STDERR "add to existing xmlelement obj ($parentNodeName)\n";
    return $newelement;
 }
 
-sub _create_new_element {
+# create a new XML element from passed attributes
+sub _create_new_XMLelement {
   my ($name, $attrib_hash_ref) = @_;
 
    my $newelement = new XDF::XMLElement();
@@ -2566,6 +2536,9 @@ sub _create_new_element {
    return $newelement;
 }
 
+# this is the actual default CDATA handler for the Reader.
+# This subroutine WONT be used if the user uses the method
+# setCharDataHandler()
 sub _default_cdata_handler {
    my ($self, $string) = @_;
 
@@ -2585,6 +2558,7 @@ sub _default_cdata_handler {
 
 }
 
+# execute the appropriate start handler
 sub _exec_default_Start_Handler {
    my ($self, $element, $attrib_hash_ref) = @_;
 
@@ -2597,6 +2571,7 @@ sub _exec_default_Start_Handler {
    }
 }
 
+# execute the appropriate end handler
 sub _exec_default_End_Handler {
    my ($self, $element) = @_;
 
@@ -2609,6 +2584,7 @@ sub _exec_default_End_Handler {
    }
 }
 
+# execute the appropriate Cdata handler
 sub _exec_default_CData_Handler {
    my ($self, $string) = @_;
 
@@ -2622,6 +2598,7 @@ sub _exec_default_CData_Handler {
 }
 
 # only deals with files right now. Bleah.
+# we need some form of entityResolving in Perl to do this right.
 sub _getHrefData {
    my ($href) = @_;
 
@@ -2831,6 +2808,11 @@ sub _appendArrayToArray {
 # Modification History
 #
 # $Log$
+# Revision 1.22  2001/03/21 20:41:35  thomas
+# minor bug fix: misspelled 'fieldAxis' at line 2540 or so.
+# removed commented out _deal_with_options.
+# removed minor debuging lines.
+#
 # Revision 1.21  2001/03/21 20:20:23  thomas
 # Fixed all start Handlers so that they return the object they create.
 # Added _lastObj method.
