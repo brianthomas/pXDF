@@ -1,0 +1,47 @@
+
+	This directory contains a number of sample files 
+        that illustrate various ways of holding data in XDF.
+
+	A brief description of each is ('table' means array has a fields,
+        'image' means it does not):
+
+        document.xml          - an XML document with XDF embedded in it. 
+                                The XDF table contains formatted 2D data
+                                and the document has a DTD, myDocument.dtd.
+
+        ApJ_464_79_table1.xml - an XML document with XDF embedded in it.
+                                The XDF table contains tagged 2D data.
+
+        XDF_sample1.xml       - an XDF document with single 2D formatted image. 
+
+        XDF_sample2.xml       - an XDF document with single 2D formatted table. 
+
+        XDF_sample3.xml       - an XDF document with single 2D tagged table.
+
+        XDF_sample4.xml       - an XDF document with three 2D formatted images. 
+
+        XDF_sample5.xml       - an XDF document with single 2D delmited table.
+
+        XDF_sample6.xml       - an XDF document with single 2D formatted table 
+                                stored in an external file. This data has start/endByte
+                                attributes. 
+
+        XDF_sample7.xml       - an XDF document with single 2D formatted table
+                                stored in an external file as binary data. 
+
+        XDF_sample8.xml       - an XDF document with two 2D formatted images that 
+                                should be read in as one (e.g. appended by the XDF Reader). 
+
+        XDF_sample9.xml       - an XDF document with single 2D formatted table 
+                                stored in an external file, compressed with gzip.
+
+        XDF_sample10.xml      - an XDF document with single 2D formatted table 
+                                stored in an external file, compressed with bzip2.
+
+        XDF_sample11.xml      - an XDF document with single 2D formatted table
+                                stored in an external file, compressed with zip.
+
+        XDF_sample12.xml      - same as XDF_sample3 but tagged order is reversed. 
+
+        XDF_sample13.xml      - an XDF document with single 3D formatted image.
+
