@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <!DOCTYPE XDF SYSTEM "XDF_018.dtd" [
-<!ENTITY table1 SYSTEM "binarytable0" NDATA xdf>
+<!ENTITY table1 SYSTEM "XDF_sample7.dat" NDATA xdf>
 <!ENTITY newLine "&#10;">
 <!NOTATION xdf PUBLIC "application/xdf">
 ]>
