@@ -113,7 +113,8 @@ my $Class_XML_Node_Name = "axis";
 my @Local_Class_XML_Attributes = qw (
                       name
                       description
-                      axisDatatype
+                      conversion
+                      labelDataFormat
                       units
                       size
                       align
@@ -204,25 +205,65 @@ sub setDescription {
    $self->{description} = $value;
 }
 
+# /** getConversion
+#   
+#  */
+sub getConversion {
+   my ($self) = @_;
+   return $self->{conversion};
+}
+
+# /** setConversion
+#     Set how to convert values of the data in this array. 
+#  */
+sub setConversion {
+   my ($self, $value) = @_;
+   $self->{conversion} = $value;
+} 
+
 # /** getAxisDatatype
+# Deprecated in this version. 
 # */
 sub getAxisDatatype {
    my ($self) = @_;
-   return $self->{axisDatatype};
+#   error("Use of axis->getAxisDatatype is not supported in XDF 0.18, please use axis->getLabelDataFormat instead.\n";
+   info("Use of axis->getAxisDatatype is not deprecated in XDF 0.18, please use axis->getLabelDataFormat instead.\n");
+   return $self->getLabelDataFormat();
+#   return undef;
 }
 
-# /** setAxisDatatype
-#     Set the axisDatatype attribute. 
-# */
 sub setAxisDatatype {
    my ($self, $value) = @_;
 
-   unless (&XDF::Utility::isValidDatatype($value)) {
-     error("Cant set axisDatatype to $value, not allowed, ignoring \n");
-     return;
-   }
+#   error("Use of axis->setAxisDatatype is not supported in XDF 0.18, please use axis->setLabelDataFormat instead.\n";
+   info("Use of axis->setAxisDatatype is deprecated in XDF 0.18, please use axis->setLabelDataFormat instead.\n");
+   return $self->setLabelDataFormat($value);
+#   return;
+}
 
-   $self->{axisDatatype} = $value;
+# /** getLabelDataFormat
+#  Get the description of the format of the axis labeling.
+# */
+sub getLabelDataFormat {
+  my ($self) = @_;
+  return $self->{labelDataFormat};
+}
+
+# /** setLabelDataFormat
+#  Set the description of the format of the axis labeling.
+# Thus, if an axis has labeled indices of "0", "1", "2", "3"
+# it is appropriate to describe them as either "integerDataFormat"
+# or "stringDataFormat" (integer is probably better).
+# */
+sub setLabelDataFormat {
+  my ($self, $value) = @_;
+
+  unless (&XDF::Utility::isValidDataFormat(ref $value)) {
+     error("Cant set axis labelDataFormat to ".ref($value).", not allowed, ignoring \n");
+     return;
+  }
+
+  $self->{labelDataFormat} = $value;
 
 }
 
@@ -236,11 +277,8 @@ sub getSize {
 # /** setSize
 #     Set the size (number of indices) of this axis.
 #     This attribute must be a non-zero whole number.
-#
-#     Changing the size of the axis removes all the axisValues
-#     from the axis if the new size is smaller than the old one
-#     (So, if you shrink the size of the axis, you have to add 
-#      the values of the indices back in).
+#     Reducing the size of the axis will remove all 
+#     the current axisValues from the axis.
 #
 # */
 
@@ -259,7 +297,7 @@ sub setSize {
 
      # As the length changed, so we update array internal datacube 
      if (defined $self->{_parentArray}) {
-        $self->{_parentArray}->_updateInternalLookupIndices();
+        $self->{_parentArray}->_updateAllLocatorInternalLookupIndices();
      }
 
    } else {
@@ -392,12 +430,14 @@ sub setAxisValue {
   }
 
   unless (defined $valueObj ) {
-     if (defined @{$self->{valueList}}->[$index]) {
+     #if (defined @{$self->{valueList}}->[$index]) {
+     if (defined $self->{valueList}->[$index]) {
         # NO, dont do this...
         #   if the axisValue is presently defined, we lower
         #   the lastvalueIndex by 1
         #   $self->{_lastValueIndex}--;
-        @{$self->{valueList}}->[$index] = undef;
+        #@{$self->{valueList}}->[$index] = undef;
+        $self->{valueList}->[$index] = undef;
      }
 
      # no compact description allowed now 
@@ -419,7 +459,7 @@ sub setAxisValue {
 
      # also means length changed, so lets update array internal datacube 
 #     if (defined $self->{_parentArray}) {
-#        $self->{_parentArray}->_updateInternalLookupIndices();
+#        $self->{_parentArray}->_updateAllLocatorInternalLookupIndices();
 #     }
 
 #   }
@@ -427,7 +467,8 @@ sub setAxisValue {
    # set the lastValueIndex
    $self->{_lastValueIndex} = $index;
 
-   @{$self->{valueList}}->[$index] = $valueObj;
+   #@{$self->{valueList}}->[$index] = $valueObj;
+   $self->{valueList}->[$index] = $valueObj;
 
    # no compact description allowed now 
    $self->_resetBaseValueListObjects();
@@ -565,12 +606,13 @@ sub addAxisUnitDirection {
 #  } else {
 
      # use a pre-alocated spot that is undefined
-     @{$self->{valueList}}->[$index] = $obj;
+     #@{$self->{valueList}}->[$index] = $obj;
+     $self->{valueList}->[$index] = $obj;
 
 #  }
 
   if (defined $self->{_parentArray}) {
-     $self->{_parentArray}->_updateInternalLookupIndices();
+     $self->{_parentArray}->_updateAllLocatorInternalLookupIndices();
   }
 
   # bump up the size of last index
@@ -592,10 +634,10 @@ sub removeAxisValue {
   if ($self->_remove_from_list($obj, $self->{ValueList}, 'valueList')) {
 
      # bump down size of the last axisValue 
-     $self->{size} = $self->{_lastAxisValue} -1;
+#     $self->{_lastAxisValue} = $self->{_lastAxisValue} -1;
 
      if (defined $self->{_parentArray}) {
-        $self->{_parentArray}->_updateInternalLookupIndices();
+        $self->{_parentArray}->_updateAllLocatorInternalLookupIndices();
      }
 
      # safety
@@ -690,7 +732,8 @@ sub addValueGroup {
   }
 
   # add the group to the groupOwnedHash
-  %{$self->{_valueGroupOwnedHash}}->{$valueGroupObj} = $valueGroupObj;
+  #%{$self->{_valueGroupOwnedHash}}->{$valueGroupObj} = $valueGroupObj;
+  $self->{_valueGroupOwnedHash}->{$valueGroupObj} = $valueGroupObj;
 
   return 1;
 
@@ -702,8 +745,12 @@ sub addValueGroup {
 # */
 sub removeValueGroup { 
    my ($self, $hashKey ) = @_; 
-   if (exists %{$self->{_valueGroupOwnedHash}}->{$hashKey}) {
-      delete %{$self->{_valueGroupOwnedHash}}->{$hashKey}; 
+   #if (exists %{$self->{_valueGroupOwnedHash}}->{$hashKey}) {
+   #   delete %{$self->{_valueGroupOwnedHash}}->{$hashKey}; 
+   #   return 1;
+   #}
+   if (exists $self->{_valueGroupOwnedHash}->{$hashKey}) {
+      delete $self->{_valueGroupOwnedHash}->{$hashKey}; 
       return 1;
    }
    return 0;
@@ -728,7 +775,8 @@ sub getIndexFromAxisValue {
 
   my $index;
   foreach $index (0 .. $#{$self->{valueList}}) {
-    my $axisValue = @{$self->{valueList}}->[$index];
+    #my $axisValue = @{$self->{valueList}}->[$index];
+    my $axisValue = $self->{valueList}->[$index];
     if (defined $axisValue && $value eq $axisValue->getValue) {
       return $index;
     }
@@ -796,31 +844,21 @@ sub _addAxisValue {
 
   my $index = $self->{_lastValueIndex};
 
-  # have we enough space on the axis?
+  # have we enough space on the axis? No?!? 
+  # in this case, we increase the axis by 1 and 
+  # then 'append' value onto end. This could loop mucho(?) 
   if($self->{size} <= $index) {
      $self->setSize($index + 1);
      return $self->_addAxisValue($valueObj);
   }
 
-#  if (defined @{$self->{valueList}}->[$index]) {
-
-#     # increase the size of the array by pushing
-#     push @{$self->{valueList}}, $valueObj;
-
-#  } else {
-
-     # use a pre-alocated spot that is undefined
-     @{$self->{valueList}}->[$index] = $valueObj;
-
-#  }
+  # In the case that the value lies within the size of the axis
+  # we use a pre-alocated spot that is undefined
+  #@{$self->{valueList}}->[$index] = $valueObj;
+  $self->{valueList}->[$index] = $valueObj;
 
   # bump up the size of last index
   $self->{_lastValueIndex} = $index +1;
-
-  # changed size of axis, must update
-#  if (defined $self->{_parentArray}) {
-#     $self->{_parentArray}->_updateInternalLookupIndices();
-#  }
 
   return 1;
 
