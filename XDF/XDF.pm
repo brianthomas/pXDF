@@ -93,14 +93,16 @@ use vars qw ($AUTOLOAD @ISA %field);
 my $Class_XML_Node_Name = "XDF";
 # NOTE: if you ADD/Change an attribute here, make sure it is
 # properly re-inited in the _init method or you will be sorry!!!
-my @Class_XML_Attributes = qw (
-                                 type
-                              ); 
+my @Local_Class_XML_Attributes = qw (
+                                      type
+                                    ); 
 my @Class_Attributes = qw (
                           ); 
 
 # add in super class XML attributes to our list 
+my @Class_XML_Attributes = ();
 push @Class_XML_Attributes, @{&XDF::Structure::getClassXMLAttributes};
+push @Class_XML_Attributes, @Local_Class_XML_Attributes;
 
 # add in class XML attributes
 push @Class_Attributes, @Class_XML_Attributes;
@@ -228,7 +230,7 @@ sub _init {
   $self->SUPER::_init(); 
 
   # adds to ordered list of XML attributes
-  $self->_appendAttribsToXMLAttribOrder(\@Class_XML_Attributes);
+  $self->_appendAttribsToXMLAttribOrder(\@Local_Class_XML_Attributes);
 
 }
 
@@ -293,6 +295,9 @@ sub _write_XML_decl_to_file_handle {
 # Modification History
 #
 # $Log$
+# Revision 1.4  2001/08/10 16:29:28  thomas
+# Fixed inheritance bug, was repeating Structure attribs 2X.
+#
 # Revision 1.3  2001/07/23 15:58:07  thomas
 # added ability to add arbitary XML attribute to class.
 # getXMLattributes now an instance method, we
