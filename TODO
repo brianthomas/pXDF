@@ -9,7 +9,11 @@
      for example, bring getFormatCommands in FormattedXMLDataIOStyle in line 
      with Java package.
 
+   - Move Fixed and Exponential Data formats over to FloatDataFormat
+
    - Implement append Array/align axis functionality
+
+   - readId/readIdRef not implemented yet.
 
    - Unfortunately, binary transfer between machines of differing arch. is
      difficult and not treated well. We need to explore the use of Data::Dumper
@@ -19,6 +23,8 @@
    ---------------------------------------------------------------------------
    ** AT This Point the package is a "BETA", but more will need to be done: **
    ---------------------------------------------------------------------------
+
+   - Href stuff only supports files. Need Entity Resolver type behavior ala Java.
 
    - minor irritation: order of the attributes written (psuedo-)randomly in
      output XML. Need attribOrder as in Java.
@@ -41,8 +47,8 @@
      -- compression (just stores string, sufficient?)
      -- checksum (just stores string, sufficient?, whats the def?)
 
-   - Note: Perl Binary Integer only support signed OR endian. Investigate how to 
-     do unsigned AND Endianess ?? Also, and more importantly, perl pack 
+   - Note: Perl Binary Integer supports native signed OR endian. Investigate how to 
+     do unsigned AND Endianess?? Also, and more importantly, perl pack 
      puts floats into native format, so binary files across platforms is NOT
      supported (unless the 2 native formats are similar, which is unlikely :P).
 

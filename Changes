@@ -27,4 +27,9 @@ Revision history for Perl extension XDF.
         - Fixed numerous bugs in the Locator incl. its ability
           to find the correct Axes from the parent and change its
           iteration order and the order of traversal for next method.
-          
+
+0.17-beta0 Fri Feb 16 05:31:00 2001
+        - changed getBytes() method name to numOfBytes to conform w/
+          Java API
+        - combined Fixed and Exponential dataFormat classes as FloatDataFormat.
+
