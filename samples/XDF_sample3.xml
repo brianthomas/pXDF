@@ -8,12 +8,12 @@
      <parameter name="date">
        <units><unitless/></units>
        <value>01-12-99</value>
-       <notes><note>This parameter is not accurate.</note></notes>
+       <note>This parameter is not accurate.</note>
      </parameter>
      <parameter name="date2">
        <units><unitless/></units>
        <value>10-22-00</value>
-       <notes><note>This parameter is not accurate either.</note></notes>
+       <note>This parameter is not accurate either.</note>
      </parameter>
    </parameterGroup>
 
