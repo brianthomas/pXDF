@@ -203,7 +203,7 @@ sub toXMLFileHandle {
      } 
 
      # closing node decl 
-     print $fileHandle "<". $self->{NodeName} ."/>";
+     print $fileHandle "</". $self->{NodeName} .">";
 
    } else { 
       # just close the node
@@ -237,6 +237,10 @@ sub _init {
 # Modification History
 #
 # $Log$
+# Revision 1.2  2001/03/26 16:07:55  thomas
+# Bug fix to toXMLFileHandle, node not
+# closing properly.
+#
 # Revision 1.1  2001/03/23 21:53:41  thomas
 # Class needed to treat 'anonymous' nodes that the DTD
 # allows to exist in several spots within the XDF. Holds
