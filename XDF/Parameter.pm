@@ -244,14 +244,6 @@ sub setValueList {
    $self->{ValueList} = \@list;
 }
 
-# /** getValues
-# A convenience method. Returns a list of values in this parameter. 
-# */
-sub getValues {
-  my ($self) = @_;
-  return @{$self->{ValueList}};
-}
-
 # /** getUnits
 # */
 sub getUnits {
@@ -404,6 +396,10 @@ sub _init {
 # Modification History
 #
 # $Log$
+# Revision 1.6  2000/12/18 16:35:54  thomas
+# Fixed Minor problem with getValue/addNote
+# in class. -b.t.
+#
 # Revision 1.5  2000/12/15 22:12:00  thomas
 # Regenerated perlDoc section in files. -b.t.
 #
@@ -890,30 +886,6 @@ These methods set the requested attribute if an argument is supplied to the meth
 
  
 
-=item # /** getValues
-
- 
-
-=item # A convenience method. Returns a list of values in this parameter. 
-
- 
-
-=item # */
-
- 
-
-=item sub getValues {
-
- 
-
-=item return @{$self->{ValueList}};
-
- 
-
-=item }
-
- 
-
 =item # /** getUnits
 
  
@@ -1083,10 +1055,6 @@ Set the noteList attribute.
 =item setValueList ($arrayRefValue)
 
 Set the valueList attribute. 
-
-=item getValues (EMPTY)
-
-A convenience method. Returns a list of values in this parameter. 
 
 =item getUnits (EMPTY)
 
