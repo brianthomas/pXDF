@@ -110,19 +110,19 @@ use vars qw ($AUTOLOAD %field @ISA);
 # */
 
 my $Class_Node_Name = "field";
-                      #lessThanValue
-                      #lessThanOrEqualValue
-                      #greaterThanValue
-                      #greaterThanOrEqualValue
-                      #infiniteValue
-                      #infiniteNegativeValue
-                      #noDataValue
 my @Class_XML_Attributes = qw (
                       name
                       description
                       fieldId
                       fieldIdRef
                       class
+                      lessThanValue
+                      lessThanOrEqualValue
+                      greaterThanValue
+                      greaterThanOrEqualValue
+                      infiniteValue
+                      infiniteNegativeValue
+                      noDataValue
                       units
                       dataFormat
                       relation
@@ -223,7 +223,7 @@ sub setFieldIdRef {
 
 # /** getClass
 # */
-sub getClass{
+sub getClass {
    my ($self) = @_;
    return $self->{Class};
 }
@@ -234,6 +234,109 @@ sub getClass{
 sub setClass {
    my ($self, $value) = @_;
    $self->{Class} = $value;
+}
+
+# /** getLessThanValue
+# */
+sub getLessThanValue {
+   my ($self) = @_;
+   return $self->{LessThanValue};
+}
+
+# /** setLessThanValue
+#     Set the lessThanValue attribute. 
+# */
+sub setLessThanValue {
+   my ($self, $value) = @_;
+   $self->{LessThanValue} = $value;
+}
+
+# /** getLessThanOrEqualValue
+# */
+sub getLessThanOrEqualValue {
+   my ($self) = @_;
+   return $self->{LessThanOrEqualValue};
+}
+
+# /** setLessThanOrEqualValue
+#     Set the lessThanOrEqualValue attribute. 
+# */
+sub setLessThanOrEqualValue {
+   my ($self, $value) = @_;
+   $self->{LessThanOrEqualValue} = $value;
+}
+
+sub getGreaterThanValue {
+   my ($self) = @_;
+   return $self->{GreaterThanValue};
+}
+
+# /** setGreaterThanValue
+#     Set the greaterThanValue attribute. 
+# */
+sub setGreaterThanValue {
+   my ($self, $value) = @_;
+   $self->{GreaterThanValue} = $value;
+}
+
+# /** getGreaterThanOrEqualValue
+# */
+sub getGreaterThanOrEqualValue {
+   my ($self) = @_;
+   return $self->{GreaterThanOrEqualValue};
+}
+
+# /** setGreaterThanOrEqualValue
+#     Set the greaterThanOrEqualValue attribute. 
+# */
+sub setGreaterThanOrEqualValue {
+   my ($self, $value) = @_;
+   $self->{GreaterThanOrEqualValue} = $value;
+}
+
+# /** getInfiniteValue
+# */
+sub getInfiniteValue {
+   my ($self) = @_;
+   return $self->{InfiniteValue};
+}
+
+# /** setInfiniteValue
+#     Set the infiniteValue attribute. 
+# */
+sub setInfiniteValue {
+   my ($self, $value) = @_;
+   $self->{InfiniteValue} = $value;
+}
+
+# /** getInfiniteNegativeValue
+# */
+sub getInfiniteNegativeValue {
+   my ($self) = @_;
+   return $self->{InfiniteNegativeValue};
+}
+
+# /** setInfiniteNegativeValue
+#     Set the infiniteNegativeValue attribute. 
+# */
+sub setInfiniteNegativeValue {
+   my ($self, $value) = @_;
+   $self->{InfiniteNegativeValue} = $value;
+}
+
+# /** getNoDataValue
+# */
+sub getNoDataValue {
+   my ($self) = @_;
+   return $self->{NoDataValue};
+}
+
+# /** setNoDataValue
+#     Set the noDataValue attribute. 
+# */
+sub setNoDataValue {
+   my ($self, $value) = @_;
+   $self->{NoDataValue} = $value;
 }
 
 # /** getUnits
@@ -394,6 +497,10 @@ sub _init {
 # Modification History
 #
 # $Log$
+# Revision 1.6  2001/02/22 19:37:09  thomas
+# Re-insert lessthanvalue, etc in Field class
+# for the time being.
+#
 # Revision 1.5  2000/12/15 22:12:00  thomas
 # Regenerated perlDoc section in files. -b.t.
 #
