@@ -69,5 +69,6 @@ Revision history for Perl extension XDF.
           document for easier handling.
         - added Specification class singleton as per Java package.
         - added toString output method in BaseObject.
+        - fixed up XDF_DOC a bit. Still needs work.
 
 
