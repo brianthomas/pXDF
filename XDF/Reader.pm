@@ -1125,7 +1125,7 @@ sub _data_node_end {
         for (@data) {
           $self->{currentArray}->addData($locator, $_);
 
-          &_printDebug("ADDING DATA [$locator]($self->{currentArray}) : [$_]\n");
+          &_printDebug("ADDING DATA [$locator]($self->{currentArray}) : [".$_."]\n");
           $locator->next();
         }
 
@@ -1195,7 +1195,7 @@ sub _data_node_start {
        
      if (defined (my $href = $self->{currentArray}->getDataCube()->getHref())) {
         # add to the datablock
-        $self->{dataBlock} .= &_getHrefData($href);
+        $self->{dataBlock} .= $self->_getHrefData($href);
      }
 
      # this declares we are now reading data, 
@@ -2146,6 +2146,11 @@ sub _printDebug {
    print STDERR $msg if $DEBUG; 
 }
 
+sub _print_extreme_debug { 
+   my ($msg) = @_; 
+   print STDERR $msg if $DEBUG > 1; 
+}
+
 sub _printError { 
    my ($msg) = @_; 
    print STDERR $msg; 
@@ -2226,7 +2231,37 @@ sub _getUniqueIdName {
 
 sub _null_cmd { }
 
-sub _print_extreme_debug ($) { my ($msg) = @_; print STDERR $msg if $DEBUG > 1; }
+sub _getCurrentDataDeCompression {
+  my ($self)= @_;
+
+  my $compression_type = $self->{currentArray}->getDataCube()->getCompression();
+  return $self->_dataDecompressionProgram($compression_type);
+}
+
+# only perl needs this. Need as private method?
+# Certainly this implementation is bad, very bad. 
+# At the minimum we need to put this info in constants
+# class and make it user configurable at make time.
+sub _dataDecompressionProgram {
+  my ($self, $compression_type) = @_;
+
+  return unless defined $compression_type;
+  
+  my $compression_program;
+  if ($compression_type eq &XDF::Constants::DATA_COMPRESSION_GZIP() ) {
+     $compression_program = &XDF::Constants::DATA_COMPRESSION_GZIP_PATH() . ' -dc '; 
+  } elsif ($compression_type eq &XDF::Constants::DATA_COMPRESSION_BZIP2() ) {
+     $compression_program = &XDF::Constants::DATA_COMPRESSION_BZIP2_PATH() . ' -dc '; 
+  } elsif ($compression_type eq &XDF::Constants::DATA_COMPRESSION_COMPRESS() ) {
+     $compression_program = &XDF::Constants::DATA_COMPRESSION_COMPRESS_PATH() . ' -dc '; 
+  } elsif ($compression_type eq &XDF::Constants::DATA_COMPRESSION_ZIP() ) {
+     $compression_program = &XDF::Constants::DATA_COMPRESSION_UNZIP_PATH() . ' -p '; 
+  } else {
+     die "Data decompression for type: $compression_type NOT Implemented. Aborting read.\n";
+  }
+  
+  return $compression_program;
+}
 
 sub _init {
   my ($self, $optionsHashRef) = @_;
@@ -2264,12 +2299,14 @@ sub _init {
   $self->{dataTagLevel} = 0;         # the level where the actual char data is
 
   # our options reference array
-  $self->{Options} = defined $optionsHashRef && ref($optionsHashRef) ? %{$optionsHashRef} : {}; # hash 
+  $self->{Options} = defined $optionsHashRef && ref($optionsHashRef) ? $optionsHashRef : {}; # hash 
   $self->{Options}->{msgThresh} = $PARSER_MSG_THRESHOLD unless defined $self->{Options}->{msgThresh};
   $self->{Options}->{maxWarnings} = $MAX_WARNINGS unless defined $self->{Options}->{maxWarnings};
   $self->{Options}->{quiet} = $QUIET unless defined $self->{Options}->{quiet};
+  $DEBUG = $self->{Options}->{debug} if defined $self->{Options}->{debug};
 
-print STDERR "reader quiet is ",$self->{Options}->{quiet},"\n";
+#print STDERR "reader debug is ",$DEBUG,"\n";
+#print STDERR "reader quiet is ",$self->{Options}->{quiet},"\n";
 
   # lookup hashes of handlers 
   $self->{startElementHandler} = \%Start_Handler;
@@ -2674,19 +2711,34 @@ sub _exec_default_CData_Handler {
 # only deals with files right now. Bleah.
 # we need some form of entityResolving in Perl to do this right.
 sub _getHrefData {
-   my ($href) = @_;
+   my ($self, $href) = @_;
 
    my $file;
    my $text; 
+
    if (defined $href->getSysId) {
        $file = $href->getBase() if $href->getBase();
        $file .= $href->getSysId();
+
+   my $openstatement = $file;
+   my $compression_prog = $self->_getCurrentDataDeCompression;
+
+   if (defined $compression_prog) {
+       $openstatement = " $compression_prog $openstatement|";
+   }
+
        undef $/; #input rec separator, once newline, now nothing.
                  # will cause whole file to be read in one whack 
-       open(DATAFILE, $file);
+       #my $can_open = open(DATAFILE, $file);
+       my $can_open = open(DATAFILE, $openstatement);
+       if (!$can_open) {
+          print STDERR "Cant open $file, aborting read of this data file.\n";
+          return "";
+       }
        # binmode(DATAFILE); # needed ?
        $text = <DATAFILE>;
        close DATAFILE;
+
    } else {
       die "XDF::Reader can't read Href data, SYSID is not defined!\n";
    }
@@ -2882,6 +2934,9 @@ sub _appendArrayToArray {
 # Modification History
 #
 # $Log$
+# Revision 1.28  2001/06/19 21:21:39  thomas
+# added reading of compressed files.
+#
 # Revision 1.27  2001/05/29 21:09:58  thomas
 # small fix in _init for optionshashref.
 #
