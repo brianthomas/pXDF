@@ -10,7 +10,7 @@
           <dataFormat><float width="5" precision="2"/></dataFormat>
           <axis name="x" axisId="x-axis" size="10">
              <units><unit>pixel</unit></units>
-             <valueList delimiter=" " repeatable="yes">10  9 8 7 6 5 4 3 2 1</valueList>
+             <valueListAlgorithm><polynomial size="10">0 1</polynomial></valueListAlgorithm>
           </axis>
           <axis name="y" axisId="y-axis" size="10">
              <units><unit>pixel</unit></units>
