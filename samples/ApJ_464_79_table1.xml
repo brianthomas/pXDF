@@ -70,7 +70,7 @@
     </fieldAxis>
     <axis description="number of rows in table" axisId="Axis2" size="143">
       <unitless/>
-      <valueList start="1" size="143"/>
+      <valueListAlgorithm><polynomial size="143">0 1</polynomial></valueListAlgorithm>
     </axis>
     <dataStyle>
       <tagged>
