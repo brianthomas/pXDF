@@ -258,14 +258,14 @@ sub writeDataToFileHandle {
   my $niceOutput = $self->Pretty_XDF_Output();
   $indent = "" unless defined $indent;
 
-  my $readObj = $self->{_parentArray}->getXMLDataIOStyle();
+  # a couple of shortcuts
+  my $parentArray = $self->{_parentArray};
+  my $href = $self->{Href};
+
+  my $readObj = $parentArray->getXMLDataIOStyle();
 
   croak "DataCube can't write out. No format reference object defined.\n"
      unless defined $readObj;
-
-  # a couple of shortcuts
-  my $href = $self->{Href};
-  my $parentArray = $self->{_parentArray};
 
   my $dataFileHandle;
   my $dataFileName;
@@ -813,6 +813,9 @@ sub _build_locator_string {
 # Modification History
 #
 # $Log$
+# Revision 1.14  2001/03/14 16:14:27  thomas
+# *** empty log message ***
+#
 # Revision 1.13  2001/03/13 16:13:20  thomas
 # made writeDataToFileHandle public method.
 #
