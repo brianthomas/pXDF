@@ -297,16 +297,16 @@ sub _basicXMLWriter {
   if (defined $hrefObj) {
      print $fileHandle " href=\"";
      print $fileHandle $hrefObj->getName();
-     print $fileHandle "\"";
+     print $fileHandle "\"/>";
+  } else { 
+     print $fileHandle ">";
   }
-
-  print $fileHandle ">";
 
   # write the data
   $self->writeDataToFileHandle($fileHandle, $indent, $self->{compression} );
 
   # close the tagged data section
-  print $fileHandle "</" . $nodeName . ">";
+  print $fileHandle "</" . $nodeName . ">" unless defined $hrefObj;
 
 }
 
