@@ -111,6 +111,7 @@ my @Class_XML_Attributes = qw (
                               );
 my @Class_Attributes = qw (
                              _paramGroupOwnedHash
+                             _locatorList
                           );
 
 # /** name
@@ -500,6 +501,8 @@ sub createLocator {
   my ($self) = @_;
 
   my $locatorObj = new XDF::Locator($self);
+  # add to list of locators we are keeping track of
+  push @{$self->{_locatorList}}, $locatorObj;
   return $locatorObj;
 }
 
