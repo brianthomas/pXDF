@@ -9,32 +9,22 @@
      for example, bring getFormatCommands in FormattedXMLDataIOStyle in line 
      with Java package.
 
-   - need to print <!ENTITY> line at head of file on toXMLFileHandle output
-     calls.
-
-   - toXMLFileHandle has 'get' . $attrib; line for getting XML attribute. Need
-     better method than this. getClassAttributeValues method?? Because of this
-     we are also forced into having getDataCube() method in Array Class (bad). 
-
-   - Problem with inverted data writing back out in Formatted (and Delimited?)
-     XMLDataIOStyles (the file XDF_sample2.xml illustrates problem).
-
-   - Output of Notes/location stuff is yucky, need to use locator objects in
-     the notes, same as we need to do in Java Package. 
-     (e.g. Fix XDF::Note setLocation method related stuff).
-   
-   - minor irritation: order of the attributes written (psuedo-)randomly in
-     output XML. Need attribOrder as in Java. 
-
    - Implement append Array/align axis functionality
-
-   - Treatment of writing out binary data; its invalid unless sent to a separate
-     file. Do we force this to happen? How do we know the right filename? 
-     Do we just throw an error?  Whats the 'right' thing to do??
 
    ---------------------------------------------------------------------------
    ** AT This Point the package is a "BETA", but more will need to be done: **
    ---------------------------------------------------------------------------
+
+   - minor irritation: order of the attributes written (psuedo-)randomly in
+     output XML. Need attribOrder as in Java.
+
+   - Output of Notes/location stuff is yucky, need to use locator objects in
+     the notes, same as we need to do in Java Package.
+     (e.g. Fix XDF::Note setLocation method related stuff).
+
+   - Review Treatment of writing out binary data; its invalid unless sent to a 
+     separate file. Do we force this to happen or throw an error? How do we know 
+     the right filename if we choose the 'force' option?
 
    - ID/REF stuff not handled satisfactorily, we are blowing up the storage
      requirements for objects using the deep clone operation. Perhaps we
@@ -53,14 +43,10 @@
 
    - Need a better treatment of relation node for multiple fields ids. 
 
-   - Although it works, grouping not consistently implemented 
+   - Although it works, grouping not consistently implemented??
      (fix addParamGroup in Array.pm for example)
 
    - Identify addtional convience methods that need to be implemented. Any Chaff to be removed?  
-
-   - Problem of what to do with referencing objects. In the case of simple scalar
-     attributes like strings/obj ref, the local override mechanism seems fine. What
-     happens when we add a new member to a LIST in the object however?
 
    - Problem wi/ External Entities. How to read in DTD to get the
      defaults on the attributes (rather than define them in Objects) 
@@ -71,38 +57,48 @@
 
    - Reconstitute ValueList from values when writing to XML (hurm.. not likely).
 
-   - Investigate the 'fields' pragma. Is faster primative-type datastorage
-     possbile under Perl? 
-
    - Allow user defined handlers for start/end element and char data in XDF::Reader. 
 
-   - Implement function nodes.
-
-   - Improve the documentation.
+   - Improve the documentation (check spelling! improve descriptions of methods).
 
    - User evaluation of method calls. Anything that can be improved? Missing 
      "convience" methods? (yes, this should have been done in object construction,
      but alas, we can forsee *everything*). 
 
-   - Allow handling of large arrays which will swamp the available memory 
-     (implement something like the Berkely DB module so the XDF object will act
-     just like a database :) ). 
-
-   - Allow improved efficiency of datacube operations (implement something 
-     like the PDL module/Math::RealMatrix). 
-
    -------------------------------------------------------------------------
-   ** At this point we have an efficient feature-complete release candidate.
+   ** At this point we have an stable feature-complete release candidate.
    -------------------------------------------------------------------------
 
    Future Development Goals?
    -------------------------
 
-   Move to DTD 0.19, MathML units treatment, etc.
+   - Move up to the XDF 0.20 DTD standard. A major change in this DTD is the 
+     MathML/units treatment.
+
+   - Investigate and implement function nodes (see XDF_sample4.xml for an example).
+
+   - Investigate the 'fields' pragma. Is faster primative-type datastorage possbile 
+     under Perl? 
+
+   - Allow handling of large arrays which will swamp the available memory
+     (implement something like the Berkely DB module so the XDF object will act
+     just like a database :) ).
+
+   - Allow improved efficiency of datacube operations (implement something
+     like the PDL module/Math::RealMatrix).
 
    - Need to implement a shadow array for precision on numbers within the dataCube.
      setData may adjust precision to be *lower* than declared in the relevant
      dataFormat object but may *never* insert a number with *higher* precision than
      currently exists in the dataCube. Need a $array->getPrecision($locator) method
      to identify precision on each cell.
+
+   - Ability to supply application/xdf processing instruction to DOM parser. This should
+     allow DOM parser to produce XDF objects from the XDF nodes embedded in a parent
+     document (and also pass back a DOM of just the parent nodes).
+
+   - Better control over Internal entities. Right now, XDF parser just replaces every
+     thing. We should allow ability NOT to replace and to hang on to the entity list
+     (which is printed back out with the XML from an $obj->toXMLFileHandle method call).
+
 
