@@ -428,50 +428,64 @@ sub writeDataToFileHandle {
 
 }
 
-# /** addData
+#
+# Private/Protected(?) Methods 
+#
+
+# /** _addData
 # This routine will append data to a cell unless directed to do otherwise.
 # RETURNS: 1 on success, 0 on failure.
 # */
-sub addData {
-  my ($self, $locator, $data, $no_append ) = @_;
+sub _addData {
+  my ($self, $locator, $data ) = @_;
 
   return 0 unless defined $locator;
 
-  if ($no_append) {
-     $self->setData($locator, $data);
-     return 1;
-  } else {
-     my $old = $self->getData($locator);
-     $old = "" unless defined $old;
-     $self->setData($locator, $old . $data);
-     return 1;
-  }
+  #this style is actually slower!
+  #my $self = shift;
+  #my $axisListRef = shift;
+  #my $locator = shift;
+  #return 0 unless defined $locator;
+  #my $data = shift;
+
+  my $old = $self->_getData($locator); #, $axisListRef);
+  $old = "" unless defined $old;
+  $self->_setData($locator, $old . $data);
+  return 1;
 
 }
 
-# /** removeData
+# /** _removeData
 # Data held within the requested datacell is removed. The value of the datacell is set to undef.
 # B<NOT CURRENTLY IMPLEMENTED>.
 # */
-sub removeData {
+sub _removeData {
   carp "Remove_data not currently implemented.\n";
 } 
   
-#/** setData
+#/** _setData
 # Set the value of the requested datacell. 
 # Overwrites existing datacell value if already populated with a value.
 # */
-sub setData {
+sub _setData {
    my ($self, $locator, $datum ) = @_;
 
+   return unless defined $locator;
+
+   # this style is actually slower!
+   #my $self = shift;
+   #my $axisListRef = shift;
+   #my $locator = shift;
+   #return unless defined $locator;
+   #my $datum = shift;
+
    # safety check
-   $self->_updateInternalLookupIndices() if ($#{$self->{_data}} == -1);
+#   $self->_updateInternalLookupIndices() if ($#{$self->{_data}} == -1);
 
    # data are stored in a huge 2D array. The long array axis
    # mirrors all dimensions but the 2nd axis. The 2nd axis gives
    # the index on the 'short' internal array.
-   my $longIndex = $self->_getLongArrayIndex($locator);
-#   my $shortIndex = $self->_getShortArrayIndex($locator);
+   my $longIndex = $locator->_getLongArrayIndex();
 
    # Bounds checking
 #   &checkDataArrayBounds($longIndex, $shortIndex);
@@ -488,49 +502,30 @@ sub setData {
 
 }
 
-# This whole routine should probably be in the locator.
-# and update ONLY when the current location is changed.
-# Note that because of complications in storing values from fieldAxis
-# which is always the at the 0 index position (if it exists)
-# we can't simply treat index0 as the short axis. Instead, we
-# have to use the axis at index1 (if it exists).
-sub _getLongArrayIndex {
-   my ($self, $locator) = @_;
+sub _setRecords {
+   my ($self, $locator, $data_array_ref ) = @_;
 
-   my $longIndex = 0;
+   my $longIndex = $locator->_getLongArrayIndex();
 
-   my @axisList = @{$self->{_parentArray}->getAxisList()};
-   my $numOfAxes = ($#axisList+1); # should be internal variable updated on add/removeAxis in Array 
+   if ( $locator->_hasDefaultAxesIOOrder() ) {
+     # fast way, can take a short cut or two 
+     foreach my $datum (@{$data_array_ref}) {
+       $self->{_data}->[$longIndex] = $datum;
+       $longIndex++;
+     }
 
-   if ($numOfAxes > 0) {
-      my $axis = $axisList[0];
-      $longIndex = $locator->getAxisIndex($axis);
-
-      my $array_ref = $self->{_axisLookupIndexArray};
-      my @mult = @{$array_ref};
-      for (my $i = 1; $i < $numOfAxes; $i++) {
-         $axis = $axisList[$i];
-         $longIndex += $locator->getAxisIndex($axis) * $mult[$i];
-      }
-   }
-
-   return $longIndex;
-
+   } else {
+     # have to do this the slow way
+     foreach my $datum (@{$data_array_ref}) {
+       $self->_setData($locator, $datum);
+       $locator->next();
+     }
+   } 
 }
 
-# Should be hardwired w/ private variable. Only
-# updates when addAxis is called by parentArray.
-sub _getShortArrayIndex {
-   my ($self, $locator) = @_; 
+# a placebo.. we need to fix this code..
+sub _updateInternalLookupIndices() {
 
-   my $shortIndex = 0;
-
-   my $shortaxis = $self->_getShortAxis();
-   if (defined $shortaxis ) {
-        $shortIndex = $locator->getAxisIndex($shortaxis);
-   }
-
-   return $shortIndex;
 }
 
 # get the axis that represents the short axis
@@ -552,10 +547,11 @@ sub _getShortAxis {
 # /** getData
 #   We return whatever is stored in the datacell.
 # */
-sub getData {
+sub _getData {
    my ($self, $locator) = @_;
 
-   my $longIndex = $self->_getLongArrayIndex($locator);
+   #my @axisList = @{$self->{_parentArray}->getAxisList()};
+   my $longIndex = $locator->_getLongArrayIndex();
 #   my $shortIndex = $self->_getShortArrayIndex($locator);
 
    my $value = $self->{_data}->[$longIndex];
@@ -566,35 +562,58 @@ sub getData {
 
 }
 
+sub _getRecords {
+  my ($self, $locator, $nrofRecords) = @_;
+  my @records = ();
 
+  my $longIndex = $locator->_getLongArrayIndex();
+  my $dimensions;
 
-# /** getData_old 
-# Retrieve the SCALAR value of the requested datacell.
-# */
-# do we need to do some bounds checking here??
-sub getData_old {
-  my ($self, $locator) = @_;
+  if ( $locator->_hasDefaultAxesIOOrder() ) {
+     # fast way, can take a short cut or two 
+     while ($nrofRecords-- > 0) {
+       push @records, $self->{_data}->[$longIndex];
+       $longIndex++;
+     }
 
-  unless (defined $locator and ref($locator) eq 'XDF::Locator') {
-    warn "getData method not passed a valid XDF::Locator object, ignoring request\n";
-    return;
+  } else {
+
+     if($self->{dimension} == 2) {
+        # try a kludge for 2D
+
+        my $startingLongAxis = $longIndex;
+        my @iterAxes = @{$locator->getIterationOrder()};
+        my $secondAxisSize = $iterAxes[1]->getLength();
+        my $nrofAllocatedDataCells = $iterAxes[0]->getLength() * $secondAxisSize;
+
+        while ($nrofRecords-- > 0) {
+
+           push @records, $self->{_data}->[$longIndex];
+           $longIndex += $secondAxisSize;
+
+           if ($longIndex > $nrofAllocatedDataCells) {
+
+              $startingLongAxis++;
+              $longIndex = $startingLongAxis;
+
+              if ($longIndex > $nrofAllocatedDataCells) {
+                 # hmm. wrapping back around to beginning? Nah.
+                 last;
+              }
+           }
+        }
+
+     } else {
+       # have to do this the slow way
+       while ($nrofRecords-- > 0) {
+          push @records, $self->_getData($locator);
+          $locator->next();
+       }
+     }
   }
 
-  my $get_string = "\$self->{_data}";
-  foreach my $axisObj (@{$self->{_parentArray}->getAxisList()}) {
-     my $loc = $locator->getAxisIndex($axisObj);
-     $get_string = $get_string . "->[$loc]";
-  }
-
-  my $result = eval "$get_string";
-#print STDERR "getData evalstring: [$get_string]\n";
-  return $result;
-
+  return \@records;
 }
-
-#
-# Private/Protected(?) Methods 
-#
 
 # This is called when we cant find any defined method
 # exists already. Used to handle general purpose set/get
@@ -656,23 +675,6 @@ sub _init {
   $self->_appendAttribsToXMLAttribOrder(\@Local_Class_XML_Attributes);
 
 }
-
-sub _updateInternalLookupIndices {
-   my ($self) = @_;
-
-#print STDERR "updateInternal Lookup table\n";
-
-   $self->{_axisLookupIndexArray} = [];
-   push @{$self->{_axisLookupIndexArray}}, 0; # first axis is always 0
-   my @axisList = @{$self->{_parentArray}->getAxisList()};
-   my $mult = 1;
-   foreach my $axisNum (1 .. $#axisList) {
-      $mult *= $axisList[$axisNum-1]->getLength();
-      push @{$self->{_axisLookupIndexArray}}, $mult;
-   }
-
-}
-
 
 # Yes, this is crappy. I plan to come back and do it 'right' one day.
 #
@@ -760,7 +762,7 @@ sub _write_untagged_data {
       my $dataNumb = 0;
 
       while ($there_is_more_data) {
-        my $this_data = $self->getData($locator);
+        my $this_data = $self->_getData($locator);
         $this_data = "" unless defined $this_data; # bad, we should use noData value here (or throw error).
         $dataNumb++;
         if( $dataNumb >= $fast_axis_length ) {
@@ -779,7 +781,7 @@ sub _write_untagged_data {
       my $there_is_more_data = 1;
 
       while ($there_is_more_data) {
-        push @outData, $self->getData($locator) if !defined $outArray[$outArrayNumb];
+        push @outData, $self->_getData($locator) if !defined $outArray[$outArrayNumb];
         $outArrayNumb++;
         while (defined $outArray[$outArrayNumb]) { 
           push @outData, $outArray[$outArrayNumb++];
@@ -860,7 +862,7 @@ sub _writeFormattedData {
 
           if ($backToStartOfDataCube) { last; } # dont bother, we'd be re-printing data 
 
-          my $datum = $self->getData($locator);
+          my $datum = $self->_getData($locator);
           if (defined $datum) {
               &_doReadCellFormattedIOCmdOutput( $fileHandle,
                                            $dataFormat[$currentDataFormat],
@@ -950,8 +952,7 @@ sub _doReadCellFormattedIOCmdOutput {
    my $output;
 #   my $template = $thisDataFormat->_templateNotation(0);
 
-   if (ref($thisDataFormat) eq 'XDF::StringDataFormat'
-      )
+   if (ref($thisDataFormat) eq 'XDF::StringDataFormat')
    {
       $output = pack $template, $datum;
    }
@@ -1046,7 +1047,7 @@ sub _doReadCellFormattedIOCmdOutput {
 sub _print_data {
   my ($self, $fileHandle, $locator, $startTag, $endTag, $emptyTag) = @_;
 
-  my $datum = $self->getData($locator);
+  my $datum = $self->_getData($locator);
   if (defined $datum) {
      print $fileHandle $startTag . $datum . $endTag;
   } else {
@@ -1177,22 +1178,6 @@ Set the startByte attribute.
 =item writeDataToFileHandle ($fileHandle, $indent, $compression_type)
 
 Writes out just the data to the proscribed filehandle.  
-
-=item addData ($locator, $data, $no_append)
-
-This routine will append data to a cell unless directed to do otherwise. RETURNS: 1 on success, 0 on failure.  
-
-=item setData ($locator, $datum)
-
-Set the value of the requested datacell. Overwrites existing datacell value if already populated with a value.  
-
-=item getData ($locator)
-
-We return whatever is stored in the datacell.  
-
-=item getData_old ($locator)
-
-Retrieve the SCALAR value of the requested datacell.  
 
 =back
 
