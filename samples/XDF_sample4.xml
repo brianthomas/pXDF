@@ -31,7 +31,7 @@
           </parameter>
 
           <units><unit>counts</unit><unit power="-1">seconds</unit></units>
-          <dataFormat><fixed width="5" precision="2"/></dataFormat>
+          <dataFormat><float width="5" precision="2"/></dataFormat>
 
           <axis name="x" axisId="x-axis" axisDatatype="integer" >
              <axisUnits><unit>pixel</unit></axisUnits>
@@ -86,7 +86,7 @@
 
       <array name="Bias Data">
           <units><unit>counts</unit><unit power="-1">secs</unit></units>
-          <dataFormat><fixed width="4" precision="2"/></dataFormat>
+          <dataFormat><float width="4" precision="2"/></dataFormat>
 
          <axis name="x" axisId="x-axis-bias" axisDatatype="integer" >
              <axisUnits><unit>pixel</unit></axisUnits>
@@ -137,7 +137,7 @@
           </parameter>
 
           <units><unit>counts</unit><unit power="-1">sec</unit></units>
-          <dataFormat><fixed width="4" precision="2"/></dataFormat>
+          <dataFormat><float width="4" precision="2"/></dataFormat>
 
           <axis axisIdRef="x-axis" />
           <axis axisIdRef="y-axis" />

@@ -30,20 +30,20 @@
          <fieldGroup name="position" >
              <field name="right ascension">
                 <units><unit>degrees</unit></units>
-                <dataFormat><fixed width="11" precision="7" /></dataFormat>
+                <dataFormat><float width="11" precision="7" /></dataFormat>
             </field>
             <field name="declination" >
                 <units><unit>degrees</unit></units>
-                <dataFormat><fixed width="11" precision="7" /></dataFormat>
+                <dataFormat><float width="11" precision="7" /></dataFormat>
             </field>
          </fieldGroup>
          <field fieldId="vmag" name="V-band Flux">
             <units><unit>magnitude</unit></units>
-            <dataFormat><fixed width="4" precision="1" /></dataFormat>
+            <dataFormat><float width="4" precision="1" /></dataFormat>
          </field>
          <field name="V-band Error" >
             <units><unit>magnitude</unit></units>
-            <dataFormat><fixed width="4" precision="1" /></dataFormat>
+            <dataFormat><float width="4" precision="1" /></dataFormat>
             <relation fieldIdRefs="vmag" role="errors" />
          </field>
          <field fieldId="ccdNumber" name="CCD ID Number">
@@ -52,7 +52,7 @@
          </field>
          <field fieldId="enumber" name="A Sci. Number">
             <units><unitless/></units>
-            <dataFormat><exponential width="8" precision="3" exponent="2"/></dataFormat>
+            <dataFormat><float width="8" precision="3" exponent="2"/></dataFormat>
          </field>
          <field name="Reference" >
             <units><unitless/></units>

@@ -60,13 +60,13 @@
         <units>
           <unitless/>
         </units>
-        <dataFormat><binaryInteger signed="1" bits="32"/></dataFormat>
+        <dataFormat><binaryInteger signed="1" bits="16"/></dataFormat>
       </field>
       <field name="A Sci. Number" fieldId="enumber">
         <units>
           <unitless/>
         </units>
-        <dataFormat><exponential width="8" precision="3" exponent="2"/></dataFormat>
+        <dataFormat><float width="8" precision="3" exponent="2"/></dataFormat>
       </field>
       <field name="Reference">
         <units>
