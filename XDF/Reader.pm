@@ -88,6 +88,7 @@ use XDF::StringDataFormat;
 use XDF::Structure;
 use XDF::XMLDataIOStyle;
 use XDF::XMLElement;
+use XDF::XDF;
 
 use vars qw ($VERSION %field);
 
@@ -179,7 +180,7 @@ my $IGNORE_WHITESPACE_ONLY_DATA = 1;
 # OPTIONS for running the parser
 my $MAX_WARNINGS = 10; # how many warnings we can have before termination. 
                        # Set to 0 for unlimited warnings 
-my $DEBUG = 1; # for printing out debug information from class methods 
+my $DEBUG = 0; # for printing out debug information from class methods 
 my $QUIET = 1; # if enabled it suppresses warnings from class methods 
 my $PARSER_MSG_THRESHOLD = 200; # we print all messages equal to and below this threshold
 
@@ -279,20 +280,20 @@ for my $attr ( @Class_Attributes ) { $field{$attr}++; }
 # Class methods
 #
 
-#/** getStructure
-# returns the structure that the reader parses into.
+#/** getReaderXDFObject
+# returns the XDF object that the reader parses into.
 #*/
-sub getReaderStructureObject {
+sub getReaderXDFObject {
   my ($self) = @_;
   return $self->{XDF};
 }
 
-#/** setReaderStructureObject 
-# sets the structure that the reader parses into.
+#/** setReaderXDFObject 
+# Sets the XDF object that the reader parses into.
 #*/
-sub setReaderStructureObject {
-  my ($self, $structure) = @_;
-  $self->{XDF} = $structure;
+sub setReaderXDFObject {
+  my ($self, $XDF) = @_;
+  $self->{XDF} = $XDF;
 }
 
 #/** getVersion
@@ -1753,16 +1754,20 @@ sub _repeat_node_start {
 sub _root_node_start { 
    my ($self, %attrib_hash) = @_;
   
-  # this is just like a "structure" node.
-  # but is always the first one.
-  $self->{XDF}->setXMLAttributes(\%attrib_hash);
-  $self->{currentStructure} = $self->{XDF};
+   if (!defined $self->{XDF}) {
+      $self->{XDF} = XDF::XDF->new(\%attrib_hash);
+   } else {
+      # hmm. already defined? then we must want to load into this object.
+      $self->{XDF}->setXMLAttributes(\%attrib_hash);
+   }
+   $self->{currentStructure} = $self->{XDF};
 
-  my $spec= XDF::Specification->getInstance();
-  $spec->setDefaultDataArraySize($self->{Options}->{axisSize})
+   my $spec= XDF::Specification->getInstance();
+   $spec->setDefaultDataArraySize($self->{Options}->{axisSize})
       if defined $self->{Options}->{axisSize};
 
-  return $self->{currentStructure};
+   return $self->{XDF};
+
 }
 
 sub _skipChar_node_start {
@@ -1818,14 +1823,14 @@ sub _stringField_node_start {
 sub _structure_node_start {
   my ($self, %attrib_hash) = @_;
 
-   if (!defined $self->{XDF}) {
-      $self->{XDF} = XDF::Structure->new(\%attrib_hash);
-      $self->{currentStructure} = $self->{XDF};
-   } else {
+#   if (!defined $self->{XDF}) {
+#      $self->{XDF} = XDF::Structure->new(\%attrib_hash);
+#      $self->{currentStructure} = $self->{XDF};
+#   } else {
       my $structObj = new XDF::Structure(\%attrib_hash);
       return unless $self->{currentStructure}->addStructure($structObj);
       $self->{currentStructure} = $structObj;
-   }
+#   }
    
    return $self->{currentStructure};
 }
@@ -2427,7 +2432,7 @@ sub _dataDecompressionProgram {
 sub _init {
   my ($self, $optionsHashRef) = @_;
 
-  $self->{XDF} = new XDF::Structure; # reference to the toplevel XDF structure we are populating
+  $self->{XDF} = new XDF::XDF(); # reference to the toplevel XDF structure we are populating
   $self->{currentFormatObjectList} = []; 
   $self->{currentFieldGroupList} = []; 
   $self->{currentParamGroupList} = []; 
@@ -3096,6 +3101,9 @@ sub _appendArrayToArray {
 # Modification History
 #
 # $Log$
+# Revision 1.35  2001/07/17 17:38:22  thomas
+# changes to make XDF the root object instead of XDF::Structure.
+#
 # Revision 1.34  2001/07/06 18:24:27  thomas
 # fix to allow adding value w/ no CDATA.
 #
@@ -3239,176 +3247,3 @@ sub _appendArrayToArray {
 1;
 
 
-__END__
-
-=head1 NAME
-
-XDF::Reader - Perl Class for Reader
-
-=head1 SYNOPSIS
-
-
-    my $DEBUG = 1;
-
-    # test file for reading in XDF files.
-
-    my $file = $ARGV[0];
-    my %options = ('quiet' => $DEBUG, 'validate' => 0);
-
-    my $XDFReader = new XDF::Reader(\%options);
-    my $XDFObject = $XDFReader->parseFile($file);
-
-
-
-...
-
-=head1 DESCRIPTION
-
- This class allows the user to create XDF objects from XDF files.  XDF::Reader will read in both Binary and ASCII data and tagged/delimited/ and formatted XDF data styles are supported. 
-
-
-
-=head1 METHODS
-
-=over 4
-
-=head2 CLASS Methods
-
-The following methods are defined for the class XDF::Reader.
-
-=over 4
-
-=item getVersion (EMPTY)
-
-returns the version of the XDF DTD supported by this parser.  
-
-=item new ($optionsHashRef)
-
-Create a new reader object. Returns the reader object if successfull. It takes an optional argument of an option HASH Reference  to initialize the object options.   
-
-=back
-
-=head2 INSTANCE (Object) Methods
-
-The following instance (object) methods are defined for XDF::Reader.
-
-=over 4
-
-=item getReaderStructureObject (EMPTY)
-
- 
-
-=item setReaderStructureObject ($structure)
-
-sets the structure that the reader parses into.  
-
-=item parseFile ($file, $optionsHashRef)
-
-Reads in the given file and returns a full XDF Perl object (an L<XDF::Structure>with at least one L<XDF::Array>). A second HASH argument may be supplied to specify runtime options for the XDF::Reader.  
-
-=item parseFileHandle ($handle, $optionsHashRef)
-
-Similar to parseFile but takes an open filehandle as an argument (so you can parse ANY open fileHandle, e.g. files, sockets, etc. Whatever Perl supports.).  
-
-=item parseString ($string, $optionsHashRef)
-
-Reads in the given string and returns a full XDF Perl object (an L<XDF::Structure>with at least one L<XDF::Array>). A second HASH argument may be supplied to specify runtime options for the XDF::Reader.  
-
-=item addStartElementHandlers (%newHandlers)
-
-Add new handlers to the internal XDF::Parser start element handler. The form of  the entries in the passed hash should be 'nodename' => sub { &handler_for_nodename(@_); }; If a 'nodename' for a handler already exists in the XDF start handler table,  this method will override it with the new handler.  
-
-=item addEndElementHandlers (%newHandlers)
-
-Add new handlers to the internal XDF::Parser end element handler. The form of  the entries in the passed hash should be 'nodename' => sub { &handler_for_nodename(@_); }; If a 'nodename' for a handler already exists in the XDF end handler table,  this method will override it with the new handler.  
-
-=item addCharDataHandlers (%newHandlers)
-
-Add new handlers to the internal XDF::Parser CDATA element handler. The form of  the entries in the passed hash should be 'nodename' => sub { &handler_for_nodename(@_); }; If a 'nodename' for a handler already exists in the XDF CDATA handler table,  this method will override it with the new handler.  
-
-=item setDefaultStartElementHandler ($codeRef)
-
-This sets the subroutine which will handle all nodes which DONT match  an entry within the start element handler table.  
-
-=item setDefaultEndElementHandler ($codeRef)
-
-This sets the subroutine which will handle all nodes which DONT match  an entry within the end element handler table.  
-
-=item setDefaultCharDataHandler ($codeRef)
-
-This sets the subroutine which will handle all nodes which DONT match  an entry within the CDATA handler table.  
-
-=back
-
-
-
-=head2 INHERITED Class Methods
-
-=over 4
-
-=back
-
-
-
-=head2 INHERITED INSTANCE Methods
-
-=over 4
-
-=back
-
-=back
-
-=head1 Reader Options 
-
-
-
-=over 4
-
- The following options are currently supported:    
-  
-  'validate'   => Set the reader to use a validating parser (XML::Parser::Checker). 
-                  Defaults to 0 ('no'). 
-    
-  'msgThresh'  => Set the reader parser message threshold. Messages BELOW this 
-                  number will be displayed. Has no effect unless XML::Parser::Checker
-                  is the parser. Defaults to 200. 
-    
-  'noExpand'   => Don't expand entities in output if true. Default is false. 
- 
-  'nameSpaces' => When this option is given with a true value, then the parser does namespace
-                  processing. By default, namespace processing is turned off.
- 
-  'parseParamEnt' => Unless standalone is set to "yes" in the XML declaration, setting this to
-                     a true value allows the external DTD to be read, and parameter entities
-                     to be parsed and expanded. The default is false. 
- 
-  'quiet'      => Set the reader to run quietly. Defaults to 1 ('yes'). 
-  
-  'axisSize'   => Set the number of indices to allocate along each dimension. This
-                  can speed up large file reads. Defaults to $XDF::BaseObject::DefaultDataArraySize. 
-  
-  'maxWarning" => Change the maximum allowed number of warnings before the XDF::Reader
-                  will halt its parse of the input file/fileHandle. 
-  
-
-
-=back
-
-=head1 SEE ALSO
-
-
-
-=over 4
-
-L<XDF::Array>, L<XDF::BinaryFloatDataFormat>, L<XDF::BinaryIntegerDataFormat>, L<XDF::Constants>, L<XDF::DelimitedXMLDataIOStyle>, L<XDF::Field>, L<XDF::FieldRelation>, L<XDF::FloatDataFormat>, L<XDF::FormattedXMLDataIOStyle>, L<XDF::Href>, L<XDF::IntegerDataFormat>, L<XDF::Parameter>, L<XDF::RepeatFormattedIOCmd>, L<XDF::ReadCellFormattedIOCmd>, L<XDF::SkipCharFormattedIOCmd>, L<XDF::StringDataFormat>, L<XDF::Structure>, L<XDF::XMLDataIOStyle>, L<XDF::XMLElement>
-
-=back
-
-=head1 AUTHOR
-
-    Brian Thomas  (thomas@adc.gsfc.nasa.gov)
-    Astronomical Data Center <http://adc.gsfc.nasa.gov>
-    NASA/Goddard Space Flight Center
- 
-
-=cut
