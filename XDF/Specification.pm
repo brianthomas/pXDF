@@ -135,51 +135,50 @@ sub setDefaultDataArraySize {
   $Singleton->{dataArraySize} = $value;
 }
 
-#/** getXMLNotationHash
+# getXMLNotationHash
 # Get the output XML NotationHash for all XDF objects. 
 # Returns a reference to a Hash object.
-# */
-sub getXMLNotationHash {
-  my ($self) = @_;
-  return $Singleton->{xmlNotationHash};
-}
+#sub getXMLNotationHash {
+#  my ($self) = @_;
+#  return $Singleton->{xmlNotationHash};
+#}
 
-#/** setXMLNotationHash
+# setXMLNotationHash
 # Set the output XML NotationHash for all XDF objects. This will be 
 # printed out with other XMLDeclarations in a toXMLFileHandle call. 
 # */
-sub setXMLNotationHash {
-  my ($self, $attribHashRef) = @_;
-
-  return unless defined $attribHashRef;
-
-  # have to do it this way or we get ref to orig hash.
-  my %newhash;
-  while (my ($attrib, $value) = each (%{$attribHashRef}) ) {
-     $newhash{$attrib} = $value;
-  }
-  $Singleton->{xmlNotationHash} = \%newhash; 
-}
+#sub setXMLNotationHash {
+#  my ($self, $attribHashRef) = @_;
+#
+#  return unless defined $attribHashRef;
+#
+#  # have to do it this way or we get ref to orig hash.
+#  my %newhash;
+#  while (my ($attrib, $value) = each (%{$attribHashRef}) ) {
+#     $newhash{$attrib} = $value;
+#  }
+#  $Singleton->{xmlNotationHash} = \%newhash; 
+#}
 
 #/** getXMLSpecVersion
 # Get the XML version of this package. This cooresponds to the XML spec version that this package
 # uses to write out XDF.
 # This method should probably be in XDF::Constants class instead as user shouldnt be able to change.
 #*/
-sub getXMLSpecVersion {
-  my ($self) = @_;
-  return $Singleton->{xmlSpecVersion};
-}
+#sub getXMLSpecVersion {
+#  my ($self) = @_;
+#  return $Singleton->{xmlSpecVersion};
+#}
 
-sub getXDFRootNodeName {
-  my ($self) = @_;
-  return $Singleton->{xdfRootNodeName};
-}
+#sub getXDFRootNodeName {
+#  my ($self) = @_;
+#  return $Singleton->{xdfRootNodeName};
+#}
 
-sub getXDFDTDName {
-  my ($self) = @_;
-  return $Singleton->{xdfDTDName};
-}
+#sub getXDFDTDName {
+#  my ($self) = @_;
+#  return $Singleton->{xdfDTDName};
+#}
 
 #/**getPCDATAAttribute 
 # Used by toXMLFileHandle method. This says that
@@ -211,11 +210,11 @@ sub new { # PRIVATE
     $Singleton->{prettyXDFOutput} = $DefaultPrettyXDFOutput;
     $Singleton->{prettyXDFOutputIndentation} = $DefaultPrettyXDFOutputIndentation; 
     $Singleton->{dataArraySize} = $DefaultDataArraySize;
-    my %emptyHash; 
-    $Singleton->{xmlNotationHash} = \%emptyHash;
-    $Singleton->{xmlSpecVersion} = &XDF::Constants::XML_SPEC_VERSION;
-    $Singleton->{xdfRootNodeName} = &XDF::Constants::XDF_ROOT_NODE_NAME;
-    $Singleton->{xdfDTDName} = &XDF::Constants::XDF_DTD_NAME;
+    #my %emptyHash; 
+    #$Singleton->{xmlNotationHash} = \%emptyHash;
+    #$Singleton->{xmlSpecVersion} = &XDF::Constants::XML_SPEC_VERSION;
+    #$Singleton->{xdfRootNodeName} = &XDF::Constants::XDF_ROOT_NODE_NAME;
+    #$Singleton->{xdfDTDName} = &XDF::Constants::XDF_DTD_NAME;
 
     return $Singleton;
 }
