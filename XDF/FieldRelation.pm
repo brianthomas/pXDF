@@ -35,6 +35,7 @@ use vars qw ($AUTOLOAD %field @ISA);
 # CLASS DATA
 my $Class_XML_Node_Name = "relation";
 my @Local_Class_XML_Attributes = qw (
+                             description
                              fieldIdRefs
                              role
                           );
@@ -77,6 +78,22 @@ sub getClassXMLAttributes {
 #
 # Get/Set Methods 
 #
+
+# /** getDescription
+# */
+sub getDescription {
+   my ($self) = @_;
+   return $self->{description};
+}
+
+# /** setDescription 
+#     Set the description attribute. 
+# */
+sub setDescription {
+   my ($self, $value) = @_;
+   $self->{description} = $value;
+}
+
 
 # /** getFieldIdRefs 
 # */
@@ -196,6 +213,14 @@ This method returns the XMLAttributes of this class.
 The following instance (object) methods are defined for XDF::FieldRelation.
 
 =over 4
+
+=item getDescription (EMPTY)
+
+ 
+
+=item setDescription ($value)
+
+Set the description attribute.  
 
 =item getFieldIdRefs (EMPTY)
 
