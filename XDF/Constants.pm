@@ -116,10 +116,67 @@ sub VALUE_SPECIAL_NODATA{ "noData"; }
 sub VALUE_SPECIAL_LIST { ( &VALUE_SPECIAL_INFINITE,  &VALUE_SPECIAL_INFINITE_NEGATIVE,
                            &VALUE_SPECIAL_NODATA ); }
 
+sub DEFAULT_VALUELIST_STEP { 1; }
+sub DEFAULT_VALUELIST_START { 1; }
+sub DEFAULT_VALUELIST_REPEATABLE { 0; }
+sub DEFAULT_VALUELIST_DELIMITER { " "; }
+
+sub XDF_NODE_NAMES { (
+                      'textDelimiter' => 'textDelimiter',
+                      'array' => 'array',
+                      'axis' => 'axis',
+                      'axisUnits' => 'axisUnits',
+                      'binaryFloat' => 'binaryFloat',
+                      'binaryInteger' => 'binaryInteger',
+                      'data' => 'data',
+                      'dataFormat' => 'dataFormat',
+                      'field' => 'field',
+                      'fieldAxis' => 'fieldAxis',
+                      'float' => 'float',
+                      'for' => 'for',
+                      'fieldGroup' => 'fieldGroup',
+                      'index' => 'index',
+                      'integer' => 'integer',
+                      'locationOrder' => 'locationOrder',
+                      'note' => 'note',
+                      'notes' => 'notes',
+                      'parameter' => 'parameter',
+                      'parameterGroup' => 'parameterGroup',
+                      'root' => 'XDF',   # beware setting this to the same name as structure 
+                      'read' => 'read',
+                      'readCell' => 'readCell',
+                      'repeat' => 'repeat',
+                      'relationship' => 'relation',
+                      'skipChar' => 'skipChars',
+                      'structure' => 'structure',
+                      'string' => 'string',
+                      'tagToAxis' => 'tagToAxis',
+                      'td0' => 'd0',
+                      'td1' => 'd1',
+                      'td2' => 'd2',
+                      'td3' => 'd3',
+                      'td4' => 'd4',
+                      'td5' => 'd5',
+                      'td6' => 'd6',
+                      'td7' => 'd7',
+                      'td8' => 'd8',
+                      'unit' => 'unit',
+                      'units' => 'units',
+                      'unitless' => 'unitless',
+                      'valueList' => 'valueList',
+                      'value' => 'value',
+                      'valueGroup' => 'valueGroup',
+                      'vector' => 'unitDirection',
+                    );
+}
 
 # Modification History
 #
 # $Log$
+# Revision 1.4  2001/03/15 22:22:29  thomas
+# Transfered XDF_NODE_NAMES and some VALUELIST defines from the
+# Reader class to here.
+#
 # Revision 1.3  2001/03/14 21:32:34  thomas
 # Updated perldoc section using new version of
 # makeDoc.pl.
