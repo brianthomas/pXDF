@@ -76,6 +76,7 @@ sub new {
          unless defined $ownerDoc && ref($ownerDoc);
 
    my $self = $proto->SUPER::new($ownerDoc, $XDF::DOM::XDF_ROOT_NAME);
+   bless $self, $proto;
    $self->_init($XDFObject);
    return $self;
 }
@@ -132,8 +133,10 @@ sub print { # PRIVATE
    my ($self, $FILE) = @_;
 
    my $obj = $self->getXDFObject;
+#   my $spec = XDF::Specification->getInstance;
    if (defined $obj) {
-     $obj->Pretty_XDF_Output(1);
+    # $obj->Pretty_XDF_Output(1);
+#     $spec->setPrettyXDFOutput(1); # huh? 
      my $string = $obj->toXMLString(undef,undef,undef,undef,undef,1);
      $FILE->print("$string\n");
    } else { 
@@ -159,6 +162,10 @@ sub _init {
 # Modification History
 #
 # $Log$
+# Revision 1.2  2001/04/17 18:48:54  thomas
+# now blessed properly. Removed pretty output
+# stuff. What was I thinking here??
+#
 # Revision 1.1  2001/03/23 21:55:14  thomas
 # Initial Version
 #
