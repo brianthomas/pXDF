@@ -76,6 +76,7 @@ my $LOCATOR;
 my $PRETTY_XDF_OUTPUT = 1;
 my $ARRAY_OSTYLE = 'Tagged';
 my $ARRAY_DATAFORMAT = 'String';
+my $OPEN_ENTRY_WIDGET;
 my %XMLDataIOStyle = ( 
                        'XDF::TaggedXMLDataIOStyle' => 'Tagged',
                        'XDF::DelimitedXMLDataIOStyle' => 'Delimited',
@@ -95,12 +96,22 @@ my %DataFormatStyle = (
                         'XDF::BinaryFloatDataFormat' => 'BinaryFloat',
                      );
 
+my %DataFormatClass = (
+                        'String' => 'XDF::StringDataFormat',
+                        'Integer' => 'XDF::IntegerDataFormat',
+                        'Float' => 'XDF::FloatDataFormat',
+                        'BinaryInteger' => 'XDF::BinaryIntegerDataFormat',
+                        'BinaryFloat' => 'XDF::BinaryFloatDataFormat',
+                     );
+
+
 my $CURRENT_STRUCTURE;
 my $CURRENT_ITEM; # could be an array or structure that is selected from Hlist
 my $ARRAY_ATTRIB_EDIT_OPEN;
 my $STRUCT_ATTRIB_EDIT_OPEN;
 my @AXIS_ATTRIB_EDIT_OPEN;
 my @ARRAYEDITFRAMES;
+my @STRUCTEDITFRAMES;
 my @AXISEDITFRAMES;
 #my @SHARED_SUBFRAMES;
 my @OSTYLE_SUBFRAMES;
@@ -276,12 +287,14 @@ sub init_gui {
                                                          -text => 'Add Structure', 
                                                          -fg => $ButtonFgColor, -bg => $ButtonBgColor,
                                                          -state => 'disabled', 
+                                                         -command => sub { &add_structure_to_selected(); },
                                                          -font => $BoldFont{$DISPLAY_SIZE},
                                                       )->pack(side => 'top', expand => 1, fill => 'y');
   $WIDGET{'list_delStruct_button'} = $listButtonFrame->Button(
                                                          -text => 'Delete Structure', 
                                                          -fg => $ButtonFgColor, -bg => $ButtonBgColor,
                                                          -state => 'disabled', 
+                                                         -command => sub { &delete_selected_structure(); },
                                                          -font => $BoldFont{$DISPLAY_SIZE},
                                                       )->pack(side => 'top', expand => 1, fill => 'y');
   $WIDGET{'list_addArray_button'} = $listButtonFrame->Button(
@@ -368,6 +381,22 @@ sub init_gui {
                                   );
 
   $FRAME{'shared'} = $sharedFrame;
+}
+
+sub add_structure_to_selected {
+
+print STDERR "add structure: $CURRENT_ITEM \n"; 
+   return unless $CURRENT_ITEM;
+
+   $CURRENT_ITEM->addStructure(new XDF::Structure());
+   &update_hlist_from_xdf($WIDGET{'xml_hlist'});
+   update_view();
+}
+
+sub delete_selected_structure {
+
+   return unless $CURRENT_ITEM;
+   # $CURRENT_ITEM->addStructure(new XDF::Structure());
 }
 
 sub make_widget_highlight_on_mouseover {
@@ -558,13 +587,16 @@ sub update_dataformat_view {
                                                     -bg => $White,
                                                  )->pack(side => 'top', expand => 0, fill => 'both');
 
-   for (@{XDF::StringDataFormat->getXMLAttributes()}) {
+   for (@{$CURRENT_ITEM->getDataFormat->getXMLAttributes()}) {
        my $subFrame = $subFrame1->Frame->pack(side => 'top', fill => 'both', expand => 0);
        my $labelname = 'dataformat' . $_ . "_label";
        my $entryname = 'dataformat' . $_ . "_val_label";
        my $methodname = 'get' . ucfirst ($_);
-       my $val = ""; #$CURRENT_ITEM->getXMLDataIOStyle()->$methodname;
-       &make_label_click_widgets( $_, $subFrame, $labelname, $entryname, $val);
+       my $getMethod = 'get' . ucfirst $_;
+       my $setMethod = 'set' . ucfirst $_;
+       my $getMethodRef = sub { $CURRENT_ITEM->getDataFormat->$getMethod; };
+       my $setMethodRef = sub { $CURRENT_ITEM->getDataFormat->$setMethod(@_); };
+       &make_label_click_widget( $_, $subFrame, $labelname, $entryname, $getMethodRef, $setMethodRef );
    }
 
 }
@@ -645,9 +677,12 @@ sub update_ostyle_view {
        my $subFrame = $subFrame1->Frame->pack(side => 'top', fill => 'both', expand => 0);
        my $labelname = 'dataIOstyle' . $_ . "_label";
        my $entryname = 'dateIOstyle' . $_ . "_val_label";
-       my $methodname = 'get' . ucfirst ($_);
-       my $val = $CURRENT_ITEM->getXMLDataIOStyle()->$methodname;
-       &make_label_click_widgets( $_, $subFrame, $labelname, $entryname, $val);
+       my $getMethod = 'get' . ucfirst $_;
+       my $setMethod = 'set' . ucfirst $_;
+       my $getMethodRef = sub { $CURRENT_ITEM->getXMLDataIOStyle->$getMethod; };
+       my $setMethodRef = sub { $CURRENT_ITEM->getXMLDataIOStyle->$setMethod(@_); };
+
+       &make_label_click_widget( $_, $subFrame, $labelname, $entryname, $getMethodRef, $setMethodRef );
    }
 
    $WIDGET{'filler1_ostyle_attrib_label'} = $fillerFrame->Label (
@@ -672,11 +707,13 @@ sub update_ostyle_view {
       {
          my $thisFrame = $subFrame->Frame->pack(side => 'top');
          my $axisId = $_->getAxisId();
-         my $tagName = $CURRENT_ITEM->getXMLDataIOStyle()->getAxisTag($axisId);
          my $labelname = 'dataIOstyle' . $axisId . "tag_label";
          my $entryname = 'dataIOstyle' . $axisId . "tag_val_label";
          my $label = "Axis Tag ($axisId):";
-         &make_label_click_widgets( $label, $thisFrame, $labelname, $entryname, $tagName);
+         my $getMethodRef = sub { $CURRENT_ITEM->getXMLDataIOStyle->getAxisTag($axisId); };
+         my $setMethodRef = sub { $CURRENT_ITEM->getXMLDataIOStyle->setAxisTag($axisId, @_); };
+
+         &make_label_click_widget( $label, $thisFrame, $labelname, $entryname, $getMethodRef, $setMethodRef);
       }
 
    } elsif ($ARRAY_OSTYLE eq 'Delimited') {
@@ -697,8 +734,12 @@ sub update_ostyle_view {
          my $thisFrame = $subFrame->Frame->pack(side => 'top', fill => 'both', expand => 0);
          my $labelname = 'Delimited_dataIOstyle_' . $_ . "_label";
          my $entryname = 'Delimited_dataIOstyle' . $_. "_val_label";
-         my $val = "";
-         &make_label_click_widgets( $_, $thisFrame, $labelname, $entryname, $val);
+         my $getMethod = 'get' . ucfirst $_;
+         my $setMethod = 'set' . ucfirst $_;
+         my $getMethodRef = sub { $CURRENT_ITEM->getXMLDataIOStyle->$getMethod; };
+         my $setMethodRef = sub { $CURRENT_ITEM->getXMLDataIOStyle->$setMethod(@_); };
+
+         &make_label_click_widget( $_, $thisFrame, $labelname, $entryname, $getMethodRef, $setMethodRef);
       }
 
 
@@ -719,26 +760,65 @@ sub update_ostyle_view {
 
 }
 
-sub make_label_click_widgets {
-   my ($text, $frame, $labelname, $entryname, $entryVal ) = @_;
+sub make_label_click_widget {
+   my ($text, $frame, $labelname, $entryname, $getRef, $setRef) = @_;
 
-   $WIDGET{$labelname} = $frame->Label( text => $text,
+   $WIDGET{$labelname} = $frame->Label( -text => $text . ': ',
                             bg => $BaseColor, fg => $Black,
-                            font => $Font{$DISPLAY_SIZE},
+                            -justify => 'left',
+                            -font => $Font{$DISPLAY_SIZE},
                           )->pack(fill => 'x', side=> 'left' );
 
-   $entryVal = "" unless defined $entryVal;
-   $WIDGET{$entryname} = $frame->Label( text => $entryVal,
-                            bg => $BaseColor, fg => $Black,
-                            width => 25,
-                            justify => 'left',
-                            font => $Font{$DISPLAY_SIZE},
+   &make_clickable_entrylabel($frame, $entryname, $getRef, $setRef);
+}
+
+sub make_clickable_entrylabel {
+   my ($frame, $name, $getRef, $setRef) = @_;
+
+   my $val = "";
+   if (defined $getRef) {
+      $val = &{$getRef};
+      $val = "" unless defined $val;
+   }
+
+   $WIDGET{$name} = $frame->Label( -text => $val,
+                            -bg => $BaseColor, 
+                            -fg => $Black,
+                            -justify => 'right',
+                            -font => $Font{$DISPLAY_SIZE},
                           )->pack(fill => 'x', side=> 'left', expand => 1 );
 
    # init mouse bindings
-   $WIDGET{$entryname}->bind('<Enter>' => sub { $WIDGET{$entryname}->configure( -bg => $EventMouseOverColor); });
-   $WIDGET{$entryname}->bind('<Leave>' => sub { $WIDGET{$entryname}->configure( -bg => $BaseColor); });
+   $WIDGET{$name}->bind('<Enter>' => sub { $WIDGET{$name}->configure( -bg => $EventMouseOverColor); });
+   $WIDGET{$name}->bind('<Leave>' => sub { $WIDGET{$name}->configure( -bg => $BaseColor); });
 
+   $WIDGET{$name}->bind('<Double-1>' => sub { $WIDGET{$name}->destroy();
+                                              &make_entry_blank($frame, $name, $val, $getRef, $setRef);
+                                            });
+
+}
+
+sub make_entry_blank {
+   my ($frame, $widgetname, $val, $getRef, $setRef) = @_;
+
+   $OPEN_ENTRY_WIDGET->destroy() if ($OPEN_ENTRY_WIDGET);
+
+   $WIDGET{$widgetname} = $frame->Entry( -font => $Font{$DISPLAY_SIZE},
+                                       )->pack(fill => 'both');
+   $WIDGET{$widgetname}->insert('end', $val);
+   $WIDGET{$widgetname}->bind ('<Enter>' => sub { $WIDGET{$widgetname}->focus(); });
+
+   if (defined $setRef) {
+      $WIDGET{$widgetname}->bind('<Return>' => sub { 
+                                                        my $value = $WIDGET{$widgetname}->get();
+                                                        &$setRef($value);
+                                                        $WIDGET{$widgetname}->destroy();
+                                                        &make_clickable_entrylabel($frame, $widgetname, $getRef, $setRef);
+                                                        $OPEN_ENTRY_WIDGET = undef;
+                                                   } );
+   }
+
+   $OPEN_ENTRY_WIDGET = $WIDGET{$widgetname};
 }
 
 sub init_table_gui {
@@ -891,8 +971,14 @@ sub select_Hlist_item {
 
    if ($CURRENT_ITEM =~ m/Array/) {
       $ARRAY_OSTYLE = $XMLDataIOStyle{ref($CURRENT_ITEM->getXMLDataIOStyle)};
+      if (!defined $CURRENT_ITEM->getFieldAxis) {
+         $ARRAY_DATAFORMAT = $DataFormatStyle{ref($CURRENT_ITEM->getDataFormat)};
+      } else {
+         $ARRAY_DATAFORMAT = undef;
+      }
    } else {
       $ARRAY_OSTYLE = undef;
+      $ARRAY_DATAFORMAT = undef;
    }
 
    &update_view();
@@ -916,6 +1002,9 @@ sub update_view {
       &update_array_edit_attrib_val();
    }
 
+   if ($STRUCT_ATTRIB_EDIT_OPEN) {
+      &update_struct_edit_attrib_val();
+   }
 }
 
 # change various button, lever, etc. spaces based on 
@@ -975,6 +1064,7 @@ sub show_structure_in_Hlist {
 
   foreach my $arrayObj (@{$XDF->getArrayList()}) {
      my $name = $arrayObj->getName();
+     $name = '' unless defined $name;
      #$name = 'Array:' . $name;
      $name = '<' . $name . '>';
      if (defined $arrayObj->getFieldAxis()) {
@@ -992,7 +1082,12 @@ sub show_structure_in_Hlist {
 
 sub change_array_dataformat {
 
-print STDERR "new obj style is : $ARRAY_DATAFORMAT\n";
+   my $obj = eval "new $DataFormatClass{$ARRAY_DATAFORMAT}"; 
+   $CURRENT_ITEM->setDataFormat($obj);
+
+print STDERR "new obj dataformat is : $obj\n";
+
+   &update_dataformat_view();
 
 }
 
@@ -1038,9 +1133,19 @@ sub create_program_menu {
 }
 
 sub create_file_menu {
-  my ($menu) = @_;
+   my ($menu) = @_;
 
-   $WIDGET{'load_menu'} = $menu->command( -label => 'Load',
+   $WIDGET{'new_file_menu'} = $menu->command( -label => 'New',
+                                              -font => $Font{$DISPLAY_SIZE},
+                                              -state => 'disabled',
+                                              -bg => $BaseColor,
+                                                 command => sub {
+                                                                }
+                                               );
+
+   $menu->separator(-bg => $BaseColor);
+
+   $WIDGET{'load_file_menu'} = $menu->command( -label => 'Load',
                                                  font => $Font{$DISPLAY_SIZE},
                                                  bg => $BaseColor,
                                                  command => sub {  
@@ -1050,13 +1155,13 @@ sub create_file_menu {
 
   $menu->separator(bg => $BaseColor);
 
-   $WIDGET{'save_menu'} = $menu->command( -label => 'Save',
+   $WIDGET{'save_file_menu'} = $menu->command( -label => 'Save',
                                                  font => $Font{$DISPLAY_SIZE},
                                                  bg => $BaseColor,
                                                  command => sub { &my_exit; }
                                                );
 
-   $WIDGET{'save_as_menu'} = $menu->command( -label => 'Save As',
+   $WIDGET{'save_as_file_menu'} = $menu->command( -label => 'Save As',
                                                     font => $Font{$DISPLAY_SIZE},
                                                     bg => $BaseColor,
                                                     command => sub { &save_xdf_file(&select_file("Save as file?","*.xml"));}
@@ -1066,7 +1171,7 @@ sub create_file_menu {
    $menu->separator(bg => $BaseColor);
 
    my $menu_cb = 'Pretty File Output';
-   $WIDGET{'pretty_file_output_menu'} =
+   $WIDGET{'pretty_output_file_menu'} =
            $menu->cascade(-label => $menu_cb, bg => $BaseColor, -font => $Font{$DISPLAY_SIZE});
    my $cm = $menu->cget(-menu);
    my $cc = $cm->Menu;
@@ -1086,8 +1191,16 @@ sub create_file_menu {
 
    $menu->separator(bg => $BaseColor);
 
+   $WIDGET{'close_file_menu'} = $menu->command( -label => 'Close',
+                                                -font => $Font{$DISPLAY_SIZE},
+                                                -state => 'disabled',
+                                                -bg => $BaseColor,
+                                                 command => sub {
+                                                                }
+                                           );
+
    # the quit button
-   $WIDGET{'quit_menu'} = $menu->command(-label => 'Quit',
+   $WIDGET{'quit_file_menu'} = $menu->command(-label => 'Quit',
                                              font => $Font{$DISPLAY_SIZE},
                                              bg => $BaseColor,
                                             -command => sub { &my_exit; }
@@ -1446,11 +1559,36 @@ sub edit_struct_attribs {
    return unless defined $CURRENT_ITEM && $CURRENT_ITEM =~ m/Structure/;
 
    if ($STRUCT_ATTRIB_EDIT_OPEN) {
-      $STRUCT_ATTRIB_EDIT_OPEN = 0;
-
+      &close_struct_attrib_edit();
+      &make_widget_highlight_on_mouseover($WIDGET{'struct_attrib_edit_label'});
+      return;
    }
 
    $STRUCT_ATTRIB_EDIT_OPEN = 1;
+
+   $WIDGET{'struct_attrib_edit_label'}->configure( -text => '<<Click to Close Structure Attributes>>',
+                                                  -fg => 'white', #$Bright_white,
+                                                  -bg => $StructureColor,
+                                                );
+
+   &make_widget_not_highlight_on_mouseover($WIDGET{'struct_attrib_edit_label'});
+
+   # create widgets
+   for (@{XDF::Structure->getXMLAttributes}) {
+       my $subFrame = $frame->Frame->pack(side => 'top', fill => 'both', expand => 0);
+       push @STRUCTEDITFRAMES, $subFrame;
+       my $labelname = 'struct' . $_ . "_label";
+       my $entryname = 'struct' . $_ . "_val_label";
+       my $getMethod = 'get' . ucfirst $_;
+       my $setMethod = 'set' . ucfirst $_;
+       my $getMethodRef = sub { $CURRENT_ITEM->$getMethod; };
+       my $setMethodRef = sub { $CURRENT_ITEM->$setMethod(@_); };
+       next if ref(&$getMethodRef);
+       &make_label_click_widget( $_, $subFrame, $labelname, $entryname, $getMethodRef, $setMethodRef);
+   }
+
+   # update value of widgets
+   &update_struct_edit_attrib_val();
 }
 
 sub edit_array_attribs {
@@ -1478,7 +1616,11 @@ sub edit_array_attribs {
        push @ARRAYEDITFRAMES, $subFrame;
        my $labelname = 'array' . $_ . "_label";
        my $entryname = 'array' . $_ . "_val_label";
-       &make_label_click_widgets( $_, $subFrame, $labelname, $entryname); 
+       my $getMethod = 'get' . ucfirst $_; 
+       my $setMethod = 'set' . ucfirst $_; 
+       my $getMethodRef = sub { $CURRENT_ITEM->$getMethod; }; 
+       my $setMethodRef = sub { $CURRENT_ITEM->$setMethod(@_); }; 
+       &make_label_click_widget( $_, $subFrame, $labelname, $entryname, $getMethodRef, $setMethodRef); 
    }
 
    # update value of widgets
@@ -1496,13 +1638,43 @@ sub edit_axis_attribs {
 
    $AXIS_ATTRIB_EDIT_OPEN[$axisNum] = 1;
 
+   my $axisObj = $CURRENT_ITEM->getAxisList->[$axisNum];
+
    for (@AxisAttribList) {
        my $subFrame = $frame->Frame->pack(side => 'top', fill => 'both', expand => 0);
        push @AXISEDITFRAMES, $subFrame;
        my $labelname = 'axis' . $axisNum . $_ . "_label";
        my $entryname = 'axis' . $axisNum . $_ . "_val_label";
-       &make_label_click_widgets( $_, $subFrame, $labelname, $entryname);
+       my $getMethod = 'get' . ucfirst $_;
+       my $setMethod = 'set' . ucfirst $_;
+       my $getMethodRef = sub { $axisObj->$getMethod; };
+       my $setMethodRef = sub { $axisObj->$setMethod(@_); };
+       &make_label_click_widget( $_, $subFrame, $labelname, $entryname, $getMethodRef, $setMethodRef);
    }
+}
+
+sub close_struct_attrib_edit {
+
+  while ((my $frame = pop @STRUCTEDITFRAMES)) {
+      $frame->destroy();
+  }
+
+  # update attribute title  
+  my $name;
+  if(defined $CURRENT_ITEM && $CURRENT_ITEM =~ m/Structure/) {
+     $name = $CURRENT_ITEM->getName();
+  }
+  $name = "" unless defined $name;
+  my $structTitle = $StructAttributeTitle . ":[$name]";
+
+  $WIDGET{'struct_attrib_edit_label'}->configure( -text => $structTitle,
+                                                  -fg => $Black,
+                                                  -bg => $BaseColor,
+                                               );
+
+  $STRUCT_ATTRIB_EDIT_OPEN = 0;
+  return;
+
 }
 
 sub close_array_attrib_edit {
@@ -1526,6 +1698,27 @@ sub close_array_attrib_edit {
 
   $ARRAY_ATTRIB_EDIT_OPEN = 0;
   return;
+
+}
+
+sub update_struct_edit_attrib_val {
+
+   return unless (defined $CURRENT_ITEM);
+
+   if ($CURRENT_ITEM =~ m/Structure/) {
+
+      for (@{XDF::Structure->getXMLAttributes}) {
+         my $name = 'struct' . $_ . "_val_label";
+         my $methodname = 'get' . ucfirst $_;
+         my $val = $CURRENT_ITEM->$methodname;
+         next if ref($val);
+         $val = "" unless defined $val;
+         $WIDGET{$name}->configure(-text => $val);
+      }
+
+   } else { # clear and close
+      &close_struct_attrib_edit();
+   }
 
 }
 
@@ -1824,6 +2017,7 @@ sub change_display_size {
     if $WIDGET{'main'};
     
   foreach my $widget (keys %WIDGET) {
+    &debug("change_display($widget)\n");
     if ($widget =~ m/text/) {
        # $WIDGET{$widget}->configure(-height => $widget_dim{$widget}->{'height'}->{$display_size},
        #                             -width => $widget_dim{$widget}->{'width'}->{$display_size},
