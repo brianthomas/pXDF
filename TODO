@@ -1,9 +1,12 @@
 
 TODO: In other words, WHY is this package still ALPHA?!? 
 
-   What is currently NOT implemented in this package:
+
+   What is currently NOT implemented in this package, but will be:
+   ---------------------------------------------------------------
 
    - get/set methods in line with the Java. No return value from set method.
+     Should allow setting of null values on attributes.
 
    - Output of Notes/location stuff is broken.
 
@@ -21,7 +24,8 @@ TODO: In other words, WHY is this package still ALPHA?!?
      -- use of unparsed entities
      -- checksum
 
-   - Fix clone object functionality, clone DataCube and solve _objRef clone issue 
+   - We need proper cloning. Remove setObj junk.
+     Fix clone object functionality, clone DataCube and solve _objRef clone issue 
      Watch out for _parentArray and other object refs (e.g. ID ref problem).
 
    - Fix XDF::Note setLocation method related stuff.
@@ -86,5 +90,7 @@ TODO: In other words, WHY is this package still ALPHA?!?
    ** At this point we have an efficient feature-complete release candidate.
    -------------------------------------------------------------------------
 
+   Future Development Goals?
+   -------------------------
 
-
+   Move to DTD 0.19, MathML units treatment, etc.
