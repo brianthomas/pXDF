@@ -71,6 +71,7 @@ package XDF::Reader;
 use XDF::Array;
 use XDF::BinaryFloatDataFormat;
 use XDF::BinaryIntegerDataFormat;
+use XDF::Constants;
 use XDF::DelimitedXMLDataIOStyle;
 use XDF::Field;
 use XDF::FieldRelation;
@@ -201,9 +202,10 @@ my $PARSER_MSG_THRESHOLD = 200; # we print all messages equal to and below this 
 #my $Tagged_Read_Style  = &XDF::XMLDataIOStyle::taggedXMLDataIOStyleName();
 #my $UnTagged_Read_Style  = &XDF::XMLDataIOStyle::untaggedXMLDataIOStyleName();
 
-my $Flag_Hex = &XDF::IntegerDataFormat::typeHexadecimal();
-my $Flag_Decimal = &XDF::IntegerDataFormat::typeDecimal();
-my $Flag_Octal = &XDF::IntegerDataFormat::typeOctal();
+my $Flag_Decimal = &XDF::Constants::INTEGER_TYPE_DECIMAL;
+my $Flag_Octal = &XDF::Constants::INTEGER_TYPE_OCTAL;
+my $Flag_Hex = &XDF::Constants::INTEGER_TYPE_HEX;
+
 
 # Now, Some defines based on XDF DTD 
 # change these to reflect new namings of same nodes as they occur.
@@ -1015,21 +1017,26 @@ sub data_node_end {
        ref($formatObj) eq 'XDF::FormattedXMLDataIOStyle' ) {
 
     my $regex; my $template; my $recordSize;
-    my $data_has_special_integers = 0;
+    my $data_has_special_integers = &arrayHasSpecialIntegers($CURRENT_ARRAY);
+    my $data_has_binary_values = &arrayHasBinaryData($CURRENT_ARRAY);
+    my $endian = $formatObj->getEndian();
 
     # set up appropriate instructions for reading
     if ( ref($formatObj) eq 'XDF::FormattedXMLDataIOStyle' ) {
       $template  = $formatObj->_templateNotation(1);
       $recordSize = $formatObj->numOfBytes();
-      $data_has_special_integers = $formatObj->hasSpecialIntegers;
     } elsif(ref($formatObj) eq 'XDF::DelimitedXMLDataIOStyle') {
       $regex = $formatObj->_regexNotation();
+      if ($data_has_binary_values) {
+         die "Cannot read binary data within a delimited array, aborting read.\n";
+      }
     }
 
     my $locator = $CURRENT_ARRAY->createLocator();
     @READAXISORDER = reverse @READAXISORDER;
     $locator->setIterationOrder(\@READAXISORDER);
     $formatObj->setWriteAxisOrderList(\@READAXISORDER);
+    my @dataFormat = $CURRENT_ARRAY->getDataFormatList;
 
     while ( $DATABLOCK ) {
 
@@ -1042,13 +1049,18 @@ sub data_node_end {
 
         @data = unpack($template, $1);
 
-        @data = &deal_with_special_integer_data($CURRENT_ARRAY->getDataFormatList, \@data) 
-           if $data_has_special_integers; 
+       # In part because we are using a regex mechanism below,
+       # it doesnt make sense to store binary data in delimited manner,
+       # so we only see it as a fixed Formatted case.
+       # this may have to be re-evaluated in the future. -b.t.
+        @data = &deal_with_binary_data(\@dataFormat, \@data, $endian)
+           if $data_has_binary_values;
 
       } elsif(ref($formatObj) eq 'XDF::DelimitedXMLDataIOStyle') {
 
         $_ = $DATABLOCK; 
         @data = m/$regex/;
+
         # remove data from data 'resevoir' (yes, there is probably a one-liner
         # for these two statements, but I cant think of it :P
         $DATABLOCK =~ s/$regex//;
@@ -1060,18 +1072,11 @@ sub data_node_end {
       # if we got data, fire it into the array
       if ($#data > -1) {
 
+        @data = &deal_with_special_integer_data(\@dataFormat, \@data)
+           if $data_has_special_integers;
+
         for (@data) {
           $CURRENT_ARRAY->addData($locator, $_);
-if(0) {
-my $locationPos;
-my $locationName;
-for (@{$locator->getIterationOrder()}) {
-   $locationName .= $_->getAxisId() . ",";
-   $locationPos .= $locator->getAxisIndex($_) . ",";
-}
-chop $locationName;
-print STDERR "ADDING DATA [$locationName]($locationPos) : [$_]\n";
-}
 
           &print_debug("ADDING DATA [$locator]($CURRENT_ARRAY) : [$_]\n");
           $locator->next();
@@ -2043,6 +2048,7 @@ sub _getHrefData {
        undef $/; #input rec separator, once newline, now nothing.
                  # will cause whole file to be read in one whack 
        open(DATAFILE, $file);
+       # binmode(DATAFILE); # needed ?
        $text = <DATAFILE>;
        close DATAFILE;
    } else {
@@ -2100,6 +2106,50 @@ sub print_warning {
 
 }
 
+sub deal_with_binary_data {
+  my ($dataFormatListRef, $data_ref, $endian) = @_;
+
+  my @data = @{$data_ref};
+  my @dataFormatList = @{$dataFormatListRef};
+
+  foreach my $dat_no (0 .. $#dataFormatList) {
+     if ( ref($dataFormatList[$dat_no]) eq 'XDF::BinaryIntegerDataFormat') {
+        $data[$dat_no] = $dataFormatList[$dat_no]->convertBitStringToIntegerBits($data[$dat_no], $endian);
+     } elsif ( ref($dataFormatList[$dat_no]) eq 'XDF::BinaryFloatDataFormat') {
+        $data[$dat_no] = $dataFormatList[$dat_no]->convertBitStringToFloatBits($data[$dat_no], $endian);
+     }
+  }
+
+  return @data;
+}
+
+sub arrayHasSpecialIntegers {
+  my ($array) = @_;
+
+  my @dataFormatList = $array->getDataFormatList();
+  return 0 if (!@dataFormatList);
+
+  foreach my $dataType (@dataFormatList) {
+    if (ref($dataType) eq 'XDF::IntegerDataFormat') {
+      return 1 if $dataType->getType() ne $Flag_Decimal;
+    }
+  }
+  return 0;
+}
+
+sub arrayHasBinaryData {
+  my ($array) = @_;
+
+  my @dataFormatList = $array->getDataFormatList();
+  return 0 if (!@dataFormatList);
+
+  foreach my $dataType (@dataFormatList) {
+    return 1 if ref($dataType) =~ m/XDF::Binary/;
+  }
+
+  return 0;
+}
+
 # Treatment for hex, octal reads
 # that can occur in formatted data
 sub deal_with_special_integer_data {
@@ -2110,7 +2160,7 @@ sub deal_with_special_integer_data {
 
   foreach my $dat_no (0 .. $#dataFormatList) {
     $data[$dat_no] = &change_integerField_data_to_flagged_format($dataFormatList[$dat_no], $data[$dat_no] )
-                if ref($dataFormatList[$dat_no]) =~ m/XDF::Integer/;
+                if ref($dataFormatList[$dat_no]) eq 'XDF::IntegerDataFormat';
   }
 
   return @data;
@@ -2170,6 +2220,11 @@ sub my_fail {
 # Modification History
 #
 # $Log$
+# Revision 1.13  2001/03/09 21:58:23  thomas
+# Moved $Flag_Decimal, Flag_Octal, etc to use the Constants class. Changed code
+# so that binary reads now conform to the XDF standard (non-native floating point
+# reading now supported)
+#
 # Revision 1.12  2001/03/01 21:12:24  thomas
 # small fix: reversed readAxisOrder. This solved a bug in the
 # locator having to (un)reverse the order back. -b.t.
