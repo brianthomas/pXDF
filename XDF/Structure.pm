@@ -399,7 +399,8 @@ sub addParamGroup {
   return 0 unless defined $groupObj && ref $groupObj;
 
   # add the group to the groupOwnedHash
-  %{$self->{_paramGroupOwnedHash}}->{$groupObj} = $groupObj;
+  #%{$self->{_paramGroupOwnedHash}}->{$groupObj} = $groupObj;
+  $self->{_paramGroupOwnedHash}->{$groupObj} = $groupObj;
 
   return 1;
 }
@@ -411,8 +412,12 @@ sub addParamGroup {
 # */
 sub removeParamGroup { 
    my ($self, $hashKey) = @_; 
-   if (exists %{$self->{_paramGroupOwnedHash}}->{$hashKey}) {
-      delete %{$self->{_paramGroupOwnedHash}}->{$hashKey}; 
+   #if (exists %{$self->{_paramGroupOwnedHash}}->{$hashKey}) {
+   #   delete %{$self->{_paramGroupOwnedHash}}->{$hashKey}; 
+      #return 1;
+   #}
+   if (exists $self->{_paramGroupOwnedHash}->{$hashKey}) {
+      delete $self->{_paramGroupOwnedHash}->{$hashKey}; 
       return 1;
    }
    return 0;
