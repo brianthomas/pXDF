@@ -13,6 +13,8 @@
 
    - check locator hasNext funct. make like Java
 
+   - blank data not written properly
+
    - Implement append Array/align axis functionality
 
    - readId/readIdRef not implemented yet.
