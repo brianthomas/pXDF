@@ -116,11 +116,11 @@ sub setBits {
    $self->{Bits} = $value;
 }
 
-# /** getBytes
+# /** numOfBytes
 # A convenience method.
 # Return the number of bytes this XDF::BinaryFloatDataFormat holds.
 # */
-sub getBytes { 
+sub numOfBytes { 
   my ($self) = @_; 
   return int(($self->{Bits})/8);
 }
@@ -169,7 +169,7 @@ sub _templateNotation {
 sub _regexNotation {
   my ($self) = @_;
 
-  my $width = $self->getBytes();
+  my $width = $self->numOfBytes();
   my $symbol = $Perl_Regex_Field_BinaryFloat;
 
   my $notation = '(';
@@ -189,7 +189,7 @@ sub _sprintfNotation {
 #  my $notation = '%';
 #  my $field_symbol = $Perl_Sprintf_Field_BinaryFloat;
 #
-#  $notation .= $self->getBytes();
+#  $notation .= $self->numOfBytes();
 #  $notation .= $field_symbol;
 #
 #  return $notation;
@@ -207,6 +207,10 @@ sub fortranNotation {
 # Modification History
 #
 # $Log$
+# Revision 1.8  2001/02/15 17:50:31  thomas
+# changed getBytes to numOfBytes method as per
+# java API.
+#
 # Revision 1.7  2001/01/04 22:21:41  thomas
 # Bug fix. Was writing double precision when declared
 # number of bits was 32 (!). Also fix to prevent
@@ -456,7 +460,7 @@ These methods set the requested attribute if an argument is supplied to the meth
 
  
 
-=item # /** getBytes
+=item # /** numOfBytes
 
  
 
@@ -472,7 +476,7 @@ These methods set the requested attribute if an argument is supplied to the meth
 
  
 
-=item sub getBytes { 
+=item sub numOfBytes { 
 
  
 
@@ -490,7 +494,7 @@ These methods set the requested attribute if an argument is supplied to the meth
 
 Set the (number of) bits attribute. 
 
-=item getBytes (EMPTY)
+=item numOfBytes (EMPTY)
 
 A convenience method. Return the number of bytes this XDF::BinaryFloatDataFormat holds. 
 

@@ -38,8 +38,7 @@ package XDF::DataFormat;
 # XDF::Field
 # XDF::BinaryFloatDataFormat
 # XDF::BinaryIntegerDataFormat
-# XDF::ExponentialDataFormat
-# XDF::FixedDataFormat
+# XDF::FloatDataFormat
 # XDF::IntegerDataFormat
 # XDF::StringDataFormat
 # */
@@ -233,11 +232,11 @@ sub getXMLAttributes {
   return \@Class_XML_Attributes;
 }
 
-# /** getBytes
+# /** numOfBytes
 # This returns the number of bytes this object describes.
 # Undef is returned if not successfull.
 # */
-sub getBytes {
+sub numOfBytes {
   my ($self) = @_;
   undef;
 }
@@ -278,6 +277,10 @@ sub AUTOLOAD {
 # Modification History
 #
 # $Log$
+# Revision 1.7  2001/02/15 17:50:31  thomas
+# changed getBytes to numOfBytes method as per
+# java API.
+#
 # Revision 1.6  2000/12/15 22:11:59  thomas
 # Regenerated perlDoc section in files. -b.t.
 #
@@ -841,7 +844,7 @@ These methods set the requested attribute if an argument is supplied to the meth
 
  
 
-=item # /** getBytes
+=item # /** numOfBytes
 
  
 
@@ -857,7 +860,7 @@ These methods set the requested attribute if an argument is supplied to the meth
 
  
 
-=item sub getBytes {
+=item sub numOfBytes {
 
  
 
@@ -955,7 +958,7 @@ Set the noDataValue attribute.
 
 This method returns the XMLAttributes of this class. 
 
-=item getBytes (EMPTY)
+=item numOfBytes (EMPTY)
 
 This returns the number of bytes this object describes. Undef is returned if not successfull. 
 
@@ -1007,7 +1010,7 @@ B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLAttributes>, B<setX
 
 =head1 SEE ALSO
 
-L< XDF::Array>, L< XDF::Field>, L< XDF::BinaryFloatDataFormat>, L< XDF::BinaryIntegerDataFormat>, L< XDF::ExponentialDataFormat>, L< XDF::FixedDataFormat>, L< XDF::IntegerDataFormat>, L< XDF::StringDataFormat>, L<XDF::BaseObject>
+L< XDF::Array>, L< XDF::Field>, L< XDF::BinaryFloatDataFormat>, L< XDF::BinaryIntegerDataFormat>, L< XDF::FloatDataFormat>, L< XDF::IntegerDataFormat>, L< XDF::StringDataFormat>, L<XDF::BaseObject>
 
 =back
 

@@ -134,11 +134,11 @@ sub setSigned {
    $self->{Signed} = $value;
 }
 
-# /** getBytes
+# /** numOfBytes
 # A convenience method.
 # Return the number of bytes this XDF::BinaryIntegerDataFormat holds.
 # */
-sub getBytes { 
+sub numOfBytes { 
   my ($self) = @_; 
   return int($self->{Bits}/8); 
 }
@@ -177,7 +177,7 @@ sub _init {
 sub _templateNotation {
   my ($self, $endian, $encoding) = @_;
 
-  my $width = $self->getBytes()/4; 
+  my $width = $self->numOfBytes()/4; 
 
   # we have 32 bit numbers as default
   die "XDF::BinaryInteger cant handle > 32 bit Integer Numbers\n" unless ($width <= 1);
@@ -211,7 +211,7 @@ sub _templateNotation {
 sub _regexNotation {
   my ($self) = @_;
 
-  my $width = $self->getBytes();
+  my $width = $self->numOfBytes();
   my $symbol = $Perl_Regex_Field_BinaryInteger;
 
   my $notation = '(';
@@ -248,6 +248,10 @@ sub fortranNotation {
 # Modification History
 #
 # $Log$
+# Revision 1.8  2001/02/15 17:50:31  thomas
+# changed getBytes to numOfBytes method as per
+# java API.
+#
 # Revision 1.7  2001/01/04 22:33:19  thomas
 # Fix to properly describe (some) cases for the
 # templateNotation. Still have remaining bug of
@@ -557,7 +561,7 @@ These methods set the requested attribute if an argument is supplied to the meth
 
  
 
-=item # /** getBytes
+=item # /** numOfBytes
 
  
 
@@ -573,7 +577,7 @@ These methods set the requested attribute if an argument is supplied to the meth
 
  
 
-=item sub getBytes { 
+=item sub numOfBytes { 
 
  
 
@@ -599,7 +603,7 @@ Set the (number of) bits attribute.
 
 Set the signed attribute. 
 
-=item getBytes (EMPTY)
+=item numOfBytes (EMPTY)
 
 A convenience method. Return the number of bytes this XDF::BinaryIntegerDataFormat holds. 
 

@@ -90,7 +90,7 @@ sub setOutput {
    $self->{Output} = $value;
 }
 
-sub getBytes { 
+sub numOfBytes { 
   my ($self) = @_;  
   return $self->{Count}; 
 }
@@ -122,7 +122,7 @@ sub _init {
 
 sub _templateNotation { 
   my ($self, $endian, $encoding, $input) = @_; 
-  return "x" . $self->getBytes() if $input; 
+  return "x" . $self->numOfBytes() if $input; 
   return "A" . length($self->{Output});
 }
 
@@ -147,6 +147,10 @@ sub _sprintfNotation {
 # Modification History
 #
 # $Log$
+# Revision 1.6  2001/02/15 17:50:30  thomas
+# changed getBytes to numOfBytes method as per
+# java API.
+#
 # Revision 1.5  2000/12/15 22:11:59  thomas
 # Regenerated perlDoc section in files. -b.t.
 #
@@ -357,7 +361,7 @@ These methods set the requested attribute if an argument is supplied to the meth
 
  
 
-=item sub getBytes { 
+=item sub numOfBytes { 
 
  
 
@@ -443,7 +447,7 @@ Set the count attribute.
 
 Set the output attribute. 
 
-=item getBytes (EMPTY)
+=item numOfBytes (EMPTY)
 
 
 

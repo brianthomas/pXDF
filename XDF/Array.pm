@@ -266,8 +266,8 @@ sub getDataFormat {
 # /** setDataFormat
 # Sets the data format *type* for this array. Takes a SCALAR object reference
 # as its argument. Allowed objects to pass to this method include 
-# L<XDF::BinaryIntegerDataFormat>, L<XDF::BinaryFloatDataFormat>, L<XDF::ExponentialDataFormat>, 
-# L<XDF::FixedDataFormat>, L<XDF::IntegerDataFormat>, or L<XDF::StringDataFormat>.
+# L<XDF::BinaryIntegerDataFormat>, L<XDF::BinaryFloatDataFormat>, L<XDF::FloatDataFormat>, 
+# L<XDF::IntegerDataFormat>, or L<XDF::StringDataFormat>.
 # */
 sub setDataFormat {
    my ($self, $value) = @_;
@@ -800,7 +800,7 @@ Set the name attribute.
 
 =item setDataFormat ($value)
 
-Sets the data format *type* for this array. Takes a SCALAR object referenceas its argument. Allowed objects to pass to this method include L<XDF::BinaryIntegerDataFormat>, L<XDF::BinaryFloatDataFormat>, L<XDF::ExponentialDataFormat>, L<XDF::FixedDataFormat>, L<XDF::IntegerDataFormat>, or L<XDF::StringDataFormat>. 
+Sets the data format *type* for this array. Takes a SCALAR object referenceas its argument. Allowed objects to pass to this method include L<XDF::BinaryIntegerDataFormat>, L<XDF::BinaryFloatDataFormat>, L<XDF::FloatDataFormat>, L<XDF::IntegerDataFormat>, or L<XDF::StringDataFormat>. 
 
 =item getNotes ($what)
 

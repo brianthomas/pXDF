@@ -92,7 +92,7 @@ sub setFormatCmdList {
    $self->{FormatCmdList} = \@list;
 }
 
-sub getBytes {
+sub numOfBytes {
   my ($self, $dataFormatListRef ) = @_;
 
   my $bytes = 0;
@@ -108,9 +108,9 @@ sub getBytes {
     if(ref($obj) eq 'XDF::ReadCellFormattedIOCmd') {
       my $readObj = shift @dataFormatList;
       push (@dataFormatList, $readObj); # its a circular list
-      $bytes += $readObj->getBytes();
+      $bytes += $readObj->numOfBytes();
     } elsif (ref($obj) eq 'XDF::SkipCharFormattedIOCmd') {
-      $bytes += $obj->getBytes();
+      $bytes += $obj->numOfBytes();
     } else {
       # everything else, which nothing right now, so throw an error
       warn "Got weird formattedIOCmd in $self : $obj , ignoring it.\n";
@@ -327,6 +327,10 @@ sub _sprintfNotation {
 # Modification History
 #
 # $Log$
+# Revision 1.8  2001/02/15 17:50:30  thomas
+# changed getBytes to numOfBytes method as per
+# java API.
+#
 # Revision 1.7  2001/01/02 17:41:46  thomas
 # changed 1 .. $number statements in methods
 # in anticipation of running package on platforms
@@ -554,7 +558,7 @@ These methods set the requested attribute if an argument is supplied to the meth
 
  
 
-=item sub getBytes {
+=item sub numOfBytes {
 
  
 
@@ -616,7 +620,7 @@ Set the count attribute.
 
 Set the formatCmdList attribute. 
 
-=item getBytes ($dataFormatListRef)
+=item numOfBytes ($dataFormatListRef)
 
 
 

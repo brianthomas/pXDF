@@ -60,7 +60,7 @@ sub classAttributes {
 # Get/Set Methods
 #
 
-sub getBytes {
+sub numOfBytes {
   my ($self, $dataFormatListRef ) = @_;
   warn "You are calling the bytes method of an abstract class from $self.\n";
 }
@@ -105,6 +105,10 @@ sub _sprintfNotation {
 # Modification History
 #
 # $Log$
+# Revision 1.6  2001/02/15 17:50:31  thomas
+# changed getBytes to numOfBytes method as per
+# java API.
+#
 # Revision 1.5  2000/12/15 22:11:59  thomas
 # Regenerated perlDoc section in files. -b.t.
 #
@@ -163,7 +167,7 @@ A change in the value of these class attributes will change the value for ALL in
 
 =over 4
 
-=item getBytes ($dataFormatListRef)
+=item numOfBytes ($dataFormatListRef)
 
 
 

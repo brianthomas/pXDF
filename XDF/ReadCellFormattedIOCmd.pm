@@ -93,6 +93,10 @@ sub _sprintfNotation {
 # Modification History
 #
 # $Log$
+# Revision 1.6  2001/02/15 17:50:31  thomas
+# changed getBytes to numOfBytes method as per
+# java API.
+#
 # Revision 1.5  2000/12/15 22:12:00  thomas
 # Regenerated perlDoc section in files. -b.t.
 #
@@ -305,7 +309,7 @@ B<new>, B<clone>, B<update>.
 =over 4
 
 XDF::ReadCellFormattedIOCmd inherits the following instance methods of L<XDF::FormattedIOCmd>:
-B<getBytes>.
+B<numOfBytes>.
 
 =back
 

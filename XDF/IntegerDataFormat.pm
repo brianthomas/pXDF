@@ -151,11 +151,11 @@ sub setType {
    $self->{Type} = $value;
 }
 
-# /** getBytes
+# /** numOfBytes
 # A convenience method.
 # Return the number of bytes this XDF::BinaryFloatField holds.
 # */
-sub getBytes { 
+sub numOfBytes { 
   my ($self) = @_;
   $self->getWidth();
 }
@@ -245,6 +245,10 @@ sub _sprintfNotation {
 # Modification History
 #
 # $Log$
+# Revision 1.7  2001/02/15 17:50:31  thomas
+# changed getBytes to numOfBytes method as per
+# java API.
+#
 # Revision 1.6  2000/12/15 22:11:58  thomas
 # Regenerated perlDoc section in files. -b.t.
 #
@@ -612,7 +616,7 @@ These methods set the requested attribute if an argument is supplied to the meth
 
  
 
-=item # /** getBytes
+=item # /** numOfBytes
 
  
 
@@ -628,7 +632,7 @@ These methods set the requested attribute if an argument is supplied to the meth
 
  
 
-=item sub getBytes { 
+=item sub numOfBytes { 
 
  
 
@@ -666,7 +670,7 @@ Set the width attribute.
 
 Set the type attribute. 
 
-=item getBytes (EMPTY)
+=item numOfBytes (EMPTY)
 
 A convenience method. Return the number of bytes this XDF::BinaryFloatField holds. 
 

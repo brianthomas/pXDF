@@ -110,11 +110,11 @@ sub setLength {
    $self->{Length} = $value;
 }
 
-# /** getBytes
+# /** numOfBytes
 # A convenience method.
 # Return the number of bytes this XDF::StringDataFormat holds.
 # */
-sub getBytes {
+sub numOfBytes {
   my ($self) = @_;
   $self->getLength();
 }
@@ -161,7 +161,7 @@ sub _init {
 
 sub _templateNotation {
   my ($self) = @_;
-  return "A" . $self->getBytes();
+  return "A" . $self->numOfBytes();
 }
 
 sub _regexNotation {
@@ -194,6 +194,10 @@ sub _sprintfNotation {
 # Modification History
 #
 # $Log$
+# Revision 1.7  2001/02/15 17:50:30  thomas
+# changed getBytes to numOfBytes method as per
+# java API.
+#
 # Revision 1.6  2000/12/15 22:11:59  thomas
 # Regenerated perlDoc section in files. -b.t.
 #
@@ -441,7 +445,7 @@ These methods set the requested attribute if an argument is supplied to the meth
 
  
 
-=item # /** getBytes
+=item # /** numOfBytes
 
  
 
@@ -457,7 +461,7 @@ These methods set the requested attribute if an argument is supplied to the meth
 
  
 
-=item sub getBytes {
+=item sub numOfBytes {
 
  
 
@@ -475,7 +479,7 @@ These methods set the requested attribute if an argument is supplied to the meth
 
 Set the length attribute. 
 
-=item getBytes (EMPTY)
+=item numOfBytes (EMPTY)
 
 A convenience method. Return the number of bytes this XDF::StringDataFormat holds. 
 

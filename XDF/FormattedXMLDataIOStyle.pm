@@ -163,7 +163,7 @@ sub getCommands () {
    return \@commandList;
 }
 
-sub getBytes {
+sub numOfBytes {
   my ($self) = @_;
 
   my $bytes = 0;
@@ -179,9 +179,9 @@ sub getBytes {
     if(ref($obj) eq 'XDF::ReadCellFormattedIOCmd') {
       my $readObj = shift @dataFormatList;
       push (@dataFormatList, $readObj); # its a circular list
-      $bytes += $readObj->getBytes();
+      $bytes += $readObj->numOfBytes();
     } elsif (ref($obj) eq 'XDF::SkipCharFormattedIOCmd') {
-      $bytes += $obj->getBytes();
+      $bytes += $obj->numOfBytes();
     } else {
       warn "Unknown format cmd in $self bytes: $obj, ignoring\n";
     }
@@ -415,6 +415,10 @@ sub _sprintfNotation {
 # Modification History
 #
 # $Log$
+# Revision 1.7  2001/02/15 17:50:31  thomas
+# changed getBytes to numOfBytes method as per
+# java API.
+#
 # Revision 1.6  2000/12/15 22:12:00  thomas
 # Regenerated perlDoc section in files. -b.t.
 #
@@ -517,7 +521,7 @@ This method sets the ordering of the fastest to slowest axis forwriting out form
 
 This convenience method returns the command list (asan ARRAY Ref). Repeat commands are expanded into their component parts.  
 
-=item getBytes (EMPTY)
+=item numOfBytes (EMPTY)
 
 
 
