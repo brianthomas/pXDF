@@ -3,13 +3,17 @@ TODO: In other words, WHY is this package still ALPHA?!?
 
    What is currently NOT implemented in this package:
 
-   = Output of Notes/location stuff is broken.
+   - get/set methods in line with the Java. No return value from set method.
+
+   - Output of Notes/location stuff is broken.
 
    - delimited data NOT printing back out OK, (read node printing as
      <textDelimiter> rather than <read>). 
 
    - for nodes not implemented correctly (ie cant change the iteration
      order of the locator that will populate the dataCube. See java code)
+   
+   - previous function on locator (implemented??)
 
    - Add functionality to attributes on data node.
      -- Href capability
@@ -22,7 +26,7 @@ TODO: In other words, WHY is this package still ALPHA?!?
 
    - Fix XDF::Note setLocation method related stuff.
 
-   - Add regex capability to XDF::DelimitedXMLIOStyle separator attribute (?).
+   - Add regex capability to XDF::DelimitedXMLIOStyle separator attribute (No?).
 
    - Implement append Array/align axis functionality
 
@@ -33,6 +37,7 @@ TODO: In other words, WHY is this package still ALPHA?!?
      Do we just throw an error?  Whats the 'right' thing to do??
 
    - Note: Perl Binary Integer only support signed OR endian. How to do unsigned AND Endianess ?? 
+
 
    ---------------------------------------------------------------------------
    ** AT This Point the package is a "BETA", but more will need to be done: **

@@ -33,6 +33,27 @@ To make it, do the standard drill:
 (W32 users substitute NMAKE for 'make' in the above )
 
 
+CVS Repository Access
+---------------------
+
+Read only access to the nightly snapshot is allowed for people who
+have downloaded this code once from the main site. The CVS account
+is "guest" which has a password "gu3stacc3ss". The XDF Perl package
+directory is "xml/XDF/Perl_Package" and the CVSROOT directory is
+"/home/cvsadmin/src". Here is an example of how you can use this
+information to obtain a nightly CVS snapshot (UNIX tcsh):
+
+> setenv CVSROOT :pserver:guest@xdf.gsfc.nasa.gov:/home/cvsadmin/src
+
+> cvs login
+  (this will ask for a password, which is "gu3stacc3ss")
+
+> cvs checkout xml/XDF/Perl_Package
+
+Note that you only have to use "cvs login" step ONCE. Thereafter, only
+the last step is needed to obtain a copy from CVS.
+
+
 ---
 
 Maintainer : Brian Thomas (thomas@adc.gsfc.nasa.gov)
