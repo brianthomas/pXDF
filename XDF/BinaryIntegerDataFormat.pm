@@ -171,10 +171,17 @@ sub _init {
 }
 
 
+sub _templateNotation {
+  my ($self) = @_;
+  my $width = $self->{Bits};
+  my $template = $self->getEndian() eq $self->SUPER::getLittleEndian ? "b" : "B";
+  return $template;
+}
+
 # Yes, this is sub-optimal. We dont treat having littleEndian AND
 # unsigned or 64-bit AND littleEndian. Need to reformulate a more
 # basic subroutine. -b.t. 
-sub _templateNotation {
+sub _oldtemplateNotation {
   my ($self, $endian, $encoding) = @_;
 
   my $width = $self->numOfBytes()/4; 
@@ -240,6 +247,9 @@ sub _sprintfNotation {
 # Modification History
 #
 # $Log$
+# Revision 1.10  2001/03/07 23:12:57  thomas
+# messing with templateNotation. changed for time being.
+#
 # Revision 1.9  2001/02/15 18:27:37  thomas
 # removed fortranNotation from class.
 #
