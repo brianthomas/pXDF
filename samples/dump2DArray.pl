@@ -20,7 +20,7 @@
 # read/write documents with XDF embedded in them. -b.t. 
 
 use XDF::XDF;
-use XDF::Reader;
+use XDF::Specification;
 use strict;
 
 my $DEBUG = 0;
@@ -29,6 +29,9 @@ my $QUIET = 1;
 # test file for reading in XDF files.
 
   die "Usage: $0 <XDF FILE>\n" unless defined $ARGV[0];
+
+  my $spec = XDF::Specification->getInstance();
+  $spec->setLogMessageLevel(0) if $DEBUG;
 
   my $data_separator = "\t";
   my $file = $ARGV[0];
@@ -72,12 +75,12 @@ sub dump_2D_array {
    my $rowAxis = @{$arrayObj->getAxisList}->[0];
    my $colAxis = @{$arrayObj->getAxisList}->[1];
 
-   my @size = ($rowAxis->getLength(), $colAxis->getLength());
+   my @size = ($rowAxis->getSize(), $colAxis->getSize());
 
    my $locator = $arrayObj->createLocator;
 
-   print $filehandle "Y-axis Id: ",$colAxis->getAxisId(),"\n";
-   print $filehandle "X-axis Id: ",$rowAxis->getAxisId(),"\n";
+   print $filehandle "Y-axis Id: ",$colAxis->getAxisId()," (size:",$colAxis->getSize(),")\n";
+   print $filehandle "X-axis Id: ",$rowAxis->getAxisId()," (size:",$rowAxis->getSize(),")\n";
 
    # now print formatted table
    my $halfSize = int($cellSize/2);
