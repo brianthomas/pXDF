@@ -1,20 +1,7 @@
 
-   TODO: In other words, WHY is this package still ALPHA?!? 
-
-
-   What is currently NOT implemented in this package, but will be:
-   ---------------------------------------------------------------
-
-   - Resolve class_attributes/XMLAttribute differences between perl and Java.
-     for example, bring getFormatCommands in FormattedXMLDataIOStyle in line 
-     with Java package.
-
-   - blank data not written properly (?) 
-
-   - Implement append Array/align axis functionality
-
    ---------------------------------------------------------------------------
-   ** AT This Point the package is a "BETA", but more will need to be done: **
+   ** Known bugs/Issues in the BETA that prevent use from calling this a stable 
+      feature-complete release candidate.
    ---------------------------------------------------------------------------
 
    - binary IO not fully tested (only on Linux so far). 
@@ -68,10 +55,8 @@
      "convience" methods? (yes, this should have been done in object construction,
      but alas, we can forsee *everything*). 
 
-   -------------------------------------------------------------------------
-   ** At this point we have an stable feature-complete release candidate.
-   -------------------------------------------------------------------------
 
+   -------------------------
    Future Development Goals?
    -------------------------
 
