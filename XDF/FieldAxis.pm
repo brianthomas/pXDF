@@ -77,12 +77,12 @@ my @Local_Class_XML_Attributes = qw (
                       name
                       description
                       align
+                      size
                       axisId
                       axisIdRef
                       fieldList
                           );
 my @Local_Class_Attributes = qw (
-                      _length
                       _parentArray
                       _fieldGroupOwnedHash
                           );
@@ -279,17 +279,30 @@ sub setFieldList {
 #}
 
 # /** getLength
-# return the length of this field axis (eg number of field objects) 
+# return the length of this field axis (eg the number of fields held by this field axis) 
 # */
 sub getLength {
   my ($self) = @_;
-  return $self->{_length};
+  return $self->{size};
+}
+
+# /** getSize
+# Return the size (length) of this field axis (eg the number of fields held by this field axis) 
+# */
+sub getSize {
+   my ($self) = @_;
+   return $self->{size};
 }
 
 #
 # Other Public Methods
 #
 
+#/** new
+# Create a new field axis. Optionally, if you specify the size attribute,
+# the axis will be created with that many fields, each having a StringDataFormat
+# of $fieldWidth size.
+#*/
 sub new {
   my ($proto, $attribHashOrSize, $fieldWidth) = @_;
 
@@ -299,7 +312,9 @@ sub new {
      $attribHashOrSize = undef;
    }
    my $self = $proto->SUPER::new($attribHashOrSize);
+   $self->_init();
 
+   # create with fields, as appropriate
    if (defined $size) {
       $fieldWidth = 1 unless defined $fieldWidth;
       foreach my $fieldNumber (0 .. ($size-1)) {
@@ -324,7 +339,7 @@ sub addField {
     return 0;
   }
 
-  my $index = $self->{_length};
+  my $index = $self->{size};
 
   if (defined @{$self->{fieldList}}->[$index]) {
      # increase the size of the array by pushing
@@ -335,7 +350,7 @@ sub addField {
   }
 
   # bump up the size of this axis
-  $self->{_length}++;
+  $self->{size}++;
 
   if (defined $self->{_parentArray}) {
      $self->{_parentArray}->_updateInternalLookupIndices();
@@ -388,7 +403,7 @@ sub setField {
      if (defined @{$self->{fieldList}}->[$index]) {
         # if the field at that location is presently defined, we lower
         # the length of the field axis by 1
-        $self->{_length}--;
+        $self->{size}--;
         @{$self->{fieldList}}->[$index] = undef;
      }
      return;
@@ -397,7 +412,7 @@ sub setField {
   # if a field is not presently defined at the indicated location
   # we raise the length of the axis by 1
   if (!defined @{$self->{fieldList}}->[$index]) {
-     $self->{_length}++;
+     $self->{size}++;
     
      # also means that length changed, so we need to update this too
      if (defined $self->{_parentArray}) {
@@ -424,7 +439,7 @@ sub removeField {
 
   if ($self->_remove_from_list($fieldObj, $self->{fieldList}, 'fieldList')) {
 
-     $self->{_length}--;
+     $self->{size}--;
 
      if (defined $self->{_parentArray}) {
         $self->{_parentArray}->_updateInternalLookupIndices();
@@ -485,12 +500,12 @@ sub _init {
   # initialize lists
   $self->{fieldList} = [];
   $self->{_fieldGroupOwnedHash} = {};
+  $self->{size} = 0;
 
+  # DONT do this
   # set the minimum array size (essentially the size of the axis)
-  my $spec= XDF::Specification->getInstance();
-  $#{$self->{fieldList}} = $spec->getDefaultDataArraySize();
-
-  $self->{_length} = 0;
+  # my $spec= XDF::Specification->getInstance();
+  # $#{$self->{fieldList}} = $spec->getDefaultDataArraySize();
 
   # adds to ordered list of XML attributes
   $self->_appendAttribsToXMLAttribOrder(\@Local_Class_XML_Attributes);
