@@ -84,10 +84,81 @@ sub getXDFElements {
   return \@list;
 }
 
+sub toString {
+  my ($self) = @_;
+  $self->_syncEntities();
+  return $self->SUPER::toString();
+}
+
 # just an alias
 sub toXMLString {
   my ($self) = @_;
-  return $self->toString();
+  my $string = $self->toString();
+  return $string;
+}
+
+# Sync up the enities declared in the XDF objects and
+# in the document. A potential problem exists if we have
+# 2 or more XDF objects that have entity objects that 
+# disagree on their specifics (e.g. SYSTEM, PUBLIC, NDATA
+# values differ).  So this is hardly the optimal solution.
+# A better one is to wrap the XDF::Entity class with XDF::DOM::Entity
+# which inherits from XML::DOM::Entity and will prevent illegal
+# entity entries. 
+sub _syncEntities {
+  my ($self) = @_;
+
+  # we will re-create a new, sync'd Doctype object.
+  my $newDoctype = new XML::DOM::DocumentType( $self, 
+                                               $self->getDoctype->getName, 
+                                               $self->getDoctype->getSysId, 
+                                               $self->getDoctype->getPubId 
+                                             );
+
+  # gather information.
+  my @xdfEntities;
+  foreach my $XDFNode (@{$self->getXDFElements}) {
+     push @xdfEntities, @{$XDFNode->getXDFObject()->_find_All_child_Href_Objects()};
+  }
+
+  my %xdfEntityHash;
+  # get a ref hash for comparison to existing entities
+  # this also has the effect of wittling down non-unique
+  # references to the same entity 
+  foreach my $XDFEntity (@xdfEntities) {
+     my $name = $XDFEntity->getName();
+     $xdfEntityHash{$name} = $XDFEntity;
+  }
+
+  # add back in all NON-XDF entities to new doctype
+  my $namedNodeMapOfEntities = $self->getDoctype()->getEntities();
+  foreach my $item (0 ... ($namedNodeMapOfEntities->getLength()-1)){
+    my $entity = $namedNodeMapOfEntities->item($item);
+    my $name = $entity->getNotationName();
+
+    if (!exists $xdfEntityHash{$name}) 
+    {
+
+       $newDoctype->addEntity ( 
+                                 $name, 
+                                 $entity->getValue(), $entity->getSysId(), 
+                                 $entity->getPubId, $entity->getNdata(), 
+                                 $entity->isParameterEntity, 
+                              );
+    }
+
+  }
+
+  # now add in all the unique XDF entities
+  while (my ($name, $entity) = each %xdfEntityHash) {
+       $newDoctype->addEntity ( $name, undef, $entity->getSystemId(),
+                                $entity->getPublicId(), $entity->getNdata(), 0);
+
+  }
+
+  $namedNodeMapOfEntities->dispose;
+  $self->setDoctype($newDoctype);
+
 }
 
 1;
