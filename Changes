@@ -75,4 +75,5 @@ Revision history for Perl extension XDF.
 0.17-beta2 ??? ??? 2001
 	- fixed bug wherein float, integer numbers were left- instead of right-justified.
         - added setCData method to XMLElement class.
+        - fixed html doc generation utility to make pages IE can read.
 
