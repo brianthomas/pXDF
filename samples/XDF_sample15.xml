@@ -1,6 +1,9 @@
 <?xml version="1.0" standalone="no"?>
 <!DOCTYPE XDF SYSTEM "XDF_018.dtd">
-<!-- a simple table -->
+<!-- a simple table example using delimited ASCII data storage, the "default" style,
+     where the delimiter between datum (cells) is understood to be any number of "whitespaces" 
+     (e.g. in UNIX parlance thats " " or "\n" or "\r") 
+  -->
 <XDF name="A sample XDF document" description="This shows how to put any data into XDF format">
   <parameter name="obsdate">
     <unitless/>
@@ -24,18 +27,20 @@
       <units>
         <unit>pixel</unit>
       </units>
+      <dataFormat><integer width="2"/></dataFormat> <!-- not required, but we wish to be "formal" --> 
       <valueList delimiter=" " repeatable="yes">10  9 8 7 6 5 4 3 2 1</valueList>
     </rowAxis>
     <colAxis name="x" size="10">
       <units>
         <unit>pixel</unit>
       </units>
+      <dataFormat><integer width="2"/></dataFormat> <!-- not required, but we wish to be "formal" --> 
       <valueListAlgorithm><polynomial size="10">0 1</polynomial></valueListAlgorithm>
     </colAxis>
     <data>
 <![CDATA[76.53 78.75 67.78 32.59 05.97
 68.77 25.39 51.86  2.48 40.29
-89.37 10.68 82.31 17.85 25.87 64.17 92.64 47.88 44.54 85.05
+89.37 10.68 82.31 17.85 25.87 64.17 92.64 47.88 44.54     85.05
  7.48  1.09  3.15  8.63 20.26  7.27 24.19 72.09  9.69 69.78
 75.43 86.23 48.53 43.22 18.81 54.50 11.99 44.20  6.37 14.47
 84.50 95.73 25.15 66.81 13.58 51.03 30.98  6.22 98.91 75.51
@@ -47,15 +52,12 @@
 ]]>
     </data>
     <notes>
-<!-- Problem: Can't validate the file now that col/row Axis dont have axisId's!-->
-<!--
-      <locationOrder>
-        <index axisIdRef="colAxis"/>
-        <index axisIdRef="rowAxis"/>
-      </locationOrder>
--->
+      <!-- in a simple table, a locationOrder section SHOULD throw a validation error because there
+            are NO row/col axis Id's. Its not needed anyways, because the implicit ordering
+            of note location indices is "col", "row". Upshot: DONT define the locationOrder. -->
       <note>Improper cooling of the camera may have resulted in significant dark current.</note>
-      <note noteId="note1" location="2 6">No data because of a cosmic ray hit</note>
+      <!-- because we have no axisId's the implicit order of the notes location is col,row -->
+      <note noteId="note1" location="2 6">Not real data because of a cosmic ray hit</note>
       <note noteIdRef="note1" location="3 8"/>
     </notes>
   </array>
