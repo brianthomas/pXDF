@@ -47,6 +47,8 @@ my %SuperClassHash;
 
 open (FILE, "tmp");
 
+my $gotAPackage = 0;
+
 while (<FILE>) { 
    chomp unless (m/^#\@/);
 
@@ -123,12 +125,20 @@ while (<FILE>) {
 
    if ($_ =~ m/^use\s(.*?)/) {
      my $item = $';
-     $item =~ s/;$//; 
-     push @IncludeObject, $item if $item =~ m/$packagename/;
+     if ($item !~ m/^vars\s/) {
+        $item =~ s/;$//; 
+        push @IncludeObject, $item if $item =~ m/$packagename/;
+     }
    } 
 
    # name of this class
    if ($_ =~ m/^package\s(.*?)/) {
+
+     last if $gotAPackage == 1; # subsequent package decl in file are INTERNAL
+                                # and not shown 
+
+     $gotAPackage = 1;
+
      my $item = $';
      $item =~ s/;$//; 
      $item =~ s/^$packagename\:\://; 
@@ -148,6 +158,8 @@ while (<FILE>) {
    # other methods
    if ($_ =~ m/^sub\s+/ and !$noMorePublicMethods ) {
      my $item = $';
+
+     next if $item =~ m/PRIVATE\s*?$/;
 
      $item =~ s/\s.*?$//; 
 
@@ -518,6 +530,7 @@ sub deal_with_superClass {
   
          $item =~ s/\s(.*?)$//;
   
+         next if $item =~ m/PRIVATE\s*?$/;
          next unless $item =~ m/[^A-Z]/;
          next unless $item !~ m/^\_/;
          next unless $item !~ m/^class[A-Z]/;
