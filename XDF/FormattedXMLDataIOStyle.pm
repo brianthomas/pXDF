@@ -214,24 +214,6 @@ sub addFormatCommand {
   return $obj;
 }
 
-# Is this needed still? -b.t.
-sub hasSpecialIntegers {
-  my ($self) = @_;
-  my @dataFormatList = $self->{_parentArray}->getDataFormatList();
-
-  if (!@dataFormatList) {
-    carp "Error: cant look for special type IntegerFields w/o defined dataFormat\n";
-  }
-
-  foreach my $dataType (@dataFormatList) {
-    if (ref($dataType) eq 'XDF::IntegerField') {
-      return 1 if $dataType->getType() ne $dataType->typeDecimal; 
-    }
-  }
-
-  return 0;
-}
-
 sub toXMLFileHandle {
   my ($self, $fileHandle, $junk, $indent) = @_;
 
@@ -415,6 +397,9 @@ sub _sprintfNotation {
 # Modification History
 #
 # $Log$
+# Revision 1.9  2001/03/09 21:54:59  thomas
+# removed hasSPecialIntegers method. Now code is in reader.
+#
 # Revision 1.8  2001/03/07 23:12:00  thomas
 # getCommands changed to return ARRAY instead of ARRAY ref.
 #
@@ -533,11 +518,6 @@ This convenience method returns the command list (asan ARRAY Ref). Repeat comman
 This method returns the XMLAttributes of this class. 
 
 =item addFormatCommand ($obj)
-
-
-
-=item hasSpecialIntegers (EMPTY)
-
 
 
 =item toXMLFileHandle ($indent, $junk, $fileHandle)
