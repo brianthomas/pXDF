@@ -112,7 +112,8 @@
           <units><unit>counts</unit><unit power="-1">sec</unit></units>
           <dataFormat><float width="4" precision="2"/></dataFormat>
 
-          <axis axisIdRef="x-axis" /><axis axisIdRef="y-axis"/>
+          <axis axisIdRef="y-axis"/>
+          <axis axisIdRef="x-axis" />
 
              <read readIdRef="readstyle1"/>
 
