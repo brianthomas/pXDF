@@ -18,6 +18,7 @@ package XDF::Units;
 
 
 use XDF::BaseObject;
+use XDF::Utility;
 use XDF::Unit;
 use Carp;
 
@@ -36,6 +37,7 @@ my $Class_XML_Node_Name = "units";
 my @Class_XML_Attributes = qw (
                              factor
                              system
+                             logarithm
                              unitList
                           );
 my @Class_Attributes = qw (
@@ -100,6 +102,25 @@ sub getSystem {
 sub setSystem {
    my ($self, $value) = @_;
    $self->{System} = $value;
+}
+
+# /** getLogarithm
+# */
+sub getLogarithm {
+   my ($self) = @_;
+   return $self->{Logarithm};
+}
+
+# /** setLogarithm
+#     Set the logarithm attribute. 
+# */
+sub setLogarithm {
+   my ($self, $value) = @_;
+   unless (&XDF::Utility::isValidLogarithm($value)) { 
+     carp "Cant set units logarithm to $value, not allowed \n"; 
+     return;
+   }
+   $self->{Logarithm} = $value;
 }
 
 # /** getUnitList
@@ -227,6 +248,9 @@ sub _init {
 # Modification History
 #
 # $Log$
+# Revision 1.10  2001/06/21 17:33:43  thomas
+# added logarithm attribute
+#
 # Revision 1.9  2001/04/25 16:01:31  thomas
 # updated documentation
 #
