@@ -48,6 +48,8 @@ BEGIN {
 
 }
 
+use vars qw/$FILEIMG $FOLDIMG/;
+
 # pragmas
 use strict;
 
@@ -238,6 +240,10 @@ sub init_gui {
 
   $WIDGET{'ylist_scroll'} = $listFrame->Scrollbar()->pack(side => 'left', expand => 0, fill => 'y');
   $WIDGET{'xlist_scroll'} = $listFrame->Scrollbar(-orient => 'horizontal')->pack(side => 'bottom', expand => 0, fill => 'x');
+
+  $FILEIMG = $WIDGET{'main'}->Bitmap(-file => Tk->findINC('file.xbm'));
+  $FOLDIMG = $WIDGET{'main'}->Bitmap(-file => Tk->findINC('folder.xbm'));
+
   $WIDGET{'xml_hlist'} = $listFrame->HList(
                                             -separator => '/', 
                                             -width => 22,
@@ -838,7 +844,9 @@ sub update_hlist_from_xdf {
 sub show_structure_in_Hlist {
   my ($widget, $structObj, $path, $text) = @_;
 
-  $widget->add($path, -text => $text, -data => $structObj);
+  $widget->add($path, -text => $text, 
+                      -image => $FOLDIMG,
+                      -data => $structObj);
 
   foreach my $sObj (@{$structObj->getStructList()}) {
      &show_structure_in_Hlist($widget, $sObj, "$path/$sObj", 'Structure:'.$sObj->getName());
@@ -847,7 +855,9 @@ sub show_structure_in_Hlist {
   foreach my $arrayObj (@{$XDF->getArrayList()}) {
      my $name = $arrayObj->getName();
      $name = 'Array:' . $name;
-     $widget->add("$path/$arrayObj", -text => $name, -data => $arrayObj);
+     $widget->add("$path/$arrayObj", 
+                  -text => $name, -image => $FILEIMG, 
+                  -data => $arrayObj);
   }
 
 }
@@ -1308,7 +1318,7 @@ sub edit_array_attribs {
 
    $ARRAY_ATTRIB_EDIT_OPEN = 1;
 
-   $WIDGET{'array_attrib_edit_label'}->configure( -text => 'Click to Close Array Attributes');
+   $WIDGET{'array_attrib_edit_label'}->configure( -text => '<<Click to Close Array Attributes>>');
 
    # create widgets
    for (@ArrayAttribList) {
