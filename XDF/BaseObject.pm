@@ -299,8 +299,7 @@ sub DefaultDataArraySize {
 # hardwire a number of things to enforce DTD compliance.
 # -b.t.
 sub toXMLFileHandle {
-  my ($self, $fileHandle, $XMLDeclAttribs, $indent, $dontCloseNode, 
-      $newNodeNameString, $noChildObjectNodeName ) = @_;
+  my ($self, $fileHandle, $XMLDeclAttribs, $indent, $dontCloseNode, $newNodeNameString, $noChildObjectNodeName, $isRootNode  ) = @_;
 
   if(!defined $fileHandle) {
     carp "Can't write out object, filehandle not defined.\n";
@@ -329,7 +328,8 @@ sub toXMLFileHandle {
     # open this node, print its attributes
     if ($nodename) {
       print $fileHandle $indent if $Pretty_XDF_Output;
-      $nodename = $XDF_ROOT_NODE_NAME if (defined $XMLDeclAttribs && $self =~ m/XDF::Structure/);
+      $nodename = $XDF_ROOT_NODE_NAME if ( (defined $XMLDeclAttribs || $isRootNode) 
+                                           && $self =~ m/XDF::Structure/);
       print $fileHandle "<" . $nodename;
       if( $node ne $#nodenames ) {
         print $fileHandle ">"; 
@@ -411,7 +411,8 @@ sub toXMLFileHandle {
       if(!$dontCloseNode) {
         # Im not sure that this is correct at ALL. 
         foreach my $nodename (reverse @nodenames) {
-          $nodename = $XDF_ROOT_NODE_NAME if (defined $XMLDeclAttribs && $self =~ m/XDF::Structure/);
+          $nodename = $XDF_ROOT_NODE_NAME if ((defined $XMLDeclAttribs || $isRootNode)
+                                               && $self =~ m/XDF::Structure/);
           print $fileHandle "</". $nodename . ">";
         }
       }
@@ -440,6 +441,25 @@ sub toXMLFileHandle {
  
 }
 
+#/** toXMLString
+#  Similar to toXMLFileHandle method, takes the same arguments barring the
+#  first (e.g. the FileHandle reference) which is not needed for this method.
+#  Returns a string XML representation of the object.
+# */
+sub toXMLString {
+   my ($self, $XMLDeclAttribs, $indent, $dontCloseNode, $newNodeNameString, $noChildObjectNodeName, $isRootNode  ) = @_;
+
+   # we will capture output to special filehandle class
+   # defined at the end of this this file 
+   tie *CAPTURE, '_fileHandleToString';
+   $self->toXMLFileHandle(\*CAPTURE, $XMLDeclAttribs, $indent, $dontCloseNode, 
+                          $newNodeNameString, $noChildObjectNodeName, $isRootNode);
+   my $string = <CAPTURE>;
+   untie *CAPTURE;
+
+   return $string;
+}
+
 sub _printAttributes {
   my ($self, $fileHandle, $listRef) = @_;
 
@@ -450,7 +470,12 @@ sub _printAttributes {
        $val =~ s/\n/&#10;/g; # newline gets entity 
        $val =~ s/\r/&#13;/g; # carriage return gets entity 
     }
-    print $fileHandle " $attrib=\"",$val,"\"" if defined $val;
+
+    if (defined $val) {
+       print $fileHandle " $attrib=\"";
+       print $fileHandle $val;
+       print $fileHandle "\"";
+    }
   }
 }
 
@@ -631,9 +656,45 @@ sub _find_All_child_Href_Objects {
   return \@list;
 }
 
+# End BaseObject Class
+
+#
+# THe fileHandleToString class.
+#
+
+############################
+package _fileHandleToString;
+############################
+
+sub TIEHANDLE {
+  my $class = shift;
+  my $self = bless {}, $class;
+  $self->{'MSG'} = "";
+  return $self;
+}
+
+sub PRINT {
+  my ($self, $msg) = @_;
+  $self->{'MSG'} .= $msg;
+}
+
+sub READLINE {
+  my ($self) = @_;
+  #print STDERR "My object got msg:[",$self->{'MSG'},"]\n";
+  return $self->{'MSG'};
+}
+
+
 # Modification History
 #
 # $Log$
+# Revision 1.12  2001/03/23 20:37:17  thomas
+# added toXMLString method. Added new parameter
+# $isRootNode to toXMLFileHandle to allow printing
+# of structure object node as 'XDF' instead of
+# 'structure'. Broke up _printAttrributes lines
+# so that _fileHandleToString would work correctly.
+#
 # Revision 1.11  2001/03/21 20:19:23  thomas
 # Fixed documentation to show addXMLElement, etc. methods in perldoc
 #
