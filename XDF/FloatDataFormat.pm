@@ -249,6 +249,9 @@ sub _init {
   my ($self) = @_;
 
   $self->SUPER::_init();
+
+  $self->{width} = 2;
+  $self->{precision} = 0;
  
   # adds to ordered list of XML attributes
   $self->_appendAttribsToXMLAttribOrder(\@Local_Class_XML_Attributes);
