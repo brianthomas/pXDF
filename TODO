@@ -42,7 +42,9 @@
      -- checksum (just stores string, sufficient?, whats the def?)
 
    - Note: Perl Binary Integer only support signed OR endian. Investigate how to 
-     do unsigned AND Endianess ?? 
+     do unsigned AND Endianess ?? Also, and more importantly, perl pack 
+     puts floats into native format, so binary files across platforms is NOT
+     supported (unless the 2 native formats are similar, which is unlikely :P).
 
    - More effort to bring classes/methods into alignment with the Java package.
 
