@@ -147,26 +147,15 @@ sub toXMLFileHandle {
   # We need to invoke a little bit of Voodoo to keep the DTD happy; 
   # the first structure node is always called by the root node name
   # also, we may have nodes (w/o attributes) that just hold other nodes.
-  my $nodeNameString = $self->classXMLNodeName;
-  $nodeNameString = $newNodeNameString if defined $newNodeNameString;
+  my $nodename = $self->classXMLNodeName;
+  $nodename = $newNodeNameString if defined $newNodeNameString;
 
-  #my @nodenames = split /\|\|/, $nodeNameString;
-  my @nodenames = ("$nodeNameString");
-
-  foreach my $node (0 .. $#nodenames) {
-    my $nodename = $nodenames[$node];
-    # open this node, print its attributes
-    if ($nodename) {
+  # open this node, print its attributes
+  if ($nodename) {
       print $fileHandle $indent if $Pretty_XDF_Output;
       $nodename = $spec->getXDFRootNodeName if ( (defined $XMLDeclAttribs || $isRootNode)
                                            && $self =~ m/XDF::Structure/);
       print $fileHandle "<" . $nodename;
-      if( $node ne $#nodenames ) {
-        print $fileHandle ">";
-        print $fileHandle "\n" if $Pretty_XDF_Output;
-        $indent .= $Pretty_XDF_Output_Indentation;
-      }
-    }
   }
 
   my ($attribListRef, $objListRef, $objPCDATA) = $self->_getXMLInfo();
@@ -201,15 +190,15 @@ sub toXMLFileHandle {
            next unless defined $obj; # can happen because we allocate memory with
                                      # $DefaultDataArraySize, making undef spots possible
 
-           $indent = $self->_deal_with_opening_group_nodes($obj, $fileHandle, $indent, $Pretty_XDF_Output_Indentation);
            $indent = $self->_deal_with_closing_group_nodes($obj, $fileHandle, $indent, $Pretty_XDF_Output, $Pretty_XDF_Output_Indentation);
+           $indent = $self->_deal_with_opening_group_nodes($obj, $fileHandle, $indent, $Pretty_XDF_Output_Indentation);
            $obj->toXMLFileHandle($fileHandle, undef, $indent . $Pretty_XDF_Output_Indentation);
 
         }
       } elsif (ref($_) =~ m/XDF::/) { # if its an XDF object
 
-         $indent = $self->_deal_with_opening_group_nodes($_, $fileHandle, $indent, $Pretty_XDF_Output_Indentation);
          $indent = $self->_deal_with_closing_group_nodes($_, $fileHandle, $indent, $Pretty_XDF_Output, $Pretty_XDF_Output_Indentation);
+         $indent = $self->_deal_with_opening_group_nodes($_, $fileHandle, $indent, $Pretty_XDF_Output_Indentation);
          $_->toXMLFileHandle($fileHandle, undef, $indent . $Pretty_XDF_Output_Indentation);
 
       } else {
@@ -236,17 +225,10 @@ sub toXMLFileHandle {
     }
 
     # Ok, no deal with closing this node
-    if ($#nodenames > -1) {
-      $indent = $self->_deal_with_closing_group_nodes($self, $fileHandle, $indent, $Pretty_XDF_Output, $Pretty_XDF_Output_Indentation);
-      print $fileHandle $indent if $Pretty_XDF_Output && !defined $objPCDATA;
-      if(!$dontCloseNode) {
-        # Im not sure that this is correct at ALL. 
-        foreach my $nodename (reverse @nodenames) {
-          $nodename = $spec->getXDFRootNodeName if ((defined $XMLDeclAttribs || $isRootNode)
-                                               && $self =~ m/XDF::Structure/);
-          print $fileHandle "</". $nodename . ">";
-        }
-      }
+    $indent = $self->_deal_with_closing_group_nodes($self, $fileHandle, $indent, $Pretty_XDF_Output, $Pretty_XDF_Output_Indentation);
+    print $fileHandle $indent if $Pretty_XDF_Output && !defined $objPCDATA;
+    if(!$dontCloseNode) {
+       print $fileHandle "</". $nodename . ">";
     }
 
   } else {
@@ -254,27 +236,25 @@ sub toXMLFileHandle {
     if ($dontCloseNode) {
       # It may not have sub-objects, but we dont want to close it
       # (this happens for group objects).
-      print $fileHandle ">" if $#nodenames > -1;
+      print $fileHandle ">";
     } else {
       # no sub-objects, just close this node
-      print $fileHandle "/>" if $#nodenames > -1;
-      foreach my $node (reverse(0 .. ($#nodenames-1))) {
-        $indent =~ s/$Pretty_XDF_Output_Indentation//; # peel off some of the indent 
-        my $nodename = $nodenames[$node];
-        print $fileHandle "\n$indent" if $Pretty_XDF_Output;
-        print $fileHandle "</". $nodename . ">";
-      }
+      print $fileHandle "/>";
     }
 
   }
 
-  print $fileHandle "\n" if $Pretty_XDF_Output && $#nodenames > -1;
+  print $fileHandle "\n" if $Pretty_XDF_Output;
 
 }
 
 # Modification History
 #
 # $Log$
+# Revision 1.4  2001/07/06 18:29:12  thomas
+# stripped out unneeded nodenames stuff in toXMLFileHandle.
+# Fixed bug in group printing in toXMLFileHandle.
+#
 # Revision 1.3  2001/06/29 21:07:12  thomas
 # changed public add (and remove) methods to
 # conform to Java API standard: e.g. return boolean
