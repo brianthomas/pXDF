@@ -44,13 +44,13 @@ my $QUIET = 1;
   $XDF->loadFromXDFFile($file, \%options);
 
   foreach my $arrayObj (@{$XDF->getArrayList()}) {
-    &dump_2D_array(\*STDOUT, $arrayObj) if ($arrayObj->getDimension() == 2);
+    &dump_2D_array(\*STDOUT, $arrayObj);# if ($arrayObj->getDimension() == 2);
   }
 
   exit 0;
 
 # assume a 2D table and dump it
-# (we just dump first 2 axii) 
+# (we just dump first 2 axes) 
 sub dump_2D_array {
   my ($filehandle, $arrayObj) = @_;
 
@@ -59,7 +59,12 @@ sub dump_2D_array {
 
    my $name = $arrayObj->getName;
    $name = "" unless defined $name;
-   print $filehandle "XDF ARRAY: \"",$name, "\" of dimension: ",$arrayObj->getDimension(),"\n";
+   my $dim = $arrayObj->getDimension();
+   print $filehandle "XDF ARRAY: \"",$name, "\" of dimension: $dim \n";
+
+   if ($dim > 2) {
+      print $filehandle "\n ** NOTE: only dumping first 2 dimensions **\n\n";
+   }
 
    # dump the array
    # get the number of indices along each axis 
