@@ -191,8 +191,6 @@ sub convertFloatToFloatBits {
 
   return undef unless defined $floatValue && defined $dataEndian;
 
-print STDERR "Float bit convertion called \n";
-
   my $bitTemplate = $self->{_templateNotation};
   my $nativeFloatTemplate = $self->{_unpackTemplateNotation};
 
@@ -264,6 +262,9 @@ sub _sprintfNotation {
 # Modification History
 #
 # $Log$
+# Revision 1.13  2001/03/14 21:30:01  thomas
+# Removed extraneous debugging line.
+#
 # Revision 1.12  2001/03/09 23:10:32  thomas
 # Added convertFloatToFloatBits method.
 #
