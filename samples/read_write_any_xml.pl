@@ -71,19 +71,19 @@ my $QUIET = 1;
   }
 
   # write back out ONLY the XDF portion 
-#  $XDF->toXMLFileHandle(\*STDOUT);
+  #$XDF->toXMLFileHandle(\*STDOUT);
 
-exit 0;
+#exit 0;
 
   # use this method IF you want the whole document to write 
   # back out again.
   print STDOUT $XDF_DOM->toXMLString();
 
 
-  my $arrayObj = @{$XDF->getArrayList()}->[0];
+  my $arrayObj = $XDF->getArrayList()->[0];
 
-  my $axis0 = @{$arrayObj->getAxisList()}->[0];
-  my $axis1 = @{$arrayObj->getAxisList()}->[1];
+  my $axis0 = $arrayObj->getAxisList()->[0];
+  my $axis1 = $arrayObj->getAxisList()->[1];
 
   my $locator = $arrayObj->createLocator;
 
