@@ -516,30 +516,36 @@ sub _handle_xml_decl {
    &_printDebug("\n");
 }
 
+# store these in the entity array
 sub _handle_unparsed {
   my ($self, $parser_ref, $entity, $base, $sysid, $pubid, $notation) = @_;
 
    my $msgstring = "H_UNPARSED: $entity";
-   $self->{UnParsedEntity}->{$entity} = {}; # add a new entry;
+   #$self->{UnParsedEntity}->{$entity} = {}; # add a new entry;
+   $self->{Entity}->{$entity} = {}; # add a new entry;
 
    if (defined $base) {
       $msgstring .= ", Base:$base";
-      ${$self->{UnParsedEntity}->{$entity}}{'base'} = $base;
+      #${$self->{UnParsedEntity}->{$entity}}{'base'} = $base;
+      ${$self->{Entity}->{$entity}}{'base'} = $base;
    }
 
    if (defined $sysid) {
       $msgstring .= ", SYS:$sysid";
-      ${$self->{UnParsedEntity}->{$entity}}{'sysid'} = $sysid;
+      #${$self->{UnParsedEntity}->{$entity}}{'sysid'} = $sysid;
+      ${$self->{Entity}->{$entity}}{'sysid'} = $sysid;
    }
 
    if (defined $pubid) {
       $msgstring .= " PUB:$pubid";
-      ${$self->{UnParsedEntity}->{$entity}}{'pubid'} = $pubid;
+      #${$self->{UnParsedEntity}->{$entity}}{'pubid'} = $pubid;
+      ${$self->{Entity}->{$entity}}{'pubid'} = $pubid;
    }
 
    if (defined $notation) {
       $msgstring .= " NOTATION:$notation";
-      ${$self->{UnParsedEntity}->{$entity}}{'notation'} = $notation;
+      #${$self->{UnParsedEntity}->{$entity}}{'notation'} = $notation;
+      ${$self->{Entity}->{$entity}}{'notation'} = $notation;
    }
 
    $msgstring .= "\n";
@@ -578,9 +584,18 @@ sub _handle_element {
    &_printDebug("H_ELEMENT: $name [$model]\n"); 
 }
 
+# do we really need this? attribute list from entity defs 
 sub _handle_attlist {
    my ($self, $parser_ref, $elname, $attname, $type, $default, $fixed) = @_; 
-   &_printDebug("H_ATTLIST: $elname [$attname | $type | $default | $fixed]\n"); 
+   &_printDebug("H_ATTLIST: $elname [");
+   &_printDebug($attname) if defined $attname;
+   &_printDebug(" | ");
+   &_printDebug($type) if defined $type;
+   &_printDebug(" | ");
+   &_printDebug($default) if defined $default;
+   &_printDebug(" | ");
+   &_printDebug($fixed) if defined $fixed;
+   &_printDebug(" ]\n");
 }
 
 sub _handle_start {
@@ -675,7 +690,7 @@ sub _handle_char {
 
      }
 
-   }
+   } 
 
 }
 
@@ -722,14 +737,15 @@ sub _handle_cdata_end {
 # things like entity definitions get passed here
 sub _handle_default {
    my ($self, $parser_ref, $string) = @_;
-   &_printDebug("H_DEFAULT: $string \n");
+   &_printDebug("H_DEFAULT:[$string]\n");
 
    # well, i dont know what else can go here, but for now
    # lets assume its entities in the character data ONLY.
    # So we just pass this off to the _handle_character method.
    # (yes, we could specify in the parser decl, but perhaps
    # above assumtion ISNT right, then we will need this ).
-   $self->_handle_char($parser_ref, $string);
+#   $self->_handle_char($parser_ref, $string);
+
 }
   
 sub _handle_external_ent {
@@ -1141,6 +1157,11 @@ sub _data_node_start {
     if (exists $attrib_hash{'href'}) { 
        my $hrefObj = new XDF::Href(); 
        my $hrefName = $attrib_hash{'href'};
+
+       # this shouldnt happen, but does for unconsidered cases.
+       die "XDF::Reader Internal bug: Href Entity $hrefName is not defined. Aborting parse.\n" 
+           unless exists $self->{Entity}->{$hrefName}; 
+
        $hrefObj->setName($hrefName);
        $hrefObj->setSysId(${$self->{Entity}->{$hrefName}}{'sysid'});
        $hrefObj->setBase(${$self->{Entity}->{$hrefName}}{'base'});
@@ -1148,6 +1169,7 @@ sub _data_node_start {
        $hrefObj->setPubId(${$self->{Entity}->{$hrefName}}{'pubid'});
        $self->{currentArray}->getDataCube()->setHref($hrefObj);
        delete $attrib_hash{'href'}; # prevent over-writing object with string 
+
     }
 
     # update the array dataCube with XML attributes
@@ -2312,14 +2334,16 @@ sub _create_parser {
                                      ExternEnt => sub { &_handle_external_ent($self, @_); },
                                      Entity =>  sub { &_handle_entity($self, @_); },
                                      Element => sub { &_handle_element($self, @_); },
-                                     Attlist => sub { &_handle_attlist($self, @_); },
                                      XMLDecl => sub { &_handle_xml_decl($self, @_); },
                                      Notation => sub { &_handle_notation($self, @_); },
                                      Unparsed => sub { &_handle_unparsed($self, @_); },
                                      Doctype => sub { &_handle_doctype($self, @_); },
+                                     Attlist => sub { &_handle_attlist($self, @_); },
                                      Default => sub { &_handle_default($self, @_); },
                                             }
                               );
+
+  return $parser;
 
 }
 
@@ -2354,11 +2378,11 @@ sub _create_validating_parser {
                                      ExternEnt => \&_handle_external_ent,
                                      Entity => \&_handle_entity,
                                      Element => \&_handle_element,
-                                     Attlist => \&_handle_attlist,
                                      XMLDecl => \&_handle_xml_decl,
                                      Notation => \&_handle_notation,
                                      Unparsed => \&_handle_unparsed,
                                      Doctype => \&_handle_doctype,
+                                     Attlist => \&_handle_attlist,
                                      Default => \&_handle_default,
                                             }
                               );
@@ -2648,9 +2672,9 @@ sub _getHrefData {
 
    my $file;
    my $text; 
-   $file = $href->getBase() if $href->getBase();
-   $file .= $href->getSysId();
-   if (defined $file) {
+   if (defined $href->getSysId) {
+       $file = $href->getBase() if $href->getBase();
+       $file .= $href->getSysId();
        undef $/; #input rec separator, once newline, now nothing.
                  # will cause whole file to be read in one whack 
        open(DATAFILE, $file);
@@ -2658,7 +2682,7 @@ sub _getHrefData {
        $text = <DATAFILE>;
        close DATAFILE;
    } else {
-      die "Can't read Href data, undefined sysId!\n";
+      die "XDF::Reader can't read Href data, SYSID is not defined!\n";
    }
    return $text;
 } 
@@ -2852,6 +2876,11 @@ sub _appendArrayToArray {
 # Modification History
 #
 # $Log$
+# Revision 1.25  2001/04/10 22:08:33  thomas
+# removed handle_attlist for time being; put unparsed enties
+# into the entity list, and default handler no longer sends
+# stuff the to the chardata handler (it does noting right now).
+#
 # Revision 1.24  2001/03/26 18:17:38  thomas
 # added some internal documentation.
 #
