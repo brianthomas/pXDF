@@ -6,7 +6,7 @@
     <unitless/>
     <value>01-12-99</value>
   </parameter>
-  <array name="Raw Data" arrayId="array1" noDataValue="-9.99">
+  <array name="Raw Data" arrayId="array1">
     <parameter name="integration time">
       <units>
         <unit>sec</unit>
@@ -17,19 +17,21 @@
       <unit>counts</unit>
       <unit power="-1">seconds</unit>
     </units>
-    <dataFormat>
+    <dataFormat noDataValue="-9.99">
       <float width="5" precision="2"/>
     </dataFormat>
-    <axis name="x" axisId="x" align="x" axisDatatype="integer" size="10">
+    <axis name="x" axisId="x" align="x" size="10">
       <units>
         <unit>pixel</unit>
       </units>
+      <dataFormat><integer width="2"/></dataFormat>
       <valueListAlgorithm><polynomial size="10">0 1</polynomial></valueListAlgorithm>
     </axis>
-    <axis name="y" axisId="y" align="y" axisDatatype="integer" size="4">
+    <axis name="y" axisId="y" align="y" size="4">
       <units>
         <unit>pixel</unit>
       </units>
+      <dataFormat><integer width="2"/></dataFormat>
       <valueList delimiter=" " repeatable="yes">10  9 8 7</valueList>
     </axis>
     <dataStyle dataStyleId="readid1">
@@ -76,16 +78,18 @@
     <dataFormat>
       <float width="5" precision="2"/>
     </dataFormat>
-    <axis name="x" axisId="my-x-axis" align="x" axisDatatype="integer" size="10">
+    <axis name="x" axisId="my-x-axis" align="x" size="10">
       <units>
         <unit>pixel</unit>
       </units>
+      <dataFormat><integer width="2"/></dataFormat>
       <valueListAlgorithm><polynomial size="10">0 1</polynomial></valueListAlgorithm>
     </axis>
-    <axis name="y" axisId="y-axis2" align="y" axisDatatype="integer" size="6">
+    <axis name="y" axisId="y-axis2" align="y" size="6">
       <units>
         <unit>pixel</unit>
       </units>
+      <dataFormat><integer width="1"/></dataFormat>
       <valueList delimiter=" ">6 5 4 3 2 1</valueList>
     </axis>
     <dataStyle dataStyleId="readid2">

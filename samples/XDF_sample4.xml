@@ -19,16 +19,18 @@
     <dataFormat>
       <float width="5" precision="2"/>
     </dataFormat>
-    <axis name="x" axisId="x-axis" axisDatatype="integer" size="10">
+    <axis name="x" axisId="x-axis" size="10">
       <units>
         <unit>pixel</unit>
       </units>
+      <dataFormat><integer width="2"/></dataFormat>
       <valueListAlgorithm><polynomial size="10">0 1</polynomial></valueListAlgorithm>
     </axis>
-    <axis name="y" axisId="y-axis" axisDatatype="integer" size="10">
+    <axis name="y" axisId="y-axis" size="10">
       <units>
         <unit>pixel</unit>
       </units>
+      <dataFormat><integer width="2"/></dataFormat>
       <valueList delimiter=" " repeatable="yes">10  9 8 7 6 5 4 3 2 1</valueList>
     </axis>
     <dataStyle dataStyleId="readstyle1">
@@ -83,16 +85,18 @@
     <dataFormat>
       <float width="4" precision="2"/>
     </dataFormat>
-    <axis name="x" axisId="x-axis-bias" axisDatatype="integer" size="10">
+    <axis name="x" axisId="x-axis-bias" size="10">
       <units>
         <unit>pixel</unit>
       </units>
+      <dataFormat><integer width="2"/></dataFormat>
       <valueListAlgorithm><polynomial size="10">0 1</polynomial></valueListAlgorithm>
     </axis>
-    <axis name="y" axisId="y-axis-bias" axisDatatype="integer" size="10">
+    <axis name="y" axisId="y-axis-bias" size="10">
       <units>
         <unit>pixel</unit>
       </units>
+      <dataFormat><integer width="2"/></dataFormat>
       <valueList delimiter=" " repeatable="yes">10  9 8 7 6 5 4 3 2 1</valueList>
     </axis>
     <dataStyle dataStyleId="readstyle2">
@@ -147,16 +151,18 @@
     <dataFormat>
       <float width="4" precision="2"/>
     </dataFormat>
-    <axis name="x" axisId="x-axis-ff" axisDatatype="integer" size="10">
+    <axis name="x" axisId="x-axis-ff" size="10">
       <units>
         <unit>pixel</unit>
       </units>
+      <dataFormat><integer width="2"/></dataFormat>
       <valueListAlgorithm><polynomial size="10">0 1</polynomial></valueListAlgorithm>
     </axis>
-    <axis name="y" axisId="y-axis-ff" axisDatatype="integer" size="10">
+    <axis name="y" axisId="y-axis-ff" size="10">
       <units>
         <unit>pixel</unit>
       </units>
+      <dataFormat><integer width="2"/></dataFormat>
       <valueList delimiter=" " repeatable="no">10 9 8 7 6 5 4 3 2 1</valueList>
     </axis>
     <dataStyle dataStyleId="readstyle3">

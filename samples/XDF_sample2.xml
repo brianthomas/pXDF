@@ -6,13 +6,14 @@
 <XDF name="A sample XDF document" description="This shows how to put any data into XDF using formatted data IO Style.">
 <!-- A little table about 3 nearby galaxies -->
   <parameterGroup name="Structure Properties">
-    <parameter name="date" datatype="string">
+    <parameter name="date">
       <unitless/>
       <value>01-12-99</value>
       <note>This parameter is not accurate.</note>
     </parameter>
     <parameter name="date2">
       <unitless/>
+      <dataFormat><string length="8"/></dataFormat> <!-- dataFormat NOT needed, but we CAN be formal IF we wish -->
       <value>10-22-00</value>
     </parameter>
   </parameterGroup>
@@ -79,8 +80,9 @@
         <relation fieldIdRefs="gname" role="reference"/>
       </field>
     </fieldAxis>
-    <axis axisId="rows" axisDatatype="integer" size="3">
+    <axis axisId="rows" size="3">
       <unitless/>
+      <dataFormat><integer width="1"/></dataFormat>
       <valueGroup name="row values">
         <valueList delimiter=" ">0 1 2</valueList>
       </valueGroup>

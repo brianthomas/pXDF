@@ -17,20 +17,23 @@
     <dataFormat>
       <float width="5" precision="2"/>
     </dataFormat>
-    <axis name="x" axisId="x-axis" axisDatatype="integer" size="3">
+    <axis name="x" axisId="x-axis" size="3">
       <units>
         <unit>pixel</unit>
       </units>
+      <dataFormat><integer width="1"/></dataFormat>
       <valueListAlgorithm><polynomial size="3">0 1</polynomial></valueListAlgorithm>
     </axis>
-    <axis name="y" axisId="y-axis" axisDatatype="integer" size="3">
+    <axis name="y" axisId="y-axis" size="3">
       <units>
         <unit>pixel</unit>
       </units>
+      <dataFormat><integer width="1"/></dataFormat>
       <valueList delimiter=" " repeatable="yes">3 2 1</valueList>
     </axis>
-    <axis name="frame number" axisId="z-axis" axisDatatype="string" size="3">
+    <axis name="frame number" axisId="z-axis" size="3">
       <unitless/>
+      <dataFormat><string length="1"/></dataFormat>
       <valueList delimiter=" " repeatable="yes">A B C</valueList>
     </axis>
     <dataStyle>

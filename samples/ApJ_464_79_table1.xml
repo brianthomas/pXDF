@@ -1,5 +1,6 @@
 <?xml version="1.0"?>
 <!DOCTYPE XDF SYSTEM "XDF_018.dtd">
+<!-- some real data from astronomy -->
 <XDF name="table1" description="First table in v464 p79">
   <array>
     <fieldAxis axisId="columns" size="8">

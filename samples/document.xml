@@ -16,8 +16,9 @@
   <tables name="tables1" description="The first set of tables.">
     <XDF description="This shows how to put any data into XDF using formatted data IO Style.">
       <parameterGroup>
-        <parameter name="date" datatype="string">
+        <parameter name="date">
           <unitless/>
+          <dataFormat><string length="8"/></dataFormat>
           <value>01-12-99</value>
           <note>This parameter is not accurate.</note>
         </parameter>
@@ -27,8 +28,9 @@
         </parameter>
       </parameterGroup>
       <array name="Galaxy Data">
-        <parameter name="date2" datatype="string">
+        <parameter name="date2">
           <unitless/>
+          <dataFormat><string length="8"/></dataFormat>
           <value>01-12-99</value>
           <note>This parameter is not accurate.</note>
         </parameter>
@@ -94,8 +96,9 @@
             <relation fieldIdRefs="gname" role="reference"/>
           </field>
         </fieldAxis>
-        <axis axisDatatype="integer" axisId="rows" size="3">
+        <axis axisId="rows" size="3">
           <unitless/>
+          <dataFormat><integer width="1"/></dataFormat>
           <valueGroup>
             <value>0</value>
             <value>1</value>

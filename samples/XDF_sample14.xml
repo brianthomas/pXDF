@@ -33,7 +33,8 @@
       <units>
         <unit>pixel</unit>
       </units>
-      <valueList size="10" delimiter=" " repeatable="yes">10  9 8 7 6 5 4 3 2 1</valueList>
+      <dataFormat><integer width="2"/></dataFormat>
+      <valueList delimiter=" " repeatable="yes">10  9 8 7 6 5 4 3 2 1</valueList>
     </axis>
     <dataStyle encoding="ISO-8859-1">
       <delimited>
