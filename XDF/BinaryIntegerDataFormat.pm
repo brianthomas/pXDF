@@ -148,10 +148,10 @@ sub setSigned {
 # 
 
 #/** convertBitStringToIntegerBits
-# * Convert the string representation of bits into the binary
-# * integer bits as specified by an instance of a BinaryIntegerDataFormat object.
-# * The desired endianness of the output data bits must be supplied.
-# * The actual integer bits are returned. 
+# Convert the string representation of bits into the binary
+# integer bits as specified by an instance of a BinaryIntegerDataFormat object.
+# The desired endianness must be supplied.
+# The integer bits are returned. 
 # */
 sub convertBitStringToIntegerBits {
   my ($self, $bitString, $dataEndian) = @_;
@@ -175,6 +175,35 @@ sub convertBitStringToIntegerBits {
   return unpack $unpacktemplate, pack $packtemplate, $bitString;
 
 }
+
+#/** convertIntegerToIntegerBits
+# Convert the passed number into binary integer bits as specified by 
+# the instance of a BinaryIntegerDataFormat object.
+# The desired endianness of the output data bits must be supplied.
+# The integer bits are returned. 
+# */
+sub convertIntegerToIntegerBits {
+  my ($self, $integerValue, $dataEndian) = @_;
+
+  return undef unless defined $integerValue && defined $dataEndian;
+ 
+  my $bitTemplate = $self->{_templateNotation};
+  my $nativeIntegerTemplate = $self->{_unpackTemplateNotation};
+
+  my $bits = pack $nativeIntegerTemplate, $integerValue;
+
+  # if the endianness is different, we have to reverse byte order
+  # from what is given.
+  if ($dataEndian ne &XDF::Constants::PLATFORM_ENDIAN) {
+     my $bitString = unpack $bitTemplate, $bits; 
+     $bitString = XDF::Utility::reverseBitStringByteOrder($bitString, $self->{Bits});
+     $bits = pack $bitTemplate, $bitString;
+  }
+
+  return $bits;
+
+}
+
 
 # /** numOfBytes
 # A convenience method.
@@ -256,6 +285,9 @@ sub _sprintfNotation {
 # Modification History
 #
 # $Log$
+# Revision 1.12  2001/03/09 23:10:52  thomas
+# added convertIntegerToIntegerBits method.
+#
 # Revision 1.11  2001/03/09 22:06:40  thomas
 # Shunted some class data to Constants class. Added checks from Uiltity
 # package on setting some attributes. Added method to correctly change
@@ -349,257 +381,13 @@ These methods set the requested attribute if an argument is supplied to the meth
 
 =over 4
 
-=item #add in class XML attributes
+=item signed
 
- 
+Whether this XDF::BinaryIntegerDataFormat holds signed or unsignedinteger. Takes the values of "yes" or "no".  
 
-=item push @Class_Attributes, @Class_XML_Attributes;
+=item bits
 
- 
-
-=item # add in super class attributes
-
- 
-
-=item push @Class_Attributes, @{&XDF::DataFormat::classAttributes};
-
- 
-
-=item # add in super class XML attributes
-
- 
-
-=item push @Class_XML_Attributes, @{&XDF::DataFormat::getXMLAttributes};
-
- 
-
-=item # /** bits
-
- 
-
-=item # The number of bits this XDF::BinaryIntegerDataFormat holds.
-
- 
-
-=item # */
-
- 
-
-=item # /** signed
-
- 
-
-=item # Whether this XDF::BinaryIntegerDataFormat holds signed or unsigned
-
- 
-
-=item # integer. Takes the values of "yes" or "no".
-
- 
-
-=item # */
-
- 
-
-=item # Something specific to Perl
-
- 
-
-=item # We use the "string" style here
-
- 
-
-=item my $Perl_Sprintf_Field_BinaryInteger = 's';
-
- 
-
-=item my $Perl_Regex_Field_BinaryInteger = '\.';
-
- 
-
-=item # Initalization
-
- 
-
-=item # set up object attributes.
-
- 
-
-=item for my $attr ( @Class_Attributes ) { $field{$attr}++; }
-
- 
-
-=item # /** classXMLNodeName
-
- 
-
-=item # This method returns the class XML node name.
-
- 
-
-=item # This method takes no arguments may not be changed. 
-
- 
-
-=item # */
-
- 
-
-=item sub classXMLNodeName {
-
- 
-
-=item }
-
- 
-
-=item # /** classAttributes
-
- 
-
-=item #  This method returns a list containing the names
-
- 
-
-=item #  of the attributes of this class.
-
- 
-
-=item #  This method takes no arguments may not be changed. 
-
- 
-
-=item # */
-
- 
-
-=item sub classAttributes {
-
- 
-
-=item }
-
- 
-
-=item #
-
- 
-
-=item # GET/SET Methods 
-
- 
-
-=item #
-
- 
-
-=item # /** getBits
-
- 
-
-=item # */
-
- 
-
-=item sub getBits {
-
- 
-
-=item return $self->{Bits};
-
- 
-
-=item }
-
- 
-
-=item # /** setBits
-
- 
-
-=item #     Set the (number of) bits attribute. 
-
- 
-
-=item # */
-
- 
-
-=item sub setBits {
-
- 
-
-=item $self->{Bits} = $value;
-
- 
-
-=item }
-
- 
-
-=item # /** getSigned
-
- 
-
-=item # */
-
- 
-
-=item sub getSigned{
-
- 
-
-=item return $self->{Signed};
-
- 
-
-=item }
-
- 
-
-=item # /** setSigned
-
- 
-
-=item #     Set the signed attribute. 
-
- 
-
-=item # */
-
- 
-
-=item sub setSigned {
-
- 
-
-=item $self->{Signed} = $value;
-
- 
-
-=item }
-
- 
-
-=item # /** numOfBytes
-
- 
-
-=item # A convenience method.
-
- 
-
-=item # Return the number of bytes this XDF::BinaryIntegerDataFormat holds.
-
- 
-
-=item # */
-
- 
-
-=item sub numOfBytes { 
-
- 
+The number of bits this XDF::BinaryIntegerDataFormat holds.  
 
 =back
 
@@ -622,6 +410,14 @@ Set the (number of) bits attribute.
 =item setSigned ($value)
 
 Set the signed attribute. 
+
+=item convertBitStringToIntegerBits ($dataEndian, $bitString)
+
+Convert the string representation of bits into the binaryinteger bits as specified by an instance of a BinaryIntegerDataFormat object. The desired endianness must be supplied. The integer bits are returned. 
+
+=item convertIntegerToIntegerBits ($dataEndian, $integerValue)
+
+Convert the passed number into binary integer bits as specified by the instance of a BinaryIntegerDataFormat object. The desired endianness of the output data bits must be supplied. The integer bits are returned. 
 
 =item numOfBytes (EMPTY)
 
@@ -667,7 +463,7 @@ B<new>, B<clone>, B<update>.
 =over 4
 
 XDF::BinaryIntegerDataFormat inherits the following instance methods of L<XDF::DataFormat>:
-B<getLessThanValue>, B<setLessThanValue>, B<getLessThanOrEqualValue>, B<setLessThanOrEqualValue>, B<getGreaterThanValue>, B<setGreaterThanValue>, B<getGreaterThanOrEqualValue>, B<setGreaterThanOrEqualValue>, B<getInfiniteValue>, B<setInfiniteValue>, B<getInfiniteNegativeValue>, B<setInfiniteNegativeValue>, B<getNoDataValue>, B<setNoDataValue>, B<toXMLFileHandle>.
+B<toXMLFileHandle>.
 
 =back
 
@@ -684,7 +480,7 @@ B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLAttributes>, B<setX
 
 =head1 SEE ALSO
 
-L<XDF::DataFormat>
+L<XDF::Constants>, L<XDF::Utility>, L<XDF::DataFormat>
 
 =back
 
