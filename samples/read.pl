@@ -16,6 +16,9 @@
 
 # CVS $Id$
 
+# this is a SIMPLE reading of XDF file. See read_write_any_xml.pl for how to 
+# read/write documents with XDF embedded in them. -b.t. 
+
 use XDF::Reader;
 use strict;
 

@@ -58,7 +58,7 @@ t/runXDF.t
 samples/XDF_0.17.dtd
 samples/guiview.pl
 samples/read.pl
-samples/read_write.pl
+samples/read_write_any_xml.pl
 samples/manipulate.pl
 samples/XDF_sample1.xml
 samples/XDF_sample2.xml
@@ -67,6 +67,10 @@ samples/XDF_sample4.xml
 samples/XDF_sample5.xml
 samples/XDF_sample6.dat
 samples/XDF_sample6.xml
+samples/XDF_sample7.xml
+samples/XDF_sample8.xml
+samples/document.xml
+samples/binarytable0
 samples/ApJ_464_79_table1.xml
 utils/makeDoc.pl
 utils/makeHTMLDoc.pl

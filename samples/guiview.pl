@@ -63,7 +63,7 @@ my $VERSION = "0.5";
 my $TOOLNAME = "XDF Viewer Tool";
 
 # GLOBAL Variables
-my $XDF;    # reference to the XDF object of interest
+#my $XDF;    # reference to the XDF object of interest
 my $XML_FILE; 
 my  $XDF_DOM; # the parent document holding the XDF object
 my $DISPLAY_SIZE = 'normal';
@@ -1627,7 +1627,8 @@ sub show_structure_in_Hlist {
      &show_structure_in_Hlist($widget, $sObj, "$path/$sObj", $name);
   }
 
-  foreach my $arrayObj (@{$XDF->getArrayList()}) {
+  #foreach my $arrayObj (@{$XDF->getArrayList()}) {
+  foreach my $arrayObj (@{$structObj->getArrayList()}) {
      my $name = $arrayObj->getName();
      $name = '' unless defined $name;
      #$name = 'Array:' . $name;
@@ -2057,7 +2058,7 @@ sub load_xml_file {
    my @xdfNodes = @{$XDF_DOM->getXDFElements};
 
    # just pick off the first object for now
-   $XDF = $xdfNodes[0]->getXDFObject;
+#   $XDF = $xdfNodes[0]->getXDFObject;
 
    # update the widgets
    $WIDGET{'file_label'}->configure(text => "File Name: $file");
