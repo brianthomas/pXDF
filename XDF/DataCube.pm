@@ -35,6 +35,7 @@ package XDF::DataCube;
 # XDF::Array
 # */
 
+use DB_File;
 use XDF::Log;
 use XDF::Utility;
 use XDF::BaseObject;
@@ -72,11 +73,16 @@ my @Local_Class_XML_Attributes = qw (
 my @Local_Class_Attributes = qw (
                              dimension
                              _parentArray
+                             _unparsedData
+                             _hasData
+                             _dataIsOnDisk
+                             _tmpDataFile
                              _data
-                             _axisLookupIndexArray
                           );
+                             #_axisLookupIndexArray
 
 my $DEFAULT_START_BYTE = 0;
+my $DEFAULT_END_BYTE = 0;
 
 my @Class_Attributes;
 my @Class_XML_Attributes;
@@ -111,7 +117,12 @@ push @Class_Attributes, @Local_Class_Attributes;
 # set up object attributes.
 for my $attr ( @Class_Attributes ) { $field{$attr}++; }
 
-# CLASS stuff..
+# Class Data
+my $Flag_Decimal = &XDF::Constants::INTEGER_TYPE_DECIMAL;
+my $Flag_Octal = &XDF::Constants::INTEGER_TYPE_OCTAL;
+my $Flag_Hex = &XDF::Constants::INTEGER_TYPE_HEX;
+
+# CLASS Methods
 
 # /** classXMLNodeName
 # This method takes no arguments may not be changed. This method returns the class node name of XDF::DataCube.
@@ -139,6 +150,80 @@ sub getClassXMLAttributes {
 #
 # Set/Get Methods 
 #
+
+# /** getCacheDataToDisk
+# Determine if the data is being stored in system memory or in
+# a (disk) file (e.g. simple database treatment).
+# */
+sub _getCacheDataToDisk {
+  my ($self) = @_;
+  return $self->{_dataIsOnDisk};
+}
+
+# /** _setCacheDataToDisk
+# This *may* work on populated dataCube but its much more safe
+# to only alter this attribute *before* loading the dataCube.
+# */
+sub _setCacheDataToDisk {
+  my ($self, $cacheData) = @_;
+
+  # IF we have a need to access this from disk file instead
+  # of storing in memory (e.g. its a large amount of data)
+  # we do the following..
+
+  # need to treat various cases here
+  if ($cacheData) {
+
+    # IF we havent already set this, then do the following:
+    unless ($self->{_dataIsOnDisk})
+    {
+  
+       # save existing data aside into temp array
+       my @temparray = @{$self->{_data}};
+
+       # designate a new tempfile for our data to reside in
+       $self->{_tmpDataFile} = ".tmpXDFData_" . $self; # just use our object ref as part of tempfile name
+       unlink $self->{_tmpDataFile} if (-e $self->{_tmpDataFile}); # yes, this is needed.
+  
+       # create the tie between the file and the Perl array 
+       tie (@{$self->{_data}}, 'DB_File', $self->{_tmpDataFile}, O_RDWR|O_CREAT, 0666, $DB_RECNO)
+         or die("DataCube cant initialize disk-based storage for data: $!\n");
+  
+       # repopulate Perl array (now tied to disk file) with any pre-existing data
+       if ($self->{_hasData}) 
+       {
+           foreach my $line (@temparray) { push @{$self->{_data}}, $line; }
+       }
+    }
+
+  } else {
+
+    if ($self->{_dataIsOnDisk})
+    {
+
+       # save existing data aside into temp array
+       my @temp_array;
+       if ($self->{_hasData}) 
+       {
+          foreach my $line (@{$self->{_data}}) { push @temp_array, $line; }
+       }
+
+       # now untie the dbfile, remove it
+       untie @{$self->{_data}};
+       unlink $self->{_tmpDataFile};
+
+       # repopulate Perl array (now all in memory) with any pre-existing data
+       $self->{_data} = \@temp_array; 
+       
+
+    }
+
+  } 
+
+  $self->{_dataIsOnDisk} = $cacheData;
+
+}
+
 
 # /** getChecksum
 # */
@@ -170,23 +255,33 @@ sub setEndByte {
    $self->{endByte} = $endByte;
 }
 
-# /** getHref
+# /** getHrefList 
 # */
-sub getHref {
+sub getHrefList {
    my ($self) = @_;
-   return $self->{href};
+   return $self->{hrefList};
 }
 
-# /** setHref
-#     Set the href attribute. 
+#/** getHref
+# For the time being this is just aliased to getOutputHref method.
+#*/
+sub getHref {
+  my ($self) =@_;
+  return $self->getOutputHref();
+}
+
+# /** getOutputHref
+# This is always the first Href object in the list of Href's held by this datacube.
 # */
-sub setHref {
-   my ($self, $hrefObjectRef) = @_;
-   if (!defined $hrefObjectRef || ref($hrefObjectRef) eq 'XDF::Entity') {
-     $self->{href} = $hrefObjectRef;
-   } else {
-     error("Cant set $hrefObjectRef as value in setHref. Ignoring\n");
-   } 
+sub getOutputHref {
+  my ($self) =@_;
+
+  my $hrefObj;
+  if ($self->{hrefList} && $#{$self->{hrefList}} > -1) {
+    #$hrefObj = @{$self->{hrefList}}->[0];
+    $hrefObj = $self->{hrefList}->[0];
+  }
+  return $hrefObj;
 }
 
 # /** getCompression
@@ -253,6 +348,17 @@ sub setStartByte {
 # Other Public methods 
 #
 
+# /** addHref
+#     add an Entity Object to the dataCube
+# */   
+sub addHref {
+   my ($self, $entityObjectRef) = @_;
+   if (ref($entityObjectRef) eq 'XDF::Entity') {
+      push @{$self->{hrefList}}, $entityObjectRef;
+   }   
+}
+
+# /** toXMLFileHandle
 # We overwrite the toXMLFileHandle method supplied by L<XDF::BaseObject> to 
 # have some special handling for the XDF::DataCube. The interface for this
 # method remains the same however. 
@@ -293,20 +399,27 @@ sub _basicXMLWriter {
      print $fileHandle $self->{encoding};
      print $fileHandle "\"";
   }
-  my $hrefObj = $self->getHref();
-  if (defined $hrefObj) {
+  if (defined $self->getOutputHref()) {
+     my $href = $self->getOutputHref(); # kludge.. just use the first object
      print $fileHandle " href=\"";
-     print $fileHandle $hrefObj->getName();
-     print $fileHandle "\"/>";
-  } else { 
-     print $fileHandle ">";
+     print $fileHandle $href->getName();
+     print $fileHandle "\"";
+     $writeHrefAttribute = 1;
   }
+
+  # close the node, if needed 
+  print $fileHandle ">" unless ($writeHrefAttribute);
 
   # write the data
   $self->writeDataToFileHandle($fileHandle, $indent, $self->{compression} );
 
   # close the tagged data section
-  print $fileHandle "</" . $nodeName . ">" unless defined $hrefObj;
+  
+  if ($writeHrefAttribute) {
+     print $fileHandle "/>";
+  } else {
+     print $fileHandle "</" . $nodeName . ">";
+  }
 
 }
 
@@ -323,7 +436,7 @@ sub writeDataToFileHandle {
 
   # a couple of shortcuts
   my $parentArray = $self->{_parentArray};
-  my $href = $self->getHref();
+  my $href = $self->getOutputHref();
 
   my $readObj = $parentArray->getXMLDataIOStyle();
 
@@ -335,14 +448,24 @@ sub writeDataToFileHandle {
   my $dataFileHandle;
   my $dataFileName;
 
-  # check for href -- writing to an external file 
+  # check for href -- writing to an external resource
   if ( defined $href ) {
+
+      # now, while we may be able to read from other files
+      # and combine, we are not going to be able to write back
+      # out to so many files. Throw a warning here for the user.
+      if ($#{$self->{hrefList}} > 0) {
+        my $oldHrefName = $href->getName();
+        warn "Warning: There is more than one href defined for this Array, but XDF::DataCube may only write to one, using:($oldHrefName)\n";
+      }
 
       # BIG assumption: href is a file we want to read/write
       # Better Handling in future is needed
       if (defined $href->getSystemId()) {
         my $href_program;
-        $href_program .= &_dataCompressionProgram($compression_type);
+        if ($compression_type) {
+           $href_program .= "| " . &XDF::Utility::getDataCompressionProgram($compression_type);
+        }
         $dataFileName = $href->getBase() if defined $href->getBase();
         $dataFileName .= $href->getSystemId();
         $href_program .= ">$dataFileName";
@@ -392,7 +515,7 @@ sub writeDataToFileHandle {
   {
      # If there is no fieldAxis, then no fields,
      # and hence, only ONE noDataValue.
-     $NoDataValues[0] = $parentArray->getNoDataValue();
+     $NoDataValues[0] = $parentArray->getDataFormat()->getNoDataValue();
   }
 
   # write the data
@@ -400,7 +523,7 @@ sub writeDataToFileHandle {
   if (ref($readObj) eq 'XDF::TaggedXMLDataIOStyle' ) {
 
      print $dataFileHandle "\n" if $niceOutput;
-     &_write_tagged_data($self, $dataFileHandle, $readObj, $indent, $niceOutput, $spec);
+     &_write_tagged_data($self, $dataFileHandle, $readObj, $indent, $niceOutput, $spec, $readObj->getOutputStyle());
      print $dataFileHandle "$indent" if $niceOutput;
 
   } else {
@@ -410,7 +533,7 @@ sub writeDataToFileHandle {
      if (ref($readObj) eq 'XDF::DelimitedXMLDataIOStyle')
      {
         my $fastestAxis = $readObj->getWriteAxisOrderList()->[0];
-        &_write_untagged_data($self, $dataFileHandle, $readObj, $indent, $niceOutput, $fastestAxis);
+        $self->_write_untagged_data($dataFileHandle, $readObj, $indent, $niceOutput, $fastestAxis);
      } 
       elsif (ref($readObj) eq 'XDF::FormattedXMLDataIOStyle' )
      {
@@ -493,19 +616,12 @@ sub _setData {
    # the index on the 'short' internal array.
    my $longIndex = $locator->_getLongArrayIndex();
 
-   # Bounds checking
-#   &checkDataArrayBounds($longIndex, $shortIndex);
-
-   # Set the Data
-#   byte realValue = 1;
-   # indicate its corresponding datacell holds valid data
-#   java.lang.reflect.Array.setByte(longDataArray.get(longIndex), shortIndex, realValue);
-
-#print STDERR "setData($datum) @($longIndex)\n";
-
    # put data into the requested datacell
    $self->{_data}->[$longIndex] = $datum;
 
+   $self->{_hasData} = 1; # faster than using if ($#{$self->{_data}} == -1) statements; 
+
+#print STDERR "_setData() value:[$datum] index:[$longIndex] ",$locator->_dumpLocation(),"\n";
 }
 
 sub _setRecords {
@@ -528,27 +644,21 @@ sub _setRecords {
        $locator->next();
      }
    } 
+
+   $self->{_hasData} = 1;
 }
 
-# a placebo.. we need to fix this code..
-sub _updateInternalLookupIndices() {
+sub _resetDataCube () {
+  my ($self) = @_;
 
-}
+  $self->{_data} = [];
 
-# get the axis that represents the short axis
-# short axis is axis "1" (not "0"; causes complications when
-# we have a fieldAxis, which is at 0).
-sub _getShortAxis {
-   my ($self) = @_;
+  # set the minimum array size (essentially the size of the axis)
+  my $spec= XDF::Specification->getInstance();
+  $#{$self->{_data}} = $spec->getDefaultDataArraySize();
 
-   my $shortAxis;
-
-   my @axisList = @{$self->{_parentArray}->getAxisList()};
-   if ($#axisList > 0) {
-        $shortAxis = $axisList[1];
-   }
-
-   return $shortAxis;
+  $self->{_hasData} = 0;
+  $self->{_unparsedData} = undef;
 }
 
 # /** getData
@@ -561,9 +671,14 @@ sub _getData {
    my $longIndex = $locator->_getLongArrayIndex();
 #   my $shortIndex = $self->_getShortArrayIndex($locator);
 
+   # did we load data yet? No? then we should do so now
+   # Note: order of these 2 calls IS important
+   $self->_load_unparsed_data if ($self->{_unparsedData});
+   $self->_load_external_data unless ($self->{_hasData});
+
    my $value = $self->{_data}->[$longIndex];
 
-#print STDERR "getData($value) [$longIndex]\n";
+#print STDERR "_getData() value:[$value] index:[$longIndex] location:",$locator->_dumpLocation,"\n";
 
    return $value;
 
@@ -572,6 +687,11 @@ sub _getData {
 sub _getRecords {
   my ($self, $locator, $nrofRecords) = @_;
   my @records = ();
+
+  # did we load data yet? No? then we should do so now
+  # Note: order of these 2 calls IS important
+  $self->_load_unparsed_data if ($self->{_unparsedData});
+  $self->_load_external_data unless ($self->{_hasData});
 
   my $longIndex = $locator->_getLongArrayIndex();
   my $dimensions;
@@ -622,6 +742,426 @@ sub _getRecords {
   return \@records;
 }
 
+sub _load_unparsed_data {
+  my ($self) = @_;
+
+  return unless $self->{_unparsedData};
+
+  my $dataBlock = $self->{_unparsedData}; # must capture BEFORE reset
+  $self->_resetDataCube();
+
+  my $formatObj = $self->{_parentArray}->getXMLDataIOStyle();
+  my $locator = $self->{_parentArray}->createLocator; 
+  $locator->setIterationOrder($formatObj->getWriteAxisOrderList());
+  $self->_parseAndLoadDataString ( $dataBlock,
+                                   $locator, 
+                                   $formatObj, 
+  				   $self->getStartByte(),
+				   $self->getEndByte
+                                 ); 
+   # only needed by the read part, we will only write relevant bytes on output
+   # so let's clean up.. set start/end byte to defaults
+   $self->setStartByte(0);
+   $self->setEndByte(undef);
+}
+
+# (re)-load all external data
+sub _load_external_data {
+   my ($self) = @_;
+
+   $self->_resetDataCube();
+
+   # needs to be declared outside of foreach loop below
+   my $formatObj = $self->{_parentArray}->getXMLDataIOStyle();
+   my $locator = $self->{_parentArray}->createLocator;
+   $locator->setIterationOrder($formatObj->getWriteAxisOrderList());
+
+   # loop over href's
+   foreach my $href (@{$self->{hrefList}}) {
+
+     die "Cant getData, data Cube is empty and has no Href defined\n"
+       unless $href;
+
+     my $openstatement = $self->_getHrefOpenStatement($href);
+
+     if ($openstatement) {
+
+       my $can_open = open(DATAFILE, $openstatement);
+       if (!$can_open) {
+          warn "Cant open external resource:[$openstatement], aborting read.\n";
+          return undef;
+       }
+
+       my $startByte = $href->{'_startByte'}; # $self->getStartByte();
+       my $endByte = $href->{'_endByte'};     # $self->getEndByte();
+
+       if (ref ($formatObj) eq 'XDF::FormattedXMLDataIOStyle') {
+          my $hrefName = $href->getName();
+          $startByte = $DEFAULT_START_BYTE unless defined $startByte;
+          $endByte   = $DEFAULT_END_BYTE unless defined $endByte;
+          $self->_read_formatted_data_from_fileHandle(\*DATAFILE, $locator, $startByte, $endByte, $formatObj, $hrefName);
+       } else {
+
+          undef $/; #input rec separator, once newline, now nothing.
+                    # will cause whole file to be read in one whack 
+
+          my $text = <DATAFILE>;
+
+#          if (defined $text) {
+#            if ($startByte || $endByte) {
+#              if ($endByte) {
+#                 my $length = $endByte - $startByte;
+#                 $text = substr $text, $startByte, $length;
+#              } else {
+#                 $text = substr $text, $startByte;
+#              }
+#            }
+            # only needed by the read part, we will only write relevant bytes on output
+#            $self->setStartByte(0);
+#            $self->setEndByte(undef);
+#          }
+
+          $self->_parseAndLoadDataString($text, $locator, $formatObj, $startByte, $endByte);
+       }
+
+       # only needed by the read part, we will only write relevant bytes on output
+       $href->{'_startByte'} = 0; # probably not needed, but I feel "formal" today
+       $href->{'_endByte'} = undef; # probably not needed, but I feel "formal" today
+
+       close DATAFILE;
+
+     } else {
+       warn "No data loaded from external resource:",$href->getName,"\n";
+     }
+
+   }
+
+   # do this regardless to prevent looping (?)
+   $self->{_hasData} = 1; 
+}
+
+sub _parseAndLoadDataString {
+   my ($self, $dataBlock, $locator, $formatObj, $startByte, $endByte, $delayLoad) = @_;
+
+   # trim down the datablock, IF these are defined still
+   #my $startByte = $self->getStartByte();
+   #my $endByte = $self->getEndByte();
+
+   if ($startByte || $endByte) {
+
+      if ($endByte) {
+        my $length = $endByte - $startByte + 1;
+        $dataBlock = substr $dataBlock, $startByte, $length;
+      } else {
+        $dataBlock = substr $dataBlock, $startByte;
+      }
+
+      # only needed by the read part, we will only write relevant bytes on output
+#      $self->setStartByte(0);
+#      $self->setEndByte(undef);
+
+   }
+
+   if ($delayLoad) {
+      $self->{_unparsedData} = $dataBlock;
+      return;
+   }
+
+
+   # gather general information
+
+   if (ref($formatObj) eq 'XDF::FormattedXMLDataIOStyle')
+   {
+      # this *shouldnt* be called anymore? 
+      $self->_read_formatted_data( $locator, $dataBlock, $formatObj );
+   }
+   else
+   {
+#      die "Cannot read binary data within a delimited array, aborting read.\n" if ($data_has_binary_values);
+      $self->_read_delimitted_data($locator, $dataBlock, $formatObj );
+   }
+
+}
+
+# a slow, outdated routine
+# we should use read/seek on string, if we could
+sub _read_formatted_data {
+  my ($self, $locator, $dataBlockString, $formatObj) = @_;
+      #$data_has_special_integers, $data_has_binary_values) = @_;
+
+  my $data_has_special_integers = $self->{_parentArray}->hasSpecialIntegers();
+  my $data_has_binary_values = $self->{_parentArray}->hasBinaryData();
+
+  my $endian = $formatObj->getEndian();
+  my $template  = $formatObj->_templateNotation(1);
+  my $recordSize = $formatObj->numOfBytes();
+  my @dataFormat = $self->{_parentArray}->getDataFormatList;
+
+  while ( $dataBlockString ) {
+
+      $dataBlockString =~ s/(.{$recordSize})//s;
+
+      # pick off a record
+      die "Read Error: short read on datablock, improper specified format? (expected size=$recordSize)\n" unless $1;
+
+      my @data = unpack($template, $1);
+
+      # In part because we are using a regex mechanism below,
+      # it doesnt make sense to store binary data in delimited manner,
+      # so we only see it as a fixed Formatted case.
+      # this may have to be re-evaluated in the future. -b.t.
+      @data = &_deal_with_binary_data(\@dataFormat, \@data, $endian)
+         if $data_has_binary_values;
+
+      # if we got data, fire it into the array
+      if ($#data > -1) {
+
+        @data = &_deal_with_special_integer_data(\@dataFormat, \@data)
+           if $data_has_special_integers;
+
+        for (@data) {
+#          &_printDebug("ADDING DATA [$locator]($self->{_parentArray}) : [".$_."]\n");
+         #print STDERR "ADDING DATA : [".$_."]\n";
+          $self->_setData($locator, $_);
+          $locator->next();
+        }
+
+      } else {
+
+        my $line = join ' ', @data;
+        error("Unable to get data! Template:[$template] failed on Line: [$line]\n");
+        error("BLOCK: $dataBlockString\n");
+        exit -1;
+
+      }
+
+      # slow?
+      last unless $dataBlockString !~ m/^\s*$/;
+
+    }
+
+}
+
+sub _read_delimitted_data {
+  my ($self, $locator, $dataBlockString, $formatObj) = @_;
+
+  my $data_has_special_integers = $self->{_parentArray}->hasSpecialIntegers();
+
+  my $regex = $formatObj->_regexNotation();
+
+  # A kludge. But some users abut the ending tag to the end of the delimited
+  # string without including the record terminator, so we will check here and
+  # do it, IF needed as a means to make delimited reads more robust.
+  my $last_char = $dataBlockString;
+  $last_char =~ s/.*(.)$/$1/;
+
+  $dataBlockString .= $formatObj->getRecordTerminator()->getStringValue()
+       if ($formatObj->getRecordTerminator()->getStringValue() ne $last_char);
+
+  my @dataFormat = $self->{_parentArray}->getDataFormatList;
+  while ( $dataBlockString ) {
+
+      $_ = $dataBlockString;
+      my @data = m/$regex/;
+
+      # remove data from data 'resevoir' (yes, there is probably a one-liner
+      # for these two statements, but I cant think of it :P
+      $dataBlockString =~ s/$regex//;
+
+      # if we got data, fire it into the array
+      if ($#data > -1) {
+
+        @data = &_deal_with_special_integer_data(\@dataFormat, \@data)
+           if $data_has_special_integers;
+
+        for (@data) {
+#          &_printDebug("ADDING DATA [$locator]($self->{_parentArray}) : [".$_."]\n");
+          #&_printDebug("ADDING DATA : [".$_."]\n");
+          $self->_setData($locator, $_);
+          $locator->next();
+        }
+
+      } else {
+
+        my $line = join ' ', @data;
+        error("Unable to get data! Regex:[$regex] failed on Line: [$line]\n");
+        error("Remaining data block to parse:[$dataBlockString]\n");
+        exit -1;
+      }
+
+      # slow?
+      last unless $dataBlockString !~ m/^\s*$/;
+
+    }
+
+}
+
+# a faster, more modern routine
+sub _read_formatted_data_from_fileHandle {
+  my ($self, $fileHandle, $hrefLocator, $startByte, $endByte, $formatObj, $externalName) = @_;
+
+  $endByte = -1 unless defined $endByte;
+
+  # gather general information
+  my $data_has_special_integers = $self->{_parentArray}->hasSpecialIntegers();
+  my $data_has_binary_values = $self->{_parentArray}->hasBinaryData();
+  #my $locator = $self->{currentArray}->createLocator();
+
+  #info("locator[".$self->{hrefLocator}."] has axisOrder:[",join ',', @{$self->{readAxisOrderList}},"]\n");
+#  info("locator[".$hrefLocator."] has axisOrder:[".@{$hrefLocator->getIterationOrder}."]\n");
+
+  my $endian = $formatObj->getEndian();
+  my $template  = $formatObj->_templateNotation(1);
+  my $recordSize = $formatObj->numOfBytes();
+  my @dataFormat = $self->{_parentArray}->getDataFormatList;
+
+  my @data = ();
+  my @new_data = ();
+  my $offset = $startByte;
+  my $buf;
+  my $total_bytes_read = 0;
+
+  while ( 1 ) {
+
+      # pick off a record
+      seek ($fileHandle, $offset, 0);
+      my $nrof_bytes_read = read ($fileHandle, $buf, $recordSize);
+
+      last unless $nrof_bytes_read > 0;
+
+      $total_bytes_read += $nrof_bytes_read;
+      last if ($endByte > 0 && $total_bytes_read > $endByte);
+
+      # unpack it. We catch errors here and pass on to user what actually happened
+      if (!eval { @new_data = unpack($template, $buf); }) {
+         my $msg = "Fatal Error: bad formatted read from external resource:[".$externalName."] for array:[".$self->{_parentArray}->getName()."]\n";
+         $msg .= "Perl Error:[$@]\n";
+         $msg .= "last data unpack template:[$template]\n";
+         $msg .= "last data buffer (actual bytes:".length ($buf).") (expected bytes:$recordSize) chars:[$buf]\n";
+         die $msg;
+      }
+
+      # In part because we are using a regex mechanism below,
+      # it doesnt make sense to store binary data in delimited manner,
+      # so we only see it as a fixed Formatted case.
+      # this may have to be re-evaluated in the future. -b.t.
+      @new_data = &_deal_with_binary_data(\@dataFormat, \@new_data, $endian)
+         if $data_has_binary_values;
+
+      push @data, @new_data;
+      $offset += $nrof_bytes_read;
+      @new_data = ();
+
+   }
+
+   # if we got data, fire it into the array
+   if ($#data > -1) {
+
+        @data = &_deal_with_special_integer_data(\@dataFormat, \@data)
+           if $data_has_special_integers;
+
+
+        #foreach my $item (@data) { &debug("ADDING DATA : [$item]\n"); } 
+
+        #$self->{_parentArray}->setRecords($self->{hrefLocator}, \@data);
+        #$self->{hrefLocator}->forward($#data+1);
+        $self->_setRecords($hrefLocator, \@data);
+
+   } else {
+#        my $line = join ' ', @data;
+#        $self->_printWarning( "Unable to get data! Template:[$template] failed on Line: [$line]\n");
+   }
+
+}
+
+sub _deal_with_binary_data { # STATIC 
+  my ($dataFormatListRef, $data_ref, $endian) = @_;
+
+  my @data = @{$data_ref};
+  my @dataFormatList = @{$dataFormatListRef};
+
+  foreach my $dat_no (0 .. $#dataFormatList) {
+     if ( ref($dataFormatList[$dat_no]) eq 'XDF::BinaryIntegerDataFormat') {
+        $data[$dat_no] = $dataFormatList[$dat_no]->convertBitStringToIntegerBits($data[$dat_no], $endian);
+     } elsif ( ref($dataFormatList[$dat_no]) eq 'XDF::BinaryFloatDataFormat') {
+        $data[$dat_no] = $dataFormatList[$dat_no]->convertBitStringToFloatBits($data[$dat_no], $endian);
+     }
+  }
+
+  return @data;
+}
+
+
+# Treatment for hex, octal reads
+# that can occur in formatted data
+sub _deal_with_special_integer_data { # STATIC 
+  my ($dataFormatListRef, $data_ref) = @_;
+  my @data = @{$data_ref};
+  my @dataFormatList = @{$dataFormatListRef};
+
+  foreach my $dat_no (0 .. $#dataFormatList) {
+    $data[$dat_no] = &_change_integerField_data_to_flagged_format($dataFormatList[$dat_no], $data[$dat_no] )
+                if ref($dataFormatList[$dat_no]) eq 'XDF::IntegerDataFormat';
+  }
+
+  return @data;
+}
+
+sub _change_integerField_data_to_flagged_format { #STATIC 
+  my ($integerFormatObj, $datum ) = @_;
+
+  return $datum unless (defined $integerFormatObj);
+
+  my $formatflag = $integerFormatObj->type();
+  return $datum unless defined $formatflag;
+
+  if ($formatflag eq $Flag_Decimal ) {
+
+    return $datum; # do nothing 
+
+  } elsif ($formatflag eq $Flag_Octal ) {
+
+    return oct($datum);
+
+  } elsif ($formatflag eq $Flag_Hex ) {
+
+    return hex($datum);
+
+  } else {
+
+    &_printError("XDF::DataCube does'nt understand integer type: $formatflag\n");
+    return $datum;
+  }
+
+}
+
+sub _getHrefOpenStatement {
+  my ($self, $href) = @_;
+
+   return unless defined $href;
+
+   my $file;
+   if (defined $href->getSystemId) {
+       $file = $href->getBase() if $href->getBase();
+       $file .= $href->getSystemId();
+
+       # print STDERR "got Href File:$file\n";
+
+       my $openstatement = $file;
+       my $compression_prog = &XDF::Utility::getDataDecompressionProgram($self->getCompression());
+
+       if (defined $compression_prog) {
+          $openstatement = " $compression_prog $openstatement|";
+       }
+
+       return $openstatement;
+
+   } else {
+      warn "XDF::Reader can't read Href data, SYSID is not defined!\n";
+   }
+
+}
+
 # This is called when we cant find any defined method
 # exists already. Used to handle general purpose set/get
 # methods for our attributes (object fields).
@@ -630,37 +1170,6 @@ sub AUTOLOAD {
   #&XDF::BaseObject::AUTOLOAD($self, $val, $AUTOLOAD, \%{$XDF::DataCube::FIELDS} );
   &XDF::GenericObject::AUTOLOAD($self, $val, $AUTOLOAD, \%field );
 }
-
-# only perl needs this. Need as private method?
-# Certainly this implementation is bad, very bad. 
-# At the minimum we need to put this info in constants
-# class and make it user configurable at make time.
-sub _dataCompressionProgram {
-  my ($compression_type) = @_;
-
-  return "" unless defined $compression_type;
-
-  my $compression_program = "| ";
-  if ($compression_type eq &XDF::Constants::DATA_COMPRESSION_GZIP() ) {
-     $compression_program .= &XDF::Constants::DATA_COMPRESSION_GZIP_PATH();
-     $compression_program .= ' -c ';
-  } elsif ($compression_type eq &XDF::Constants::DATA_COMPRESSION_BZIP2() ) {
-     $compression_program .= &XDF::Constants::DATA_COMPRESSION_BZIP2_PATH();
-     $compression_program .= ' -c ';
-  } elsif ($compression_type eq &XDF::Constants::DATA_COMPRESSION_COMPRESS() ) {
-     $compression_program .= &XDF::Constants::DATA_COMPRESSION_COMPRESS_PATH();
-     $compression_program .= ' -c ';
-  } elsif ($compression_type eq &XDF::Constants::DATA_COMPRESSION_ZIP() ) {
-     $compression_program .= &XDF::Constants::DATA_COMPRESSION_ZIP_PATH();
-     $compression_program .= ' -pq ';
-  } else {
-     error("Data compression for type: $compression_type NOT Implemented. Aborting write.\n");
-     exit -1;
-  }
-
-  return $compression_program;
-}
-
 
 sub _init {
   my ($self) = @_;
@@ -671,9 +1180,16 @@ sub _init {
   # as we add data (below) it may grow in
   # dimensionality, but defaults to 0 at start. 
   $self->{dimension} = 0;
-  $self->{_data} = [];
+  $self->{_hasData} = 0;
   $self->{startByte} = $DEFAULT_START_BYTE;
+  $self->{endByte} = $DEFAULT_END_BYTE;
   $self->{_axisLookupIndexArray} = [];
+  $self->{hrefList} = [];
+
+  $self->{_dataIsOnDisk} = 0;
+ 
+  # initialize the datablock (just a single array).
+  $self->{_data} = [];
 
   # set the minimum array size (essentially the size of the axis)
   my $spec= XDF::Specification->getInstance();
@@ -690,7 +1206,7 @@ sub _init {
 # tag names for the axes. In this case, we use 'd0','d1' ...'d8' tag 
 # notation.
 sub _write_tagged_data {
-  my ($self, $fileHandle, $readObj, $indent, $niceOutput, $spec) = @_;
+  my ($self, $fileHandle, $readObj, $indent, $niceOutput, $spec, $style) = @_;
 
   # now we populate the data , if there are any dimensions 
   if ($self->{dimension} > 0) {
@@ -699,33 +1215,92 @@ sub _write_tagged_data {
     my @axisList = @{$readObj->getWriteAxisOrderList()};
 
     # gather info. Find out what tags go w/ which axii
-    my @AXIS_TAG = reverse $readObj->getAxisTags(); 
+    my @AXIS_TAG = reverse @{$readObj->getAxisTags()}; 
+
+    my $locator = $self->{_parentArray}->createLocator;
 
     # now build the formatting stuff. 
     my $data_indent = $indent . $spec->getPrettyXDFOutputIndentation;
     my $startDataRecordTag = $data_indent;
     my $endDataRecordTag = "";
-    foreach my $axis (0 .. ($#axisList-1)) {
-      $startDataRecordTag .= "<" . $AXIS_TAG[$axis] . ">";
+    my $startDataTag;
+    my $endDataTag;
+    my $emptyDataTag;
+    if ($style eq &XDF::Constants::TAGGED_DEFAULT_OUTPUTSTYLE) {
+       foreach my $axis (0 .. ($#axisList-1)) {
+          $startDataRecordTag .= "<" . $AXIS_TAG[$axis] . ">";
+       }
+       foreach my $axis (0 .. ($#axisList-1)) {
+          $endDataRecordTag .= "</" . $AXIS_TAG[$axis] . ">";
+       }
+       $endDataRecordTag .= "\n";
+       $startDataTag = "<" . $AXIS_TAG[$#axisList] . ">";
+       $endDataTag = "</" . $AXIS_TAG[$#axisList] . ">";
+       $emptyDataTag = "<" . $AXIS_TAG[$#axisList] . "/>";
+    } elsif ($style eq &XDF::Constants::TAGGED_BYROWANDCELL_OUTPUTSTYLE) {
+       my $rectag = &XDF::Constants::SIMPLE_ROW_TAG;
+       my $dtag = &XDF::Constants::SIMPLE_CELL_TAG;
+       $startDataRecordTag .= "<$rectag>";
+       $startDataTag = "<$dtag>";
+       $endDataRecordTag = "</$rectag>\n";
+       $endDataTag = "</$dtag>";
+       $emptyDataTag = "<$dtag/>";
+
+       # configure axis ordering to be row-oriented
+       my @newOrder = ( $self->{_parentArray}->getColAxis(), $self->{_parentArray}->getRowAxis() );
+       $locator->setIterationOrder(\@newOrder);
+
+    } elsif ($style eq &XDF::Constants::TAGGED_BYROW_OUTPUTSTYLE) {
+       my $rectag = &XDF::Constants::SIMPLE_ROW_TAG;
+       $startDataRecordTag .= "<$rectag>";
+       $endDataRecordTag = "</$rectag>\n";
+       $startDataTag = ""; # nothing
+       $endDataTag .= " "; # always single space
+       $emptyDataTag .= "  "; # not really possible, but lets put 2 spaces anyways 
+
+       # configure axis ordering to be row-oriented
+       my @newOrder = ( $self->{_parentArray}->getColAxis(), $self->{_parentArray}->getRowAxis() );
+       $locator->setIterationOrder(\@newOrder);
+
+    } elsif ($style eq &XDF::Constants::TAGGED_BYCOLANDCELL_OUTPUTSTYLE) {
+       my $rectag = &XDF::Constants::SIMPLE_COLUMN_TAG;
+       my $dtag = &XDF::Constants::SIMPLE_CELL_TAG;
+       $startDataRecordTag .= "<$rectag>";
+       $startDataTag = "<$dtag>";
+       $endDataRecordTag = "</$rectag>\n";
+       $endDataTag = "</$dtag>";
+       $emptyDataTag = "<$dtag/>";
+
+       # configure axis ordering to be column-oriented
+       my @newOrder = ( $self->{_parentArray}->getRowAxis(), $self->{_parentArray}->getColAxis() );
+       $locator->setIterationOrder(\@newOrder);
+
+    } elsif ($style eq &XDF::Constants::TAGGED_BYCOL_OUTPUTSTYLE) {
+       my $rectag = &XDF::Constants::SIMPLE_COLUMN_TAG;
+       $startDataRecordTag .= "<$rectag>";
+       $endDataRecordTag = "</$rectag>\n";
+       $startDataTag = ""; # nothing
+       $endDataTag .= " "; # always single space
+       $emptyDataTag .= "  "; # not really possible, but lets put 2 spaces anyways 
+
+       # configure axis ordering to be column-oriented
+       my @newOrder = ( $self->{_parentArray}->getRowAxis(), $self->{_parentArray}->getColAxis() );
+       $locator->setIterationOrder(\@newOrder);
+
     }
-    foreach my $axis (reverse 0 .. ($#axisList-1)) {
-      $endDataRecordTag .= "</" . $AXIS_TAG[$axis] . ">";
-    }
-    $endDataRecordTag .= "\n";
-    my $startDataTag = "<" . $AXIS_TAG[$#axisList] . ">";
-    my $endDataTag = "</" . $AXIS_TAG[$#axisList] . ">";
-    my $emptyDataTag = "<" . $AXIS_TAG[$#axisList] . "/>";
  
     # ok, time to build the eval block that will write out the tagged data
     my $eval_block;
-    my $locator = $self->{_parentArray}->createLocator;
 
     my $more_data = 1;
-    my $fast_axis_length = @{$self->{_parentArray}->getAxisList()}->[0]->getLength(); 
+
+    #my $fast_axis_length = @{$readObj->getWriteAxisOrderList()}->[0]->getLength(); 
+    my $fast_axis_length = $readObj->getWriteAxisOrderList()->[0]->getLength(); 
+#    my $fast_axis_length = @{$self->{_parentArray}->getAxisList()}->[0]->getLength(); 
     my $dataNumb = 0; 
     while ($more_data) {
        print $fileHandle $startDataRecordTag if ($dataNumb == 0);
-       $self->_print_data($fileHandle, $locator, $startDataTag, $endDataTag, $emptyDataTag);
+       $self->_print_tagged_data($fileHandle, $locator, $startDataTag, $endDataTag, $emptyDataTag);
        $dataNumb++;
        if( $dataNumb >= $fast_axis_length ) {
          print $fileHandle $endDataRecordTag;
@@ -737,6 +1312,7 @@ sub _write_tagged_data {
 
 }
 
+# for formatted and delmited data
 sub _write_untagged_data {
   my ($self, $fileHandle, $formatObj, $indent, $fastestAxis) = @_;
 
@@ -753,7 +1329,8 @@ sub _write_untagged_data {
       # tis a shame that we dont use the outArray/template system here.
       $sprintfFormat = $formatObj->_sprintfNotation();
       $terminator = $formatObj->getRecordTerminator()->getStringValue();
-      $fast_axis_length = @{$self->{_parentArray}->getAxisList()}->[0]->getLength(); 
+      #$fast_axis_length = @{$self->{_parentArray}->getAxisList()}->[0]->getLength(); 
+      $fast_axis_length = $self->{_parentArray}->getAxisList()->[0]->getLength(); 
     } elsif (ref($formatObj) eq 'XDF::FormattedXMLDataIOStyle') {
       $template = $formatObj->_templateNotation(0);
       @outArray = $formatObj->_outputSkipCharArray;
@@ -819,7 +1396,7 @@ sub _writeFormattedData {
    my $fastAxisObj = @{$iterationOrderRef}[0]; # first axis is the fast one
 
    my $locator = $parentArray->createLocator();
-   $locator->setIterationOrder($iterationOrderRef);
+   $locator->setIterationOrder($readObj->getWriteAxisOrderList());
 
    my @noDataValues = @{$noDataValRef};
    my $nrofNoDataValues = $#noDataValues;
@@ -871,6 +1448,9 @@ sub _writeFormattedData {
           if ($backToStartOfDataCube) { last; } # dont bother, we'd be re-printing data 
 
           my $datum = $self->_getData($locator);
+
+#print STDERR "data:[$datum] ",$locator->_dumpLocation,"\n";
+
           if (defined $datum) {
               &_doReadCellFormattedIOCmdOutput( $fileHandle,
                                            $dataFormat[$currentDataFormat],
@@ -960,7 +1540,8 @@ sub _doReadCellFormattedIOCmdOutput {
    my $output;
 #   my $template = $thisDataFormat->_templateNotation(0);
 
-   if (ref($thisDataFormat) eq 'XDF::StringDataFormat')
+   if (ref($thisDataFormat) eq 'XDF::StringDataFormat' 
+       or ref($thisDataFormat) eq 'XDF::ArrayRefDataFormat') 
    {
       $output = pack $template, $datum;
    }
@@ -1051,7 +1632,8 @@ sub _doReadCellFormattedIOCmdOutput {
 
 }
 
-sub _print_data {
+# for printting tagged data
+sub _print_tagged_data {
   my ($self, $fileHandle, $locator, $startTag, $endTag, $emptyTag) = @_;
 
   my $datum = $self->_getData($locator);
@@ -1062,16 +1644,23 @@ sub _print_data {
   }
 }
 
-# private method
-sub _build_locator_string {
-  my ($parentArray, $locator) = @_;
+# need to override the destructor for this special case
+sub DESTROY { #private
+  my $self = shift;
 
-  my $string = '$self->{_data}';
-  foreach my $axisObj (@{$parentArray->getAxisList()}) {
-    $string = $string . "->[" . $locator->getAxisIndex($axisObj) . "]";
+  if ($self->{_dataIsOnDisk}) 
+  {
+
+    # untie the array from database file
+    untie @{$self->{_data}};
+    # remove the database file
+    unlink $self->{_tmpDataFile} if (-e $self->{_tmpDataFile}); # yes, this is needed.
+
   }
-  return $string;
-} 
+
+  $self->SUPER::DESTROY();
+
+}
 
 1;
 
@@ -1118,9 +1707,9 @@ This method returns a list reference containing the namesof the class attributes
 
 This method returns the XMLAttributes of this class.  
 
-=item removeData (EMPTY)
+=item toXMLFileHandle (EMPTY)
 
-Data held within the requested datacell is removed. The value of the datacell is set to undef. B<NOT CURRENTLY IMPLEMENTED>.  
+We overwrite the toXMLFileHandle method supplied by L<XDF::BaseObject> to have some special handling for the XDF::DataCube. The interface for thismethod remains the same however.  
 
 =back
 
@@ -1148,11 +1737,11 @@ Set the endByte attribute.
 
 =item getHref (EMPTY)
 
- 
+For the time being this is just aliased to getOutputHref method.  
 
-=item setHref ($hrefObjectRef)
+=item getOutputHref (EMPTY)
 
-Set the href attribute.  
+This is always the first Href object in the list of Href's held by this datacube.  
 
 =item getCompression (EMPTY)
 
@@ -1176,7 +1765,13 @@ Set the encoding attribute.
 
 =item getStartByte (EMPTY)
 
- 
+=item addHref ($hrefObjectRef)
+
+add an Href Object to the dataCube 
+
+=item writeDataToFileHandle ($fileHandle, $indent, $compression_type)
+
+Writes out just the data to the proscribed filehandle.  
 
 =item setStartByte ($startByte)
 
