@@ -218,8 +218,10 @@ sub getAxisList {
 # /** setAxisList
 #  */
 sub setAxisList {
-   my ($self, $value) = @_;
-   $self->{AxisList} = $value;
+   my ($self, $arrayRefValue) = @_;
+   # you must do it this way, or when the arrayRef changes it changes us here!
+   my @list = @{$arrayRefValue};
+   $self->{AxisList} = \@list;
 }
 
 # /** getParamList
@@ -232,8 +234,10 @@ sub getParamList {
 # /** setParamList
 #  */
 sub setParamList {
-   my ($self, $value) = @_;
-   $self->{ParamList} = $value;
+   my ($self, $arrayRefValue) = @_;
+   # you must do it this way, or when the arrayRef changes it changes us here!
+   my @list = @{$arrayRefValue};
+   $self->{ParamList} = \@list;
 }
 
 # /** getNoteList
@@ -246,8 +250,10 @@ sub getNoteList {
 # /** setNoteList
 #  */
 sub setNoteList {
-   my ($self, $value) = @_;
-   $self->{Notes}->{NoteList} = $value;
+   my ($self, $arrayRefValue) = @_;
+   # you must do it this way, or when the arrayRef changes it changes us here!
+   my @list = @{$arrayRefValue};
+   $self->{Notes}->{NoteList} = \@list;
 }
 
 # /** getDataFormat
@@ -768,7 +774,7 @@ Set the name attribute.
 
 
 
-=item setAxisList ($value)
+=item setAxisList ($arrayRefValue)
 
 
 
@@ -776,7 +782,7 @@ Set the name attribute.
 
 
 
-=item setParamList ($value)
+=item setParamList ($arrayRefValue)
 
 
 
@@ -784,7 +790,7 @@ Set the name attribute.
 
 
 
-=item setNoteList ($value)
+=item setNoteList ($arrayRefValue)
 
 
 
@@ -944,7 +950,7 @@ B<new>, B<clone>, B<update>.
 =over 4
 
 XDF::Array inherits the following instance methods of L<XDF::BaseObject>:
-B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLAttributes>, B<toXMLFileHandle>, B<toXMLFile>.
+B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLAttributes>, B<setXMLNotationHash>, B<toXMLFileHandle>, B<toXMLFile>.
 
 =back
 

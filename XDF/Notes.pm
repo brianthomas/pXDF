@@ -85,8 +85,8 @@ sub getLocationOrderList {
 # /** setLocationOrderList
 # */
 sub setLocationOrderList {
-   my ($self, $value) = @_;
-   $self->{LocationOrder}->setLocationOrderList($value);
+   my ($self, $arrayRefValue) = @_;
+   $self->{LocationOrder}->setLocationOrderList($arrayRefValue);
 }
 
 # /** getNoteList
@@ -100,16 +100,10 @@ sub getNoteList {
 #     Set the noteList attribute. 
 # */
 sub setNoteList {
-   my ($self, $value) = @_;
-   $self->{NoteList} = $value;
-}
-
-#/** getNotes
-# Convience method. Returns an Array of notes held within this object. 
-# */
-sub getNotes {
-  my ($self) = @_;
-  return @{$self->{NoteList}};
+   my ($self, $arrayRefValue) = @_;
+   # you must do it this way, or when the arrayRef changes it changes us here!
+   my @list = @{$arrayRefValue};
+   $self->{NoteList} = \@list;
 }
 
 # /** getXMLAttributes
@@ -178,6 +172,9 @@ sub _init {
 # Modification History
 #
 # $Log$
+# Revision 1.2  2000/12/15 22:11:58  thomas
+# Regenerated perlDoc section in files. -b.t.
+#
 # Revision 1.1  2000/12/14 22:12:15  thomas
 # First version. -b.t.
 #
@@ -356,7 +353,7 @@ Set the locationOrder attribute.
 
 
 
-=item setLocationOrderList ($value)
+=item setLocationOrderList ($arrayRefValue)
 
 
 
@@ -364,13 +361,9 @@ Set the locationOrder attribute.
 
 
 
-=item setNoteList ($value)
+=item setNoteList ($arrayRefValue)
 
 Set the noteList attribute. 
-
-=item getNotes (EMPTY)
-
-Convience method. Returns an Array of notes held within this object. 
 
 =item getXMLAttributes (EMPTY)
 
@@ -424,7 +417,7 @@ B<new>, B<clone>, B<update>.
 =over 4
 
 XDF::Notes inherits the following instance methods of L<XDF::BaseObject>:
-B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLAttributes>, B<toXMLFileHandle>, B<toXMLFile>.
+B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLAttributes>, B<setXMLNotationHash>, B<toXMLFileHandle>, B<toXMLFile>.
 
 =back
 

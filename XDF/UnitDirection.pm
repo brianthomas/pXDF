@@ -159,6 +159,9 @@ sub AUTOLOAD {
 # Modification History
 #
 # $Log$
+# Revision 1.5  2000/12/15 22:12:00  thomas
+# Regenerated perlDoc section in files. -b.t.
+#
 # Revision 1.4  2000/12/14 22:11:26  thomas
 # Big changes to the API. get/set methods, added Href/Entity stuff, deep cloning,
 # added Href, Notes, NotesLocationOrder nodes/classes. Ripped out _enlarge_array
@@ -628,7 +631,7 @@ B<new>, B<clone>, B<update>.
 =over 4
 
 XDF::UnitDirection inherits the following instance methods of L<XDF::BaseObject>:
-B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLAttributes>, B<toXMLFileHandle>, B<toXMLFile>.
+B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLAttributes>, B<setXMLNotationHash>, B<toXMLFileHandle>, B<toXMLFile>.
 
 =back
 

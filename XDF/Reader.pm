@@ -601,8 +601,6 @@ sub handle_unparsed {
    $msgstring .= "\n";
    &print_debug($msgstring);
 
-print STDERR $msgstring;
-
 }
 
 sub handle_notation {
@@ -628,8 +626,6 @@ sub handle_notation {
 
    $msgstring .= "\n";
    &print_debug($msgstring);
-
-print STDERR $msgstring;
 
 }
 
@@ -738,6 +734,10 @@ sub handle_final {
    my ($parser_ref) = @_;
    &print_debug("H_FINAL \n");
 
+   # set the entity, notation and unparsed lists for the XDF structure
+   $XDF->setXMLNotationHash(\%Notation);
+  # $XDF->setXMLInternalEntityHash(\%Entity);
+  # $XDF->setXMLUnparsedEntityHash(\%UnParsedEntity);
    # pass the populated structure back to calling routine
    return $XDF;
 }
@@ -787,8 +787,6 @@ sub handle_external_ent {
    $entityString .= "\n";
    &print_debug($entityString);
 
- print STDERR "$entityString";
-
 }
 
 sub handle_entity {
@@ -819,8 +817,6 @@ sub handle_entity {
 
    $msgstring .= "\n";
    &print_debug($msgstring);
-
- print STDERR "$msgstring";
 
 }
 
@@ -1107,7 +1103,7 @@ sub data_node_start {
        $hrefObj->setNdata(${$Entity{$hrefName}}{'ndata'});
        $hrefObj->setPubId(${$Entity{$hrefName}}{'pubid'});
        $CURRENT_ARRAY->getDataCube()->setHref($hrefObj);
-       delete $attrib_hash{'href'};
+       delete $attrib_hash{'href'}; # prevent over-writing object with string 
     }
 
     # update the array dataCube with XML attributes
@@ -2021,7 +2017,9 @@ sub getUniqueIdName {
    return $id;
 }
 
-sub grand_parent_node_name { return $CURRENT_NODE_PATH[$#CURRENT_NODE_PATH-2]; } 
+sub grand_parent_node_name { 
+  return $CURRENT_NODE_PATH[$#CURRENT_NODE_PATH-2]; 
+} 
 
 # only deals with files right now. Bleah.
 sub _getHrefData {
@@ -2040,9 +2038,6 @@ sub _getHrefData {
    } else {
       die "Can't read Href data, undefined sysId!\n";
    }
-
-   print STDERR "DATABLOCK:[$text]\n";
-
    return $text;
 }
 
@@ -2165,6 +2160,9 @@ sub my_fail {
 # Modification History
 #
 # $Log$
+# Revision 1.9  2000/12/15 22:11:58  thomas
+# Regenerated perlDoc section in files. -b.t.
+#
 # Revision 1.8  2000/12/14 22:11:26  thomas
 # Big changes to the API. get/set methods, added Href/Entity stuff, deep cloning,
 # added Href, Notes, NotesLocationOrder nodes/classes. Ripped out _enlarge_array

@@ -90,10 +90,13 @@ sub AUTOLOAD {
 #  } else {
 
    # this should only be used by a clone operation. 
+   # but we have left it in here to be compatible with older
+   # programs. Im considering removing all AUTOLOAD stuff in 
+   # the future. -b.t. 
    if (1) {
      my $event = &_getEventStack();
      # dont print if from clone
-     print STDERR "Compatablity method ",ref($self),"->$attr() called from :$event\n\n" 
+     print STDERR "Compatibility method ",ref($self),"->$attr() called from :$event\n\n" 
         unless $event =~ m/clone/;
     }
 
@@ -226,12 +229,10 @@ sub update {
 }
 
 # Private Method. Default is empty
-sub _init { my ($self) = @_; return $self; }
-
-#sub setObjRef {
-#  my ($self, $value) = @_;
-#  $self->_objRef($value) if defined $value && ref $value;
-#}
+sub _init { 
+   my ($self) = @_; 
+   return $self; 
+}
 
 # Protected Method. 
 sub _remove_from_list { 
@@ -278,6 +279,9 @@ sub _remove_from_list {
 # Modification History
 #
 # $Log$
+# Revision 1.4  2000/12/15 22:11:58  thomas
+# Regenerated perlDoc section in files. -b.t.
+#
 # Revision 1.3  2000/12/14 22:11:26  thomas
 # Big changes to the API. get/set methods, added Href/Entity stuff, deep cloning,
 # added Href, Notes, NotesLocationOrder nodes/classes. Ripped out _enlarge_array

@@ -87,8 +87,10 @@ sub getFormatCmdList {
 # /** setFormatCmdList
 #  */
 sub setFormatCmdList {
-   my ($self, $value) = @_;
-   $self->{FormatCmdList} = $value;
+   my ($self, $arrayRefValue) = @_;
+   # you must do it this way, or when the arrayRef changes it changes us here!
+   my @list = @{$arrayRefValue};
+   $self->{FormatCmdList} = \@list;
 }
 
 sub getFormatCommands {
@@ -131,7 +133,9 @@ sub getWriteAxisOrderList {
 # */
 sub setWriteAxisOrderList {
   my ($self, $arrayRefValue) = @_;
-  $self->{WriteAxisOrderList} = $arrayRefValue;
+  # you must do it this way, or when the arrayRef changes it changes us here!
+  my @list = @{$arrayRefValue};
+  $self->{WriteAxisOrderList} = \@list;
 }
 
 # /** getCommands
@@ -411,6 +415,9 @@ sub _sprintfNotation {
 # Modification History
 #
 # $Log$
+# Revision 1.6  2000/12/15 22:12:00  thomas
+# Regenerated perlDoc section in files. -b.t.
+#
 # Revision 1.5  2000/12/14 22:11:26  thomas
 # Big changes to the API. get/set methods, added Href/Entity stuff, deep cloning,
 # added Href, Notes, NotesLocationOrder nodes/classes. Ripped out _enlarge_array
@@ -486,7 +493,7 @@ These methods set the requested attribute if an argument is supplied to the meth
 
 
 
-=item setFormatCmdList ($value)
+=item setFormatCmdList ($arrayRefValue)
 
 
 
@@ -566,7 +573,7 @@ B<new>, B<clone>, B<update>.
 =over 4
 
 XDF::FormattedXMLDataIOStyle inherits the following instance methods of L<XDF::BaseObject>:
-B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLAttributes>, B<toXMLFile>.
+B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLAttributes>, B<setXMLNotationHash>, B<toXMLFile>.
 
 =back
 

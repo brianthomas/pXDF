@@ -194,6 +194,9 @@ sub _sprintfNotation {
 # Modification History
 #
 # $Log$
+# Revision 1.6  2000/12/15 22:11:59  thomas
+# Regenerated perlDoc section in files. -b.t.
+#
 # Revision 1.5  2000/12/14 22:11:26  thomas
 # Big changes to the API. get/set methods, added Href/Entity stuff, deep cloning,
 # added Href, Notes, NotesLocationOrder nodes/classes. Ripped out _enlarge_array
@@ -529,7 +532,7 @@ B<getLessThanValue>, B<setLessThanValue>, B<getLessThanOrEqualValue>, B<setLessT
 =over 4
 
 XDF::StringDataFormat inherits the following instance methods of L<XDF::BaseObject>:
-B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLAttributes>, B<toXMLFile>.
+B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLAttributes>, B<setXMLNotationHash>, B<toXMLFile>.
 
 =back
 

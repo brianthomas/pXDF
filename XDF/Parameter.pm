@@ -221,8 +221,10 @@ sub getNoteList {
 #     Set the noteList attribute. 
 # */
 sub setNoteList {
-   my ($self, $value) = @_;
-   $self->{NoteList} = $value;
+   my ($self, $arrayRefValue) = @_;
+   # you must do it this way, or when the arrayRef changes it changes us here!
+   my @list = @{$arrayRefValue};
+   $self->{NoteList} = \@list;
 }
 
 # /** getValueList
@@ -236,17 +238,10 @@ sub getValueList {
 #     Set the valueList attribute. 
 # */
 sub setValueList {
-   my ($self, $value) = @_;
-   $self->{ValueList} = $value;
-}
-
-# /** getNotes
-# Convenience method which returns a list of the notes held by 
-# this object. 
-# */
-sub getNotes {
-  my ($self, $what) = @_;
-  return @{$self->{NoteList}};
+   my ($self, $arrayRefValue) = @_;
+   # you must do it this way, or when the arrayRef changes it changes us here!
+   my @list = @{$arrayRefValue};
+   $self->{ValueList} = \@list;
 }
 
 # /** getValues
@@ -409,6 +404,9 @@ sub _init {
 # Modification History
 #
 # $Log$
+# Revision 1.5  2000/12/15 22:12:00  thomas
+# Regenerated perlDoc section in files. -b.t.
+#
 # Revision 1.4  2000/12/14 22:11:26  thomas
 # Big changes to the API. get/set methods, added Href/Entity stuff, deep cloning,
 # added Href, Notes, NotesLocationOrder nodes/classes. Ripped out _enlarge_array
@@ -824,7 +822,15 @@ These methods set the requested attribute if an argument is supplied to the meth
 
  
 
-=item $self->{NoteList} = $value;
+=item # you must do it this way, or when the arrayRef changes it changes us here!
+
+ 
+
+=item my @list = @{$arrayRefValue};
+
+ 
+
+=item $self->{NoteList} = \@list;
 
  
 
@@ -868,35 +874,15 @@ These methods set the requested attribute if an argument is supplied to the meth
 
  
 
-=item $self->{ValueList} = $value;
+=item # you must do it this way, or when the arrayRef changes it changes us here!
 
  
 
-=item }
+=item my @list = @{$arrayRefValue};
 
  
 
-=item # /** getNotes
-
- 
-
-=item # Convenience method which returns a list of the notes held by 
-
- 
-
-=item # this object. 
-
- 
-
-=item # */
-
- 
-
-=item sub getNotes {
-
- 
-
-=item return @{$self->{NoteList}};
+=item $self->{ValueList} = \@list;
 
  
 
@@ -1086,7 +1072,7 @@ Set the datatype attribute.
 
 
 
-=item setNoteList ($value)
+=item setNoteList ($arrayRefValue)
 
 Set the noteList attribute. 
 
@@ -1094,13 +1080,9 @@ Set the noteList attribute.
 
 
 
-=item setValueList ($value)
+=item setValueList ($arrayRefValue)
 
 Set the valueList attribute. 
-
-=item getNotes ($what)
-
-Convenience method which returns a list of the notes held by this object. 
 
 =item getValues (EMPTY)
 
@@ -1178,7 +1160,7 @@ B<new>, B<clone>, B<update>.
 =over 4
 
 XDF::Parameter inherits the following instance methods of L<XDF::BaseObject>:
-B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLAttributes>, B<toXMLFileHandle>, B<toXMLFile>.
+B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLAttributes>, B<setXMLNotationHash>, B<toXMLFileHandle>, B<toXMLFile>.
 
 =back
 

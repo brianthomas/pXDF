@@ -68,8 +68,10 @@ sub getLocationOrderList {
 #     Set the locationOrderList attribute. 
 # */
 sub setLocationOrderList {
-   my ($self, $value) = @_;
-   $self->{LocationOrderList} = $value;
+   my ($self, $arrayRefValue) = @_;
+   # you must do it this way, or when the arrayRef changes it changes us here!
+   my @list = @{$arrayRefValue};
+   $self->{LocationOrderList} = \@list;
 }
 
 # /** getXMLAttributes
@@ -107,7 +109,7 @@ sub toXMLFileHandle {
   if (defined $XMLDeclAttribs) {
      $indent = ""; #$Pretty_XDF_Output_Indentation;
      # write the XML && DOCTYPE decl
-     &_write_XML_decl_to_file_handle($fileHandle, $XMLDeclAttribs);
+     $self->_write_XML_decl_to_file_handle($fileHandle, $XMLDeclAttribs);
   }
 
   my $nodeNameString = $self->classXMLNodeName;
@@ -159,6 +161,9 @@ sub _init {
 # Modification History
 #
 # $Log$
+# Revision 1.2  2000/12/15 22:11:59  thomas
+# Regenerated perlDoc section in files. -b.t.
+#
 # Revision 1.1  2000/12/14 22:12:15  thomas
 # First version. -b.t.
 #
@@ -299,7 +304,15 @@ These methods set the requested attribute if an argument is supplied to the meth
 
  
 
-=item $self->{LocationOrderList} = $value;
+=item # you must do it this way, or when the arrayRef changes it changes us here!
+
+ 
+
+=item my @list = @{$arrayRefValue};
+
+ 
+
+=item $self->{LocationOrderList} = \@list;
 
  
 
@@ -421,7 +434,7 @@ These methods set the requested attribute if an argument is supplied to the meth
 
 
 
-=item setLocationOrderList ($value)
+=item setLocationOrderList ($arrayRefValue)
 
 Set the locationOrderList attribute. 
 
@@ -473,7 +486,7 @@ B<new>, B<clone>, B<update>.
 =over 4
 
 XDF::NotesLocationOrder inherits the following instance methods of L<XDF::BaseObject>:
-B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLAttributes>, B<toXMLFile>.
+B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLAttributes>, B<setXMLNotationHash>, B<toXMLFile>.
 
 =back
 

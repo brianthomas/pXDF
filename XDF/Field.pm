@@ -292,8 +292,10 @@ sub getNoteList{
 #     Set the noteList attribute. 
 # */
 sub setNoteList {
-   my ($self, $value) = @_;
-   $self->{NoteList} = $value;
+   my ($self, $arrayRefValue) = @_;
+   # you must do it this way, or when the arrayRef changes it changes us here!
+   my @list = @{$arrayRefValue};
+   $self->{NoteList} = \@list;
 }
 
 # /** getXMLAttributes
@@ -341,15 +343,6 @@ sub addNote {
 sub removeNote {
   my ($self, $what) = @_;
   $self->_remove_from_list($what, $self->{NoteList}, 'noteList');
-}
-
-# /** getNotes
-# Convenience method which returns a list of the notes held by this 
-# object.
-# */
-sub getNotes {
-  my ($self, $what) = @_;
-  return @{$self->{NoteList}};
 }
 
 # /** addUnit
@@ -401,6 +394,9 @@ sub _init {
 # Modification History
 #
 # $Log$
+# Revision 1.5  2000/12/15 22:12:00  thomas
+# Regenerated perlDoc section in files. -b.t.
+#
 # Revision 1.4  2000/12/14 22:11:26  thomas
 # Big changes to the API. get/set methods, added Href/Entity stuff, deep cloning,
 # added Href, Notes, NotesLocationOrder nodes/classes. Ripped out _enlarge_array
@@ -945,7 +941,15 @@ These methods set the requested attribute if an argument is supplied to the meth
 
  
 
-=item $self->{NoteList} = $value;
+=item # you must do it this way, or when the arrayRef changes it changes us here!
+
+ 
+
+=item my @list = @{$arrayRefValue};
+
+ 
+
+=item $self->{NoteList} = \@list;
 
  
 
@@ -1107,7 +1111,7 @@ Set the relation attribute.
 
 
 
-=item setNoteList ($value)
+=item setNoteList ($arrayRefValue)
 
 Set the noteList attribute. 
 
@@ -1122,10 +1126,6 @@ Insert an XDF::Note object into the XDF::Notes object held by this object. This 
 =item removeNote ($what)
 
 Removes an XDF::Note object from the list of XDF::Note objectsheld within the XDF::Notes object of this object. This method takes either the list index number or an object reference as its argument. RETURNS : 1 on success, undef on failure. 
-
-=item getNotes ($what)
-
-Convenience method which returns a list of the notes held by this object. 
 
 =item addUnit (EMPTY)
 
@@ -1171,7 +1171,7 @@ B<new>, B<clone>, B<update>.
 =over 4
 
 XDF::Field inherits the following instance methods of L<XDF::BaseObject>:
-B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLAttributes>, B<toXMLFileHandle>, B<toXMLFile>.
+B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLAttributes>, B<setXMLNotationHash>, B<toXMLFileHandle>, B<toXMLFile>.
 
 =back
 
