@@ -77,6 +77,8 @@ my $DefaultDataArraySize = 1000; # Number stuff for holding data. We want to
 
 my $replaceNewlineWithEntityInOutputAttribute = 1;
 
+my %XML_NOTATION_HASH;
+
 # Private CLASS Data. 
 
 # ALL CAPS STUFF: these aren't meant to be changed by users of the package, only
@@ -176,9 +178,21 @@ sub isGroupMember {
 sub setXMLAttributes { 
   my ($self, $attribHashRef) = @_;
   while (my ($attrib, $value) = each (%{$attribHashRef}) ) { 
-     my $method = 'set' . ucfirst $attrib;
-     $self->$method($value); 
+     $self->{ucfirst $attrib} = $value; # set the attribute value 
   }
+}
+
+#/** setXMLNotationHash
+# Set the baseobject class field NotationHash. This will be 
+# printed out with other XMLDeclarations in a toXMLFileHandle call. 
+# */
+sub setXMLNotationHash {
+  my ($self, $attribHashRef) = @_;
+  my %newhash;
+  while (my ($attrib, $value) = each (%{$attribHashRef}) ) { 
+     $newhash{$attrib} = $value;
+  }
+  %XML_NOTATION_HASH = %newhash;
 }
 
 # a few Class Methods..
@@ -259,17 +273,8 @@ sub toXMLFileHandle {
   if (defined $XMLDeclAttribs) {
      $indent = ""; #$Pretty_XDF_Output_Indentation;
      # write the XML && DOCTYPE decl
-     &_write_XML_decl_to_file_handle($fileHandle, $XMLDeclAttribs);
+     $self->_write_XML_decl_to_file_handle($fileHandle, $XMLDeclAttribs);
   }
-
-  # To undo all the object ref stuff, 'undefine' it while writing
-#  my $objRef;
-#  if (@{$self->classAttributes}->[$#{$self->classAttributes}] eq '_objRef'
-#       && defined $self->_objRef ) 
-#  {
-#     $objRef = $self->_objRef;
-#     $self->_objRef(0); # prevents us from using object Ref
-#  }
 
   # We need to invoke a little bit of Voodoo to keep the DTD happy; 
   # the first structure node is always called by the root node name
@@ -386,9 +391,6 @@ sub toXMLFileHandle {
 
   print $fileHandle "\n" if $Pretty_XDF_Output && $#nodenames > -1;
  
-  # reset the object reference, if it existed 
-#  $self->_objRef($objRef) if defined $objRef;
-
 }
 
 sub _printAttributes {
@@ -396,8 +398,7 @@ sub _printAttributes {
 
   foreach my $attrib (@{$listRef}) {
     next if $attrib =~ /^_/;
-    my $method = 'get' . ucfirst $attrib;
-    my $val = $self->$method();
+    my $val = $self->{ucfirst $attrib};
     if ($replaceNewlineWithEntityInOutputAttribute && $val) {
        $val =~ s/\n/&#10;/g; # newline gets entity 
        $val =~ s/\r/&#13;/g; # carriage return gets entity 
@@ -420,8 +421,7 @@ sub _getXMLInfo {
     #next if $attrib =~ m/XMLNodeName/;
     #next if $attrib =~ m/^_/;
     
-    my $method = 'get' . ucfirst $attrib;
-    my $val = $self->$method();
+    my $val = $self->{ucfirst $attrib}; # get attribute value 
     next unless defined $val;
 
     if (ref $val) {
@@ -511,7 +511,7 @@ sub toXMLFile {
 
 # private method
 sub _write_XML_decl_to_file_handle {
-  my ($fileHandle, $XMLDeclAttribs) = @_;
+  my ($self, $fileHandle, $XMLDeclAttribs) = @_;
 
 # write the XML && DOCTYPE decl
   if (defined $XMLDeclAttribs) {
@@ -528,14 +528,70 @@ sub _write_XML_decl_to_file_handle {
       print $fileHandle "version =\"$XML_STRUCTURE_VERSION\"";
     }
     print $fileHandle "?>\n";
-    print $fileHandle "<!DOCTYPE $XDF_ROOT_NODE_NAME SYSTEM \"$XDF_DTD_NAME\">\n";
+    print $fileHandle "<!DOCTYPE $XDF_ROOT_NODE_NAME SYSTEM \"$XDF_DTD_NAME\"";
+
+    # find all XML Href entities
+    my @HrefList = @{$self->_find_All_child_Href_Objects()};
+    my $entityString;
+    for (@HrefList) {
+       $entityString .= "  <!ENTITY " . $_->getName();
+       $entityString .= " BASE \"" . $_->getBase() . "\"" if defined $_->getBase();
+       $entityString .= " PUBLIC \"" . $_->getPubId() . "\"" if defined $_->getPubId();
+       $entityString .= " SYSTEM \"" . $_->getSysId() . "\"" if defined $_->getSysId();
+       $entityString .= " NDATA " . $_->getNdata() if defined $_->getNdata();
+       $entityString .= ">\n";
+    }
+
+    # find all XML notation
+    my $notationString;
+    while (my ($name, $notHashRef) = each (%XML_NOTATION_HASH)) { 
+       my %notationHash = %{$notHashRef};
+       $notationString .= "  <!NOTATION $name";
+       $notationString .= " BASE \"" . $notationHash{'base'} . "\"" if defined $notationHash{'base'};
+       $notationString .= " PUBLIC \"" . $notationHash{'pubid'}. "\"" if defined $notationHash{'pubid'};
+       $notationString .= " SYSTEM \"" . $notationHash{'sysid'}. "\"" if defined $notationHash{'sysid'};
+       $notationString .= ">\n";
+    }
+
+    if (defined $entityString or defined $notationString) {
+      print $fileHandle " [\n";
+      print $fileHandle "$entityString" if (defined $entityString);
+      print $fileHandle "$notationString" if (defined $notationString);
+      print $fileHandle "]";
+    }
+    print $fileHandle ">\n";
+
   }
 
+}
+
+sub _find_All_child_Href_Objects {
+  my ($self) = @_;
+
+  my @list;
+
+  if (ref($self) eq 'XDF::Structure') {
+     foreach my $arrayObj (@{$self->getArrayList()}) { 
+        my $hrefObj = $arrayObj->getDataCube()->getHref();
+        push @list, $hrefObj if defined $hrefObj;
+     }
+
+     foreach my $structObj (@{$self->getStructList()}) { 
+        push @list, @{$structObj->_find_All_child_Href_Objects()};
+     }
+  }
+
+  return \@list;
 }
 
 # Modification History
 #
 # $Log$
+# Revision 1.4  2000/12/15 22:12:53  thomas
+# Added <!ENTITY> and <!NOTATION> output to the DOCTYPE
+# declaration line at the header of a file when XMLDecl are
+# defined in toXMLFileHandle method call. -b.t.
+#
 # Revision 1.3  2000/12/14 22:11:26  thomas
 # Big changes to the API. get/set methods, added Href/Entity stuff, deep cloning,
 # added Href, Notes, NotesLocationOrder nodes/classes. Ripped out _enlarge_array
@@ -617,6 +673,10 @@ Determine if this object is a member of the reference Group object. Returns 1 if
 =item setXMLAttributes ($attribHashRef)
 
 Set the XML attributes of this object using a passed Hashtable ref. 
+
+=item setXMLNotationHash ($attribHashRef)
+
+Set the baseobject class field NotationHash. This will be printed out with other XMLDeclarations in a toXMLFileHandle call. 
 
 =item Pretty_XDF_Output ($value)
 
