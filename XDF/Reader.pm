@@ -129,8 +129,8 @@ my @Class_Attributes = qw (
                               UnParsedEntity
                               Entity
                               taggedLocatorObject
-                              dataFormatAttribRef;
-                              dataIOStyleAttribRef;
+                              dataFormatAttribRef
+                              dataIOStyleAttribRef
                               nrofWarnings
                               cdataIsArrayData
                               ArrayObj
@@ -150,6 +150,7 @@ my @Class_Attributes = qw (
                               lastNotesParentObject
                               lastParamGroupParentObject
                               lastValueGroupParentObject
+                              lastValueObjAttribRef
                           );
 
 #
@@ -178,7 +179,7 @@ my $IGNORE_WHITESPACE_ONLY_DATA = 1;
 # OPTIONS for running the parser
 my $MAX_WARNINGS = 10; # how many warnings we can have before termination. 
                        # Set to 0 for unlimited warnings 
-my $DEBUG = 0; # for printing out debug information from class methods 
+my $DEBUG = 1; # for printing out debug information from class methods 
 my $QUIET = 1; # if enabled it suppresses warnings from class methods 
 my $PARSER_MSG_THRESHOLD = 200; # we print all messages equal to and below this threshold
 
@@ -233,6 +234,7 @@ my %Start_Handler = (
                        $XDF_node_name{'value'}        => sub { &_null_cmd(@_); },
                        $XDF_node_name{'valueGroup'}   => sub { &_valueGroup_node_start(@_); },
                        $XDF_node_name{'valueList'}    => sub { &_valueList_node_start(@_); },
+                       $XDF_node_name{'value'}        => sub { &_value_node_start(@_); },
                        $XDF_node_name{'vector'}       => sub { &_vector_node_start(@_); } ,
                     );
 
@@ -255,6 +257,7 @@ my %End_Handler = (
                        $XDF_node_name{'td7'}          => sub { &_dataTag_node_end(@_);},
                        $XDF_node_name{'td8'}          => sub { &_dataTag_node_end(@_);},
                        $XDF_node_name{'valueGroup'}   => sub { &_valueGroup_node_end(@_); },
+                       $XDF_node_name{'value'}        => sub { &_value_node_end(@_); },
                   );
 
 # dispatch table for the chardata handler of the parser
@@ -1123,6 +1126,7 @@ sub _data_node_end {
         $_ = $self->{dataBlock}; 
         @data = m/$regex/;
 
+print STDERR "Got $#data data from regex:$regex data[0]:[",$data[0],"]\n";
         # remove data from data 'resevoir' (yes, there is probably a one-liner
         # for these two statements, but I cant think of it :P
         $self->{dataBlock} =~ s/$regex//;
@@ -1147,6 +1151,7 @@ sub _data_node_end {
 
         my $line = join ' ', @data; 
         $self->_printWarning( "Unable to get data! Regex:[$regex] failed on Line: [$line]\n");
+        print STDERR "BLOCK: ",$self->{dataBlock},"\n";
 
       }
 
@@ -1856,8 +1861,7 @@ sub _unit_node_charData {
 
   if (defined $self->{lastUnitObject}) {
     # add string as the value of the note
-    my $valueObj = new XDF::Value($string);
-    $self->{lastUnitObject}->setValue($valueObj);
+    $self->{lastUnitObject}->setValue($string);
 
   } else {
 
@@ -1950,43 +1954,39 @@ sub _value_node_charData {
   my $parent_node = $self->_parentNodeName();
 
   my $valueObj = new XDF::Value($string);
-
-  if ($parent_node eq $XDF_node_name{'parameter'} ) {
-
-     # add the value in $string to last parameter node in grandparent
-     my $paramObj = $self->{lastParamObject};
-     die "cant add value to parameter" unless $paramObj->addValue($valueObj);
-
-  } elsif ($parent_node eq $XDF_node_name{'axis'} ) {
-
-     # add the value in $string to last axis node in current array 
-     my $axisObj = $self->_lastAxisObj();
-     die "" unless $axisObj->addAxisValue($valueObj);
-
-  } elsif ( $parent_node eq $XDF_node_name{'valueGroup'} ) {
-
-    if (ref($self->{lastValueGroupParentObject}) eq 'XDF::Parameter') {
-
-       die "" unless $self->{lastValueGroupParentObject}->addValue($valueObj);
-
-    } elsif (ref($self->{lastValueGroupParentObject}) eq 'XDF::Axis') {
-
-       die "" unless $self->{lastValueGroupParentObject}->addAxisValue($valueObj);
-
-    } else {
-      my $name = ref($self->{lastValueGroupParentObject});
-      die " ERROR: UNKNOWN valueGroupParent object ($name), can't treat for value.\n";
-    }
-     
-  } else {
-
-     die " ERROR: UNKNOWN parent node ($parent_node), can't treat for value.\n";
-
+  if (defined $self->{lastValueObjAttribRef}) {
+     $valueObj->setXMLAttributes($self->{lastValueObjAttribRef});
+     $self->{lastValueObjAttribRef} = undef;
   }
 
-  # add this object to all open groups
-  foreach my $groupObj (@{$self->{currentValueGroupList}}) { $valueObj->addToGroup($groupObj); }
+  $self->_addValue($valueObj, $parent_node);
+}
 
+sub _value_node_end {
+   my ($self) = @_;
+
+   # if attrib ref still defined, then we have to add this object
+   if (defined $self->{lastValueObjAttribRef}) {
+
+      # create the value
+      my $valueObj = new XDF::Value();
+      $valueObj->setXMLAttributes($self->{lastValueObjAttribRef});
+
+      # add the value
+      my $parent_node = $self->_parentNodeName();
+      $self->_addValue($valueObj, $parent_node);
+
+      # clear attrib ref, so we know that nothing is pending to be added.
+      $self->{lastValueObjAttribRef} = undef;
+   }
+
+}
+
+sub _value_node_start {
+   my ($self, %attrib_hash) = @_;
+
+   # save for later
+   $self->{lastValueObjAttribRef} = \%attrib_hash;
 }
 
 sub _valueGroup_node_end { 
@@ -2024,7 +2024,9 @@ sub _valueGroup_node_start {
 
   }
 
-  foreach my $groupObj (@{$self->{currentValueGroupList}}) { $valueGroupObj->addToGroup($groupObj); }
+  foreach my $groupObj (@{$self->{currentValueGroupList}}) { 
+     $valueGroupObj->addToGroup($groupObj); 
+  }
 
   # now add it to the list
   push @{$self->{currentValueGroupList}}, $valueGroupObj;
@@ -2036,7 +2038,9 @@ sub _valueList_node_charData {
   my ($self, $string) = @_;
 
   # split up string based on declared delimiter
-  my $delimiter = '/' . $self->{currentValueList}->{'delimiter'};
+  my $delimiter = $self->{currentValueList}->{'delimiter'};
+  $delimiter =~ s/(\|)/\\$1/g; # kludge for making pipes work in perl 
+  $delimiter = '/' . $delimiter;
   if ($self->{currentValueList}->{'repeatable'} eq 'yes') {
     $delimiter .= '+/';
   } else {
@@ -2045,10 +2049,14 @@ sub _valueList_node_charData {
   my @values;
   eval " \@values = split $delimiter, \$string ";
 
+#print STDERR "delimiter: $delimiter number of values:",$#values+1,"\n";
+#print STDERR "String: $string\n";
+#foreach (@values) { print STDERR "V:$_\n"; }
   my @valueObjList = ();
 
   # need dispatch list for this too
-  if ($self->{currentValueList}->{'parent_node'} eq $XDF_node_name{'axis'} )
+  my $parent_node = $self->{currentValueList}->{'parent_node'};
+  if ($parent_node eq $XDF_node_name{'axis'} )
   {
 
      # adding values to the last axis in the array
@@ -2059,7 +2067,7 @@ sub _valueList_node_charData {
         push @valueObjList, $valueObj;
      }
 
-  } elsif ($self->{currentValueList}->{'parent_node'} eq $XDF_node_name{'parameter'} ) {
+  } elsif ($parent_node eq $XDF_node_name{'parameter'} ) {
 
      # adding values to the last axis in the array
      my $paramObj = $self->{lastParamObject};
@@ -2069,7 +2077,7 @@ sub _valueList_node_charData {
         push @valueObjList, $valueObj;
      }
 
-  } elsif ($self->{currentValueList}->{'parent_node'} eq $XDF_node_name{'valueGroup'} ) {
+  } elsif ($parent_node eq $XDF_node_name{'valueGroup'} ) {
 
      my $method;
      if (ref($self->{lastValueGroupParentObject}) eq 'XDF::Parameter') {
@@ -2091,13 +2099,15 @@ sub _valueList_node_charData {
 
   } else {
 
-     die " ERROR: UNKNOWN parent node (",$self->{currentValueList}->{'parent_node'},") can't treat for valueList.\n";
+     die " ERROR: UNKNOWN parent node (",$parent_node,") can't treat for valueList.\n";
 
   }
 
   # add these new value objects to all open groups
   foreach my $groupObj (@{$self->{currentValueGroupList}}) { 
-    foreach my $valueObj (@valueObjList) { $valueObj->addToGroup($groupObj); }
+    foreach my $valueObj (@valueObjList) { 
+       $valueObj->addToGroup($groupObj); 
+    }
   }
 
 }
@@ -2111,7 +2121,7 @@ sub _valueList_node_start {
 
    # IT could be that no values exist because they are stored
    # in PCDATA rather than as alorithm (treat in char data handler
-   # in this case).
+   # in that case).
    if($#values != -1 ) {
     
      my @valueObjList = ();
@@ -2296,6 +2306,52 @@ sub _getUniqueIdName {
 #
 
 sub _null_cmd { }
+
+sub _addValue {
+  my ($self, $valueObj, $parent_node) = @_;
+
+  if ($parent_node eq $XDF_node_name{'parameter'} ) {
+
+     # add the value in $string to last parameter node in grandparent
+     my $paramObj = $self->{lastParamObject};
+     die "cant add value to parameter\n" unless $paramObj->addValue($valueObj);
+
+  } elsif ($parent_node eq $XDF_node_name{'axis'} ) {
+
+     # add the value in $string to last axis node in current array 
+     my $axisObj = $self->_lastAxisObj();
+     die "cant add value to axis\n" unless $axisObj->addAxisValue($valueObj);
+
+  } elsif ( $parent_node eq $XDF_node_name{'valueGroup'} ) {
+
+    if (ref($self->{lastValueGroupParentObject}) eq 'XDF::Parameter') {
+
+       die "cant add value to parameter\n" unless $self->{lastValueGroupParentObject}->addValue($valueObj);
+
+    } elsif (ref($self->{lastValueGroupParentObject}) eq 'XDF::Axis') {
+
+       die "cant add value to axis\n" unless $self->{lastValueGroupParentObject}->addAxisValue($valueObj);
+
+    } elsif (ref($self->{lastValueGroupParentObject}) eq 'XDF::ValueGroup') {
+
+       # can this happen?? hurm.
+       die "add value to valueGroup within valueGroup not supported yet\n";
+
+    } else {
+       my $name = ref($self->{lastValueGroupParentObject});
+       die " ERROR: UNKNOWN valueGroupParent object ($name), can't treat for value.\n";
+    }
+
+  } else {
+
+     die " ERROR: UNKNOWN parent node ($parent_node), can't treat for value.\n";
+
+  }
+
+  # add this object to all open groups
+  foreach my $groupObj (@{$self->{currentValueGroupList}}) { $valueObj->addToGroup($groupObj); }
+
+}
 
 sub _create_valueList_value_object {
    my ($string_val, %attrib) = @_;
@@ -2837,7 +2893,7 @@ sub _getHrefData {
        #my $can_open = open(DATAFILE, $file);
        my $can_open = open(DATAFILE, $openstatement);
        if (!$can_open) {
-          print STDERR "Cant open $file, aborting read of this data file.\n";
+          $self->_printError("Cant open $file, aborting read of this data file.\n");
           return "";
        }
        # binmode(DATAFILE); # needed ?
@@ -3040,6 +3096,9 @@ sub _appendArrayToArray {
 # Modification History
 #
 # $Log$
+# Revision 1.34  2001/07/06 18:24:27  thomas
+# fix to allow adding value w/ no CDATA.
+#
 # Revision 1.33  2001/07/03 17:56:19  thomas
 # bug fix. valueList will create values w/ special
 # attribute now.
