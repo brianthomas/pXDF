@@ -130,7 +130,7 @@ sub toXMLFileHandle {
     # next 3 lines: have to break up printing of '"' or toXMLString will behave badly
      print $fileHandle "<index axisIdRef=\"";
      print $fileHandle $indexNodeAxisIdRef;
-     print $fileHandle "\">";
+     print $fileHandle "\"/>";
      print $fileHandle "\n" if $Pretty_XDF_Output;
   }
 
@@ -164,6 +164,9 @@ sub _init {
 # Modification History
 #
 # $Log$
+# Revision 1.6  2001/03/26 16:07:29  thomas
+# bug fix to toXMLFileHandle, node not closed properly.
+#
 # Revision 1.5  2001/03/23 20:38:40  thomas
 # broke up printing of attributes in toXMLFileHandle
 # so that toXMLString will work properly.
