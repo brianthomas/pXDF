@@ -65,7 +65,7 @@ while (<FILE>) {
 
        # if it has $self, it is a 'instance method' otherwise itsa class method
        while (@things) {
-         my $thing = pop @things;
+         my $thing = shift @things;
          $thing =~ s/^\s+//;
          $thing =~ s/\s+$//;
          $isClassMethod = 0 if $thing =~ m/\$self/; 
