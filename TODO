@@ -1,0 +1,69 @@
+
+TODO: In other words, WHY is this package still ALPHA?!? 
+
+   What is currently NOT implemented in this package:
+
+   - Add functionality to attributes on data node.
+     -- Href capability
+     -- compression
+     -- use of unparsed entities
+     -- checksum
+
+   - Fix clone object functionality, clone DataCube and solve _objRef clone issue 
+     Watch out for _parentArray and other object refs (e.g. ID ref problem).
+
+   - Fix XDF::Note setLocation method related stuff.
+
+   - Add regex capability to XDF::DelimitedXMLIOStyle separator attribute (?).
+
+   - Implement append Array/align axis functionality
+
+   - Treatment of relation node for multiple fields ids. How to return info?
+
+   - Treatment of writing out binary data; its invalid unless sent to a separate
+     file. Do we force this to happen? How do we know the right filename? 
+     Do we just throw an error?  Whats the 'right' thing to do??
+
+   - Note: Perl Binary Integer only support signed OR endian. How to do unsigned AND Endianess ?? 
+
+   ---------------------------------------------------------------------------
+   ** AT This Point the package is a "BETA", but more will need to be done: **
+   ---------------------------------------------------------------------------
+
+   - Identify addtional convience methods that need to be implemented. Any Chaff to be removed?  
+
+   - Problem of what to do with referencing objects. In the case of simple scalar
+     attributes like strings/obj ref, the local override mechanism seems fine. What
+     happens when we add a new member to a LIST in the object however?
+
+   - Problem wi/ External Entities. How to read in DTD to get the
+     defaults on the attributes (rather than define them in Objects) 
+
+   - Reconstitute ValueList from values when writing to XML (hurm.. not likely).
+     Along similar lines, do we really need the complication of repeatFormatIOCommand? 
+
+   - Investigate the 'fields' pragma. Is faster primative-type datastorage
+     possbile under Perl? 
+
+   - Allow user defined handlers for start/end element and char data in XDF::Reader. 
+
+   - Implement function nodes.
+
+   - Improve the documentation.
+
+   - User evaluation of method calls. Anything that can be improved? Missing 
+     "convience" methods? (yes, this should have been done in object construction,
+     but alas, we can forsee *everything*). 
+
+   - Allow handling of large arrays which will swamp the available memory 
+     (implement something like the Berkely DB module).
+
+   - Allow improved efficiency of datacube operations (implement something 
+     like the PDL module/Math::RealMatrix). 
+
+   -------------------------------------------------------------------------
+   ** At this point we have an efficient feature-complete release candidate.
+   -------------------------------------------------------------------------
+
+
+

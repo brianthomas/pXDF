@@ -1,0 +1,72 @@
+
+
+(yes, this is crap, I need help on documenting this!)
+
+    ---
+
+There are a number of important terms/concepts associated with this model:
+
+"datacube"  : this is an n-dimensional array. There is one
+              datacube for each each array node of an
+              XDF structure.
+
+"axis"      : For each dimension within a given datacube
+              there exists 1 axis. The axii describe the
+              location of each datum (or datacell).
+
+"fieldAxis" : There can only be one. This is special type of axis.
+
+"axisValue" : A unique point on an axis; indices on an
+              axis are whole numbers with the origin numbered
+              "0", however, this internal number is never used
+              by the scientist. Rather, a value or field is
+              ascribed to each indice; ascribed values/fields can
+              be in any arbitrary ordering but each must be unique to
+              only one indice on the axis.  Units may be ascribed
+              to all values along a given axis. Units of the
+              data are described either by fields (see below) or
+              in an array node attribute.
+
+"axixValue" : AxisValues exist at every axisIndex on an axis.
+
+"field"     : Fields may exist at each axisIndex on the fieldAxis.
+              Fields have units that describe the units of *the data*
+              that occur within a data slice
+              through the datacube at the indice where the given
+              field occurs.
+
+"datacell"  : A unique address within the datacube that
+              holds a single-valued value or vector datum.
+              More complex data may be stored by adding
+              additional axis to the datacube.
+
+Here is a diagram showing the inter-relations between these components
+of the XDF in a 2 - dimensional dataset with no fields.
+
+     axisValue -----> "9" "8" "7" "6" "5" "A"  .   .  "?"
+     axisIndex ----->  0   1   2   3   4   5   .   .   n
+
+                       |   |   |   |   |   |   |   |   |
+     axisIndex--\      |   |   |   |   |   |   |   |   |
+                |      |   |   |   |   |   |   |   |   |
+     axisValue  |      V   V   V   V   V   V   V   V   V
+         |      |
+         V      V      |   |   |   |   |   |   |   |   |
+       "star 1" 0 --> -====================================> axis 0
+       "star 2" 1 --> -|          8.1
+       "star 3" 2 --> -|
+       "star 4" 3 --> -|
+       "star 5" 4 --> -|
+       "star 6" 5 --> -|       7
+          .     . --> -|
+          .     . --> -|
+          .     . --> -|
+        "??"    m --> -|
+                       |
+                       v
+                     axis 1
+
+
+   (explanation; another example with fieldAxis/fields)
+
+

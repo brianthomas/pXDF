@@ -1,0 +1,97 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE XDF SYSTEM "XDF_0.17.dtd">
+<XDF name="A sample XDF document" 
+     description="This shows how to put any data into XDF format using tagged data."
+>
+   <!-- A little table about 3 nearby galaxies -->
+   <parameterGroup name="Structure Properties">
+     <parameter name="date">
+       <units><unitless/></units>
+       <value>01-12-99</value>
+       <notes><note>This parameter is not accurate.</note></notes>
+     </parameter>
+     <parameter name="date2">
+       <units><unitless/></units>
+       <value>10-22-00</value>
+       <notes><note>This parameter is not accurate either.</note></notes>
+     </parameter>
+   </parameterGroup>
+
+   <array name="Galaxy Data">
+
+      <fieldAxis axisId="columns">
+         <field fieldId="gname" name="galaxy name">
+             <units><unitless/></units>
+             <dataFormat><string length="8"/></dataFormat>
+         </field>
+         <fieldGroup name="position" >
+             <field name="right ascension">
+                <units><unit>degrees</unit></units>
+                <dataFormat><fixed width="11" precision="7" /></dataFormat>
+            </field>
+            <field name="declination" >
+                <units><unit>degrees</unit></units>
+                <dataFormat><fixed width="11" precision="7" /></dataFormat>
+            </field>
+         </fieldGroup>
+         <field fieldId="vmag" name="V-band Flux">
+            <units><unit>magnitude</unit></units>
+            <dataFormat><fixed width="4" precision="1" /></dataFormat>
+         </field>
+         <field name="V-band Error" >
+            <units><unit>magnitude</unit></units>
+            <dataFormat><fixed width="4" precision="1" /></dataFormat>
+            <relation fieldIdRefs="vmag" role="errors" />
+         </field>
+         <field name="Reference" >
+            <units><unitless/></units>
+            <dataFormat><string length="40" /></dataFormat>
+            <relation fieldIdRefs="gname" role="references" />
+         </field>
+      </fieldAxis>
+
+      <axis axisId="rows">
+         <axisUnits><unitless/></axisUnits>
+         <valueGroup name="rows"> 
+           <valueList size="3"/>
+         </valueGroup> 
+      </axis>
+
+     <!-- declare the ordering of how to read this in, assoc. of axis to data -->
+      <read encoding="UTF-8" >
+        <tagToAxis tag="d1" axisIdRef="columns" />
+        <tagToAxis tag="d0" axisIdRef="rows" />
+      </read>
+
+      <data>
+         <d0>
+           <d1>M31</d1><d1>230.12098776</d1><d1>-34.3424911</d1>
+           <d1>12.6</d1><d1>0.5</d1>
+            <d1>ApJ Ref 1.</d1>
+         </d0>
+         <d0>
+            <d1>M33</d1><d1>130.09478492</d1><d1>+36.0000001</d1>
+            <d1>14.6</d1><d1>1.5</d1>
+            <d1></d1>
+         </d0>
+         <d0>
+            <d1>M80</d1><d1>230.04429292</d1><d1>+74.2449499</d1>
+            <d1>12.8</d1><d1>0.5</d1>
+            <d1></d1>
+         </d0>
+      </data>
+
+      <notes>
+        <locationOrder>
+          <index axisIdRef="columns"/>
+          <index axisIdRef="rows"/>
+        </locationOrder>
+        <note>This is table 3 from the Zezajck article.</note>
+        <note noteId="note1" location="0 1" >No data because of a cosmic ray hit</note>
+        <note noteIdRef="note1" location="0 2" />
+    </notes>
+
+  </array>
+
+</XDF>
+

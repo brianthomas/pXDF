@@ -1,0 +1,42 @@
+
+
+INTRODUCTION
+------------
+
+This is the XDF Perl Package courtesy of the 
+Astronomical Data Center (ADC) at NASA/Goddard
+Space Flight Center.
+
+Please refer to the TODO list for an idea of what remains to
+be done to bring this package to full featuredom.
+
+A (slightly incomplete) diagram of the XDF object model appears
+in the UML-XDF.gif image. There is addtional information in
+the file-by-file docs. Build the HTML docs using the utility
+contained in utils. 
+
+
+LICENCE 
+-------
+
+Please refer LICENCE file.
+
+
+INSTALL
+-------
+
+This package should work on both W32 and UNIX platforms.
+To make it, do the standard drill:
+
+> perl Makefile.PL; make ; make test ; make install
+
+(W32 users substitute NMAKE for 'make' in the above )
+
+
+---
+
+Maintainer : Brian Thomas (thomas@adc.gsfc.nasa.gov)
+
+
+
+
