@@ -79,6 +79,7 @@ package XDF::XDF;
 use Carp;
 
 use XDF::Structure;
+use XDF::Reader;
 
 use strict;
 use integer;
@@ -93,6 +94,7 @@ my $Class_XML_Node_Name = "XDF";
 # NOTE: if you ADD/Change an attribute here, make sure it is
 # properly re-inited in the _init method or you will be sorry!!!
 my @Class_XML_Attributes = qw (
+                                 type
                               ); 
 my @Class_Attributes = qw (
                           ); 
@@ -143,7 +145,7 @@ sub getXMLAttributes {
 #
 
 # /** loadFromXDFFile
-# Read in an XML file into this structure. The current structure, 
+# Read in an XML file into this XDF object. The current XDF object, 
 # if it has any components, is overrided and lost. 
 # */
 sub loadFromXDFFile {
@@ -153,7 +155,45 @@ sub loadFromXDFFile {
   $self->_init(); # clear out old structure
   $reader->setReaderXDFObject($self);
   $self = $reader->parseFile($file);
+  return $self;
+
 }
+
+#/** toXMLFileHandle
+# Write this structure and all the objects it owns to the supplied filehandle 
+# in XML (XDF) format. The first argument is the name of the filehandle and is required. 
+#@
+# The second, optional, argument indicates whether/how to write out the XML declaration
+# and DOCTYPE statement at the beginning of the file stream. This second argument may 
+# either be a string or hash table. As a string is means simply to write the XML declaration 
+# and DOCTYPE. As a hash table, the attributes of the XML declaration are arranged 
+# in attribute/value pairs, e.g.
+# 
+#  %XMLDeclAttribs = ( 'version' => "1.0",
+#                      'standalone => 'no',
+#                    );
+#
+#*/
+sub toXMLFileHandle {
+  my ($self, $fileHandle, $XMLDeclAttribs, $indent, $dontCloseNode, $newNodeNameString, $noChildObjectNodeName, $isRootNode  ) = @_;
+
+  if(!defined $fileHandle) {
+    carp "Can't write out object, filehandle not defined.\n";
+    return;
+  }
+
+  my $spec = XDF::Specification->getInstance();
+
+  if (defined $XMLDeclAttribs) {
+     $indent = "";
+     # write the XML && DOCTYPE decl
+     $self->_write_XML_decl_to_file_handle($fileHandle, $XMLDeclAttribs, $spec);
+  }
+
+  $self->SUPER::toXMLFileHandle($fileHandle, $XMLDeclAttribs, $indent, $dontCloseNode, $newNodeNameString, $noChildObjectNodeName, $isRootNode);
+
+}
+
 
 #
 # Private Methods 
@@ -174,9 +214,71 @@ sub _init {
 
 }
 
+sub _write_XML_decl_to_file_handle {
+  my ($self, $fileHandle, $XMLDeclAttribs, $spec) = @_;
+
+# write the XML && DOCTYPE decl
+  if (defined $XMLDeclAttribs) {
+    print $fileHandle "<?xml ";
+    if (ref $XMLDeclAttribs) {
+
+      while (my ($attrib, $value) = each (%{$XMLDeclAttribs}) ) {
+        print $fileHandle " $attrib=\"",$value,"\"";
+      }
+      #foreach my $attrib (keys %{$XMLDeclAttribs}) {
+      #  print $fileHandle " $attrib=\"",%{$XMLDeclAttribs}->{$attrib},"\"";
+      #}
+    } else {
+      print $fileHandle "version =\"".$spec->getXMLSpecVersion."\"";
+    }
+    print $fileHandle "?>\n";
+    my $root_name = $spec->getXDFRootNodeName;
+    my $dtd_name = $spec->getXDFDTDName;
+    print $fileHandle "<!DOCTYPE $root_name SYSTEM \"$dtd_name\"";
+
+    # find all XML Href entities
+    my @HrefList = @{$self->_find_All_child_Href_Objects()};
+    my $entityString;
+    for (@HrefList) {
+       $entityString .= "  <!ENTITY " . $_->getName();
+       $entityString .= " BASE \"" . $_->getBase() . "\"" if defined $_->getBase();
+       $entityString .= " PUBLIC \"" . $_->getPubId() . "\"" if defined $_->getPubId();
+       $entityString .= " SYSTEM \"" . $_->getSysId() . "\"" if defined $_->getSysId();
+       $entityString .= " NDATA " . $_->getNdata() if defined $_->getNdata();
+       $entityString .= ">\n";
+    }
+
+    # find all XML notation
+    my $notationString;
+    while (my ($name, $notHashRef) = each (%{$spec->getXMLNotationHash})) {
+       my %notationHash = %{$notHashRef};
+       $notationString .= "  <!NOTATION $name";
+       $notationString .= " BASE \"" . $notationHash{'base'} . "\"" if defined $notationHash{'base'};
+       $notationString .= " PUBLIC \"" . $notationHash{'pubid'}. "\"" if defined $notationHash{'pubid'};
+       $notationString .= " SYSTEM \"" . $notationHash{'sysid'}. "\"" if defined $notationHash{'sysid'};
+       $notationString .= ">\n";
+    }
+
+    if (defined $entityString or defined $notationString) {
+      print $fileHandle " [\n";
+      print $fileHandle "$entityString" if (defined $entityString);
+      print $fileHandle "$notationString" if (defined $notationString);
+      print $fileHandle "]";
+    }
+    print $fileHandle ">\n";
+
+  }
+
+}
+
+
 # Modification History
 #
 # $Log$
+# Revision 1.2  2001/07/17 17:39:45  thomas
+# fine tuning to loadFromXDFFile method. Improved
+# documentation on toXMLFileHandle method.
+#
 # Revision 1.1  2001/07/13 21:39:44  thomas
 # Initial version
 #
