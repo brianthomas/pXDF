@@ -8,7 +8,7 @@
           <unit>---</unit>
         </units>
         <dataFormat>
-          <fixed width="7" precision="4"/>
+          <float width="7" precision="4"/>
         </dataFormat>
       </field>
       <field name="z" description="Redshift" fieldId="field2">
@@ -16,7 +16,7 @@
           <unit>---</unit>
         </units>
         <dataFormat>
-          <fixed width="6" precision="3"/>
+          <float width="6" precision="3"/>
         </dataFormat>
       </field>
       <field name="Imag" description="I_AB_ magnitude" fieldId="field3">
@@ -24,7 +24,7 @@
           <unit>mag</unit>
         </units>
         <dataFormat>
-          <fixed width="5" precision="2"/>
+          <float width="5" precision="2"/>
         </dataFormat>
       </field>
       <field name="V-I" description="(V-I)_AB_ colour index" fieldId="field4">
@@ -32,7 +32,7 @@
           <unit>mag</unit>
         </units>
         <dataFormat>
-          <fixed width="5" precision="2"/>
+          <float width="5" precision="2"/>
         </dataFormat>
       </field>
       <field name="MBmag" description="Absolute B_AB_ magnitude (1)" fieldId="field5">
@@ -40,7 +40,7 @@
           <unit>mag</unit>
         </units>
         <dataFormat>
-          <fixed width="6" precision="2"/>
+          <float width="6" precision="2"/>
         </dataFormat>
       </field>
       <field name="U-V" description="(U-V)_AB_ colour magnitude" fieldId="field6">
@@ -48,7 +48,7 @@
           <unit>mag</unit>
         </units>
         <dataFormat>
-          <fixed width="5" precision="2"/>
+          <float width="5" precision="2"/>
         </dataFormat>
       </field>
       <field name="B/T" description="Colour versus bulge fraction" fieldId="field7">
@@ -56,7 +56,7 @@
           <unit>---</unit>
         </units>
         <dataFormat>
-          <fixed width="5" precision="2"/>
+          <float width="5" precision="2"/>
         </dataFormat>
       </field>
       <field name="h" description="? Scale length" fieldId="field8" noDataValue="-9.99">
@@ -64,7 +64,7 @@
           <unit>kpc</unit>
         </units>
         <dataFormat>
-          <fixed width="5" precision="2"/>
+          <float width="5" precision="2"/>
         </dataFormat>
       </field>
     </fieldAxis>
