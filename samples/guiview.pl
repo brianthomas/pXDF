@@ -1087,15 +1087,19 @@ sub update_dataformat_view {
                                                     -bg => $White,
                                                  )->pack(side => 'top', expand => 0, fill => 'both');
 
-   for (@{$ARRAY->getDataFormat->getXMLAttributes()}) {
+   #for (@{$ARRAY->getDataFormat->getXMLAttributes()}) {
+   my $formatObj = $ARRAY->getDataFormat;
+   for (@{$formatObj->getXMLAttributes()}) {
        my $subFrame = $subFrame1->Frame->pack(side => 'top', fill => 'both', expand => 0);
        my $labelname = 'dataformat' . $_ . "_label";
        my $entryname = 'dataformat' . $_ . "_val_label";
        my $methodname = 'get' . ucfirst ($_);
        my $getMethod = 'get' . ucfirst $_;
        my $setMethod = 'set' . ucfirst $_;
-       my $getMethodRef = sub { $ARRAY->getDataFormat->$getMethod; };
-       my $setMethodRef = sub { $ARRAY->getDataFormat->$setMethod(@_); };
+       #my $getMethodRef = sub { $ARRAY->getDataFormat->$getMethod; };
+       #my $setMethodRef = sub { $ARRAY->getDataFormat->$setMethod(@_); };
+       my $getMethodRef = sub { $formatObj->$getMethod; };
+       my $setMethodRef = sub { $formatObj->$setMethod(@_); };
        &make_label_click_widget( $_, $subFrame, $labelname, $entryname, $getMethodRef, $setMethodRef );
    }
 
@@ -1149,7 +1153,7 @@ sub reset_ostyle_view {
 
 sub update_ostyle_view {
 
-#   return unless defined $CURRENT_ITEM && $CURRENT_ITEM =~ m/Array/; 
+   return unless defined $CURRENT_ITEM && $CURRENT_ITEM =~ m/Array/; 
    return unless defined $FRAME{'ostyle_edit'};
 
    &reset_ostyle_view();
@@ -1173,14 +1177,18 @@ sub update_ostyle_view {
                                                     -bg => $White,
                                                  )->pack(side => 'top', expand => 0, fill => 'both');
 
-   for (@{XDF::XMLDataIOStyle->getXMLAttributes()}) {
+   #for (@{XDF::XMLDataIOStyle->getXMLAttributes()}) {
+   my $readObj = $CURRENT_ITEM->getXMLDataIOStyle();
+   for (@{$readObj->getXMLAttributes()}) {
        my $subFrame = $subFrame1->Frame->pack(side => 'top', fill => 'both', expand => 0);
        my $labelname = 'dataIOstyle' . $_ . "_label";
        my $entryname = 'dateIOstyle' . $_ . "_val_label";
        my $getMethod = 'get' . ucfirst $_;
        my $setMethod = 'set' . ucfirst $_;
-       my $getMethodRef = sub { $ARRAY->getXMLDataIOStyle->$getMethod; };
-       my $setMethodRef = sub { $ARRAY->getXMLDataIOStyle->$setMethod(@_); };
+       #my $getMethodRef = sub { $ARRAY->getXMLDataIOStyle->$getMethod; };
+       #my $setMethodRef = sub { $ARRAY->getXMLDataIOStyle->$setMethod(@_); };
+       my $getMethodRef = sub { $readObj->$getMethod; };
+       my $setMethodRef = sub { $readObj->$setMethod(@_); };
 
        &make_label_click_widget( $_, $subFrame, $labelname, $entryname, $getMethodRef, $setMethodRef );
    }
@@ -2563,7 +2571,8 @@ sub edit_struct_attribs {
    &make_widget_not_highlight_on_mouseover($WIDGET{'struct_attrib_edit_label'});
 
    # create widgets
-   for (@{XDF::Structure->getXMLAttributes}) {
+   #for (@{XDF::Structure->getXMLAttributes}) {
+   for (@{$CURRENT_ITEM->getXMLAttributes}) {
        my $subFrame = $frame->Frame->pack(side => 'top', fill => 'both', expand => 0);
        push @STRUCTEDITFRAMES, $subFrame;
        my $labelname = 'struct' . $_ . "_label";
@@ -2633,15 +2642,19 @@ sub edit_data_attribs {
                                                 );
    &make_widget_not_highlight_on_mouseover($WIDGET{'data_attrib_edit_label'});
 
-   for (@{XDF::DataCube->getXMLAttributes}) {
+   #for (@{XDF::DataCube->getXMLAttributes}) {
+   my $dataCube = $CURRENT_ITEM->getDataCube();
+   for (@{$dataCube->getXMLAttributes}) {
        my $subFrame = $frame->Frame->pack(side => 'top', fill => 'both', expand => 0);
        push @DATAEDITFRAMES, $subFrame;
        my $labelname = 'dataCube' . $_ . "_label";
        my $entryname = 'dataCube' . $_ . "_val_label";
        my $getMethod = 'get' . ucfirst $_;
        my $setMethod = 'set' . ucfirst $_;
-       my $getMethodRef = sub { $CURRENT_ITEM->getDataCube->$getMethod; };
-       my $setMethodRef = sub { $CURRENT_ITEM->getDataCube->$setMethod(@_); };
+       #my $getMethodRef = sub { $CURRENT_ITEM->getDataCube->$getMethod; };
+       #my $setMethodRef = sub { $CURRENT_ITEM->getDataCube->$setMethod(@_); };
+       my $getMethodRef = sub { $dataCube->$getMethod; };
+       my $setMethodRef = sub { $dataCube->$setMethod(@_); };
        next if ref(&$getMethodRef);
        &make_label_click_widget( $_, $subFrame, $labelname, $entryname, $getMethodRef, $setMethodRef
 );
@@ -2809,7 +2822,8 @@ sub update_struct_edit_attrib_val {
 
    if ($CURRENT_ITEM =~ m/Structure/ || $CURRENT_ITEM =~ m/XDF::XDF/) {
 
-      for (@{XDF::Structure->getXMLAttributes}) {
+      #for (@{XDF::Structure->getXMLAttributes}) {
+      for (@{$CURRENT_ITEM->getXMLAttributes}) {
          my $name = 'struct' . $_ . "_val_label";
          my $methodname = 'get' . ucfirst $_;
          my $val = $CURRENT_ITEM->$methodname;
