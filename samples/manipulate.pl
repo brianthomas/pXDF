@@ -56,7 +56,7 @@ use strict;
   # dump the XDF structure..
   foreach my $axisObj (@{$XDF->getAxisList()}) {
     print "AXIS: ", $axisObj->getName, " ", $axisObj->getDescription, "\n";
-    foreach my $val (@{$axisObj->getAxisValues()}) {
+    foreach my $val ($axisObj->getAxisValues()) {
        print "      val: $val\n";
     }
   }

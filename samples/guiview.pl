@@ -1923,7 +1923,7 @@ sub update_fieldtable_view {
 
    my $col = 0;
    # geometry of the widget: a 'row' listbox followed by fieldlistboxes
-   foreach my $fieldObj (@{$fieldAxis->getFields()}) 
+   foreach my $fieldObj ($fieldAxis->getFields()) 
    {
       
       # create new frame for the field header + listbox

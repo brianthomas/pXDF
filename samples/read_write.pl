@@ -49,7 +49,7 @@ my $QUIET = 1;
   $locator->setAxisIndex($axis0, 1);
   $locator->setAxisIndex($axis1, 2);
 
-  print "DATA at col=1 row=2 : [", $arrayObj->getData($locator), "]\n";
+  print "DATA at col=1 row=2 (first ARRAY): [", $arrayObj->getData($locator), "]\n";
 
   # a little example of how to deal with notes
   foreach my $noteObj (@{$arrayObj->getNoteList}) {
