@@ -35,8 +35,8 @@ eval {
     require XML::Parser;
     my $ver = $XML::Parser::VERSION;
     $ver =~ s/_//;
-    die "XML::Parser version 2.30 needed, installed module is only $XML::Parser::VERSION\n"
-        unless $ver >= 2.30;
+    die "XML::Parser version 2.27 needed, installed module is only $XML::Parser::VERSION\n"
+        unless $ver >= 2.27;
 };
 if ($@) {
     print " failed\n";
@@ -63,21 +63,20 @@ if ($@) {
     print " ok\n";
 }
 
-print "Checking for XML::DOM..............";
-eval {
-    require XML::DOM;
-    my $ver = $XML::DOM::VERSION;
-    die "XML::DOM version 1.28 needed, installed module is only $XML::DOM::VERSION\n"
-        unless $ver >= 1.28;
-
-};
-if ($@) {
-    print " missing, XDF::DOM and decendent classes may not be used.\n";
-    $missing_modules++;
-    sleep(1);  # Don't hurry too much
-} else {
-    print " ok\n";
-}
+#print "Checking for XML::DOM..............";
+#eval {
+#    require XML::DOM;
+#    my $ver = $XML::DOM::VERSION;
+#    die "XML::DOM version 1.28 needed, installed module is only $XML::DOM::VERSION\n"
+#        unless $ver >= 1.28;
+# };
+#if ($@) {
+#    print " missing, XDF::DOM and decendent classes may not be used.\n";
+#    $missing_modules++;
+#    sleep(1);  # Don't hurry too much
+#} else {
+#    print " ok\n";
+#}
 
 # See lib/ExtUtils/MakeMaker.pm for details of how to influence
 # the contents of the Makefile that is written.
@@ -85,7 +84,7 @@ WriteMakefile(
     'NAME'	=> 'XDF',
     'VERSION_FROM' => 'XDF/BaseObject.pm', # finds $VERSION
     dist      => { COMPRESS => 'gzip', SUFFIX => '.gz'},
-    PREREQ_PM => { 'XML::Parser' => '2.30', 'XML::DOM' => '1.28' },
+    PREREQ_PM => { 'XML::Parser' => '2.27', },
     PM => { 
             'XDF/Array.pm'  => "\$(INST_LIBDIR)/$install_dir/Array.pm",
             'XDF/Axis.pm'       => "\$(INST_LIBDIR)/$install_dir/Axis.pm",
@@ -143,6 +142,9 @@ WriteMakefile(
 # Modification History
 #
 # $Log$
+# Revision 1.10  2001/07/09 16:50:10  thomas
+# *** empty log message ***
+#
 # Revision 1.9  2001/04/17 18:42:18  thomas
 # *** empty log message ***
 #

@@ -27,6 +27,8 @@
    - minor irritation: order of the attributes written (psuedo-)randomly in
      output XML. Need attribOrder as in Java (and to fully adopt XMLAttribute
      for holding attribute information).
+   
+   - add convience method for init of Axis /FieldAxis as per Java Package.
 
    - Programmer interface for manipulation of notes/notes location is yucky.
      We need to use locator objects in the notes, same as we need to do in Java Package.

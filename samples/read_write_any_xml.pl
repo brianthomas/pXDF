@@ -20,8 +20,12 @@ use strict;
 
 # CVS $Id$
 
-my $DEBUG = 0;
+my $DEBUG = 1;
 my $QUIET = 1;
+
+  unless ($#ARGV >= 0) {
+    die "usage: $0 <xmlfile> > output.xml\n";
+  }
 
   # test file for reading in XDF files.
   my $file = $ARGV[0];
@@ -70,7 +74,7 @@ my $QUIET = 1;
   $locator->setAxisIndex($axis0, 1);
   $locator->setAxisIndex($axis1, 2);
 
-  print "DATA at col=1 row=2 (first ARRAY): [", $arrayObj->getData($locator), "]\n";
+  print STDERR "DATA at col=1 row=2 (first ARRAY): [", $arrayObj->getData($locator), "]\n";
 
   # a little example of how to deal with notes
   foreach my $noteObj (@{$arrayObj->getNoteList}) {

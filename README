@@ -45,16 +45,21 @@ I will look into creatation of a PPD file for this distribution.
 
 You will need to install the following packages:
 
-   XML-Parser-2.30
+   XML-Parser-2.27
    libxml-enno-1.04pre4 
  
 You may get XML-Parser from CPAN. Unfortuneately, libxml-enno-1.04
 is not available there (yet). You can get the libxml-enno from
-the maintainers website at: http://tjmather.com/CPAN. 
+the maintainers website at: http://tjmather.com/CPAN.  As a side note,
+I have also used XML-Parser-2.30 to good effect. Other versions,
+notably XML-Parser 2.28 dont work as well for me. You mileage may
+vary and you may have to experiment with various versions of the 
+XML-Parser package to find the stablest one that works for you.
 
 Now, untar both files. You will need to APPLY A PATCH (in the file
 "DOM.patch") to the libxml-enno distribution if you want Href entities 
-to work properly:
+to work properly (Note: this patch may not apply to versions of 
+libxml-enno later than 1.04pre4, check the source to know :):
 
 > cd libxml-enno-1.04pre4
 > patch -p0 < <XDFdirectory>/DOM.patch
