@@ -44,9 +44,6 @@ my $QUIET = 1;
   $XDF->loadFromXDFFile($file, \%options);
 
   foreach my $arrayObj (@{$XDF->getArrayList()}) {
-    my $name = $arrayObj->getName;
-    $name = "" unless defined $name;
-    print "ARRAY: ",$arrayObj->getName, " of dimension: ",$arrayObj->getDimension(),"\n";
     &dump_2D_array(\*STDOUT, $arrayObj) if ($arrayObj->getDimension() == 2);
   }
 
@@ -60,10 +57,12 @@ sub dump_2D_array {
    # safety
    return unless (defined $filehandle && defined $arrayObj);
 
+   my $name = $arrayObj->getName;
+   $name = "" unless defined $name;
+   print $filehandle "XDF ARRAY: \"",$name, "\" of dimension: ",$arrayObj->getDimension(),"\n";
+
    # dump the array
    # get the number of indices along each axis 
-
-   print "Internal ordering of data within the 2D Array is:\n";
 
    # get the cellSize
    my $cellSize = 10;
@@ -72,15 +71,25 @@ sub dump_2D_array {
       $cellSize = $arrayObj->getDataFormat->getWidth();
    } 
 
-   my $rowAxis = @{$arrayObj->getAxisList}->[0];
-   my $colAxis = @{$arrayObj->getAxisList}->[1];
+   my $colAxis;
+   my $rowAxis;
+   if ($arrayObj->hasColAxis) {
+      $colAxis = $arrayObj->getColAxis();
+   } else {
+      $colAxis = $arrayObj->getAxisList->[0];
+   }
+   if ($arrayObj->hasRowAxis) {
+      $rowAxis = $arrayObj->getRowAxis();
+   } else {
+      $rowAxis = $arrayObj->getAxisList->[1];
+   }
 
    my @size = ($rowAxis->getSize(), $colAxis->getSize());
 
    my $locator = $arrayObj->createLocator;
 
-   print $filehandle "Y-axis Id: ",$colAxis->getAxisId()," (size:",$colAxis->getSize(),")\n";
-   print $filehandle "X-axis Id: ",$rowAxis->getAxisId()," (size:",$rowAxis->getSize(),")\n";
+   print $filehandle " horizontal axisId: ",$colAxis->getAxisId()," (size:",$colAxis->getSize(),")\n";
+   print $filehandle "   vertical axisId: ",$rowAxis->getAxisId()," (size:",$rowAxis->getSize(),")\n";
 
    # now print formatted table
    my $halfSize = int($cellSize/2);
