@@ -58,14 +58,19 @@ use vars qw ($AUTOLOAD %field @ISA);
 
 my $Class_XML_Node_Name = ""; # will be filled in by concrete class 
 my $DataFormat_Class_XML_Node_Name = "dataFormat";
-#                     lessThanValue
-#                     lessThanOrEqualValue
-#                     greaterThanValue
-#                     greaterThanOrEqualValue
-#                     infiniteValue
-#                     infiniteNegativeValue
-#                     noDataValue
+				#lessThanValue
+                                #lessThanOrEqualValue
+#                                greaterThanValue
+#                                greaterThanOrEqualValue
 my @Local_Class_XML_Attributes = qw (
+                                infiniteValue
+                                infiniteNegativeValue
+                                noDataValue
+                                notANumberValue
+                                overFlowValue
+                                underFlowValue
+                                disabledValue
+
                           );
 my @Local_Class_Attributes = (); 
 
@@ -87,16 +92,16 @@ push @Class_Attributes, @Local_Class_Attributes;
 for my $attr ( @Class_Attributes ) { $field{$attr}++; }
 
 
-# /** lessThanValue
+# /* lessThanValue
 # The STRING value which indicates the less than symbol ("<") within the data cube.
 # */
-# /** lessThanOrEqualValue
+# /* lessThanOrEqualValue
 # The STRING value which indicates the less than equal symbol ("=<") within the data cube.
 # */
-# /** greaterThanValue
+# /* greaterThanValue
 # The STRING value which indicates the greater than symbol (">") within the data cube.
 # */
-# /** greaterThanOrEqualValue
+# /* greaterThanOrEqualValue
 # The STRING value which indicates the greater than equal symbol (">=") within the data cube.
 # */
 # /** infiniteValue
@@ -138,108 +143,182 @@ sub getClassXMLAttributes {
 # SET/GET Methods
 #
 
-## /** getLessThanValue
-## */
+
+# /** getLessThanValue
+#   
+# */
 #sub getLessThanValue {
 #   my ($self) = @_;
-#   return $self->{LessThanValue};
+#   return $self->{lessThanValue};
 #}
 
-## /** setLessThanValue
-##     Set the lessThanValue attribute. 
-## */
+# /* setLessThanValue
+#     Set the lessThanValue attribute. 
+# */
 #sub setLessThanValue {
 #   my ($self, $value) = @_;
-#   $self->{LessThanValue} = $value;
+#   $self->{lessThanValue} = $value;
 #}
-#
-## /** getLessThanOrEqualValue
-## */
+
+# /* getLessThanOrEqualValue
+#   
+# */
 #sub getLessThanOrEqualValue {
 #   my ($self) = @_;
-#   return $self->{LessThanOrEqualValue};
+#   return $self->{lessThanOrEqualValue};
 #}
-#
-# /** setLessThanOrEqualValue
+
+# /* setLessThanOrEqualValue
 #     Set the lessThanOrEqualValue attribute. 
 # */
 #sub setLessThanOrEqualValue {
 #   my ($self, $value) = @_;
-#   $self->{LessThanOrEqualValue} = $value;
+#   $self->{lessThanOrEqualValue} = $value;
 #}
-#
+
+# /* getGreaterThanValue
+#  
+# */
 #sub getGreaterThanValue {
 #   my ($self) = @_;
-#   return $self->{GreaterThanValue};
+#   return $self->{greaterThanValue};
 #}
-#
-## /** setGreaterThanValue
-##     Set the greaterThanValue attribute. 
-## */
+
+# /** setGreaterThanValue
+#     Set the greaterThanValue attribute. 
+# */
 #sub setGreaterThanValue {
 #   my ($self, $value) = @_;
-#   $self->{GreaterThanValue} = $value;
+#   $self->{greaterThanValue} = $value;
 #}
-#
-## /** getGreaterThanOrEqualValue
-## */
+
+# /** getGreaterThanOrEqualValue
+# 
+# */
 #sub getGreaterThanOrEqualValue {
 #   my ($self) = @_;
-#   return $self->{GreaterThanOrEqualValue};
+#   return $self->{greaterThanOrEqualValue};
 #}
-#
-## /** setGreaterThanOrEqualValue
-##     Set the greaterThanOrEqualValue attribute. 
-## */
+
+# /** setGreaterThanOrEqualValue
+#     Set the greaterThanOrEqualValue attribute. 
+# */
 #sub setGreaterThanOrEqualValue {
 #   my ($self, $value) = @_;
-#   $self->{GreaterThanOrEqualValue} = $value;
+#   $self->{greaterThanOrEqualValue} = $value;
 #}
-#
-## /** getInfiniteValue
-## */
-#sub getInfiniteValue {
-#   my ($self) = @_;
-#   return $self->{InfiniteValue};
-#}
-#
-## /** setInfiniteValue
-##     Set the infiniteValue attribute. 
-## */
-#sub setInfiniteValue {
-#   my ($self, $value) = @_;
-#   $self->{InfiniteValue} = $value;
-#}
-#
-## /** getInfiniteNegativeValue
-## */
-#sub getInfiniteNegativeValue {
-#   my ($self) = @_;
-#   return $self->{InfiniteNegativeValue};
-#}
-#
-## /** setInfiniteNegativeValue
-##     Set the infiniteNegativeValue attribute. 
-## */
-#sub setInfiniteNegativeValue {
-#   my ($self, $value) = @_;
-#   $self->{InfiniteNegativeValue} = $value;
-#}
-#
-## /** getNoDataValue
-## */
-#sub getNoDataValue {
-#   my ($self) = @_;
-#   return $self->{NoDataValue};
-#}
-#
-## /** setNoDataValue
-##     Set the noDataValue attribute. 
-## */
-#sub setNoDataValue {
-#   my ($self, $value) = @_;
-#   $self->{NoDataValue} = $value;
-#}
+
+# /** getInfiniteValue
+# 
+# */
+sub getInfiniteValue {
+   my ($self) = @_;
+   return $self->{infiniteValue};
+}
+
+# /** setInfiniteValue
+#     Set the infiniteValue attribute. 
+# */
+sub setInfiniteValue {
+   my ($self, $value) = @_;
+   $self->{infiniteValue} = $value;
+}
+
+# /** getInfiniteNegativeValue
+# 
+# */
+sub getInfiniteNegativeValue {
+   my ($self) = @_;
+   return $self->{infiniteNegativeValue};
+}
+
+# /** setInfiniteNegativeValue
+#     Set the infiniteNegativeValue attribute. 
+# */
+sub setInfiniteNegativeValue {
+   my ($self, $value) = @_;
+   $self->{infiniteNegativeValue} = $value;
+}
+
+# /** getNoDataValue
+# 
+# */
+sub getNoDataValue {
+   my ($self) = @_;
+   return $self->{noDataValue};
+}
+
+# /** setNoDataValue
+#     Set the noDataValue attribute. 
+# */
+sub setNoDataValue {
+   my ($self, $value) = @_;
+   $self->{noDataValue} = $value;
+}
+
+# /** getNotANumberValue
+# 
+# */
+sub getNotANumberValue {
+   my ($self) = @_;
+   return $self->{notANumberValue};
+}
+
+# /** setNotANumberValue            
+#     Set the notANumberValue attribute. 
+# */                            
+sub setNotANumberValue {
+   my ($self, $value) = @_;
+   $self->{notANumberValue} = $value;
+}
+
+# /** getOverFlowValue
+# 
+# */
+sub getOverFlowValue {
+   my ($self) = @_;
+   return $self->{overFlowValue};
+}
+
+# /** setOverFlowValue            
+#     Set the overFlowValue attribute. 
+# */                            
+sub setOverFlowValue {
+   my ($self, $value) = @_;
+   $self->{overFlowValue} = $value;
+}
+
+# /** getUnderFlowValue
+# 
+# */
+sub getUnderFlowValue {
+   my ($self) = @_;
+   return $self->{underFlowValue};
+}
+
+# /** setUnderFlowValue            
+#     Set the underFlowValue attribute. 
+# */                            
+sub setUnderFlowValue {
+   my ($self, $value) = @_;
+   $self->{underFlowValue} = $value;
+}
+
+# /** getDisabledValue
+# 
+# */
+sub getDisabledValue {
+   my ($self) = @_;
+   return $self->{disabledValue};
+}
+
+# /** setDisabledValue            
+#     Set the disabledValue attribute. 
+# */                            
+sub setDisabledValue {
+   my ($self, $value) = @_;
+   $self->{disabledValue} = $value;
+}
 
 # /** numOfBytes
 # This returns the number of bytes this object describes.
@@ -255,7 +334,7 @@ sub numOfBytes {
 #
 
 sub _basicXMLWriter {
-  my ($self, $fileHandle, $indent, $dontCloseNode,
+   my ($self, $fileHandle, $indent, $dontCloseNode,
       $newNodeNameString, $noChildObjectNodeName ) = @_;
 
    # get XDF spec
