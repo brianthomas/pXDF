@@ -1,5 +1,4 @@
-#!/usr/bin/perl -w -I ..
-#/XDF/Perl_Package
+#!/usr/bin/perl -w -I ../XDF/Perl_Package
 
 # a very simple viewer for XDF files.
 
@@ -38,6 +37,7 @@ BEGIN {
                      Tk::Pane
                      Tk::TiedListbox
                      Tk::NoteBook
+                     Tk::Dialog
                      Tk::DialogBox
                      Tk::FileSelect
                      XDF::DOM::Parser
@@ -48,7 +48,7 @@ BEGIN {
 
 }
 
-use vars qw/$STRUCTURE_IMAGE $PLAIN_ARRAY_IMAGE $FIELD_ARRAY_IMAGE/;
+use vars qw/$STRUCTURE_IMAGE $PLAIN_ARRAY_IMAGE $FIELD_ARRAY_IMAGE $XML_ELEMENT_NODE_IMAGE/;
 
 # pragmas
 use strict;
@@ -75,9 +75,15 @@ my $CURRENT_HORZ_AXIS;
 my $CURRENT_VERT_AXIS;
 my $LOCATOR;
 my $PRETTY_XDF_OUTPUT = 1;
+my $CONFIRM_OUTPUT_CLOBBER = 1;
 my $ARRAY_OSTYLE = 'Tagged';
 my $ARRAY_DATAFORMAT = 'String';
 my $OPEN_ENTRY_WIDGET;
+# parser parameters
+my $XDF_PARSER_NO_EXPAND = 1;
+my $XDF_PARSER_PARSE_PARAM_ENT = 0;
+my $XDF_PARSER_EXPAND_PARAM_ENT = 1;
+
 my %XMLDataIOStyle = ( 
                        'XDF::TaggedXMLDataIOStyle' => 'Tagged',
                        'XDF::DelimitedXMLDataIOStyle' => 'Delimited',
@@ -111,6 +117,7 @@ my $CURRENT_ITEM; # could be an array or structure that is selected from Hlist
 my $ARRAY_ATTRIB_EDIT_OPEN;
 my $STRUCT_ATTRIB_EDIT_OPEN;
 my %AXIS_ATTRIB_EDIT_OPEN;
+my @XMLNODE_EDITFRAMES;
 my @ARRAYEDITFRAMES;
 my @STRUCTEDITFRAMES;
 my %AXISEDITFRAMES = ( 'vert' => [], 'horz' => []);
@@ -131,7 +138,7 @@ $SIG{'QUIT'} = "my_exit";
 
 # my wonderfull color defs
 my ( $Red ,$Green, $Blue, $Lite_blue, $Yellow, $Dark_green, $Grey, $Dark_grey, $Medium_grey, $Lite_grey, $White, $Bright_white, $Black) =
-   ("#c24","#8e7","#5ac",   "#7df"  , "#eea",  "#181"    ,"#bbb","#555"    ,"#888",   "#bbb",   "#eee", "#eee", "#000");
+   ("#c24","#8e7","#50F",   "#7df"  , "#eea",  "#181"    ,"#bbb","#555"    ,"#888",   "#bbb",   "#eee", "#eee", "#000");
 
 my %ListBoxBgColor = (
                         'XDF::StringDataFormat' => $Yellow,
@@ -145,6 +152,7 @@ my $AxisBoxColor = '#ee3';
 my $FieldAxisBoxColor = '#3ee';
 my $DataFrameColor = $White;
 my $BaseColor = $Lite_grey;
+my $XMLNodeColor = $Blue;
 my $StructureColor = $Red;
 my $ArrayColor = $Green;
 my $EventMouseOverColor = 'yellow';
@@ -155,25 +163,67 @@ my $StructAttributeTitle = 'Structure Attributes';
 my $ArrayAttributeTitle = 'Array Attributes';
 my $AxisWidgetBaseName = 'Axis_edit_boldlabel';
 
-my %Font = ( 'tiny'   => '-*-fixed-medium-r-normal--12-*-*-*-*-*-*-*', 
-             'small'  => '-*-fixed-medium-r-normal--14-*-*-*-*-*-*-*',
-             'normal' => '-*-fixed-medium-r-normal--18-*-*-*-*-*-*-*',
-             'large'  => '-*-fixed-medium-r-normal--24-*-*-*-*-*-*-*'
-           );
+# Font defs'
+my %Fixed_Font = ( 'tiny'   => '-adobe-fixed-medium-r-normal--12-*-*-*-*-*-iso8859-1', 
+                   'small'  => '-adobe-fixed-medium-r-normal--14-*-*-*-*-*-iso8859-1',
+                   'normal' => '-adobe-fixed-medium-r-normal--18-*-*-*-*-*-iso8859-1',
+                   'large'  => '-adobe-fixed-medium-r-normal--24-*-*-*-*-*-iso8859-1'
+                 );
 
-my %SmallFont = ( 'tiny'   => '-adobe-fixed-medium-r-normal--10-*-*-*-*-*-*-*',
-                  'small'   => '-adobe-fixed-medium-r-normal--12-*-*-*-*-*-*-*',
-                  'normal'  => '-adobe-fixed-medium-r-normal--14-*-*-*-*-*-*-*',
-                  'large' => '-adobe-fixed-medium-r-normal--16-*-*-*-*-*-*-*',
-                );
+my %Fixed_SmallFont = (  'tiny'   => '-adobe-fixed-medium-r-normal-*-10-*-*-*-*-*-iso8859-1',
+                         'small'   => '-adobe-fixed-medium-r-normal-*-12-*-*-*-*-*-iso8859-1',
+                         'normal'  => '-adobe-fixed-medium-r-normal-*-14-*-*-*-*-*-iso8859-1',
+                         'large' => '-adobe-fixed-medium-r-normal-*-16-*-*-*-*-*-iso8859-1',
+                      );
 
-my %BoldFont  = ( 'tiny'   => '-adobe-helvetica-bold-r-normal--12-*-*-*-*-*-*-*',
-                  'small'  => '-adobe-helvetica-bold-r-normal--14-*-*-*-*-*-*-*',
-                  'normal' => '-adobe-helvetica-bold-r-normal--18-*-*-*-*-*-*-*',
-                  'large'  => '-adobe-helvetica-bold-r-normal--24-*-*-*-*-*-*-*'
-                );
+my %Fixed_BoldFont  = ( 'tiny'   => '-adobe-fixed-bold-r-normal--12-*-*-*-*-*-iso8859-1',
+                        'small'  => '-adobe-fixed-bold-r-normal--14-*-*-*-*-*-iso8859-1',
+                        'normal' => '-adobe-fixed-bold-r-normal--18-*-*-*-*-*-iso8859-1',
+                        'large'  => '-adobe-fixed-bold-r-normal--24-*-*-*-*-*-iso8859-1'
+                      );
+
+my %Helvetica_Font = ( 'tiny'   => '-*-helvetica-medium-r-normal--12-*-*-*-*-*-iso8859-1',
+                       'small'  => '-*-helvetica-medium-r-normal--14-*-*-*-*-*-iso8859-1',
+                       'normal' => '-*-helvetica-medium-r-normal--18-*-*-*-*-*-iso8859-1',
+                       'large'  => '-*-helvetica-medium-r-normal--24-*-*-*-*-*-iso8859-1'
+                     );
+
+my %Helvetica_SmallFont = (  'tiny'   => '-*-helvetica-medium-r-normal-*-10-*-*-*-*-*-iso8859-1',
+                             'small'   => '-*-helvetica-medium-r-normal-*-12-*-*-*-*-*-iso8859-1',
+                             'normal'  => '-*-helvetica-medium-r-normal-*-14-*-*-*-*-*-iso8859-1',
+                             'large' => '-*-helvetica-medium-r-normal-*-16-*-*-*-*-*-iso8859-1',
+                          );
+
+my %Helvetica_BoldFont  = ( 'tiny'   => '-*-helvetica-bold-r-normal--12-*-*-*-*-*-iso8859-1',
+                            'small'  => '-*-helvetica-bold-r-normal--14-*-*-*-*-*-iso8859-1',
+                            'normal' => '-*-helvetica-bold-r-normal--18-*-*-*-*-*-iso8859-1',
+                            'large'  => '-*-helvetica-bold-r-normal--24-*-*-*-*-*-iso8859-1'
+                          );
+
+my %Times_Font = ( 'tiny'   => '-*-times-medium-r-normal--12-*-*-*-*-*-iso8859-1',
+                       'small'  => '-*-times-medium-r-normal--14-*-*-*-*-*-iso8859-1',
+                       'normal' => '-*-times-medium-r-normal--18-*-*-*-*-*-iso8859-1',
+                       'large'  => '-*-times-medium-r-normal--24-*-*-*-*-*-iso8859-1'
+                     );
+
+my %Times_SmallFont = (  'tiny'   => '-*-times-medium-r-normal-*-10-*-*-*-*-*-iso8859-1',
+                             'small'   => '-*-times-medium-r-normal-*-12-*-*-*-*-*-iso8859-1',
+                             'normal'  => '-*-times-medium-r-normal-*-14-*-*-*-*-*-iso8859-1',
+                             'large' => '-*-times-medium-r-normal-*-16-*-*-*-*-*-iso8859-1',
+                          );
+
+my %Times_BoldFont  = ( 'tiny'   => '-*-times-bold-r-normal--12-*-*-*-*-*-iso8859-1',
+                            'small'  => '-*-times-bold-r-normal--14-*-*-*-*-*-iso8859-1',
+                            'normal' => '-*-times-bold-r-normal--18-*-*-*-*-*-iso8859-1',
+                            'large'  => '-*-times-bold-r-normal--24-*-*-*-*-*-iso8859-1'
+                          );
 
 
+# set up default fonts
+my $FONT_STYLE = 'fixed';
+my %Font = %Fixed_Font;
+my %BoldFont = %Fixed_BoldFont;
+my %SmallFont = %Fixed_SmallFont;
 
 # B E G I N  P R O G R A M 
 
@@ -202,7 +252,26 @@ sub init_mouse_bindings
 sub init_key_bindings 
 { 
     &debug("init key bindings\n");
-    $WIDGET{'main'}->bind('<Alt-Key-q>' => sub { &my_exit();} );
+
+    $WIDGET{'main'}->bind('<Control-Key-l>' => sub {
+                                                      &load_xml_file(&select_file("Load which file?","*.xml")); 
+                                                   });
+    $WIDGET{'main'}->bind('<Control-Key-L>' => sub {
+                                                      &load_xml_file(&select_file("Load which file?","*.xml")); 
+                                                   });
+
+    $WIDGET{'main'}->bind('<Control-Key-r>' => sub { &load_xml_file($XML_FILE); });
+    $WIDGET{'main'}->bind('<Control-Key-R>' => sub { &load_xml_file($XML_FILE); });
+
+    $WIDGET{'main'}->bind('<Control-Key-s>' => sub { &save_xdf_file($XML_FILE); });
+    $WIDGET{'main'}->bind('<Control-Key-S>' => sub { &save_xdf_file($XML_FILE); });
+
+    $WIDGET{'main'}->bind('<Control-Key-a>' => sub { &save_xdf_file(&select_file("Save as file?","*.xml")); }); 
+    $WIDGET{'main'}->bind('<Control-Key-A>' => sub { &save_xdf_file(&select_file("Save as file?","*.xml")); }); 
+
+    $WIDGET{'main'}->bind('<Control-Key-q>' => sub { &my_exit();} );
+    $WIDGET{'main'}->bind('<Control-Key-Q>' => sub { &my_exit();} );
+
 }
 
 sub argv_loop { 
@@ -240,19 +309,32 @@ sub init_gui {
   my $rightFrame    = $WIDGET{'main'}->Frame->pack(expand => 1 , fill => 'both', side => 'right');
 
   my $infoFrame    = $rightFrame->Frame->pack(expand => 0 ,fill => 'both', side => 'top');
-  my $headerFrame = $rightFrame->Frame->pack(expand => 0, fill => 'both', side => 'top');
-  my $sharedFrame = $rightFrame->Frame->pack(expand => 1, fill => 'both', side => 'bottom');
+  my $arrayDataFrame = $rightFrame->Frame; #->pack(expand => 1, fill => 'both', side => 'bottom');
 
   my $listFrame = $leftFrame->Frame->pack(expand => 1, fill => 'both', side => 'top');
+  #my $listButtonFrame = $leftFrame->Frame->pack(expand => 1, fill => 'both', side => 'bottom');
   my $listButtonFrame = $leftFrame->Frame->pack(expand => 1, fill => 'both', side => 'bottom');
 
   my $toolLabelFrame  = $topFrame->Frame->pack(side=> 'top', fill => 'both');
   my $fileNameFrame  = $topFrame->Frame->pack(side => 'top', fill => 'both');
 
-  my $structureHeaderFrame  = $infoFrame->Frame->pack(side => 'top', fill => 'both');
+  my $infoLabelFrame  = $infoFrame->Frame->pack(side => 'top', fill => 'both');
+
+  my $xmlNodeHeaderFrame  = $infoFrame->Frame; #->pack(side => 'top', fill => 'both');
+  my $xmlNodeAttribEditFrame  = $xmlNodeHeaderFrame->Frame->pack(side => 'top', fill => 'both');
+
+  my $structureHeaderFrame  = $infoFrame->Frame; #->pack(side => 'top', fill => 'both');
   my $structureAttribEditFrame  = $structureHeaderFrame->Frame->pack(side => 'top', fill => 'both');
-  my $arrayHeaderFrame  = $infoFrame->Frame->pack(side => 'top', fill => 'both');
+  my $arrayHeaderFrame  = $infoFrame->Frame; #->pack(side => 'top', fill => 'both');
   my $arrayAttribEditFrame  = $arrayHeaderFrame->Frame->pack(side => 'top', fill => 'both');
+
+  $FRAME{'xmlNodeHeader'} = $xmlNodeHeaderFrame;
+  $FRAME{'xmlNodeAttribEdit'} = $xmlNodeAttribEditFrame;
+  $FRAME{'structHeader'} = $structureHeaderFrame;
+  $FRAME{'arrayHeader'} = $arrayHeaderFrame;
+  $FRAME{'arrayData'} = $arrayDataFrame;
+
+  show_array_frames(); # this will show all info frames 
 
   # configure frames
   $menubarFrame->configure( relief => 'raised', bd => 2, bg => $BaseColor);
@@ -262,8 +344,9 @@ sub init_gui {
   $arrayHeaderFrame ->configure ( relief => 'flat', bd => 2, bg => $ArrayColor);
   $arrayAttribEditFrame->configure ( relief => 'flat', bd => 2, bg => $BaseColor);
   $structureAttribEditFrame ->configure ( relief => 'flat', bd => 2, bg => $StructureColor);
+  $xmlNodeAttribEditFrame ->configure ( relief => 'flat', bd => 2, bg => $XMLNodeColor);
   $fileNameFrame ->configure ( relief => 'flat', bd => 2, bg => $BaseColor );
-  $sharedFrame->configure( relief => 'flat', bd => 2, bg => $Black);
+  $arrayDataFrame->configure( relief => 'flat', bd => 2, bg => $Black);
 
   # Widgets
   # menuBar Frame Widgets
@@ -275,6 +358,8 @@ sub init_gui {
   $FIELD_ARRAY_IMAGE = $WIDGET{'main'}->Photo (-data => &field_array_image, -format => 'xpm');
   $PLAIN_ARRAY_IMAGE = $WIDGET{'main'}->Photo (-data => &array_image, -format => 'xpm');
   $STRUCTURE_IMAGE = $WIDGET{'main'}->Photo (-data => &structure_image(), -format => 'xpm');
+  $XML_ELEMENT_NODE_IMAGE = $WIDGET{'main'}->Photo (-data => &open_xml_element_node_image(), 
+                                                    -format => 'xpm');
 
   $WIDGET{'xml_hlist'} = $listFrame->HList(
                                             -separator => '/', 
@@ -295,26 +380,26 @@ sub init_gui {
                                                          -state => 'disabled', 
                                                          -command => sub { &add_structure_to_selected(); },
                                                          -font => $BoldFont{$DISPLAY_SIZE},
-                                                      )->pack(side => 'top', expand => 1, fill => 'y');
+                                                      )->pack(side => 'top'); # expand => 1, fill => 'y');
   $WIDGET{'list_delStruct_button'} = $listButtonFrame->Button(
                                                          -text => 'Delete Structure', 
                                                          -fg => $ButtonFgColor, -bg => $ButtonBgColor,
                                                          -state => 'disabled', 
                                                          -command => sub { &delete_selected_structure(); },
                                                          -font => $BoldFont{$DISPLAY_SIZE},
-                                                      )->pack(side => 'top', expand => 1, fill => 'y');
+                                                      )->pack(side => 'top'); # expand => 1, fill => 'y');
   $WIDGET{'list_addArray_button'} = $listButtonFrame->Button(
                                                          -text => 'Add Array', 
                                                          -fg => $ButtonFgColor, -bg => $ButtonBgColor,
                                                          -state => 'disabled', 
                                                          -font => $BoldFont{$DISPLAY_SIZE},
-                                                      )->pack(side => 'top', expand => 1, fill => 'y');
+                                                      )->pack(side => 'top'); # expand => 1, fill => 'y');
   $WIDGET{'list_delArray_button'} = $listButtonFrame->Button(
                                                          -text => 'Delete Array', 
                                                          -fg => $ButtonFgColor, -bg => $ButtonBgColor,
                                                          -state => 'disabled', 
                                                          -font => $BoldFont{$DISPLAY_SIZE},
-                                                      )->pack(side => 'top', expand => 1, fill => 'y');
+                                                      )->pack(side => 'top'); # expand => 1, fill => 'y');
   $WIDGET{'tool_boldlabel'} = $toolLabelFrame->Label( text => $TOOLNAME,
                                               bg => $BaseColor, fg => $Black,
                                               font => $BoldFont{$DISPLAY_SIZE},
@@ -325,16 +410,34 @@ sub init_gui {
                                                  font => $Font{$DISPLAY_SIZE},
                                                )->pack(fill => 'x', side=> 'left' );
 
+  $WIDGET{'xmlNode_attrib_edit_label'} = $xmlNodeAttribEditFrame->Label(
+                                                 text => "XML Node Here",
+                                                   bg => $BaseColor, fg => $Black,
+                                                   bd => 2,
+                                                 font => $Font{$DISPLAY_SIZE},
+                                                    )->pack(fill => 'both', side=> 'top' );
+
+#  &make_widget_highlight_on_mouseover($WIDGET{'xmlNode_attrib_edit_label'});
+#  $WIDGET{'xmlNode_attrib_edit_label'}->bind('<Double-Button-1>' => 
+#                                           sub { &edit_xmlNode_attribs($xmlNodeHeaderFrame); });
+
   $WIDGET{'struct_attrib_edit_label'} = $structureAttribEditFrame->Label( 
                                                  text => $StructAttributeTitle . ":[]",
                                                    bg => $BaseColor, fg => $Black,
                                                    bd => 2,
                                                  font => $Font{$DISPLAY_SIZE},
                                                     )->pack(fill => 'both', side=> 'top' );
-
   &make_widget_highlight_on_mouseover($WIDGET{'struct_attrib_edit_label'});
-  $WIDGET{'struct_attrib_edit_label'}->bind('<Double-Button-1>' => sub { 
-                                              &edit_struct_attribs($structureHeaderFrame); });
+  $WIDGET{'struct_attrib_edit_label'}->bind('<Double-Button-1>' => 
+                                         sub { &edit_struct_attribs($structureHeaderFrame); });
+
+  $WIDGET{'info_boldlabel'} = $infoLabelFrame->Label( text => "         Selected Node Properties          ",
+                                                  bg => $BaseColor, fg => $Black,
+                                                  bd => 2,
+                                                  font => $BoldFont{$DISPLAY_SIZE},
+                                                )->pack(fill => 'both', side=> 'top' );
+
+
 
   $WIDGET{'array_attrib_edit_label'} = $arrayAttribEditFrame->Label( text => $ArrayAttributeTitle . ":[]",
                                                       bg => $BaseColor, fg => $Black,
@@ -347,46 +450,165 @@ sub init_gui {
   $WIDGET{'array_attrib_edit_label'}->bind('<Double-Button-1>' => 
                                                    sub { &edit_array_attribs($arrayHeaderFrame); });
 
-  $WIDGET{'array_edit_label'} = $sharedFrame->Label ( -text => 'Array View/Edit Functions', 
+  $WIDGET{'array_edit_label'} = $arrayDataFrame->Label ( -text => 'Array View/Edit Functions', 
                                                       -font => $Font{$DISPLAY_SIZE},
                                                )->pack(fill => 'x', side=> 'top');
 
-   $WIDGET{'shared_notebook'} = $sharedFrame->NoteBook( -dynamicgeometry => 'false',
+   $WIDGET{'array_notebook'} = $arrayDataFrame->NoteBook( -dynamicgeometry => 'false',
                                                         -bg => $BaseColor,
                                                         -font => $Font{$DISPLAY_SIZE},
-                                                      )->pack(side => 'top', expand => 1, 
-                                                              fill => 'both');
-   $WIDGET{'shared_notebook'}->add( 'Data', -label => 'Data',
+                                                      )->pack(side => 'top', expand => 1, fill => 'both');
+   $WIDGET{'array_notebook'}->add( 'Data', -label => 'Data',
                                     -raisecmd => sub { },
                                     -createcmd => sub { &init_table_gui(@_); },
                                   );
 
-   $WIDGET{'shared_notebook'}->add( 'DFmt', -label => 'DataFormat',
+   $WIDGET{'array_notebook'}->add( 'DFmt', -label => 'DataFormat',
                                     -raisecmd => sub { },
                                     -createcmd => sub { &init_array_dataformat_gui(@_); },
                                   );
 
-   $WIDGET{'shared_notebook'}->add( 'Note', -label => 'Notes',
+   $WIDGET{'array_notebook'}->add( 'Note', -label => 'Notes',
                                     -raisecmd => sub { },
                                     -createcmd => sub { &init_notelist_gui('Array', @_);},
                                   );
 
-   $WIDGET{'shared_notebook'}->add( 'Out', -label => 'XMLDataIOStyle',
+   $WIDGET{'array_notebook'}->add( 'Out', -label => 'XMLDataIOStyle',
                                     -raisecmd => sub { },
                                     -createcmd => sub { &init_array_outputstyle_gui(@_); },
                                   );
 
-   $WIDGET{'shared_notebook'}->add( 'Param', -label => 'Parameters',
+   $WIDGET{'array_notebook'}->add( 'Param', -label => 'Parameters',
                                     -raisecmd => sub { },
                                     -createcmd => sub { &init_parameterlist_gui('Array', @_);},
                                   );
 
-   $WIDGET{'shared_notebook'}->add( 'Unit', -label => 'Units',
+   $WIDGET{'array_notebook'}->add( 'Unit', -label => 'Units',
                                     -raisecmd => sub { },
                                     -createcmd => sub { &init_unitlist_gui('Array', @_);},
                                   );
 
-  $FRAME{'shared'} = $sharedFrame;
+}
+
+sub show_xmlnode_frames {
+   my ($path) = @_;
+
+   &clear_xmlNode_attrib_edit();
+ 
+   $WIDGET{'xmlNode_attrib_edit_label'}->configure( -text => 'Edit XML Element',
+                                                    -font => $Font{$DISPLAY_SIZE},
+                                              #      -fg => 'white', #$Bright_white,
+                                              #      -bg => $XMLNodeColor,
+                                                );
+
+   $FRAME{'xmlNodeHeader'}->pack(side => 'top', fill => 'both'); 
+   $FRAME{'structHeader'}->packForget;
+   $FRAME{'arrayHeader'}->packForget;
+   $FRAME{'arrayData'}->packForget;
+
+   # tag name 
+   my $subFrame = $FRAME{'xmlNodeAttribEdit'}->Frame->pack(side => 'top', fill => 'both', expand => 0);
+   my $labelname = 'xmlElementTag_label';
+   my $entryname = 'xmlElementTag_val_label';
+   my $getMethodRef = sub { $CURRENT_ITEM->getTagName; };
+   my $setMethodRef = sub { 
+                              $CURRENT_ITEM->setTagName(@_); 
+                              $WIDGET{'xml_hlist'}->entryconfigure($path, -text => $_[0] );
+                          };
+   &make_label_click_widget( 'TAGNAME', $subFrame, $labelname, $entryname, $getMethodRef, $setMethodRef);
+   push @XMLNODE_EDITFRAMES, $subFrame;
+
+  # CDATA
+   my $elementCDataFrame = $FRAME{'xmlNodeAttribEdit'}->Frame->pack(side => 'top', fill => 'both', expand => 0);
+   push @XMLNODE_EDITFRAMES, $elementCDataFrame;
+   #$WIDGET{'xmlNode_cdata_label'} = $elementCDataLabelFrame->Label( -text => 'CData',
+   #                                                                 -font => $Font{$DISPLAY_SIZE},
+   #                                                                 -bg => $BaseColor, -fg => $Black,
+   #                                                                )->pack(side => 'top');
+   $labelname = "xmlElementCdata_label";
+   $entryname = "xmlElementCdata_val_label";
+   $getMethodRef = sub { &null_cmd(); };
+   $setMethodRef = sub { &null_cmd(); };
+   my $cdataButtonName = 'xmlElementCdataDel_button';
+   $WIDGET{$cdataButtonName} = $elementCDataFrame->Button( -text => 'Delete CDATA',
+                                                  -bg => $Red, -fg => $Black,
+                                                  -font => $Font{$DISPLAY_SIZE},
+                                                  -command => sub { &null_cmd; },
+                                                )->pack(side => 'left');
+   &make_label_click_widget( 'CDATA', $elementCDataFrame, $labelname, $entryname, $getMethodRef, $setMethodRef);
+
+
+
+   #populate attib
+   my $attribLabelFrame = $FRAME{'xmlNodeAttribEdit'}->Frame->pack(side => 'top', fill => 'both', expand => 0);
+   push @XMLNODE_EDITFRAMES, $attribLabelFrame;
+   $WIDGET{'xmlNode_attrib_label'} = $attribLabelFrame->Label( -text => 'Attributes',
+                                                               -font => $Font{$DISPLAY_SIZE},
+                                                               -bg => $BaseColor, -fg => $Black,
+                                                  )->pack(side => 'top');
+
+   my $attrib_numb = 0; 
+   foreach my $attrObj ($CURRENT_ITEM->getAttributes->getValues) {
+      $subFrame = $FRAME{'xmlNodeAttribEdit'}->Frame->pack(side => 'top', fill => 'both', expand => 0);
+      push @XMLNODE_EDITFRAMES, $subFrame;
+      $labelname = 'xmlElementAttr' . $attrib_numb . "_label";
+      $entryname = 'xmlElementAttr' . $attrib_numb . "_val_label";
+      $getMethodRef = sub { $attrObj->getValue; };
+      $setMethodRef = sub { $attrObj->setValue(@_); };
+      #next if ref(&$getMethodRef);
+      my $buttonName = 'xmlElementAttr' . $attrib_numb . "_button";
+      $WIDGET{$buttonName} = $subFrame->Button( -text => 'Delete Attrib',
+                                                -bg => $Red, -fg => $Black,
+                                                -font => $Font{$DISPLAY_SIZE},
+                                                -command => sub { &null_cmd; },
+                                              )->pack(side => 'left');
+      &make_label_click_widget( $attrObj->getName, $subFrame, $labelname, $entryname, $getMethodRef, $setMethodRef);
+      $attrib_numb++;
+   }
+
+   # add edit buttons
+   my $buttonFrame = $FRAME{'xmlNodeAttribEdit'}->Frame->pack(side => 'top', fill => 'both', expand => 0);
+   push @XMLNODE_EDITFRAMES, $buttonFrame;
+
+   $WIDGET{'add_XMLAttrib_button'} = $buttonFrame->Button( -text => 'Add Attribute',
+                                                           -command => sub { &null_cmd; },
+                                                           -bg => $Green, -fg => $Black,
+                                                           -font => $Font{$DISPLAY_SIZE},
+                                                         )->pack(side => 'left');
+
+
+   # update value of widgets
+# should only be present if CDATA doesnt exist already
+   $WIDGET{'add_XMLAttrib_button'} = $buttonFrame->Button( -text => 'Add CDATA',
+                                                           -command => sub { &null_cmd; },
+                                                           -bg => $Green, -fg => $Black,
+                                                           -font => $Font{$DISPLAY_SIZE},
+                                                         )->pack(side => 'left');
+
+}
+
+sub show_struct_frames {
+   my ($pack) = @_;
+
+#   &show_xmlnode_frames();
+
+   $FRAME{'xmlNodeHeader'}->packForget;
+
+   $FRAME{'structHeader'}->pack(side => 'top', fill => 'both'); 
+   &edit_struct_attribs ($FRAME{'structHeader'});
+
+   $FRAME{'arrayHeader'}->packForget;
+   $FRAME{'arrayData'}->packForget;
+
+}
+
+sub show_array_frames {
+   my ($pack) = @_;
+
+   &show_struct_frames();
+
+   $FRAME{'arrayHeader'}->pack(side => 'top', fill => 'both'); 
+   $FRAME{'arrayData'}->pack(expand => 1, fill => 'both', side => 'bottom'); 
 }
 
 sub add_structure_to_selected {
@@ -777,11 +999,11 @@ sub make_label_click_widget {
                             -font => $Font{$DISPLAY_SIZE},
                           )->pack(fill => 'x', side=> 'left' );
 
-   &make_clickable_entrylabel($frame, $entryname, $getRef, $setRef);
+   &make_clickable_entrylabel($frame, $entryname, $getRef, $setRef, $WIDGET{$labelname});
 }
 
 sub make_clickable_entrylabel {
-   my ($frame, $name, $getRef, $setRef) = @_;
+   my ($frame, $name, $getRef, $setRef, $labelWidget) = @_;
 
    my $val = "";
    if (defined $getRef) {
@@ -797,17 +1019,32 @@ sub make_clickable_entrylabel {
                           )->pack(fill => 'x', side=> 'left', expand => 1 );
 
    # init mouse bindings
-   $WIDGET{$name}->bind('<Enter>' => sub { $WIDGET{$name}->configure( -bg => $EventMouseOverColor); });
-   $WIDGET{$name}->bind('<Leave>' => sub { $WIDGET{$name}->configure( -bg => $BaseColor); });
+   $WIDGET{$name}->bind('<Enter>' => sub { 
+                                            $WIDGET{$name}->configure( -bg => $EventMouseOverColor); 
+                                            $labelWidget->configure( -bg => $EventMouseOverColor) if defined $labelWidget; 
+                                         });
+   $labelWidget->bind('<Enter>' => sub { 
+                                            $WIDGET{$name}->configure( -bg => $EventMouseOverColor); 
+                                            $labelWidget->configure( -bg => $EventMouseOverColor);
+                                         }) if defined $labelWidget;
+
+   $WIDGET{$name}->bind('<Leave>' => sub { 
+                                             $WIDGET{$name}->configure( -bg => $BaseColor); 
+                                             $labelWidget->configure( -bg => $BaseColor) if defined $labelWidget; 
+                                         });
+   $labelWidget->bind('<Leave>' => sub { 
+                                             $WIDGET{$name}->configure( -bg => $BaseColor); 
+                                             $labelWidget->configure( -bg => $BaseColor);
+                                         }) if defined $labelWidget;
 
    $WIDGET{$name}->bind('<Double-1>' => sub { $WIDGET{$name}->destroy();
-                                              &make_entry_blank($frame, $name, $val, $getRef, $setRef);
+                                              &make_entry_blank($frame, $name, $val, $getRef, $setRef, $labelWidget);
                                             });
 
 }
 
 sub make_entry_blank {
-   my ($frame, $widgetname, $val, $getRef, $setRef) = @_;
+   my ($frame, $widgetname, $val, $getRef, $setRef, $labelWidget) = @_;
 
    $OPEN_ENTRY_WIDGET->destroy() if ($OPEN_ENTRY_WIDGET);
 
@@ -821,7 +1058,7 @@ sub make_entry_blank {
                                                         my $value = $WIDGET{$widgetname}->get();
                                                         &$setRef($value);
                                                         $WIDGET{$widgetname}->destroy();
-                                                        &make_clickable_entrylabel($frame, $widgetname, $getRef, $setRef);
+                                                        &make_clickable_entrylabel($frame, $widgetname, $getRef, $setRef, $labelWidget);
                                                         $OPEN_ENTRY_WIDGET = undef;
                                                    } );
    }
@@ -831,8 +1068,6 @@ sub make_entry_blank {
 
 sub init_table_gui {
   my ($mainFrame) = @_;
-
-  &clear_shared_frame();
 
   # frames
   my $leftFrame = $mainFrame->Frame->pack(expand => 0, fill => 'both', side => 'left');
@@ -954,25 +1189,31 @@ sub get_vertAxisColor {
    return $color;
 }
 
-sub clear_shared_frame {
-
-#  while ((my $item = pop @SHARED_SUBFRAMES)) { $item->destroy(); }
-
-}
-
 sub select_Hlist_item { 
    my ($path) = @_;
 
    return unless defined $path;
 
    # print STDERR "Double click path=$path, data=",$item,"\n";
+
    my $item = $WIDGET{'xml_hlist'}->info('data', $path);
-   my $parentItem = $WIDGET{'xml_hlist'}->info('parent', $path);
-   my $parentStruct = $XDF;
-   $parentStruct = $WIDGET{'xml_hlist'}->info('data', $parentItem) if (defined $parentItem);
- 
-   $CURRENT_STRUCTURE = $parentStruct;
    $CURRENT_ITEM = $item;
+
+   if (ref($item) eq 'XDF::Array') {
+     # seek thru the path to get the parent structure
+     my $parentItem = $WIDGET{'xml_hlist'}->info('parent', $path);
+     show_array_frames();
+     if (defined $parentItem) {
+       $CURRENT_STRUCTURE = $WIDGET{'xml_hlist'}->info('data', $parentItem);
+     } else {
+        die "couldnt get parent structure for $item\n";
+     }
+   } elsif (ref($item) eq 'XDF::Structure') {
+     $CURRENT_STRUCTURE = $item; # it is a structure 
+     show_struct_frames();
+   } else {
+     show_xmlnode_frames($path); 
+   }
 
    if ($CURRENT_ITEM =~ m/Array/) {
       $ARRAY_OSTYLE = $XMLDataIOStyle{ref($CURRENT_ITEM->getXMLDataIOStyle)};
@@ -993,6 +1234,9 @@ sub select_Hlist_item {
 sub update_view {
 
    &debug("update view\n");
+
+   # Note: we need to lock/unlook table notebook tabs 
+   # as appropriate
 
    &configure_gui_view($CURRENT_ITEM);
    &update_header_view();
@@ -1030,10 +1274,15 @@ sub configure_gui_view {
                            ); 
 
    if (defined $type) {
-      if ($type =~ m/Array/) {
+      if ($type =~ m/Element/) {
+         for(@showStructWidgets) { $_->configure(-state => 'disabled'); }
+         for(@showArrayWidgets) { $_->configure(-state => 'disabled'); }
+         $WIDGET{'list_addStruct_button'}->configure(-state => 'normal');
+      } elsif ($type =~ m/Array/) {
          for (@showArrayWidgets) { $_->configure(-state => 'normal'); }
          for(@showStructWidgets) { $_->configure(-state => 'disabled'); }
       } else { 
+         # its a structure
          for(@showStructWidgets) { $_->configure(-state => 'normal'); }
          for(@showArrayWidgets) { $_->configure(-state => 'disabled'); }
       }
@@ -1050,8 +1299,52 @@ sub update_hlist_from_xdf {
 
    # clear widget entries
    $widget->delete('all');
-   &show_structure_in_Hlist($widget, $XDF, $XDF, 'Structure:XDF') if defined $XDF;
+   &show_XDF_DOM_in_Hlist($widget, $XDF_DOM) if defined $XDF_DOM;
+
 }
+
+sub show_XDF_DOM_in_Hlist {
+  my ($widget, $xdf_dom ) = @_;
+
+   my $first_node = $xdf_dom->getDocumentElement(); # get root element
+
+   show_XDF_node_in_Hlist($widget, $first_node, $first_node);
+}
+
+sub show_XDF_node_in_Hlist {
+   my ($widget, $node, $path) = @_;
+
+   return unless ($node->getNodeTypeName eq 'ELEMENT_NODE');
+
+   my $tagName = $node->getTagName;
+
+   if (ref($node) eq 'XDF::DOM::Element') { 
+
+     my $xdfObj = $node->getXDFObject();
+print STDERR "XDF: $xdfObj\n";
+     show_structure_in_Hlist($widget, $xdfObj, $path, 'XDF::Structure') if defined $xdfObj;
+
+   } else {
+
+      # its an ordinary XML Element node
+      $widget->add($path, -text => $tagName, 
+                          -image => $XML_ELEMENT_NODE_IMAGE,
+                          -data => $node);
+
+      # print out the children
+      for ($node->getChildNodes) {
+         show_XDF_node_in_Hlist($widget, $_, "$path/$_");
+      }
+
+   }
+   
+
+}
+
+#   for (@xdfNodes) {
+#     my $xdfObj = $_->getXDFObject();
+#     show_structure_in_Hlist($widget, $xdfObj, $xdfObj, 'XDF::Structure') if defined $xdfObj;
+#   }
 
 sub show_structure_in_Hlist {
   my ($widget, $structObj, $path, $text) = @_;
@@ -1151,6 +1444,7 @@ sub create_file_menu {
    $menu->separator(-bg => $BaseColor);
 
    $WIDGET{'load_file_menu'} = $menu->command( -label => 'Load',
+                                               -underline => 0,
                                                  font => $Font{$DISPLAY_SIZE},
                                                  bg => $BaseColor,
                                                  command => sub {  
@@ -1158,15 +1452,26 @@ sub create_file_menu {
                                                                 }
                                                );
 
+   $WIDGET{'reload_file_menu'} = $menu->command( -label => 'Re-Load',
+                                               -underline => 0,
+                                                 font => $Font{$DISPLAY_SIZE},
+                                                 bg => $BaseColor,
+                                                 command => sub {
+                                                                   &load_xml_file($XML_FILE);
+                                                                }
+                                               );
+
   $menu->separator(bg => $BaseColor);
 
    $WIDGET{'save_file_menu'} = $menu->command( -label => 'Save',
+                                               -underline => 0,
                                                  font => $Font{$DISPLAY_SIZE},
                                                  bg => $BaseColor,
-                                                 command => sub { &my_exit; }
+                                                 command => sub { &save_xdf_file($XML_FILE); }
                                                );
 
    $WIDGET{'save_as_file_menu'} = $menu->command( -label => 'Save As',
+                                                  -underline => 1,
                                                     font => $Font{$DISPLAY_SIZE},
                                                     bg => $BaseColor,
                                                     command => sub { &save_xdf_file(&select_file("Save as file?","*.xml"));}
@@ -1175,24 +1480,148 @@ sub create_file_menu {
 
    $menu->separator(bg => $BaseColor);
 
-   my $menu_cb = 'Pretty File Output';
+  # output file options
+   my $menu_file_output = 'File Output Options';
+   $WIDGET{'output_file_menu'} =
+           $menu->cascade(-label => $menu_file_output, bg => $BaseColor, -font => $Font{$DISPLAY_SIZE});
+   my $cm_output = $menu->cget(-menu);
+   my $cc_file_output = $cm_output->Menu;
+   $menu->entryconfigure($menu_file_output, -menu => $cc_file_output);
+
+
+   # clobber existing output files w/o asking
+   my $menu_file_output_clobber = 'Confirm overwriting existing files';
+   $WIDGET{'clobber_output_file_menu'} =
+           $WIDGET{'output_file_menu'}->cascade(-label => $menu_file_output_clobber,
+                                                      -bg => $BaseColor, -font => $Font{$DISPLAY_SIZE});
+   my $cm_output_clobber = $WIDGET{'output_file_menu'}->cget(-menu);
+   my $cc_file_output_clobber = $cm_output_clobber->Menu;
+
+   $cc_file_output->entryconfigure($menu_file_output_clobber, -menu => $cc_file_output_clobber);
+
+   $WIDGET{'file_clobber_output_true_menu'} = $cc_file_output_clobber->radiobutton(-label => ' True ',
+                                                     -font => $Font{$DISPLAY_SIZE},
+                                                      bg => $BaseColor,
+                                                      -variable => \$CONFIRM_OUTPUT_CLOBBER,
+                                                      -value => 1,
+                                                                     );
+    $WIDGET{'file_clobber_output_false_menu'} = $cc_file_output_clobber->radiobutton(-label => ' False ',
+                                                     -font => $Font{$DISPLAY_SIZE},
+                                                      bg => $BaseColor,
+                                                      -variable => \$CONFIRM_OUTPUT_CLOBBER,
+                                                      -value => 0,
+                                                                     );
+
+   # pretty File output
+   my $menu_file_output_pretty = 'Pretty File Output';
    $WIDGET{'pretty_output_file_menu'} =
-           $menu->cascade(-label => $menu_cb, bg => $BaseColor, -font => $Font{$DISPLAY_SIZE});
-   my $cm = $menu->cget(-menu);
-   my $cc = $cm->Menu;
-   $menu->entryconfigure($menu_cb, -menu => $cc);
-   $WIDGET{'file_pretty_output_true_menu'} = $cc->command(-label => ' True ',
+           $WIDGET{'output_file_menu'}->cascade(-label => $menu_file_output_pretty, 
+                                                      -bg => $BaseColor, -font => $Font{$DISPLAY_SIZE});
+   my $cm_output_pretty = $WIDGET{'output_file_menu'}->cget(-menu);
+   my $cc_file_output_pretty = $cm_output_pretty->Menu;
+
+   $cc_file_output->entryconfigure($menu_file_output_pretty, -menu => $cc_file_output_pretty);
+
+   $WIDGET{'file_pretty_output_true_menu'} = $cc_file_output_pretty->radiobutton(-label => ' True ',
                                                      -font => $Font{$DISPLAY_SIZE},
                                                       bg => $BaseColor,
-                                                     -command => sub {
-                                                                         $PRETTY_XDF_OUTPUT = 1;
-                                                                     });
-    $WIDGET{'file_pretty_output_false_menu'} = $cc->command(-label => ' False ',
+                                                      -variable => \$PRETTY_XDF_OUTPUT,
+                                                      -value => 1,
+                                                                     );
+    $WIDGET{'file_pretty_output_false_menu'} = $cc_file_output_pretty->radiobutton(-label => ' False ',
                                                      -font => $Font{$DISPLAY_SIZE},
                                                       bg => $BaseColor,
-                                                     -command => sub {
-                                                                         $PRETTY_XDF_OUTPUT = 0;
-                                                                     });
+                                                      -variable => \$PRETTY_XDF_OUTPUT,
+                                                      -value => 0,
+                                                                     );
+
+   # input file options
+   my $menu_file_input = 'File Input Options';
+   $WIDGET{'parse_input_file_menu'} =
+           $menu->cascade(-label => $menu_file_input, bg => $BaseColor, -font => $Font{$DISPLAY_SIZE});
+   my $cm_input = $menu->cget(-menu);
+   my $cc_file_input = $cm_input->Menu;
+   $menu->entryconfigure($menu_file_input, -menu => $cc_file_input);
+
+
+   # expand entities option
+   my $menu_file_input_parse_ent = 'Expand Entities';
+   $WIDGET{'file_input_parse_entities_menu'} = $WIDGET{'parse_input_file_menu'}->cascade(
+                                                         -label => $menu_file_input_parse_ent, 
+                                                         -bg => $BaseColor, -font => $Font{$DISPLAY_SIZE});
+   my $cm_input_parse_ent = $WIDGET{'parse_input_file_menu'}->cget(-menu);
+   my $cc_file_input_parse_ent = $cm_input_parse_ent->Menu;
+   $cc_file_input->entryconfigure( $menu_file_input_parse_ent, 
+                                   -menu => $cc_file_input_parse_ent);
+
+    $WIDGET{'file_input_parse_ent_true_menu'} = $cc_file_input_parse_ent->radiobutton(-label => ' True ',
+                                                     -font => $Font{$DISPLAY_SIZE},
+                                                      bg => $BaseColor,
+                                                      -variable => \$XDF_PARSER_NO_EXPAND,
+                                                      -value => 0,
+                                                                     );
+
+    $WIDGET{'file_input_parse_ent_false_menu'} = $cc_file_input_parse_ent->radiobutton(-label => ' False ',
+                                                     -font => $Font{$DISPLAY_SIZE},
+                                                      bg => $BaseColor,
+                                                      -variable => \$XDF_PARSER_NO_EXPAND,
+                                                      -value => 1,
+                                                                     );
+
+
+   $WIDGET{'parse_input_file_menu'}->separator(bg => $BaseColor);
+
+   # parse param entities option
+   my $menu_file_input_parse_pent = 'Parse Parameter Entities';
+   $WIDGET{'file_input_parse_param_ent_menu'} = $WIDGET{'parse_input_file_menu'}->cascade(
+                                                         -label => $menu_file_input_parse_pent,
+                                                         -bg => $BaseColor, -font => $Font{$DISPLAY_SIZE});
+   my $cm_input_parse_pent = $WIDGET{'parse_input_file_menu'}->cget(-menu);
+   my $cc_file_input_parse_pent = $cm_input_parse_pent->Menu;
+   $cc_file_input->entryconfigure( $menu_file_input_parse_pent,
+                                   -menu => $cc_file_input_parse_pent);
+
+    $WIDGET{'file_input_parse_pent_true_menu'} = $cc_file_input_parse_pent->radiobutton(-label => ' True ',
+                                                     -font => $Font{$DISPLAY_SIZE},
+                                                      bg => $BaseColor,
+                                                      -variable => \$XDF_PARSER_PARSE_PARAM_ENT,
+                                                      -value => 1,
+                                                                     );
+
+    $WIDGET{'file_input_parse_pent_false_menu'} = $cc_file_input_parse_pent->radiobutton(-label => ' False ',
+                                                     -font => $Font{$DISPLAY_SIZE},
+                                                      bg => $BaseColor,
+                                                      -variable => \$XDF_PARSER_PARSE_PARAM_ENT,
+                                                      -value => 0,
+                                                                    );
+
+   $WIDGET{'parse_input_file_menu'}->separator(bg => $BaseColor);
+
+   # expand param entities option
+   my $menu_file_input_expand_pent = 'Expand Parameter Entities';
+   $WIDGET{'file_input_expand_param_ent_menu'} = $WIDGET{'parse_input_file_menu'}->cascade(
+                                                         -label => $menu_file_input_expand_pent,
+                                                         -bg => $BaseColor, -font => $Font{$DISPLAY_SIZE});
+   my $cm_input_expand_pent = $WIDGET{'parse_input_file_menu'}->cget(-menu);
+   my $cc_file_input_expand_pent = $cm_input_expand_pent->Menu;
+   $cc_file_input->entryconfigure( $menu_file_input_expand_pent,
+                                   -menu => $cc_file_input_expand_pent);
+
+    $WIDGET{'file_input_expand_pent_true_menu'} = $cc_file_input_expand_pent->radiobutton(-label => ' True ',
+                                                     -font => $Font{$DISPLAY_SIZE},
+                                                      bg => $BaseColor,
+                                                     -variable => \$XDF_PARSER_EXPAND_PARAM_ENT,
+                                                     -value => 1, 
+                                                                                         );
+
+    $WIDGET{'file_input_expand_pent_false_menu'} = $cc_file_input_expand_pent->radiobutton(-label => ' False ',
+                                                     -font => $Font{$DISPLAY_SIZE},
+                                                      bg => $BaseColor,
+                                                     -variable => \$XDF_PARSER_EXPAND_PARAM_ENT,
+                                                     -value => 0, 
+                                                                                          );
+
+   $WIDGET{'parse_input_file_menu'}->separator(bg => $BaseColor);
 
    $menu->separator(bg => $BaseColor);
 
@@ -1207,6 +1636,7 @@ sub create_file_menu {
    # the quit button
    $WIDGET{'quit_file_menu'} = $menu->command(-label => 'Quit',
                                              font => $Font{$DISPLAY_SIZE},
+                                             -underline => 0,
                                              bg => $BaseColor,
                                             -command => sub { &my_exit; }
                                            );
@@ -1217,38 +1647,89 @@ sub create_file_menu {
 sub create_view_menu {
   my ($menu) = @_;
 
-  my $menu_cb = 'Change Tool Display Size';
-  $WIDGET{'size_cascade_options_menu'} =
+   my $menu_font_view = 'Change Display Font';
+   $WIDGET{'font_view_menu'} =
+           $menu->cascade(-label => $menu_font_view, bg => $BaseColor, -font => $Font{$DISPLAY_SIZE});
+    my $cm_font_view = $menu->cget(-menu);
+    my $cc_font_view = $cm_font_view->Menu;
+    $menu->entryconfigure($menu_font_view, -menu => $cc_font_view);
+
+   $WIDGET{'view_font_fixed_menu'} = $cc_font_view->radiobutton(-label => ' Fixed ',
+                                                      -font => $Font{$DISPLAY_SIZE},
+                                                      -bg => $BaseColor,
+                                                      -variable => \$FONT_STYLE,
+                                                      -value => 'fixed', 
+                                                      -command => sub {   
+                                                                         %Font = %Fixed_Font;
+                                                                         %BoldFont = %Fixed_BoldFont;
+                                                                         %SmallFont = %Fixed_SmallFont;
+                                                                         &change_display_size($DISPLAY_SIZE);
+                                                                       });
+
+   $WIDGET{'view_font_helvetica_menu'} = $cc_font_view->radiobutton(-label => ' Helvetica ',
+                                                      -font => $Font{$DISPLAY_SIZE},
+                                                      -bg => $BaseColor,
+                                                      -variable => \$FONT_STYLE,
+                                                      -value => 'helvetica',    
+                                                      -command => sub {    
+                                                                         %Font = %Helvetica_Font;
+                                                                         %BoldFont = %Helvetica_BoldFont;
+                                                                         %SmallFont = %Helvetica_SmallFont;
+                                                                         &change_display_size($DISPLAY_SIZE);
+                                                                       });
+
+    $WIDGET{'view_font_times_menu'} = $cc_font_view->radiobutton(-label => ' Times ',
+                                                      -font => $Font{$DISPLAY_SIZE},
+                                                      -bg => $BaseColor,
+                                                      -variable => \$FONT_STYLE,
+                                                      -value => 'times',
+                                                      -command => sub {
+                                                                         %Font = %Times_Font;
+                                                                         %BoldFont = %Times_BoldFont;
+                                                                         %SmallFont = %Times_SmallFont;
+                                                                         &change_display_size($DISPLAY_SIZE);
+                                                                       });
+
+
+
+
+   my $menu_cb = 'Change Tool Display Size';
+   $WIDGET{'size_cascade_options_menu'} =
            $menu->cascade(-label => $menu_cb, bg => $BaseColor, -font => $Font{$DISPLAY_SIZE});
     my $cm = $menu->cget(-menu);
     my $cc = $cm->Menu;
     $menu->entryconfigure($menu_cb, -menu => $cc);
-    $WIDGET{'opt_size_cas_large_menu'} = $cc->command(-label => '  Large (1600x1200) ',
+    $WIDGET{'opt_size_cas_large_menu'} = $cc->radiobutton(-label => '  Large (1600x1200) ',
                                                      -font => $Font{$DISPLAY_SIZE},
                                                       bg => $BaseColor,
+                                                      -variable => \$DISPLAY_SIZE,
+                                                      -value => 'large',
                                                      -command => sub { 
-                                                                         $DISPLAY_SIZE = 'large';
                                                                          &change_display_size($DISPLAY_SIZE);
                                                                      });
-    $WIDGET{'opt_size_cas_normal_menu'} = $cc->command(-label => '  Normal (1240x1024) ',
+
+    $WIDGET{'opt_size_cas_normal_menu'} = $cc->radiobutton(-label => '  Normal (1240x1024) ',
                                                      -font => $Font{$DISPLAY_SIZE},
                                                       bg => $BaseColor,
+                                                      -variable => \$DISPLAY_SIZE,
+                                                      -value => 'normal',
                                                      -command => sub { 
-                                                                         $DISPLAY_SIZE = 'normal';
                                                                          &change_display_size($DISPLAY_SIZE);
                                                                      });
-    $WIDGET{'opt_size_cas_small_menu'} = $cc->command(-label => '  Small (1024x768) ',
+    $WIDGET{'opt_size_cas_small_menu'} = $cc->radiobutton(-label => '  Small (1024x768) ',
                                                      -font => $Font{$DISPLAY_SIZE},
+                                                      -variable => \$DISPLAY_SIZE,
+                                                      -value => 'small',
                                                       bg => $BaseColor,
                                                      -command => sub { 
-                                                                         $DISPLAY_SIZE = 'small';
                                                                          &change_display_size($DISPLAY_SIZE);
                                                                      });
-    $WIDGET{'opt_size_cas_tiny_menu'} = $cc->command(-label => '   Tiny (800x600)  ',
+    $WIDGET{'opt_size_cas_tiny_menu'} = $cc->radiobutton(-label => '   Tiny (800x600)  ',
                                                      -font => $Font{$DISPLAY_SIZE},
                                                       bg => $BaseColor,
+                                                      -variable => \$DISPLAY_SIZE,
+                                                      -value => 'tiny',
                                                      -command => sub { 
-                                                                         $DISPLAY_SIZE = 'tiny';
                                                                          &change_display_size($DISPLAY_SIZE);
                                                                      });
     $cc->invoke(2);
@@ -1290,7 +1771,12 @@ sub load_xml_file {
    #my $reader = new XDF::Reader();
 #   $XDF = $reader->parseFile($file, \%options);
 
-   my $parser = new XDF::DOM::Parser();
+   my $parser = new XDF::DOM::Parser(
+                                       NoExpand => $XDF_PARSER_NO_EXPAND,
+                                       ParseParamEnt => $XDF_PARSER_PARSE_PARAM_ENT,
+                                       ExpandParamEnt => $XDF_PARSER_EXPAND_PARAM_ENT,
+                                    );
+
    $XDF_DOM = $parser->parsefile($file);
 
    my @xdfNodes = @{$XDF_DOM->getXDFElements};
@@ -1309,6 +1795,9 @@ sub load_xml_file {
 
    &update_view();
 
+   # update global in case re-load command is used 
+   $XML_FILE = $file;
+
 }
 
 sub save_xdf_file {
@@ -1318,8 +1807,10 @@ sub save_xdf_file {
 
   return unless defined $file;
 
-#   &pop_warning_of_overwritting_file() if (-e $file);
+  return unless ( !-e $file || !$CONFIRM_OUTPUT_CLOBBER ||
+                  &confirm_overwritting_file($file));
 
+  # change the file we are working with to this new name
   $XML_FILE = $file;
 
   # update the widgets
@@ -1331,6 +1822,30 @@ sub save_xdf_file {
 #  $XDF->toXMLFileHandle(\*FILE);
   close FILE;
 
+}
+
+sub confirm_overwritting_file {
+  my ($filename) = @_;
+
+  my $title = 'Overwrite file';
+  my $msg = "$filename exists, overwrite it?";
+  return &popup_yes_no_dialog($title, $msg, $Font{$DISPLAY_SIZE});
+
+}
+
+sub popup_yes_no_dialog {
+  my ($title, $msg, $font) = @_;
+
+  if(!$title) { $title = "Yes/No Question"; }
+
+  my @buttons;
+  (@buttons) = (@buttons, "Yes");
+  (@buttons) = (@buttons, "No");
+  
+  my $dialog = $WIDGET{'main'}->Dialog(-title => $title, -font => $font, -text => $msg, -buttons => [@buttons]);
+  my $selection = $dialog->Show;
+
+  return $selection eq "Yes" ? 1 : 0;
 }
 
 sub reset_header_view {
@@ -1679,6 +2194,14 @@ sub edit_axis_attribs {
    }
 }
 
+sub clear_xmlNode_attrib_edit {
+
+  while ((my $frame = pop @XMLNODE_EDITFRAMES)) {
+      $frame->destroy();
+  }
+
+}
+
 sub close_struct_attrib_edit {
 
   while ((my $frame = pop @STRUCTEDITFRAMES)) {
@@ -1868,8 +2391,8 @@ sub reset_table_view {
                                 bg => $AxisBoxColor,
                               ) if defined $WIDGET{$wname};
 
-   $WIDGET{'shared_notebook'}->pageconfigure( 'DFmt', -state => 'normal');
-   $WIDGET{'shared_notebook'}->pageconfigure( 'Unit', -state => 'normal');
+   $WIDGET{'array_notebook'}->pageconfigure( 'DFmt', -state => 'normal');
+   $WIDGET{'array_notebook'}->pageconfigure( 'Unit', -state => 'normal');
 
    while (my $widget = pop @LISTBOXES) {
       $widget->destroy();
@@ -1901,12 +2424,12 @@ sub update_fieldtable_view {
    # for field tables we must edit units, dataformat on field by field
    # basis. Therefore, disable these tabs and change the notebook view
    # if it is currently there.
-   $WIDGET{'shared_notebook'}->pageconfigure( 'DFmt', -state => 'disabled');
-   $WIDGET{'shared_notebook'}->pageconfigure( 'Unit', -state => 'disabled');
-   if ( $WIDGET{'shared_notebook'}->raised eq 'DFmt' ||
-        $WIDGET{'shared_notebook'}->raised eq 'Unit' ) 
+   $WIDGET{'array_notebook'}->pageconfigure( 'DFmt', -state => 'disabled');
+   $WIDGET{'array_notebook'}->pageconfigure( 'Unit', -state => 'disabled');
+   if ( $WIDGET{'array_notebook'}->raised eq 'DFmt' ||
+        $WIDGET{'array_notebook'}->raised eq 'Unit' ) 
    {
-       $WIDGET{'shared_notebook'}->raise('Data');
+       $WIDGET{'array_notebook'}->raise('Data');
    }
 
    my $fieldAxis = $CURRENT_HORZ_AXIS; #$arrayObj->getFieldAxis();
@@ -2343,4 +2866,27 @@ static char * structure_xpm[] = {
 " .......... ",
 "            "};';
 }
+
+sub open_xml_element_node_image {
+   return '/* XPM */
+static char * struct_xpm[] = {
+"12 12 3 1",
+"       s None  c None",
+"b      c #999555FFF",
+".      c #000000000",
+"            ",
+"            ",
+"    ...     ",
+"    .b.     ",
+"    .b.     ",
+" ....b....  ",
+" .bbbbbbb.  ",
+" ....b....  ",
+"    .b.     ",
+"    .b.     ",
+"    ...     ",
+"            "};';
+}
+
+
 
