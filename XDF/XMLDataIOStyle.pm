@@ -207,10 +207,19 @@ sub getWriteAxisOrderList {
 #/** setWriteAxisOrderList 
 # This method sets the ordering of the fastest to slowest axis for
 # writing out formatted data. The fastest axis is the last in
-# the array.
-# */
+# the array. Setting the writeAxisOrderList will effect how the document
+# is written out. For the Formatted and Delimited styles, this means how
+# the 'for' nodes will appear. There is no effect on Tagged data (at this
+# time) for setting the axis order list in any different way.
+#*/
 sub setWriteAxisOrderList {
   my ($self, $arrayRefValue) = @_;
+
+  if (ref($self) eq 'XDF::TaggedXMLDataIOStyle') {
+    warn "setWriteAxisOrderList has no effect currently for TaggedXMLDataIOStyle, Ignoring\n";
+    return;
+  }
+
   # you must do it this way, or when the arrayRef changes it changes us here!
   my @list = @{$arrayRefValue};
   $self->{WriteAxisOrderList} = \@list;
@@ -249,6 +258,10 @@ sub _init {
 # Modification History
 #
 # $Log$
+# Revision 1.11  2001/03/26 18:17:09  thomas
+# dont allow setWriteAxisOrderList to proceed if the object
+# is the tagged style.
+#
 # Revision 1.10  2001/03/26 18:12:57  thomas
 # moved setWriteAxisORder list and getWriteAxisOrderList
 # up to here from FormattedXMLDataIOStyle and DelimitedXMLDataIOStyle.
@@ -379,6 +392,14 @@ Set the encoding attribute.
 
 Set the endian attribute.  
 
+=item getWriteAxisOrderList (EMPTY)
+
+This method sets the ordering of the fastest to slowest axis forwriting out data. The default is to use the parent arrayaxisList ordering (field axis first, if it exists, followed by allother axes in the order in which they were declared).  
+
+=item setWriteAxisOrderList ($arrayRefValue)
+
+This method sets the ordering of the fastest to slowest axis forwriting out formatted data. The fastest axis is the last inthe array. Setting the writeAxisOrderList will effect how the documentis written out. For the Formatted and Delimited styles, this means howthe 'for' nodes will appear. There is no effect on Tagged data (at thistime) for setting the axis order list in any different way.  
+
 =back
 
 
@@ -418,7 +439,7 @@ B<new>, B<clone>, B<update>.
 =over 4
 
 XDF::XMLDataIOStyle inherits the following instance (object) methods of L<XDF::BaseObject>:
-B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLAttributes>, B<setXMLNotationHash>, B<toXMLFileHandle>, B<toXMLFile>.
+B<addXMLElement>, B<removeXMLElement>, B<getXMLElementList>, B<setXMLElementList>, B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLAttributes>, B<setXMLNotationHash>, B<toXMLFileHandle>, B<toXMLString>, B<toXMLFile>.
 
 =back
 
