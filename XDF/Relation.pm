@@ -2,7 +2,7 @@
 # $Id$
 
 # /** COPYRIGHT
-#    FieldRelation.pm Copyright (C) 2000 Brian Thomas,
+#    Relation.pm Copyright (C) 2000 Brian Thomas,
 #    ADC/GSFC-NASA, Code 631, Greenbelt MD, 20771
 #@ 
 #    This program is free software; it is licensed under the same terms
@@ -15,11 +15,11 @@
 # */
 
 # /** Description
-# Denotes a relationship between one XDF::Field object (the parent of
-# the XDF::FieldRelation object) and one or more other XDF::Field objects.
+# Denotes a relationship between one XDF::Field (or XDF::Array) object (the parent of
+# the XDF::Relation object) and one or more other XDF::Field (or XDF::Array) objects.
 # */ 
 
-package XDF::FieldRelation;
+package XDF::Relation;
 
 use XDF::BaseObject;
 use XDF::Log;
@@ -36,7 +36,7 @@ use vars qw ($AUTOLOAD %field @ISA);
 my $Class_XML_Node_Name = "relation";
 my @Local_Class_XML_Attributes = qw (
                              description
-                             fieldIdRefs
+                             idRefs
                              role
                           );
 my @Local_Class_Attributes = ();
@@ -95,19 +95,19 @@ sub setDescription {
 }
 
 
-# /** getFieldIdRefs 
+# /** getIdRefs 
 # */
-sub getFieldIdRefs {
+sub getIdRefs {
    my ($self) = @_;
-   return $self->{fieldIdRefs};
+   return $self->{idRefs};
 }
 
-# /** setFieldIdRefs 
-#     Set the fieldIdRefs attribute. 
+# /** setIdRefs 
+#     Set the idRefs attribute. 
 # */
-sub setFieldIdRefs {
+sub setIdRefs {
    my ($self, $value) = @_;
-   $self->{fieldIdRefs} = $value;
+   $self->{idRefs} = $value;
 }
 
 # /** getRole 
@@ -136,12 +136,12 @@ sub setRole {
 #  return \@Class_XML_Attributes;
 #}
 
-# /** getRelatedFieldIdRefs
-# Convience method which returns an array of related fieldIdRefs.    
+# /** getRelatedIdRefs
+# Convience method which returns an array of related IdRefs.    
 # */
-sub getRelatedFieldIdRefs {
+sub getRelatedIdRefs {
   my ($self) = @_;
-  return split / /, $self->{fieldIdRefs};
+  return split / /, $self->{idRefs};
 }
 
 #
@@ -169,129 +169,3 @@ sub AUTOLOAD {
 1;
 
 
-__END__
-
-=head1 NAME
-
-XDF::FieldRelation - Perl Class for FieldRelation
-
-=head1 SYNOPSIS
-
-...
-
-=head1 DESCRIPTION
-
-XDF::FieldRelation inherits class and attribute methods of L<XDF::GenericObject>, L<XDF::BaseObject>.
-
-
-=head1 METHODS
-
-=over 4
-
-=head2 CLASS Methods
-
-The following methods are defined for the class XDF::FieldRelation.
-
-=over 4
-
-=item classXMLNodeName (EMPTY)
-
- 
-
-=item getClassAttributes (EMPTY)
-
- 
-
-=item getClassXMLAttributes (EMPTY)
-
-This method returns the XMLAttributes of this class.  
-
-=back
-
-=head2 INSTANCE (Object) Methods
-
-The following instance (object) methods are defined for XDF::FieldRelation.
-
-=over 4
-
-=item getDescription (EMPTY)
-
- 
-
-=item setDescription ($value)
-
-Set the description attribute.  
-
-=item getFieldIdRefs (EMPTY)
-
- 
-
-=item setFieldIdRefs ($value)
-
-Set the fieldIdRefs attribute.  
-
-=item getRole (EMPTY)
-
- 
-
-=item setRole ($value)
-
-Set the role attribute.  
-
-=item getRelatedFieldIdRefs (EMPTY)
-
-Convience method which returns an array of related fieldIdRefs.     
-
-=back
-
-
-
-=head2 INHERITED Class Methods
-
-=over 4
-
-=back
-
-
-
-=head2 INHERITED INSTANCE Methods
-
-=over 4
-
-
-
-=over 4
-
-XDF::FieldRelation inherits the following instance (object) methods of L<XDF::GenericObject>:
-B<new>, B<clone>, B<update>.
-
-=back
-
-
-
-=over 4
-
-XDF::FieldRelation inherits the following instance (object) methods of L<XDF::BaseObject>:
-B<getXMLAttributes>, B<setXMLAttributes>, B<setXMLAttribute>, B<addXMLAttribute>, B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<toXMLFileHandle>, B<toXMLString>, B<toXMLFile>.
-
-=back
-
-=back
-
-=back
-
-=head1 SEE ALSO
-
-
-
-=over 4
-
-L<XDF::BaseObject>
-
-=back
-
-=head1 AUTHOR
-
- 
-
-=cut
