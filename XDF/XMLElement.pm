@@ -21,9 +21,8 @@
 # */
 
 # /** DESCRIPTION
-# An XDF::XMLElement object holds generic (non-XDF) node information. 
-# This class allows the XDF to capture non-XDF information within it so 
-# that it may be written back out by the XDF object as needed.
+# An XDF::XMLElement object contains node information for XML element nodes which are
+# held inside the an XDF structure or array.
 # */
 
 # /** SYNOPSIS
@@ -31,159 +30,197 @@
 # */
 
 # /** SEE ALSO
+# XDF::Array
+# XDF::Structure
 # */
 
 package XDF::XMLElement;
 
-use XDF::BaseObject;
-use XDF::XMLAttribute;
+use XML::DOM;
+use XDF::Constants;
+use XDF::Specification;
 use Carp;
 
 use strict;
 use integer;
 
-use vars qw ($AUTOLOAD %field @ISA);
+#use vars qw ($AUTOLOAD @ISA);
+use vars qw { $AUTOLOAD @ISA };
 
-# inherits from XDF::BaseObject
-@ISA = ("XDF::BaseObject");
+# inherits from XML::DOM::Attr
+@ISA = ("XML::DOM::Element"); #, "XDF::BaseObject");
 
 # CLASS DATA
-my $Class_XML_Node_Name = ""; # will be overwritten by nodeName 
-my @Class_XML_Attributes = ();
-my @Class_Attributes = qw (
-                          nodeName
-                          attribList
-                          value
-                       );
-
-# add in class XML attributes
-push @Class_Attributes, @Class_XML_Attributes;
-
-# add in super class attributes
-push @Class_Attributes, @{&XDF::BaseObject::classAttributes};
-
-# Initalization
-# set up object attributes.
-for my $attr ( @Class_Attributes ) { $field{$attr}++; }
-
-# /** classXMLNodeName
-# This method takes no arguments may not be changed. 
-# This method returns the class node name of XDF::XMLElement.
-# */
-sub classXMLNodeName { 
-  $Class_XML_Node_Name; 
-}
+my $Class_XML_Node_Name = ""; # doesnt have one!! 
+my @Class_Attributes = (); # none!, we should probably fix this 
 
 # /** classAttributes
-#  This method takes no arguments may not be changed. 
-#  This method returns a list reference containing the names
-#  of the class attributes of XDF::XMLElement.
+# This method returns a list reference containing the names
+# of the class attributes of XDF::XMLElement.
+# Note that for XDF::XMLElement this is an empty list. Any attributes
+# that this class has are inherited from XML::DOM::Element, a class
+# outside of the XDF package.
 # */
 sub classAttributes { 
   \@Class_Attributes; 
 }
 
+#/** new
+# Creates a new XMLElement. $tagName variable must be specified, 
+# but $ownerDoc is not needed.
+#*/
+sub new {
+   my ($proto, $tagName, $ownerDoc) = @_;
+
+   die "XDF::XMLElement::new requires you define the value of tagName.\n"
+       unless defined $tagName and $tagName ne "";
+
+   my $class = ref ($proto) || $proto;
+
+   # Well we have to declare a document. feh. Its not 
+   # good that we have to use FULL DOM Document, too bad DocumentFragment 
+   # wont do, as its more lightweight. Still, we can just reference a single
+   # declared document from the constants class as a memory saver.
+   #$ownerDoc = new XML::DOM::Document() unless defined $ownerDoc;
+   $ownerDoc = &XDF::Constants::getInternalDOMDocument unless defined $ownerDoc;
+   my $self = XML::DOM::Document::createElement($ownerDoc, $tagName); 
+   bless ($self, $class); # re-bless into this class 
+
+   return $self;
+}
+
+# need to override this method in BaseObject (via GenericObject)
+sub AUTOLOAD { # PRIVATE 
+  # do nothing
+}
+
+# /** getXMLElementList 
+# Similar to the getChildNodes method except that it only returns
+# the children which are of type XMLElement. 
+# */
+sub getXMLElementList {
+  my ($self) = @_;
+ 
+  my @list;
+  foreach my $child ($self->getChildNodes()) {
+     next unless ref($child) eq 'XDF::XMLElement'; 
+     push @list, $child;
+  }
+
+  return \@list;
+}
+
+# /** addXMLElement
+# Aliased to the appendChild method. 
+# */
+sub addXMLElement {
+  my ($self, $xmlElementObjRef) = @_;
+
+  # change owner document to that of this one
+  $xmlElementObjRef->setOwnerDocument($self->getOwnerDocument);
+  $self->appendChild($xmlElementObjRef);
+}
+
+# /** removeXMLElement
+# Aliased to the removeChild method. Will only remove child
+# XMLElement nodes. 
+# */
+sub removeXMLElement {
+   my ($self, $xmlElementObjRef) = @_;
+   return unless defined $xmlElementObjRef && ref($xmlElementObjRef) eq 'XDF::XMLElement';
+   $self->removeChild($xmlElementObjRef);
+}
+
+# /** setXMLElementList 
+# May reset the childNode list to that passed. 
+# This method will reject any $listRef which is undefined. 
+# This method will not append any non-XDF::XMLElement objects 
+# in the list.
+# */
+sub setXMLElementList {
+  my ($self, $listRef) = @_;
+
+  return unless defined $listRef;
+
+  # remove old nodes
+  foreach my $child ($self->getChildNodes) {
+    $self->removeChild($child);
+  }
+
+  # add in new list
+  foreach my $newchild (@{$listRef}) {
+     next unless ref($newchild) eq 'XDF::XMLElement';
+     $self->appendChild($newchild);
+  }
+
+}
+
 # 
 # SET/GET Methods
-#
-
-# /** getNodeName
-# */
-sub getNodeName {
-   my ($self) = @_;
-   return $self->{NodeName};
-}
-
-# /** setNodeName
-#     Set the nodeName attribute. 
-# */
-sub setNodeName {
-   my ($self, $value) = @_;
-   $self->{NodeName} = $value;
-}
+# 
 
 # /** getCData {
+# A short cut method. Finds all of the child TEXT_NODEs and returns
+# concatenated value of all as a string.
 # */
 sub getCData {
    my ($self) = @_;
-   return $self->{Value};
+   # concat all child Text Nodes together
+
+   my $CDATA_string; 
+   foreach my $childNode ($self->getChildNodes) {
+      if ($childNode->getNodeTypeName eq 'TEXT_NODE') {
+          $CDATA_string .= $childNode->getNodeValue;
+      }
+   }
+
+   return $CDATA_string;
 }
 
-# /** setCData
-#     Set the character data for this node.
+# /** appendCData
+#     Append character data into this node. This is a short cut method,
+#   it actually creates a child TEXT_NODE to hold the CDATA and then 
+#   appends it as a child of the XMLElement.
 # */
-sub setCData {
-   my ($self, $value) = @_;
-   $self->{Value} = $value;
-}
+sub appendCData {
+   my ($self, $text) = @_;
 
-# /** getAttribList
-# */
-sub getAttribList {
-   my ($self) = @_;
-   return $self->{AttribList};
-}
+   return unless defined $text;
 
-# /** setAttribList
-#     Set the attribute list. 
-# */
-sub setAttribList {
-   my ($self, $attribListRef) = @_;
-   $self->{AttribList} = $attribListRef;
-}
-
-# /** getXMLAttributes
-#      This method returns the XMLAttributes of this class. 
-#  */
-sub getXMLAttributes {
-  die "getXMLAttributes not implemented yet for XMLElement\n";
-  #return \@Class_XML_Attributes;
+   my $textNode = $self->getOwnerDocument->createTextNode($text);
+   $self->appendChild($textNode);
 }
 
 #
 # Other Public Methods
 #
 
-#/** addAttribute 
-# 
-#*/
-sub addAttribute {
-   my ($self, $attributeObjRef) = @_;
-   return unless defined $attributeObjRef;
-   push @{$self->{AttribList}}, $attributeObjRef;
-}
-
-#/** removeAttribute
-# 
-#*/
-sub removeAttribute {
-   my ($self, $attribObjRef) = @_;
-   die "removeAttribute not implemented yet for XMLElement\n";
-}
-
 #/** toXMLFileHandle
-# Special local method. 
 #*/
 sub toXMLFileHandle {
    my ($self, $fileHandle, $indent) = @_;
 
    $indent = "" unless defined $indent;
-   my $Pretty_XDF_Output = $self->Pretty_XDF_Output;
-   my $Pretty_XDF_Output_Indent = $self->Pretty_XDF_Output_Indentation;
+   my $spec = XDF::Specification->getInstance();
+
+   my $Pretty_XDF_Output = $spec->isPrettyXDFOutput;
+   my $Pretty_XDF_Output_Indent = $spec->getPrettyXDFOutputIndentation;
 
    # open the node
    print $fileHandle $indent if $Pretty_XDF_Output;
-   print $fileHandle "<" . $self->{NodeName};
+   print $fileHandle "<" . $self->getTagName();
+
 
    # print attribs
-   for (@{$self->getAttribList}) { 
-      $_->toXMLFileHandle($fileHandle);
+   #for ($self->{parentElement}->getAttributes->getValues) {
+   for ($self->getAttributes->getValues) {
+      print $fileHandle " ".$_->getName."=\"".$_->getValue."\"";
    }
 
    # print child nodes OR CDATA 
    my @childXMLElements; # generic XML nodes we need to print 
-   @childXMLElements = @{$self->{_ChildXMLElementList}} if defined $self->{_ChildXMLElementList};
-   if (defined $self->{Value} 
+   @childXMLElements = @{$self->getXMLElementList}; # if defined $self->getXMLElementList;
+   if (defined $self->getCData
         || $#childXMLElements > -1
      )
    {
@@ -192,20 +229,20 @@ sub toXMLFileHandle {
      print $fileHandle ">";
 
      # print the CData (or child nodes)
-     if (defined $self->{Value}) {
-        print $fileHandle $self->{Value};
+     if (defined $self->getCData) {
+        print $fileHandle $self->getCData;
      }
 
-     for (@childXMLElements) { 
+     for (@childXMLElements) {
         print $fileHandle "\n" if $Pretty_XDF_Output;
-        $_->toXMLFileHandle($fileHandle, $indent . $Pretty_XDF_Output_Indent); 
+        $_->toXMLFileHandle($fileHandle, $indent . $Pretty_XDF_Output_Indent);
         print $fileHandle $indent if $Pretty_XDF_Output;
-     } 
+     }
 
      # closing node decl 
-     print $fileHandle "</". $self->{NodeName} .">";
+     print $fileHandle "</". $self->getTagName .">";
 
-   } else { 
+   } else {
       # just close the node
       print $fileHandle "/>";
    }
@@ -218,33 +255,13 @@ sub toXMLFileHandle {
 # Private methods 
 #
 
-# This is called when we cant find any defined method
-# exists already. Used to handle general purpose set/get
-# methods for our attributes (object fields).
-sub AUTOLOAD {
-  my ($self, $val) = @_;
-  &XDF::GenericObject::AUTOLOAD($self, $val, $AUTOLOAD, \%field );
-}
-
-sub _init {
-  my ($self) = @_;
-
-  $self->{NodeName} = $Class_XML_Node_Name;
-  $self->{AttribList} = [];
-
-}
-
 # Modification History
 #
 # $Log$
-# Revision 1.2  2001/03/26 16:07:55  thomas
-# Bug fix to toXMLFileHandle, node not
-# closing properly.
-#
-# Revision 1.1  2001/03/23 21:53:41  thomas
-# Class needed to treat 'anonymous' nodes that the DTD
-# allows to exist in several spots within the XDF. Holds
-# generic XMLElement information.
+# Revision 1.3  2001/04/17 18:47:26  thomas
+# Completely redone. This class is now derived from XML::DOM::Element
+# (as it should be) with added methods to make that class
+# interoperate with XDF package classes (like toXMLFilehandle method).
 #
 #
 #
@@ -267,9 +284,9 @@ XDF::XMLElement - Perl Class for XMLElement
 
 =head1 DESCRIPTION
 
- An XDF::XMLElement object holds generic (non-XDF) node information.  This class allows the XDF to capture non-XDF information within it so  that it may be written back out by the XDF object as needed. 
+ An XDF::XMLElement object contains node information for XML element nodes which are held inside the an XDF structure or array. 
 
-XDF::XMLElement inherits class and attribute methods of L<XDF::GenericObject>, L<XDF::BaseObject>.
+XDF::XMLElement inherits class and attribute methods of L<XML::DOM::Element>.
 
 
 =head1 METHODS
@@ -282,17 +299,21 @@ The following methods are defined for the class XDF::XMLElement.
 
 =over 4
 
-=item classXMLNodeName (EMPTY)
-
-This method takes no arguments may not be changed. This method returns the class node name of XDF::XMLElement.  
-
 =item classAttributes (EMPTY)
 
 This method takes no arguments may not be changed. This method returns a list reference containing the namesof the class attributes of XDF::XMLElement.  
 
-=item getXMLAttributes (EMPTY)
+=item new ($name, $value, $ownerDoc)
 
-This method returns the XMLAttributes of this class.  
+ 
+
+=item Pretty_XDF_Output (EMPTY)
+
+ 
+
+=item Pretty_XDF_Output_Indentation (EMPTY)
+
+ 
 
 =back
 
@@ -302,41 +323,33 @@ The following instance (object) methods are defined for XDF::XMLElement.
 
 =over 4
 
-=item getNodeName (EMPTY)
+=item getXMLElementList (EMPTY)
 
- 
+Similar to the getChildNodes method except that it only returnsthe children which are of type XMLElement.  
 
-=item setNodeName ($value)
+=item addXMLElement ($xmlElementObjRef)
 
-Set the nodeName attribute.  
+Aliased to the appendChild method.  
+
+=item removeXMLElement ($xmlElementObjRef)
+
+Aliased to the removeChild method. Will only remove childXMLElement nodes.  
+
+=item setXMLElementList ($listRef)
+
+May reset the childNode list to that passed. This method will reject any $listRef which is undefined. This method will not append any non-XDF::XMLElement objects in the list.  
 
 =item getCData (EMPTY)
 
  
 
-=item setCData ($value)
+=item appendCData ($text)
 
-Set the character data for this node.  
+Append character data into this node. This is a short cut method,it actually creates a child TEXT_NODE to hold the CDATA and then appends it as a child of the XMLElement.  
 
-=item getAttribList (EMPTY)
-
- 
-
-=item setAttribList ($attribListRef)
-
-Set the attribute list.  
-
-=item addAttribute ($attributeObjRef)
+=item toXMLFileHandle ($fileHandle, $indent)
 
  
-
-=item removeAttribute ($attribObjRef)
-
- 
-
-=item toXMLFileHandle ($indent, $fileHandle)
-
-Special local method.  
 
 =back
 
@@ -346,15 +359,6 @@ Special local method.
 
 =over 4
 
-
-
-=over 4
-
-The following class methods are inherited from L<XDF::BaseObject>:
-B<Pretty_XDF_Output>, B<Pretty_XDF_Output_Indentation>, B<DefaultDataArraySize>. 
-
-=back
-
 =back
 
 
@@ -362,24 +366,6 @@ B<Pretty_XDF_Output>, B<Pretty_XDF_Output_Indentation>, B<DefaultDataArraySize>.
 =head2 INHERITED INSTANCE Methods
 
 =over 4
-
-
-
-=over 4
-
-XDF::XMLElement inherits the following instance (object) methods of L<XDF::GenericObject>:
-B<new>, B<clone>, B<update>.
-
-=back
-
-
-
-=over 4
-
-XDF::XMLElement inherits the following instance (object) methods of L<XDF::BaseObject>:
-B<addXMLElement>, B<removeXMLElement>, B<getXMLElementList>, B<setXMLElementList>, B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLAttributes>, B<setXMLNotationHash>, B<toXMLFile>.
-
-=back
 
 =back
 
@@ -391,7 +377,7 @@ B<addXMLElement>, B<removeXMLElement>, B<getXMLElementList>, B<setXMLElementList
 
 =over 4
 
-L<XDF::BaseObject>, L<XDF::XMLAttribute>
+L< XDF::Array>, L< XDF::Structure>
 
 =back
 
