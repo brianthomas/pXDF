@@ -39,14 +39,12 @@ my $QUIET = 1;
 
   my $XDF = new XDF::XDF();
   $XDF->loadFromXDFFile($file, \%options);
-# not used anymore
-#  my $XDF = &XDF::Reader::createXDFObjectFromFile($file, \%options);
 
   foreach my $arrayObj (@{$XDF->getArrayList()}) {
     my $name = $arrayObj->getName;
     $name = "" unless defined $name;
     print "ARRAY: ",$arrayObj->getName, " of dimension: ",$arrayObj->getDimension(),"\n";
-    &dump_2D_array(\*STDOUT, $arrayObj) if $arrayObj->getDimension() == 2;
+    &dump_2D_array(\*STDOUT, $arrayObj) if ($arrayObj->getDimension() == 2);
   }
 
   exit 0;
@@ -62,19 +60,22 @@ sub dump_2D_array {
    # dump the array
    # get the number of indices along each axis 
 
+   print "Internal ordering of data within the 2D Array is:\n";
+
    my $rowAxis = @{$arrayObj->getAxisList}->[0];
    my $colAxis = @{$arrayObj->getAxisList}->[1];
 
    my @size = ($rowAxis->getLength(), $colAxis->getLength());
 
    my $locator = $arrayObj->createLocator;
-   foreach my $row (0 .. $size[0]) {
-     foreach my $col (0 .. $size[1]) {
+   foreach my $row (0 .. ($size[0]-1)) {
+     foreach my $col (0 .. ($size[1]-1)) {
        $locator->setAxisIndex($rowAxis, $row);
        $locator->setAxisIndex($colAxis, $col);
        my $datum = $arrayObj->getData($locator);
        $datum = " " unless defined $datum;
-       print $filehandle $datum . $data_separator;
+#       print $filehandle $datum . $data_separator;
+       print $filehandle $datum . "@($col,$row) ";
      }
      print $filehandle "\n";
    }
