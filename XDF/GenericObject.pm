@@ -74,12 +74,15 @@ sub getClassAttributes {
 sub AUTOLOAD {
   my ($self, $val, $attr, $field_ref) = @_;
   
+  return unless $attr;
+
   # subst. to rip off leading class name
   $attr =~ s/.*:://; 
   return unless $attr =~ m/[^A-Z]/; # skip all-cap methods (e.g. DESTROY)
   
   # safety check
-  croak "invalid attribute method: $self->$attr()" unless defined %{$field_ref}->{$attr};
+  #croak "invalid attribute method: $self->$attr()" unless defined %{$field_ref}->{$attr};
+  croak "invalid attribute method: $self->$attr()" unless defined $field_ref->{$attr};
   
   # We use the local value, if it exists, otherwise we go to 
   # the reference object, if it exists
