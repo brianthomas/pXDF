@@ -258,9 +258,15 @@ sub removeUnit {
 
 sub _basicXMLWriter {
   my ($self, $fileHandle, $indent, $dontCloseNode ) = @_;
-  $self->SUPER::_basicXMLWriter($fileHandle, $indent, 
-                                $dontCloseNode, $self->{XMLNodeName}, 
-                                $Class_No_Unit_Child_Node_Name);
+
+  if ($#{$self->{unitList}} > -1) { 
+     $self->SUPER::_basicXMLWriter($fileHandle, $indent, $dontCloseNode);
+  } else {
+     $self->SUPER::_basicXMLWriter($fileHandle, $indent, 
+                                   $dontCloseNode, $Class_No_Unit_Child_Node_Name);
+  }
+                                # $dontCloseNode, $self->{XMLNodeName}, 
+                                #$Class_No_Unit_Child_Node_Name);
 }
 
 # This is called when we cant find any defined method
