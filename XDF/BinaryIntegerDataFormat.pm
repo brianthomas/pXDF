@@ -114,6 +114,8 @@ sub getBits {
 # */
 sub setBits {
    my ($self, $value) = @_;
+   carp "Cant set bits to value other than 16, 32 or 64 \n"
+      unless (defined $value && ($value == 64 or $value == 32 or $value == 16));
    $self->{Bits} = $value;
 }
 
@@ -169,6 +171,9 @@ sub _init {
 }
 
 
+# Yes, this is sub-optimal. We dont treat having littleEndian AND
+# unsigned or 64-bit AND littleEndian. Need to reformulate a more
+# basic subroutine. -b.t. 
 sub _templateNotation {
   my ($self, $endian, $encoding) = @_;
 
@@ -177,8 +182,27 @@ sub _templateNotation {
   # we have 32 bit numbers as default
   die "XDF::BinaryInteger cant handle > 32 bit Integer Numbers\n" unless ($width <= 1);
 
+  #ok, lets find our template symbol
+  my $symbol;
+  my $bitsize = $self->{Bits};
   # we hardwired 'BigEndian" response here. Bad!
-  my $symbol = $endian eq 'BigEndian' ? "N" : "V";
+  my $isBigEndian = !defined $endian  || $endian eq 'BigEndian' ? 1 : 0;
+  my $isSigned = $self->{Signed};
+ 
+  if ($bitsize <= 16) {
+     $symbol = "v";
+     $symbol = "n" if $isBigEndian;
+  } elsif ($bitsize <= 32) {
+     $symbol = "V";
+     $symbol = "N" if $isBigEndian;
+  } elsif ($bitsize <= 64) {
+     # we get a 'quad'. No idea what endianess this is :P.
+     $symbol = "Q";
+     $symbol = "q" if $isSigned;
+  }
+
+  # what if we are signed?
+  $symbol = 
 
   return "$symbol";
 
@@ -224,6 +248,12 @@ sub fortranNotation {
 # Modification History
 #
 # $Log$
+# Revision 1.7  2001/01/04 22:33:19  thomas
+# Fix to properly describe (some) cases for the
+# templateNotation. Still have remaining bug of
+# not treating all cases of signed, endianess and
+# bit size. -b.t.
+#
 # Revision 1.6  2000/12/15 22:11:59  thomas
 # Regenerated perlDoc section in files. -b.t.
 #
