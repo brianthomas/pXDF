@@ -32,7 +32,7 @@ package XDF::Field;
 
 # /** SEE ALSO
 # XDF::FieldAxis
-# XDF::FieldRelationship;
+# XDF::Relationship;
 # */
 
 use XDF::BaseObjectWithXMLElements;
@@ -63,37 +63,6 @@ use vars qw ($AUTOLOAD %field @ISA);
 # Note that in order to get the code to use the reference object,
 # the $obj->setObjRef($refFieldObj) method should be used.
 # */
-# /** class
-# The "class" of this field. B<NOT CURRENTLY IMPLEMENTED>
-# */
-# /** lessThanValue
-# The STRING value which indicates the less than symbol ("<") within the data cube
-# for data within the slice corresponding to this field.
-# */
-# /** lessThanOrEqualValue
-# The STRING value which indicates the less than equal symbol ("=<") within the data cube
-# for data within the slice corresponding to this field.
-# */
-# /** greaterThanValue
-# The STRING value which indicates the greater than symbol (">") within the data cube
-# for data within the slice corresponding to this field.
-# */
-# /** greaterThanOrEqualValue
-# The STRING value which indicates the greater than equal symbol (">=") within the data cube
-# for data within the slice corresponding to this field.
-# */
-# /** infiniteValue
-# The STRING value which indicates the infinite value within the data cube
-# for data within the slice corresponding to this field.
-# */
-# /** infiniteNegativeValue
-# The STRING value which indicates the negative infinite value within the data cube
-# for data within the slice corresponding to this field.
-# */
-# /** noDataValue
-# The STRING value which indicates the no data value within the data cube
-# for data within the slice corresponding to this field.
-# */
 # /** noteList
 # a SCALAR (ARRAY REF) of the L<XDF::Note> objects held by this field.
 # */
@@ -114,18 +83,8 @@ my @Local_Class_XML_Attributes = qw (
                       description
                       fieldId
                       fieldIdRef
-                      class
-                      lessThanValue
-                      lessThanOrEqualValue
-                      greaterThanValue
-                      greaterThanOrEqualValue
-                      infiniteValue
-                      infiniteNegativeValue
-                      noDataValue
-                      notANumberValue
-                      overFlowValue
-                      underFlowValue
-                      disabledValue
+                      complexComponent
+                      conversion
                       units
                       dataFormat
                       relation
@@ -233,187 +192,55 @@ sub setFieldIdRef {
    $self->{fieldIdRef} = $value;
 }
 
-# /** getClass
+# * getClass
 # */
-sub getClass {
-   my ($self) = @_;
-   return $self->{class};
-}
+#sub getClass {
+#   my ($self) = @_;
+#   return $self->{class};
+#}
 
-# /** setClass
+#  setClass
 #     Set the class attribute. 
 # */
-sub setClass {
-   my ($self, $value) = @_;
-   $self->{class} = $value;
-}
+#sub setClass {
+#   my ($self, $value) = @_;
+#   $self->{class} = $value;
+#}
 
-# /** getLessThanValue
+# /** getComplexComponent
 # */
-sub getLessThanValue {
+sub getComplexComponent {
    my ($self) = @_;
-   return $self->{lessThanValue};
+   return $self->{complexComponent};
 }
 
-# /** setLessThanValue
-#     Set the lessThanValue attribute. 
+# /** setComplexComponent
+#     Set the complexComponent Value.
 # */
-sub setLessThanValue {
+sub setComplexComponent {
    my ($self, $value) = @_;
-   $self->{lessThanValue} = $value;
+   unless (&XDF::Utility::isValidComplexComponent($value)) {
+     error("Cant set field complexComponent to $value, not allowed, ignoring \n");
+     return;
+   }
+   $self->{complexComponent} = $value;
 }
 
-# /** getLessThanOrEqualValue
-# */
-sub getLessThanOrEqualValue {
+# /** getConversion
+#   
+#  */
+sub getConversion {
    my ($self) = @_;
-   return $self->{lessThanOrEqualValue};
+   return $self->{conversion};
 }
 
-# /** setLessThanOrEqualValue
-#     Set the lessThanOrEqualValue attribute. 
-# */
-sub setLessThanOrEqualValue {
+# /** setConversion
+#     Set how to convert values of the data in this array. 
+#  */
+sub setConversion {
    my ($self, $value) = @_;
-   $self->{lessThanOrEqualValue} = $value;
-}
-
-sub getGreaterThanValue {
-   my ($self) = @_;
-   return $self->{greaterThanValue};
-}
-
-# /** setGreaterThanValue
-#     Set the greaterThanValue attribute. 
-# */
-sub setGreaterThanValue {
-   my ($self, $value) = @_;
-   $self->{greaterThanValue} = $value;
-}
-
-# /** getGreaterThanOrEqualValue
-# */
-sub getGreaterThanOrEqualValue {
-   my ($self) = @_;
-   return $self->{greaterThanOrEqualValue};
-}
-
-# /** setGreaterThanOrEqualValue
-#     Set the greaterThanOrEqualValue attribute. 
-# */
-sub setGreaterThanOrEqualValue {
-   my ($self, $value) = @_;
-   $self->{greaterThanOrEqualValue} = $value;
-}
-
-# /** getInfiniteValue
-# */
-sub getInfiniteValue {
-   my ($self) = @_;
-   return $self->{infiniteValue};
-}
-
-# /** setInfiniteValue
-#     Set the infiniteValue attribute. 
-# */
-sub setInfiniteValue {
-   my ($self, $value) = @_;
-   $self->{infiniteValue} = $value;
-}
-
-# /** getInfiniteNegativeValue
-# */
-sub getInfiniteNegativeValue {
-   my ($self) = @_;
-   return $self->{infiniteNegativeValue};
-}
-
-# /** setInfiniteNegativeValue
-#     Set the infiniteNegativeValue attribute. 
-# */
-sub setInfiniteNegativeValue {
-   my ($self, $value) = @_;
-   $self->{infiniteNegativeValue} = $value;
-}
-
-# /** getNoDataValue
-# */
-sub getNoDataValue {
-   my ($self) = @_;
-   return $self->{noDataValue};
-}
-
-# /** setNoDataValue
-#     Set the noDataValue attribute. 
-# */
-sub setNoDataValue {
-   my ($self, $value) = @_;
-   $self->{noDataValue} = $value;
-}
-
-# /** getNotANumberValue
-# 
-# */
-sub getNotANumberValue {
-   my ($self) = @_;
-   return $self->{notANumberValue};
-}
-
-# /** setNotANumberValue            
-#     Set the notANumberValue attribute. 
-# */                            
-sub setNotANumberValue {
-   my ($self, $value) = @_;
-   $self->{notANumberValue} = $value;
-}
-
-# /** getOverFlowValue
-# 
-# */
-sub getOverFlowValue {
-   my ($self) = @_;
-   return $self->{overFlowValue};
-}
-
-# /** setOverFlowValue            
-#     Set the overFlowValue attribute. 
-# */                            
-sub setOverFlowValue {
-   my ($self, $value) = @_;
-   $self->{overFlowValue} = $value;
-}
-
-# /** getUnderFlowValue
-# 
-# */
-sub getUnderFlowValue {
-   my ($self) = @_;
-   return $self->{underFlowValue};
-}
-
-# /** setUnderFlowValue            
-#     Set the underFlowValue attribute. 
-# */                            
-sub setUnderFlowValue {
-   my ($self, $value) = @_;
-   $self->{underFlowValue} = $value;
-}
-
-# /** getDisabledValue
-# 
-# */
-sub getDisabledValue {
-   my ($self) = @_;
-   return $self->{disabledValue};
-}
-
-# /** setDisabledValue            
-#     Set the disabledValue attribute. 
-# */                            
-sub setDisabledValue {
-   my ($self, $value) = @_;
-   $self->{disabledValue} = $value;
-}
+   $self->{conversion} = $value;
+} 
 
 # /** getUnits
 # */
@@ -442,6 +269,12 @@ sub getDataFormat{
 # */
 sub setDataFormat {
    my ($self, $value) = @_;
+
+   unless (&XDF::Utility::isValidDataFormat(ref $value)) {
+     error("Cant set field DataFormat to $value, not allowed, ignoring \n");
+     return;
+   }
+
    $self->{dataFormat} = $value;
 }
 
@@ -643,102 +476,6 @@ Set the fieldIdRef attribute.
 
  
 
-=item setClass ($value)
-
-Set the class attribute.  
-
-=item getLessThanValue (EMPTY)
-
- 
-
-=item setLessThanValue ($value)
-
-Set the lessThanValue attribute.  
-
-=item getLessThanOrEqualValue (EMPTY)
-
- 
-
-=item setLessThanOrEqualValue ($value)
-
-Set the lessThanOrEqualValue attribute.  
-
-=item getGreaterThanValue (EMPTY)
-
- 
-
-=item setGreaterThanValue ($value)
-
-Set the greaterThanValue attribute.  
-
-=item getGreaterThanOrEqualValue (EMPTY)
-
- 
-
-=item setGreaterThanOrEqualValue ($value)
-
-Set the greaterThanOrEqualValue attribute.  
-
-=item getInfiniteValue (EMPTY)
-
- 
-
-=item setInfiniteValue ($value)
-
-Set the infiniteValue attribute.  
-
-=item getInfiniteNegativeValue (EMPTY)
-
- 
-
-=item setInfiniteNegativeValue ($value)
-
-Set the infiniteNegativeValue attribute.  
-
-=item getNoDataValue (EMPTY)
-
- 
-
-=item setNoDataValue ($value)
-
-Set the noDataValue attribute.  
-
-=item getNotANumberValue (EMPTY)
-
- 
-
-=item setNotANumberValue ($value)
-
-Set the notANumberValue attribute.  
-
-=item getOverFlowValue (EMPTY)
-
- 
-
-=item setOverFlowValue ($value)
-
-Set the overFlowValue attribute.  
-
-=item getUnderFlowValue (EMPTY)
-
- 
-
-=item setUnderFlowValue ($value)
-
-Set the underFlowValue attribute.  
-
-=item getDisabledValue (EMPTY)
-
- 
-
-=item setDisabledValue ($value)
-
-Set the disabledValue attribute.  
-
-=item getUnits{ (EMPTY)
-
- 
-
 =item setUnits ($value)
 
 Set the units attribute.  
@@ -836,7 +573,7 @@ B<getClassXMLAttributes>, B<addXMLElement>, B<removeXMLElement>, B<getXMLElement
 
 =over 4
 
-L< XDF::FieldAxis>, L< XDF::FieldRelationship;>, L<XDF::BaseObjectWithXMLElements>, L<XDF::DataFormat>, L<XDF::Units>
+L< XDF::FieldAxis>, L<XDF::BaseObjectWithXMLElements>, L<XDF::DataFormat>, L<XDF::Units>
 
 =back
 
