@@ -42,10 +42,10 @@ above *_CHILDREN to add more elements.  Some examples of these are
 <!ENTITY % XDF_TYPE "basic">
 <!--Here is the root element!-->
 <![ %BASIC_XDF; [ 
-<!ELEMENT  XDF ((structure | parameter | parameterGroup | array | note)+)>
+  <!ELEMENT  XDF ((structure | parameter | parameterGroup | array | note)+)>
 ]]>
 <![ %INCLUDE_XDF_CHILDREN; [ 
-<!ELEMENT  XDF (xdf_children,(structure | parameter | parameterGroup | array | note)+)>
+  <!ELEMENT  XDF (xdf_children,(structure | parameter | parameterGroup | array | note)+)>
 ]]>
 <!ATTLIST XDF
 	name CDATA #IMPLIED
@@ -53,10 +53,10 @@ above *_CHILDREN to add more elements.  Some examples of these are
 	type CDATA "%XDF_TYPE;"
 >
 <![ %BASIC_STRUCTURE; [ 
-<!ELEMENT structure ((array|parameter|parameterGroup|note|structure)+)>
+  <!ELEMENT structure ((array|parameter|parameterGroup|note|structure)+)>
 ]]>
 <![ %INCLUDE_STRUCTURE_CHILDREN; [ 
-<!ELEMENT structure (structure_children,(array|parameter|parameterGroup|note|structure)+)>
+  <!ELEMENT structure (structure_children,(array|parameter|parameterGroup|note|structure)+)>
 ]]>
 <!ATTLIST structure
 	name CDATA #IMPLIED
@@ -68,14 +68,17 @@ metadata.  They have scope downward but not upward.  That is, their
 scope is the entire level in which they reside and down the hierarchy, 
 unless/until  they are superceded at a lower level.  They are undefined at 
 higher levels.  -->
-<!ELEMENT parameter ((units | unitless), (value | valueList | valueGroup)+, note*)>
+<!-- if no dataFormat appears, it is assumed to be a string value -->
+<!ELEMENT parameter (conversion?, (units | unitless), dataFormat?, (value | valueList | valueListAlgorithm | valueGroup)+, note*)>
 <!ATTLIST parameter
 	name CDATA #IMPLIED
 	description CDATA #IMPLIED
 	paramId ID #IMPLIED
 	paramIdRef IDREF #IMPLIED
-	datatype (integer | float | exponential | string | url) #IMPLIED
 >
+<!--
+	datatype (integer | float | exponential | string | url) #IMPLIED
+-->
 <!--    The unit strings should be written out without abbreviations to
 avoid ambiguity, unless system SI units 
 (http://physics.nist.gov/cuu/Units/index.html) are used.  
@@ -85,7 +88,7 @@ Units are multiplied together (divide by using power="-1").
 Units can begin with a constant multiplier in float format (F) exponential 
 (E) format. 
 	  10^12 kg*m/s^2  is expressed as,
-	<units system="SI" factor="1E12" > 
+	<units system="SI">
 		<unit>kg</unit><unit>m</unit>
 		<unit power="-2">s</unit>
 	</units>
@@ -93,27 +96,30 @@ This element will be superseded in a future version by a system in which the uni
 mathematically handled followining to MathML methods.
 -->
 
-<!-- Conversion allows expression of an algorithm to be applied to the data.  
+<!-- Conversion allows expression of an algorithm to be applied to whatever "value"
+     or set of values is held by the parent node. In the case of an array or field
+     or parameter it is the data/value held by that node. In the case of an axis, 
+     it applies to the meaning of the axis indice values.
      One can string together a sequence of operations to be applied to the 
      stored data values. Applications would have the ability to optionally 
      apply this and to invert it when storing. The sense of the algorithm is
      that familiar to old HP users: RPN ("Reverse Polish Notation").
      For example the algorithm " 10 ^ (50 * ln (45 x + 89)) " would be written 
      <conversion>
-       <mulitply>45</multiply>
+       <multiply>45</multiply>
        <add>89</add>
        <naturalLogarithm/>
-       <mulitply>50</multiply>
+       <multiply>50</multiply>
        <exponentOn>10</exponentOn>
      </conversion>
   -->
-<!ELEMENT conversion (multiply | add | logarithmBase | exponent | exponentOn)+>
+<!ELEMENT conversion (multiply | add | naturalLogarithm | logarithmBase | exponent | exponentOn)+>
 <!--number to multiply the data value  (cx).-->
 <!ELEMENT multiply (#PCDATA)>
 <!--number to add to data (a constant offset: x + c).-->
 <!ELEMENT add (#PCDATA)>
 <!--take the natural log by value here ln(x).-->
-<!ELEMENT naturalLogarithm (#PCDATA)>
+<!ELEMENT naturalLogarithm EMPTY>
 <!--take the log with base set by value here (e.g. "2" means log2(x)).-->
 <!ELEMENT logarithmBase (#PCDATA)>
 <!--take prior value to power with exponent set by value here (x^y).-->
@@ -135,8 +141,6 @@ mathematically handled followining to MathML methods.
 <!ATTLIST unitless
 	name CDATA #IMPLIED
 	description CDATA #IMPLIED
-	factor CDATA #IMPLIED
-	offset CDATA #IMPLIED
 >
 <!--    For the 'value' of the parameter, the attribute special is used
 	to set the data to infinity, negative infinity, noData.  The  element is left empty in these cases.
@@ -159,11 +163,12 @@ mathematically handled followining to MathML methods.
 <!ATTLIST value
 	valueId ID #IMPLIED
 	valueRef IDREF #IMPLIED
-	special (infinite | infiniteNegative | noData | notANumber | underflow | overflow) #IMPLIED
+	special (infinite | infiniteNegative | noData | notANumber | underflow | overflow | disabled) #IMPLIED
 	inequality (lessThan | lessThanOrEqual | greaterThan | greaterThanOrEqual) #IMPLIED
 	positiveErrorValue NMTOKEN #IMPLIED
 	negativeErrorValue NMTOKEN #IMPLIED
 >
+
 <!--The indices of an axis, which run from 0 to size-1,  can optionally be given values that  more 
 appropriately specify the coordinate values along the axis.  One can fill valueList with value elements 
 or a delimited list of values.
@@ -171,14 +176,9 @@ or a delimited list of values.
 <!ELEMENT valueList (#PCDATA)>
 <!ATTLIST valueList
 	delimiter CDATA "&space;"
+	repeatable (yes | no) "yes"
 	valueListId ID #IMPLIED
 	valueListIdRef IDREF #IMPLIED
-	infiniteValue CDATA #IMPLIED
-	infiniteNegativeValue CDATA #IMPLIED
-	noDataValue CDATA #IMPLIED
-	notANumberValue CDATA #IMPLIED
-	underflowValue CDATA #IMPLIED
-	overflowValue CDATA #IMPLIED
 >
 <!--One can fill valueList by algorithm.  For now, there is one such algorithm.  A polynomial with optional logarithm.
 -->
@@ -197,7 +197,7 @@ The logarithm of the resulting series is taken if @logarithm is present.  The ba
 either 10 or e.-->
 <!ELEMENT polynomial (#PCDATA)>
 <!ATTLIST polynomial
-	size NMTOKEN #IMPLIED
+	size NMTOKEN #REQUIRED
 	reverse (true | false) "false"
 	logarithm (10 | natural) #IMPLIED
 >
@@ -230,14 +230,12 @@ either 10 or e.-->
 
 -->
 <![ %BASIC_ARRAY; [
-<!ELEMENT array
-( 	
+  <!ELEMENT array
+  (
 	 (parameter | parameterGroup)*, 	
 		(
 			( 
-				(fieldAxis,axis*,dataStyle)
-				 |
-				(fieldAxis,(rowAxis|colAxis)) 
+				(fieldAxis,axis*,dataStyle) | (fieldAxis,(rowAxis|colAxis))
 			)
 			 |
 			(
@@ -248,22 +246,20 @@ either 10 or e.-->
 						(colAxis,rowAxis?) 
 						| 
 						(rowAxis,colAxis?)
-					)  
+					)
 			)
-		), 
-	data, notes?
-)
->
+		),relation?,data,notes?
+  )
+  >
 ]]>
+
 <![ %INCLUDE_ARRAY_CHILDREN; [
-<!ELEMENT array
-( 	
+  <!ELEMENT array
+    ( 	
 	array_children, (parameter | parameterGroup)*, 	
 		(
 			( 
-				(fieldAxis,axis*,dataStyle) 
-				|
-				(fieldAxis,(rowAxis|colAxis)) 
+				(fieldAxis,axis*,dataStyle) | (fieldAxis,(rowAxis|colAxis))
 			) 
 		|
 			(
@@ -274,26 +270,17 @@ either 10 or e.-->
 						(colAxis,rowAxis?) 
 						| 
 						(rowAxis,colAxis?)
-					)  
+					)
 			)
-		), 
-	data, notes?
-)
->
+		),relation?,data,notes? 
+    )
+  >
 ]]>
 <!ATTLIST array
 	name CDATA #IMPLIED
 	description CDATA #IMPLIED
 	arrayId ID #IMPLIED
 	appendTo IDREF #IMPLIED
-	class (spatial | temporal) #IMPLIED
-	infiniteValue CDATA #IMPLIED
-	infiniteNegativeValue CDATA #IMPLIED
-	noDataValue CDATA #IMPLIED
-	notANumberValue CDATA #IMPLIED
-	underflowValue CDATA #IMPLIED
-	overflowValue CDATA #IMPLIED
-	disabledValue CDATA #IMPLIED
 >
 <!--    Each dimension of an N-dimensional structure is introduced by
 	an axis element.  The order is not important because the read element
@@ -312,7 +299,7 @@ either 10 or e.-->
         to accomplish an array/@apppendTo.
 
 -->
-<!ENTITY % basicAxisChildren "conversion?,(units|unitless),dataFormat?, (valueListAlgorithm | valueList | valueGroup | value)*">
+<!ENTITY % basicAxisChildren "conversion?,(units|unitless)?, dataFormat?, (valueListAlgorithm | valueList | valueGroup | value)*">
 <![ %BASIC_AXIS; [ 
 <!ENTITY % axisChildren "(%basicAxisChildren;)" >
 ]]>
@@ -383,30 +370,24 @@ way to define n-tuples.
 	description CDATA #IMPLIED
 	fieldId ID #IMPLIED
 	fieldIdRef IDREF #IMPLIED
-	class (spatial | temporal) #IMPLIED
 	complexComponent (real | imaginary) #IMPLIED
 	unitDirectionAxisRef IDREF #IMPLIED
-	lessThanValue NMTOKEN #IMPLIED
-	lessThanOrEqualValue NMTOKEN #IMPLIED
-	greaterThanValue NMTOKEN #IMPLIED
-	greaterThanOrEqualValue NMTOKEN #IMPLIED
-	infiniteValue CDATA #IMPLIED
-	infiniteNegativeValue CDATA #IMPLIED
-	noDataValue CDATA #IMPLIED
-	notANumberValue CDATA #IMPLIED
-	underflowValue CDATA #IMPLIED
-	overflowValue CDATA #IMPLIED
-	disabledValue CDATA #IMPLIED
 >
+<!-- relation allows for a machine readable method to scientifically equate 
+     structurally alike items with data. For the time being this means fields with
+     other fields or arrays with other arrays (and so on..). The value of 
+     "role" specifies what
+     the role is of the item that possesses the relationship node. idRefs lists
+     what items this item is in relationship to in terms of that role -->
 <!ELEMENT relation EMPTY>
 <!ATTLIST relation
 	description CDATA #IMPLIED
-	fieldIdRefs IDREFS #REQUIRED
-	role (precision | positiveError | negativeError | error | sensitivity | weight | reference | noteMark | quality) #REQUIRED
+	idRefs IDREFS #REQUIRED
+	role (precision | positiveError | negativeError | error | sensitivity | weight | reference | noteMark ) #REQUIRED
 >
 <!--  Each array can contain notes to individual datum.
 -->
-<!ELEMENT notes (locationOrder?, note+)>
+<!ELEMENT notes (locationOrder?, note+, inequality+)>
 <!ELEMENT locationOrder (index+)>
 <!ELEMENT index EMPTY>
 <!ATTLIST index
@@ -419,6 +400,12 @@ way to define n-tuples.
 	noteIdRef IDREF #IMPLIED
 	location CDATA #IMPLIED
 	href CDATA #IMPLIED
+>
+<!-- could put data inequalities in "notes" section -->
+<!ELEMENT inequality EMPTY>
+<!ATTLIST inequality 
+	location CDATA #REQUIRED
+	type	(lessThan | lessThanOrEqual | greaterThan | greaterThanOrEqual) #REQUIRED
 >
 <!-- 
 There are times when two or more of elements need to be logically
@@ -434,7 +421,6 @@ grouped together with name="position".
 <!ATTLIST fieldGroup
 	name CDATA #IMPLIED
 	description CDATA #IMPLIED
-	class (spatial | temporal) #IMPLIED
 >
 <!ELEMENT valueGroup ((value | valueList | valueListAlgorithm | valueGroup)+)>
 <!ATTLIST valueGroup
@@ -446,7 +432,24 @@ grouped together with name="position".
 	Or, if there are no terminators, the set of formats are 
 	repeated until the end of the data. 
 -->
-<!ELEMENT dataFormat (float | integer | string | binaryInteger | binaryFloat | arrayRef)>
+<!ELEMENT dataFormat ((float | integer | string | binaryInteger | binaryFloat | arrayRef))>
+<!--
+these things need to be dealt with using relationships
+<!ATTLIST dataFormat
+        lessThanValue NMTOKEN #IMPLIED
+        lessThanOrEqualValue NMTOKEN #IMPLIED
+        greaterThanValue NMTOKEN #IMPLIED
+        greaterThanOrEqualValue NMTOKEN #IMPLIED
+-->
+<!ATTLIST dataFormat
+        infiniteValue CDATA #IMPLIED
+        infiniteNegativeValue CDATA #IMPLIED
+        noDataValue CDATA #IMPLIED
+        notANumberValue CDATA #IMPLIED
+        underflowValue CDATA #IMPLIED
+        overflowValue CDATA #IMPLIED
+        disabledValue CDATA #IMPLIED
+>
 <!-- 
 The element float is used for text format of non-integer (floating point) 
 numbers.  If exponential format is to be used, supply the width of the exponent
@@ -484,9 +487,11 @@ real*16 are common but not everywhere).
 <!ATTLIST binaryFloat
 	bits (32 | 64) #REQUIRED
 >
+<!-- inherited from string data format.. this represents arrayId's which
+     hold the n-dimensional "datum" -->
 <!ELEMENT arrayRef EMPTY>
 <!ATTLIST arrayRef
-	width CDATA #REQUIRED
+	length CDATA #REQUIRED
 >
 <!ELEMENT dataStyle (fixedWidth | tagged | delimited)>
 <!ATTLIST dataStyle
@@ -518,8 +523,7 @@ real*16 are common but not everywhere).
 <!ELEMENT fixedWidth (fixedWidthInstruction, for)>
 <!ELEMENT fixedWidthInstruction (repeat | readCell | skip)+>
 <!-- repeatable attribute (above) means that one or more of the delimiter 
-     may occur as a single delimiter.  Here, especially, one must use
-     a noData-value to indicate null. -->
+     may occur as a single delimiter. -->
 <!ELEMENT repeat ((readCell | skip | repeat)+)>
 <!ATTLIST repeat
 	count NMTOKEN #REQUIRED
@@ -576,7 +580,9 @@ the particular axis.  For now, one is restricted to use d0...d7 for tagnames.
         If endByte is not specified, it is accepted to mean the last available byte
         (e.g. the default condition is to use ALL of the bytes in the data section).
 -->
+<!-- NOTE: this is not quite right.. once you start a row or column prescription, that is IT, no using the other one or d0 for that matter -->
 <!ELEMENT data (#PCDATA | data | d0 | row | column)*>
+<!-- NOTE: not sure that uuencoding is a good idea.. can it conflict with XML CDATA special chars? -->
 <!ATTLIST data
 	startByte NMTOKEN "0"
 	endByte NMTOKEN #IMPLIED
@@ -597,8 +603,13 @@ The elements d2,d3,etc allow extension to higher dimensions.-->
 <!ELEMENT d7 (#PCDATA)>
 <!-- these allow the user to specify space-delimited data for 
      row/column in  a 1 or 2-D table -->
+<!ELEMENT row (#PCDATA | cell )*>
+<!ELEMENT column (#PCDATA | cell )*>
+<!ELEMENT cell (#PCDATA)>
+<!--
 <!ELEMENT row (#PCDATA | cell | cells)*>
 <!ELEMENT column (#PCDATA | cell | cells)*>
 <!ELEMENT cell (#PCDATA)>
 <!ELEMENT cells (#PCDATA)>
+-->
 <!-- End of XDF.dtd -->
