@@ -63,8 +63,8 @@ sub dump_2D_array {
    my $locator = $arrayObj->createLocator;
    foreach my $row (0 .. $size[0]) {
      foreach my $col (0 .. $size[1]) {
-       $locator->setAxisLocation($rowAxis, $row);
-       $locator->setAxisLocation($colAxis, $col);
+       $locator->setAxisIndex($rowAxis, $row);
+       $locator->setAxisIndex($colAxis, $col);
        my $datum = $arrayObj->getData($locator);
        $datum = " " unless defined $datum;
        print $filehandle $datum . $data_separator;
