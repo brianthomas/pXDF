@@ -1,0 +1,55 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE XDF SYSTEM "XDF_018.dtd">
+<!-- a plain array w/o datastyle node..its in 'default' configuration, e.g.
+     delimited data are assumed with spaces separating data cells and \n 
+     or "whitespace" denoting the record terminator.
+  -->
+<XDF name="A sample XDF document" description="This shows how to put any data into XDF format">
+  <array name="Image Data">
+    <units>
+      <unit>counts</unit>
+      <unit power="-1">seconds</unit>
+    </units>
+    <dataFormat noDataValue="-9.99" infiniteValue="-1.00">
+      <float width="5" precision="2"/>
+    </dataFormat>
+    <!-- WITHOUT a dataStyle node, the Axis order describes "fastest" to "slowest" 
+         axes and the data are assumed to be delimited. In terms of populating
+         the N-dimensional cube, we will populate the data cube as if in a set 
+         of nested "for" statements dictated by axis order, e.g. if the appearance
+         of axes in a file is:
+ 
+         <axis0/>
+         <axis1/>
+       
+         then the for statement used by XDF to read in the data looks like (psuedo 
+         code here): 
+
+         for i=0,sizeof(axis0) { 
+            for j=0,sizeof(axis1) { 
+               read_and_insert_one_data_cell_at(i,j);
+               j++; 
+            }
+            i++; 
+         }
+
+         We look for cells using a "delimited" dataStyle with default parameters,
+         e.g. delimiter eq single space and recordTerminator equal to Unix newline
+         (\n character). 
+    -->
+
+    <!-- a 3D cube of dimension 5 x 2 x 2 --> 
+    <axis name="x" axisId="x-axis" size="5"/>
+    <axis name="y" axisId="y-axis" size="2"/>
+    <axis name="z" axisId="z-axis" size="2"/>
+    <data>
+        <data>1.00 2.00 3.00 4.00 5.00 6.00 7.00 8.00 9.00 9.99 </data>
+        <data><![CDATA[1.01 2.01 3.01 4.01 5.01 6.01 7.01 8.01 9.01 9.99 
+]]>
+        </data>
+    </data>
+    <notes>
+      <note>Improper cooling of the camera may have resulted in significant dark current.</note>
+    </notes>
+  </array>
+</XDF>
