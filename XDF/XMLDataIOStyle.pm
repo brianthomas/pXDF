@@ -66,8 +66,11 @@ use vars qw ($AUTOLOAD %field @ISA);
 # What endian to use when writing out binary data.
 # */
 
+my $Big_Endian             = 'BigEndian'; 
+my $Little_Endian             = 'LittleEndian'; 
+
 my $Def_Encoding           = 'ISO-8859-1';
-my $Def_Endian             = 'BigEndian'; 
+my $Def_Endian             = $Big_Endian;
 
 my $Untagged_Instruction_Node_Name = "for";
 
@@ -107,6 +110,20 @@ sub classXMLNodeName {
 # */
 sub classAttributes {
   \@Class_Attributes;
+}
+
+# /** getLittleEndian
+# Returns the Little Endian string setting.
+# */
+sub getLittleEndian {
+  return $Little_Endian;
+}
+
+# /** getBigEndian
+# Returns the Big Endian string setting.
+# */
+sub getBigEndian {
+  return $Big_Endian;
 }
 
 sub untaggedInstructionNodeName { 
@@ -210,6 +227,10 @@ sub _init {
 # Modification History
 #
 # $Log$
+# Revision 1.6  2001/03/07 23:14:25  thomas
+# added class methods of "getLittleEndian" and "getBigEndian" so
+# the values could be determined with/out DTD.
+#
 # Revision 1.5  2000/12/15 22:11:59  thomas
 # Regenerated perlDoc section in files. -b.t.
 #
