@@ -96,7 +96,7 @@ sub isValidAxisSize {
 
    # its not ok to be undefined
    return 0 unless defined $value;
-   return 1 if ($value > &XDF::Constants::DEFAULT_AXIS_SIZE);
+   return 1 if ($value >= &XDF::Constants::DEFAULT_AXIS_SIZE);
    return 0;
 }
 
