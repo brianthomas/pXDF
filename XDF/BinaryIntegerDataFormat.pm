@@ -249,6 +249,11 @@ sub _templateNotation {
   return $self->{_templateNotation};
 }
 
+sub _outputTemplateNotation {
+  my ($self) = @_;
+  return $self->_templateNotation(); 
+} 
+
 sub _updateTemplate {
   my ($self) = @_;
 
@@ -287,6 +292,10 @@ sub _sprintfNotation {
 # Modification History
 #
 # $Log$
+# Revision 1.17  2001/05/23 17:24:14  thomas
+# change to allow right-justification of ASCII
+# numbers.
+#
 # Revision 1.16  2001/04/25 16:01:31  thomas
 # updated documentation
 #

@@ -225,8 +225,18 @@ sub AUTOLOAD {
 }
 
 sub _templateNotation {
-  my ($self, $endian, $encoding) = @_;
-  return "A" . $self->numOfBytes(); 
+   my ($self, $endian, $encoding) = @_;
+   return "A" . $self->numOfBytes(); 
+}
+
+sub _outputTemplateNotation {
+   my ($self, $endian, $encoding) = @_;
+   if (defined $self->{Exponent} && $self->{Exponent} > 1)
+   {
+      return "%" . $self->{Width} . "\." . $self->{Precision} . "g";
+   } else { 
+      return "%" . $self->{Width} . "\." . $self->{Precision} . "f"; 
+   }
 }
 
 sub _regexNotation {
@@ -279,6 +289,10 @@ sub _sprintfNotation {
 # Modification History
 #
 # $Log$
+# Revision 1.8  2001/05/23 17:24:14  thomas
+# change to allow right-justification of ASCII
+# numbers.
+#
 # Revision 1.7  2001/04/25 16:01:31  thomas
 # updated documentation
 #

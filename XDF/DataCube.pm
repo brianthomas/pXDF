@@ -646,7 +646,7 @@ sub _writeFormattedData {
    my @numOfBytes;
 
    for (my $i = 0; $i <= $nrofDataFormats; $i++) {
-      $pattern[$i] = $dataFormat[$i]->_templateNotation(0);
+      $pattern[$i] = $dataFormat[$i]->_outputTemplateNotation();
 
       $numOfBytes[$i] = $dataFormat[$i]->numOfBytes();
       if (ref($dataFormat[$i]) eq 'XDF::IntegerDataFormat')
@@ -759,14 +759,20 @@ sub _doReadCellFormattedIOCmdOutput {
 #   my $template = $thisDataFormat->_templateNotation(0);
 
    if (ref($thisDataFormat) eq 'XDF::StringDataFormat'
-        || ref($thisDataFormat) eq 'XDF::FloatDataFormat'
       )
    {
       $output = pack $template, $datum;
    }
+   elsif (ref($thisDataFormat) eq 'XDF::FloatDataFormat') 
+   {
+      #$output = sprintf "%5.2f", $datum;
+      $output = sprintf $template, $datum;
+      #$output = pack $template, $datum;
+   }
    elsif (ref($thisDataFormat) eq 'XDF::IntegerDataFormat') 
    {
-     $output = pack $template, $datum;
+      # $output = pack $template, $datum;
+      $output = sprintf $template, $datum;
       if (defined $intFlagType) {
          if ($intFlagType eq XDF::Constants::INTEGER_TYPE_OCTAL) {
             warn "Cant write OCTAL integers yet, aborting cell write";
@@ -843,6 +849,10 @@ sub _build_locator_string {
 # Modification History
 #
 # $Log$
+# Revision 1.22  2001/05/23 17:24:14  thomas
+# change to allow right-justification of ASCII
+# numbers.
+#
 # Revision 1.21  2001/04/25 16:01:31  thomas
 # updated documentation
 #
