@@ -96,19 +96,21 @@ my $Class_XML_Node_Name = "XDF";
 my @Local_Class_XML_Attributes = qw (
                                       type
                                     ); 
-my @Class_Attributes = qw (
-                          ); 
+my @Local_Class_Attributes = qw (
+                                ); 
+my @Class_Attributes;
+my @Class_XML_Attributes;
 
-# add in super class XML attributes to our list 
-my @Class_XML_Attributes = ();
+# add in local class XML attributes
+push @Local_Class_Attributes, @Local_Class_XML_Attributes;
+
+# get super class attributes
 push @Class_XML_Attributes, @{&XDF::Structure::getClassXMLAttributes};
-push @Class_XML_Attributes, @Local_Class_XML_Attributes;
-
-# add in class XML attributes
-push @Class_Attributes, @Class_XML_Attributes;
-
-# add in super class attributes
 push @Class_Attributes, @{&XDF::Structure::getClassAttributes};
+
+# add in local to overall class
+push @Class_XML_Attributes, @Local_Class_XML_Attributes;
+push @Class_Attributes, @Class_XML_Attributes;
 
 # Initalization
 # set up object attributes.
@@ -295,6 +297,9 @@ sub _write_XML_decl_to_file_handle {
 # Modification History
 #
 # $Log$
+# Revision 1.5  2001/08/13 19:54:43  thomas
+# bug fix: use only local XML attributes for appendAttribs in _init
+#
 # Revision 1.4  2001/08/10 16:29:28  thomas
 # Fixed inheritance bug, was repeating Structure attribs 2X.
 #

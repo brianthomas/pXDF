@@ -62,7 +62,7 @@ use vars qw ($AUTOLOAD %field @ISA);
 # CLASS DATA
 my $Class_Node_Name = "fieldAxis";
 # the order of these attributes IS important.
-my @Class_XML_Attributes = qw (
+my @Local_Class_XML_Attributes = qw (
                       name
                       description
                       align
@@ -70,17 +70,26 @@ my @Class_XML_Attributes = qw (
                       axisIdRef
                       fieldList
                           );
-my @Class_Attributes = qw (
+my @Local_Class_Attributes = qw (
                       _length
                       _parentArray
                       _fieldGroupOwnedHash
                           );
 
-# add in class XML attributes
-push @Class_Attributes, @Class_XML_Attributes;
+my @Class_Attributes;
+my @Class_XML_Attributes;
 
-# add in super class attributes
+# add in local class XML attributes
+push @Local_Class_Attributes, @Local_Class_XML_Attributes;
+
+# get super class attributes
+push @Class_XML_Attributes, @{&XDF::BaseObject::getClassXMLAttributes};
 push @Class_Attributes, @{&XDF::BaseObject::getClassAttributes};
+
+# add in local to overall class
+push @Class_XML_Attributes, @Local_Class_XML_Attributes;
+push @Class_Attributes, @Local_Class_Attributes;
+
 
 # /** name
 # The STRING description (short name) of this object.
@@ -452,7 +461,7 @@ sub _init {
   $self->{_length} = 0;
 
   # adds to ordered list of XML attributes
-  $self->_appendAttribsToXMLAttribOrder(\@Class_XML_Attributes);
+  $self->_appendAttribsToXMLAttribOrder(\@Local_Class_XML_Attributes);
 
 
 }
@@ -476,6 +485,9 @@ sub setParentArray { # PRIVATE
 # Modification History
 #
 # $Log$
+# Revision 1.15  2001/08/13 19:48:30  thomas
+# bug fix: use only local XML attributes for appendAttribs in _init
+#
 # Revision 1.14  2001/07/23 15:58:07  thomas
 # added ability to add arbitary XML attribute to class.
 # getXMLattributes now an instance method, we

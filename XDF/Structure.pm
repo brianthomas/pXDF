@@ -114,7 +114,7 @@ use vars qw ($AUTOLOAD @ISA %field);
 my $Class_XML_Node_Name = "structure";
 # NOTE: if you ADD/Change an attribute here, make sure it is
 # properly re-inited in the _init method or you will be sorry!!!
-my @Class_XML_Attributes = qw (
+my @Local_Class_XML_Attributes = qw (
                                  name
                                  description
                                  paramList
@@ -122,9 +122,24 @@ my @Class_XML_Attributes = qw (
                                  arrayList
                                  noteList
                               ); 
-my @Class_Attributes = qw (
+my @Local_Class_Attributes = qw (
                              _paramGroupOwnedHash
                           ); 
+
+my @Class_Attributes;
+my @Class_XML_Attributes;
+
+# add in local class XML attributes
+push @Local_Class_Attributes, @Local_Class_XML_Attributes;
+
+# get super class attributes
+push @Class_XML_Attributes, @{&XDF::BaseObjectWithXMLElements::getClassXMLAttributes};
+push @Class_Attributes, @{&XDF::BaseObjectWithXMLElements::getClassAttributes};
+
+# add in local to overall class
+push @Class_XML_Attributes, @Local_Class_XML_Attributes;
+push @Class_Attributes, @Local_Class_Attributes;
+
 
 # Description of class attributes: 
 # /** name
@@ -142,15 +157,6 @@ my @Class_Attributes = qw (
 # /** arrayList
 # A scalar list reference to the XDF::Array objects held by this XDF::Structure.
 # */
-
-# add in class XML attributes
-push @Class_Attributes, @Class_XML_Attributes;
-
-# add in super class attributes
-push @Class_Attributes, @{&XDF::BaseObjectWithXMLElements::getClassAttributes};
-
-# add in super class XML attributes to our list 
-push @Class_XML_Attributes, @{&XDF::BaseObjectWithXMLElements::getClassXMLAttributes};
 
 # Initalization
 # set up object attributes.
@@ -459,13 +465,16 @@ sub _init {
   $self->{_paramGroupOwnedHash} = {};
 
   # adds to ordered list of XML attributes
-  $self->_appendAttribsToXMLAttribOrder(\@Class_XML_Attributes);
+  $self->_appendAttribsToXMLAttribOrder(\@Local_Class_XML_Attributes);
 
 }
 
 # Modification History
 #
 # $Log$
+# Revision 1.15  2001/08/13 19:55:58  thomas
+# bug fix: use only local XML attributes for appendAttribs in _init
+#
 # Revision 1.14  2001/07/23 15:58:07  thomas
 # added ability to add arbitary XML attribute to class.
 # getXMLattributes now an instance method, we

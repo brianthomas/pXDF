@@ -47,16 +47,25 @@ use vars qw ($AUTOLOAD %field @ISA);
 
 # CLASS DATA
 my $Tag_To_Axis_Node_Name = "tagToAxis";
-my @Class_XML_Attributes = ();
-my @Class_Attributes = qw (
+my @Local_Class_XML_Attributes = ();
+my @Local_Class_Attributes = qw (
                              _tagHash
                              _parentArray
                              _HAS_INIT_AXIS_TAGS
                           );
+my @Class_Attributes;
+my @Class_XML_Attributes;
 
-# add in super class attributes
-push @Class_Attributes, @{&XDF::XMLDataIOStyle::getClassAttributes};
-push @Class_XML_Attributes, @{&XDF::XMLDataIOStyle::getClassXMLAttributes};
+# add in local class XML attributes
+push @Local_Class_Attributes, @Local_Class_XML_Attributes;
+
+# get super class attributes
+push @Class_XML_Attributes, @{&XDF::Group::getClassXMLAttributes};
+push @Class_Attributes, @{&XDF::Group::getClassAttributes};
+
+# add in local to overall class
+push @Class_XML_Attributes, @Local_Class_XML_Attributes;
+push @Class_Attributes, @Class_XML_Attributes;
 
 # Initalization - set up object attributes.
 for my $attr ( @Class_Attributes ) { $field{$attr}++; }
@@ -200,7 +209,7 @@ sub _init {
   $self->{_tagHash} = {};
 
   # adds to ordered list of XML attributes
-  $self->_appendAttribsToXMLAttribOrder(\@Class_XML_Attributes);
+  $self->_appendAttribsToXMLAttribOrder(\@Local_Class_XML_Attributes);
 
   return $self;
 
@@ -235,6 +244,9 @@ sub _removeAxisTag {
 # Modification History
 #
 # $Log$
+# Revision 1.16  2001/08/13 19:50:16  thomas
+# bug fix: use only local XML attributes for appendAttribs in _init
+#
 # Revision 1.15  2001/07/23 15:58:07  thomas
 # added ability to add arbitary XML attribute to class.
 # getXMLattributes now an instance method, we

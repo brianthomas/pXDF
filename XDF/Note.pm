@@ -63,20 +63,29 @@ use vars qw ($AUTOLOAD %field @ISA);
 
 my $Class_XML_Node_Name = "note";
 # the order of these attributes IS important. 
-my @Class_XML_Attributes = qw (
+my @Local_Class_XML_Attributes = qw (
                              mark
                              noteId
                              noteIdRef
                              location
                              value
                           );
-my @Class_Attributes = ();
+my @Local_Class_Attributes = ();
 
-# add in class XML attributes
-push @Class_Attributes, @Class_XML_Attributes;
+my @Class_Attributes;
+my @Class_XML_Attributes;
 
-# add in super class attributes
+# add in local class XML attributes
+push @Local_Class_Attributes, @Local_Class_XML_Attributes;
+
+# get super class attributes
+push @Class_XML_Attributes, @{&XDF::BaseObject::getClassXMLAttributes};
 push @Class_Attributes, @{&XDF::BaseObject::getClassAttributes};
+
+# add in local to overall class
+push @Class_XML_Attributes, @Local_Class_XML_Attributes;
+push @Class_Attributes, @Local_Class_Attributes;
+
 
 # Initalization
 # set up object attributes.
@@ -239,7 +248,7 @@ sub _init {
   $self->SUPER::_init();
 
   # adds to ordered list of XML attributes
-  $self->_appendAttribsToXMLAttribOrder(\@Class_XML_Attributes);
+  $self->_appendAttribsToXMLAttribOrder(\@Local_Class_XML_Attributes);
 
 }
 
@@ -254,6 +263,9 @@ sub AUTOLOAD {
 # Modification History
 #
 # $Log$
+# Revision 1.12  2001/08/13 19:49:15  thomas
+# bug fix: use only local XML attributes for appendAttribs in _init
+#
 # Revision 1.11  2001/07/23 15:58:07  thomas
 # added ability to add arbitary XML attribute to class.
 # getXMLattributes now an instance method, we
@@ -395,6 +407,9 @@ Set the value attribute.
 =item setXMLAttributes ($attribHashRefOrString)
 
 XDF::Note has a special setXMLAttributes method. These objects are so simple they seem to merit special handling. This new setXMLAttributes method takes eitherand attribute Hash reference or a STRING. If the input value is a HASH reference, we construct an object from it, else, we just set its value attribute to the contents of the passed STRING. Private MethodsThis is called when we cant find any defined methodexists already. Used to handle general purpose set/getmethods for our attributes (object fields). Modification History$Log$
+XDF::Note has a special setXMLAttributes method. These objects are so simple they seem to merit special handling. This new setXMLAttributes method takes eitherand attribute Hash reference or a STRING. If the input value is a HASH reference, we construct an object from it, else, we just set its value attribute to the contents of the passed STRING. Private MethodsThis is called when we cant find any defined methodexists already. Used to handle general purpose set/getmethods for our attributes (object fields). Modification HistoryRevision 1.12  2001/08/13 19:49:15  thomas
+XDF::Note has a special setXMLAttributes method. These objects are so simple they seem to merit special handling. This new setXMLAttributes method takes eitherand attribute Hash reference or a STRING. If the input value is a HASH reference, we construct an object from it, else, we just set its value attribute to the contents of the passed STRING. Private MethodsThis is called when we cant find any defined methodexists already. Used to handle general purpose set/getmethods for our attributes (object fields). Modification Historybug fix: use only local XML attributes for appendAttribs in _init
+XDF::Note has a special setXMLAttributes method. These objects are so simple they seem to merit special handling. This new setXMLAttributes method takes eitherand attribute Hash reference or a STRING. If the input value is a HASH reference, we construct an object from it, else, we just set its value attribute to the contents of the passed STRING. Private MethodsThis is called when we cant find any defined methodexists already. Used to handle general purpose set/getmethods for our attributes (object fields). Modification History
 XDF::Note has a special setXMLAttributes method. These objects are so simple they seem to merit special handling. This new setXMLAttributes method takes eitherand attribute Hash reference or a STRING. If the input value is a HASH reference, we construct an object from it, else, we just set its value attribute to the contents of the passed STRING. Private MethodsThis is called when we cant find any defined methodexists already. Used to handle general purpose set/getmethods for our attributes (object fields). Modification HistoryRevision 1.11  2001/07/23 15:58:07  thomas
 XDF::Note has a special setXMLAttributes method. These objects are so simple they seem to merit special handling. This new setXMLAttributes method takes eitherand attribute Hash reference or a STRING. If the input value is a HASH reference, we construct an object from it, else, we just set its value attribute to the contents of the passed STRING. Private MethodsThis is called when we cant find any defined methodexists already. Used to handle general purpose set/getmethods for our attributes (object fields). Modification Historyadded ability to add arbitary XML attribute to class.
 XDF::Note has a special setXMLAttributes method. These objects are so simple they seem to merit special handling. This new setXMLAttributes method takes eitherand attribute Hash reference or a STRING. If the input value is a HASH reference, we construct an object from it, else, we just set its value attribute to the contents of the passed STRING. Private MethodsThis is called when we cant find any defined methodexists already. Used to handle general purpose set/getmethods for our attributes (object fields). Modification HistorygetXMLattributes now an instance method, we

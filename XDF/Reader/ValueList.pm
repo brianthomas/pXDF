@@ -42,14 +42,24 @@ use vars qw ($AUTOLOAD %field @ISA);
 @ISA = ("XDF::GenericObject");
 
 # CLASS DATA
-my @Class_Attributes = qw (
+my @Local_Class_Attributes = qw (
                              attribs
                              parentNode
                              isDelimitedCase
                           );
+my @Class_Attributes;
+#my @Class_XML_Attributes;
 
-# add in super class attributes
+# add in local class XML attributes
+#push @Local_Class_Attributes, @Local_Class_XML_Attributes;
+
+# get super class attributes
+#push @Class_XML_Attributes, @{&XDF::GenericObject::getClassXMLAttributes};
 push @Class_Attributes, @{&XDF::GenericObject::getClassAttributes};
+
+# add in local to overall class
+#push @Class_XML_Attributes, @Local_Class_XML_Attributes;
+push @Class_Attributes, @Local_Class_Attributes;
 
 # Initalization
 # set up object attributes.
@@ -203,4 +213,11 @@ sub AUTOLOAD {
 
 1;
 
-
+#
+# Modification History
+# $Log$
+# Revision 1.2  2001/08/13 19:58:47  thomas
+# bug fix: use only local XML attributes for appendAttribs in _init
+#
+#
+#

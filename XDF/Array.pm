@@ -91,7 +91,7 @@ my $Class_Node_Name = "array";
 # order is important, put array node attributes
 # first, then fieldAxis, axisList, dataCube, then notes
 
-my @Class_XML_Attributes = qw (
+my @Local_Class_XML_Attributes = qw (
                                 name
                                 description
                                 arrayId
@@ -115,10 +115,24 @@ my @Class_XML_Attributes = qw (
                                 dataCube
                                 notes
                               );
-my @Class_Attributes = qw (
+my @Local_Class_Attributes = qw (
                              _paramGroupOwnedHash
                              _locatorList
                           );
+
+my @Class_Attributes;
+my @Class_XML_Attributes;
+
+# add in local class XML attributes
+push @Local_Class_Attributes, @Local_Class_XML_Attributes;
+
+# get super class attributes
+push @Class_XML_Attributes, @{&XDF::BaseObjectWithXMLElements::getClassXMLAttributes};
+push @Class_Attributes, @{&XDF::BaseObjectWithXMLElements::getClassAttributes};
+
+# add in local to overall class
+push @Class_XML_Attributes, @Local_Class_XML_Attributes;
+push @Class_Attributes, @Local_Class_Attributes;
 
 # /** name
 # The STRING description (short name) of this Array. 
@@ -153,12 +167,6 @@ my @Class_Attributes = qw (
 # /** fieldAxis
 # a SCALAR (OBJECT REF) of the L<XDF::FieldAxis> object.
 # */
-
-# add in class XML attributes
-push @Class_Attributes, @Class_XML_Attributes;
-
-# add in super class attributes
-push @Class_Attributes, @{&XDF::BaseObjectWithXMLElements::getClassAttributes};
 
 # Initalization
 # set up object attributes.
@@ -918,7 +926,7 @@ sub _init {
   $self->{_paramGroupOwnedHash} = {};
 
   # adds to ordered list of XML attributes
-  $self->_appendAttribsToXMLAttribOrder(\@Class_XML_Attributes);
+  $self->_appendAttribsToXMLAttribOrder(\@Local_Class_XML_Attributes);
 
 }
 

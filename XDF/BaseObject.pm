@@ -78,18 +78,29 @@ my $replaceNewlineWithEntityInOutputAttribute = 1;
 my $PCDATA_ATTRIBUTE = &XDF::Constants::getPCDATAAttribute;
 
 # CLASS DATA
-my @Class_Attributes = qw (
+my @Local_Class_Attributes = qw (
                              _openGroupNodeHash
                              _groupMemberHash
                              _hasXMLAttribHash
                              _XMLAttribOrder
                           );
-
-my @Class_XML_Attributes = qw (
+my @Local_Class_XML_Attributes = qw (
                               );
 
-# add in super class attributes
+my @Class_Attributes;
+my @Class_XML_Attributes;
+
+# add in local class XML attributes
+push @Local_Class_Attributes, @Local_Class_XML_Attributes;
+
+# get super class attributes
+#push @Class_XML_Attributes, @{&XDF::GenericObject::getClassXMLAttributes};
 push @Class_Attributes, @{&XDF::GenericObject::getClassAttributes};
+
+# add in local to overall class
+push @Class_XML_Attributes, @Local_Class_XML_Attributes;
+push @Class_Attributes, @Local_Class_Attributes;
+
 
 # Initalization - set up object attributes.
 for my $attr ( @Class_Attributes ) { $field{$attr}++; }
@@ -418,12 +429,15 @@ sub _objectToXMLFileHandle {
    return $indent;
 }
 
+# Note: it will only print attributes with scalar values
+# those with references are ignored.
 sub _printAttributes {
   my ($self, $fileHandle, $listRef) = @_;
 
   foreach my $attrib (@{$listRef}) {
     next if $attrib =~ /^_/;
     my $val = $self->{$attrib};
+    next if ref($val);
     if ($replaceNewlineWithEntityInOutputAttribute && $val) {
        $val =~ s/\n/&#10;/g; # newline gets entity 
        $val =~ s/\r/&#13;/g; # carriage return gets entity 
@@ -450,6 +464,11 @@ sub _getXMLInfo {
     #next if $attrib =~ m/XMLNodeName/;
     #next if $attrib =~ m/^_/;
     
+if (ref ($self) eq 'XDF::FormattedXMLDataIOStyle') {
+  print STDERR "got XML attribute: $attrib\n"; 
+
+}
+
     my $val = $self->{$attrib}; # get attribute value 
     next unless defined $val;
 
@@ -527,7 +546,7 @@ sub _init {
   $self->{_XMLAttribOrder} = []; # init of xmlAttribute order of this object
 
   # adds to ordered list of XML attributes
-  $self->_appendAttribsToXMLAttribOrder(\@Class_XML_Attributes);
+  $self->_appendAttribsToXMLAttribOrder(\@Local_Class_XML_Attributes);
 
 }
 
@@ -536,7 +555,7 @@ sub _find_All_child_Href_Objects {
 
   my @list;
 
-  if (ref($self) eq 'XDF::Structure') {
+  if (ref($self) eq 'XDF::XDF') {
      foreach my $arrayObj (@{$self->getArrayList()}) { 
         my $hrefObj = $arrayObj->getDataCube()->getHref();
         push @list, $hrefObj if defined $hrefObj;
@@ -582,6 +601,9 @@ sub READLINE {
 # Modification History
 #
 # $Log$
+# Revision 1.21  2001/08/13 19:58:03  thomas
+# bug fix: use only local XML attributes for appendAttribs in _init
+#
 # Revision 1.20  2001/07/30 19:48:28  thomas
 # added documentation to toXMLString method
 #

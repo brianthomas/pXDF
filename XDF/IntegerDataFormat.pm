@@ -48,11 +48,24 @@ use vars qw ($AUTOLOAD %field @ISA);
 
 # CLASS DATA
 my $Class_XML_Node_Name = "integer";
-my @Class_XML_Attributes = qw (
+my @Local_Class_XML_Attributes = qw (
                              type
                              width
                           );
-my @Class_Attributes = ();
+my @Local_Class_Attributes = ();
+my @Class_Attributes;
+my @Class_XML_Attributes;
+
+# add in local class XML attributes
+push @Local_Class_Attributes, @Local_Class_XML_Attributes;
+
+# get super class attributes
+push @Class_XML_Attributes, @{&XDF::DataFormat::getClassXMLAttributes};
+push @Class_Attributes, @{&XDF::DataFormat::getClassAttributes};
+
+# add in local to overall class
+push @Class_XML_Attributes, @Local_Class_XML_Attributes;
+push @Class_Attributes, @Class_XML_Attributes;
 
 # perhaps saves cpu use to grab once and store.
 my $Integer_Type_Decimal = &XDF::Constants::INTEGER_TYPE_DECIMAL;
@@ -71,15 +84,6 @@ my $Octal_Perl_Sprintf_Field_Integer = 'lo';
 # using long hex format. Should be an error   
 my $Hex_Perl_Sprintf_Field_Integer = 'lx';
 my $Perl_Regex_Field_Integer = '\d';
-
-# add in super class XML attributes
-push @Class_XML_Attributes, @{&XDF::DataFormat::getClassXMLAttributes};
-
-# add in class XML attributes
-push @Class_Attributes, @Class_XML_Attributes;
-
-# add in super class attributes
-push @Class_Attributes, @{&XDF::DataFormat::getClassAttributes};
 
 # Initalization
 # set up object attributes.
@@ -176,7 +180,7 @@ sub _init {
   $self->{type} = $Integer_Type_Decimal;
 
   # adds to ordered list of XML attributes
-  $self->_appendAttribsToXMLAttribOrder(\@Class_XML_Attributes);
+  $self->_appendAttribsToXMLAttribOrder(\@Local_Class_XML_Attributes);
 
 }
 
@@ -229,6 +233,9 @@ sub _outputTemplateNotation {
 # Modification History
 #
 # $Log$
+# Revision 1.17  2001/08/13 19:49:15  thomas
+# bug fix: use only local XML attributes for appendAttribs in _init
+#
 # Revision 1.16  2001/07/23 15:58:07  thomas
 # added ability to add arbitary XML attribute to class.
 # getXMLattributes now an instance method, we

@@ -44,7 +44,7 @@ use vars qw ($AUTOLOAD %field @ISA);
 @ISA = ("XDF::GenericObject");
 
 # CLASS DATA
-my @Class_Attributes = qw (
+my @Local_Class_Attributes = qw (
                              Name
                              Base
                              SysId
@@ -52,11 +52,22 @@ my @Class_Attributes = qw (
                              Ndata
                           );
 
-my @Class_XML_Attributes = qw (
+my @Local_Class_XML_Attributes = qw (
                           );
 
-# add in super class attributes
+my @Class_Attributes;
+my @Class_XML_Attributes;
+
+# add in local class XML attributes
+push @Local_Class_Attributes, @Local_Class_XML_Attributes;
+
+# get super class attributes
+#push @Class_XML_Attributes, @{&XDF::GenericObject::getClassXMLAttributes};
 push @Class_Attributes, @{&XDF::GenericObject::getClassAttributes};
+
+# add in local to overall class
+push @Class_XML_Attributes, @Local_Class_XML_Attributes;
+push @Class_Attributes, @Class_XML_Attributes;
 
 # Initalization
 # set up object attributes.
@@ -166,9 +177,19 @@ sub setSysId {
    $self->{SysId} = $value;
 }
 
+#
+# Private
+# 
+
+# empty,nothing happens here
+sub _init { }
+
 # Modification History
 #
 # $Log$
+# Revision 1.5  2001/08/13 19:49:15  thomas
+# bug fix: use only local XML attributes for appendAttribs in _init
+#
 # Revision 1.4  2001/07/23 15:58:07  thomas
 # added ability to add arbitary XML attribute to class.
 # getXMLattributes now an instance method, we

@@ -44,7 +44,7 @@
 
 package XDF::ValueListAlgorithm;
 
-use XDF::GenericObject;
+use XDF::BaseObject;
 use Carp;
 
 use strict;
@@ -52,12 +52,12 @@ use integer;
 
 use vars qw ($AUTOLOAD %field @ISA);
 
-# inherits from XDF::GenericObject
-@ISA = ("XDF::GenericObject");
+# inherits from XDF::BaseObject
+@ISA = ("XDF::BaseObject");
 
 # CLASS DATA
 my $Class_XML_Node_Name = "valueList";
-my @Class_XML_Attributes = qw (
+my @Local_Class_XML_Attributes = qw (
                              valueListId
                              valueListIdRef
                              start
@@ -70,15 +70,21 @@ my @Class_XML_Attributes = qw (
                              overflow
                              underflow
                            );
-my @Class_Attributes = qw ( 
+my @Local_Class_Attributes = qw ( 
                              values
-                          );
+                           );
+my @Class_Attributes;
+my @Class_XML_Attributes;
 
-# add in class XML attributes
+# add in local class XML attributes
+push @Local_Class_Attributes, @Local_Class_XML_Attributes;
+
+# get super class attributes
+push @Class_Attributes, @{&XDF::BaseObject::getClassAttributes};
+
+# add in local to overall class
+push @Class_XML_Attributes, @Local_Class_XML_Attributes;
 push @Class_Attributes, @Class_XML_Attributes;
-
-# add in super class attributes
-push @Class_Attributes, @{&XDF::GenericObject::getClassAttributes};
 
 # Initalization
 # set up object attributes.
@@ -200,6 +206,10 @@ sub _init {
    $self->{values} = [];
   
    $self->_initValuesFromParams(); 
+
+   # adds to ordered list of XML attributes
+   $self->_appendAttribsToXMLAttribOrder(\@Local_Class_XML_Attributes);
+
 }
 
 sub _initValuesFromParams {
@@ -299,6 +309,9 @@ sub AUTOLOAD {
 # Modification History
 #
 # $Log$
+# Revision 1.4  2001/08/13 19:56:29  thomas
+# bug fix: use only local XML attributes for appendAttribs in _init
+#
 # Revision 1.3  2001/08/10 16:28:36  thomas
 # fixed toXMLFileHandle method to print properly.
 #
