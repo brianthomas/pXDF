@@ -1,6 +1,7 @@
 <?xml version="1.0" standalone="no"?>
 <!DOCTYPE XDF SYSTEM "XDF_018.dtd" [
-<!ENTITY table1 SYSTEM "XDF_sample14.dat" NDATA xdf>
+  <!ENTITY table1 SYSTEM "XDF_sample14.dat" NDATA xdf>
+  <!NOTATION xdf PUBLIC "application/xdf">
 ]>
 <!-- shows how to hold an external, delimited image -->
 <XDF name="A sample XDF document" description="This shows how to put any data into XDF format">

@@ -2,6 +2,7 @@
 <!DOCTYPE XDF SYSTEM "XDF_018.dtd" [
 <!ENTITY newLine "&#10;">
 <!ENTITY table1 SYSTEM "XDF_sample6.dat" NDATA xdf>
+<!NOTATION xdf PUBLIC "application/xdf">
 ]>
 <XDF name="A sample XDF document" description="This shows how to put any data into XDF using formatted data IO Style.">
 <!-- A little table about 3 nearby galaxies -->

@@ -1,7 +1,8 @@
 <?xml version="1.0" standalone="no"?>
 <!DOCTYPE XDF SYSTEM "XDF_018.dtd" [
-<!ENTITY table1 SYSTEM "XDF_sample9.dat.gz" NDATA xdf>
-<!ENTITY newLine "&#10;">
+  <!ENTITY table1 SYSTEM "XDF_sample9.dat.gz" NDATA xdf>
+  <!ENTITY newLine "&#10;">
+  <!NOTATION xdf PUBLIC "application/xdf">
 ]>
 <XDF name="A sample XDF document" description="This shows how to put any data into XDF using formatted data IO Style.">
 <!-- A little table about 3 nearby galaxies -->
