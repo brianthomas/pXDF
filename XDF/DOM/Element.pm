@@ -93,7 +93,8 @@ sub new {
 #*/
 sub getXDFObject {
   my ($self) = @_;
-  return @{$self}->[$XDFOBJECT_INDEX];
+  #return @{$self}->[$XDFOBJECT_INDEX];
+  return $self->[$XDFOBJECT_INDEX];
 }
 
 #/** setXDFObject 
@@ -101,7 +102,8 @@ sub getXDFObject {
 #*/
 sub setXDFObject {
   my ($self, $value) = @_;
-  @{$self}->[$XDFOBJECT_INDEX] = $value;
+  #@{$self}->[$XDFOBJECT_INDEX] = $value;
+  $self->[$XDFOBJECT_INDEX] = $value;
 }
 
 #/** appendChild
