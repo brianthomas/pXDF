@@ -38,6 +38,11 @@ use XML::DOM;
 use strict;
 use integer;
 
+use vars qw { $VERSION };
+
+# the version of this module
+$VERSION = "0.17-beta2";
+
 # This is used by XMLElement for referencing a document. Only
 # because the DOM spec requires that a document be specified 
 # do we do this. Ush. IF only the DocumentFragment (a lighterweight)
@@ -222,6 +227,9 @@ sub XDF_NODE_NAMES { (
 # Modification History
 #
 # $Log$
+# Revision 1.16  2001/08/13 21:02:36  thomas
+#  moved VERSION from BaseObject to Constants class
+#
 # Revision 1.15  2001/08/13 20:56:37  thomas
 # updated documentation via utils/makeDoc.pl for the release.
 #

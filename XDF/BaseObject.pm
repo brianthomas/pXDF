@@ -52,10 +52,7 @@ use Carp;
 use strict;
 use integer;
 
-use vars qw ($VERSION @ISA %field);
-
-# the version of this module
-$VERSION = "0.17-beta1";
+use vars qw (@ISA %field);
 
 # inherits from XDF::GenericObject
 @ISA = ("XDF::GenericObject");
@@ -601,6 +598,9 @@ sub READLINE {
 # Modification History
 #
 # $Log$
+# Revision 1.23  2001/08/13 21:02:36  thomas
+#  moved VERSION from BaseObject to Constants class
+#
 # Revision 1.22  2001/08/13 20:56:36  thomas
 # updated documentation via utils/makeDoc.pl for the release.
 #
