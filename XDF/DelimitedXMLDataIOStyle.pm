@@ -38,13 +38,12 @@ my $Def_Delimiter = " ";
 my $Def_Repeatable = "yes";
 my $Def_Record_Terminator = "\n";
 
-my $Class_XML_Node_Name = "textDelimiter";
+my $Class_XML_Node_Name = "delimited";
 # the order of these attributes IS important. 
 # Note: _parentArray isnt needed by TextDelimiter, but is supplied for 
 # compatablity w/ FormattedReadStyle (the other untagged Read style at this time)
 my @Local_Class_XML_Attributes = qw (
                              delimiter
-                             repeatable
                              recordTerminator
                           );
 
@@ -103,21 +102,6 @@ sub setDelimiter {
    $self->{delimiter} = $value;
 }
 
-# /** getRepeatable
-# */
-sub getRepeatable {
-   my ($self) = @_;
-   return $self->{repeatable};
-}
-
-# /** setRepeatable
-#     Set the repeatable attribute. 
-# */
-sub setRepeatable {
-   my ($self, $value) = @_;
-   $self->{repeatable} = $value;
-}
-
 # /** getRecordTerminator
 # */
 sub getRecordTerminator {
@@ -138,7 +122,7 @@ sub setRecordTerminator {
 #
 
 sub _basicXMLWriter {
-  my ($self, $fileHandle, $junk, $indent) = @_;
+  my ($self, $fileHandle, $indent) = @_;
 
   my $spec = XDF::Specification->getInstance();
   my $niceOutput = $spec->isPrettyXDFOutput;
@@ -146,7 +130,7 @@ sub _basicXMLWriter {
   $indent = "" unless defined $indent;
   my $more_indent = $spec->getPrettyXDFOutputIndentation;
 
-  print $fileHandle "$indent" if $niceOutput;
+  print $fileHandle $indent if $niceOutput;
 
   # open the read block, print attributes 
   print $fileHandle "<" . $self->SUPER::classXMLNodeName;
@@ -155,31 +139,50 @@ sub _basicXMLWriter {
   print $fileHandle ">";
   print $fileHandle "\n" if $niceOutput;
 
+  my $next_indent = $indent . $more_indent;
+  my $next_indent2 = $next_indent . $more_indent;
+  my $next_indent3 = $next_indent2 . $more_indent;
+
+  # print delimited info
+  print $fileHandle $next_indent if $niceOutput;
+  print $fileHandle "<" . $self->classXMLNodeName . ">";
+  print $fileHandle "\n" if $niceOutput;
+
+  print $fileHandle $next_indent2 if $niceOutput;
+  print $fileHandle "<delimitedInstruction>";
+  print $fileHandle "\n" if $niceOutput;
+
+  # print attributes
+  $self->getDelimiter()->_basicXMLWriter($fileHandle, $next_indent3);
+  print $fileHandle "\n" if $niceOutput;
+  $self->getRecordTerminator()->_basicXMLWriter($fileHandle, $next_indent3);
+  print $fileHandle "\n" if $niceOutput;
+
+  print $fileHandle $next_indent2 if $niceOutput;
+  print $fileHandle "</delimitedInstruction>";
+  print $fileHandle "\n" if $niceOutput;
+  
   my @indent;
   my $Untagged_Instruction_Node_Name = $self->untaggedInstructionNodeName();
-  my $next_indent = $indent . $more_indent;
   #foreach my $axisObj (@{$self->{_parentArray}->getAxisList()}) {
  # we write this out in the *reverse* ordering. Why? because XDF
   # DTD wants the fastest axis to be *last*
   foreach my $axisObj (reverse @{$self->getWriteAxisOrderList()}) {
     my $axisId = $axisObj->getAxisId();
-    push @indent, $next_indent;
-    print $fileHandle "$next_indent" if $niceOutput;
+    push @indent, $next_indent2;
+    print $fileHandle "$next_indent2" if $niceOutput;
     # next 3 lines: have to break up printing of '"' or toXMLString will behave badly
     print $fileHandle "<$Untagged_Instruction_Node_Name axisIdRef=\"";
     print $fileHandle $axisId;
     print $fileHandle "\">";
 
     print $fileHandle "\n" if $niceOutput;
-    $next_indent .= $more_indent;
+    $next_indent2 .= $more_indent;
   }
 
   # now dump our single node here
-  print $fileHandle "$next_indent" if $niceOutput;
-  print $fileHandle "<" . $self->classXMLNodeName;
-  # print out attributes
-  $self->_printAttributes($fileHandle, \@Class_XML_Attributes);
-  print $fileHandle "/>";
+  print $fileHandle $next_indent2 if $niceOutput;
+  print $fileHandle "<doInstruction/>";
   print $fileHandle "\n" if $niceOutput;
 
   #close the instructions
@@ -189,10 +192,13 @@ sub _basicXMLWriter {
     print $fileHandle "\n" if $niceOutput;
   }
 
-  # close the read block
+  # close the whole block
+  print $fileHandle $next_indent if $niceOutput;
+  print $fileHandle "</" . $self->classXMLNodeName . ">";
+  print $fileHandle "\n" if $niceOutput;
+
   print $fileHandle "$indent" if $niceOutput;
   print $fileHandle "</" . $self->SUPER::classXMLNodeName . ">";
-#  print $fileHandle "\n" if $niceOutput;
 
 }
 
@@ -224,10 +230,12 @@ sub _regexNotation {
   my ($self) = @_;
 
   my $notation = '(.*?)[';
+
+  my $delimiterObj = $self->getDelimiter();
   
-  $notation .= $self->{delimiter};
-  $notation .= '|' . $self->{recordTerminator} . ']';
-  $notation .= '+' if $self->{repeatable} eq 'yes';
+  $notation .= $delimiterObj->getStringValue();
+  $notation .= '|' . $self->getRecordTerminator()->getStringValue() . ']';
+  $notation .= '+' if $delimiterObj->getRepeatable() eq 'yes';
   return $notation;
 }
 
@@ -235,148 +243,10 @@ sub _regexNotation {
 sub _sprintfNotation {
   my ($self) = @_;
 
-  my $notation = '%s' . $self->{delimiter};
+  my $notation = '%s' . $self->getDelimiter->getStringValue();
 
   return $notation;
 }
 
 1;
 
-
-__END__
-
-=head1 NAME
-
-XDF::DelimitedXMLDataIOStyle - Perl Class for DelimitedXMLDataIOStyle
-
-=head1 SYNOPSIS
-
-...
-
-=head1 DESCRIPTION
-
- XDF::DelimitedDataIOStyle is a class that indicates how delimited ASCII  records are to be read in. 
-
-XDF::DelimitedXMLDataIOStyle inherits class and attribute methods of L<XDF::GenericObject>, L<XDF::BaseObject>, L<XDF::XMLDataIOStyle>.
-
-
-=head1 METHODS
-
-=over 4
-
-=head2 CLASS Methods
-
-The following methods are defined for the class XDF::DelimitedXMLDataIOStyle.
-
-=over 4
-
-=item classXMLNodeName (EMPTY)
-
- 
-
-=item getClassAttributes (EMPTY)
-
- 
-
-=item getClassXMLAttributes (EMPTY)
-
-This method returns the XMLAttributes of this class.  
-
-=back
-
-=head2 INSTANCE (Object) Methods
-
-The following instance (object) methods are defined for XDF::DelimitedXMLDataIOStyle.
-
-=over 4
-
-=item getDelimiter (EMPTY)
-
- 
-
-=item setDelimiter ($value)
-
-Set the delimiter attribute.  
-
-=item getRepeatable (EMPTY)
-
- 
-
-=item setRepeatable ($value)
-
-Set the repeatable attribute.  
-
-=item getRecordTerminator (EMPTY)
-
- 
-
-=item setRecordTerminator ($value)
-
-Set the recordTerminator attribute.  
-
-=item toXMLFileHandle ($fileHandle, $junk, $indent)
-
- 
-
-=back
-
-
-
-=head2 INHERITED Class Methods
-
-=over 4
-
-=back
-
-
-
-=head2 INHERITED INSTANCE Methods
-
-=over 4
-
-
-
-=over 4
-
-XDF::DelimitedXMLDataIOStyle inherits the following instance (object) methods of L<XDF::GenericObject>:
-B<new>, B<clone>, B<update>.
-
-=back
-
-
-
-=over 4
-
-XDF::DelimitedXMLDataIOStyle inherits the following instance (object) methods of L<XDF::BaseObject>:
-B<getXMLAttributes>, B<setXMLAttributes>, B<setXMLAttribute>, B<addXMLAttribute>, B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<toXMLString>, B<toXMLFile>.
-
-=back
-
-
-
-=over 4
-
-XDF::DelimitedXMLDataIOStyle inherits the following instance (object) methods of L<XDF::XMLDataIOStyle>:
-B<untaggedInstructionNodeName>, B<getReadId{>, B<setReadId>, B<getReadIdRef>, B<setReadIdRef>, B<getEncoding{>, B<setEncoding>, B<getEndian{>, B<setEndian>, B<getWriteAxisOrderList>, B<setWriteAxisOrderList>.
-
-=back
-
-=back
-
-=back
-
-=head1 SEE ALSO
-
-
-
-=over 4
-
-L<XDF::XMLDataIOStyle>
-
-=back
-
-=head1 AUTHOR
-
- 
-
-=cut
