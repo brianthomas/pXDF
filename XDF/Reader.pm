@@ -27,9 +27,9 @@ package XDF::Reader;
 #
 
 # /** DESCRIPTION
-# This module (XDF::Reader is not currently an object) allows the user to create 
-# XDF objects from XDF files.  Currently XDF::Reader will only read in ASCII data. 
-# Both tagged/untagged(formated/delimited) XDF data styles are supported.
+# This class allows the user to create XDF objects from XDF files. 
+# XDF::Reader will read in both Binary and ASCII data and tagged/delimited/
+# and formatted XDF data styles are supported.
 # */
 
 # /** AUTHOR 
@@ -87,7 +87,7 @@ use XDF::StringDataFormat;
 use XDF::Structure;
 use XDF::XMLDataIOStyle;
 
-use vars qw ($VERSION);
+use vars qw ($VERSION %field);
 
 # look for the checker, if its installed use it
 # otherwise, fall back to the (regular) non-validating
@@ -98,12 +98,75 @@ BEGIN {
   }
 } 
 
-# the version of this module, what version of XDF
-# it will read in.
-$VERSION = "0.17";
-
 use strict;
 use integer;
+
+my @Class_Attributes = qw (
+                              XDF
+                              options
+                              startElementHandler
+                              endElementHandler
+                              charDataElementHandler
+                              currentStructure
+                              currentArray
+                              currentDataTypeObject
+                              currentFormatObject
+                              currentArrayAxes
+                              currentNodePath
+                              currentValueList
+                              lastNoteObject
+                              lastNotesObject
+                              lastUnitObject
+                              lastUnitsObject
+                              lastParamObject
+                              lastParamGroupParentObject
+                              lastValueGroupParentObject
+                              taggedLocatorObject
+                              ReadAxisOrder
+                              Notation
+                              UnParsedEntity
+                              Entity
+                              dataFormatAttribRef;
+                              dataIOStyleAttribRef;
+                              nrofWarnings
+                              cdataIsArrayData
+                              dataNodeLevel
+                              currentDataTagLevel
+                              dataBlock
+                              tagCount
+                              noteLocatorOrder
+                              ArrayObj
+                              AxisObj
+                              FieldObj
+                              XMLDataIOStyleObj
+                              NoteObj
+                          );
+
+#
+# CLASS DATA
+#
+
+$VERSION = "0.17"; # the version of this module, what version of XDF
+                   # it will read in.
+my $Flag_Decimal = &XDF::Constants::INTEGER_TYPE_DECIMAL;
+my $Flag_Octal = &XDF::Constants::INTEGER_TYPE_OCTAL;
+my $Flag_Hex = &XDF::Constants::INTEGER_TYPE_HEX;
+my $Def_ValueList_Step = &XDF::Constants::DEFAULT_VALUELIST_STEP;
+my $Def_ValueList_Start = &XDF::Constants::DEFAULT_VALUELIST_START;
+my $Def_ValueList_Repeatable = &XDF::Constants::DEFAULT_VALUELIST_REPEATABLE;
+my $Def_ValueList_Delimiter = &XDF::Constants::DEFAULT_VALUELIST_DELIMITER;
+my %XDF_node_name = &XDF::Constants::XDF_NODE_NAMES;
+
+# this is a BAD thing. I have been having troubles distinguishing between
+# important whitespace (e.g. char data within a data node) and text nodes
+# that are purely for the layout of the XML document. Right now I use the 
+# CRUDE distinquishing characteristic that fluff (eg. only there for the sake
+# of formatting the output doc) text nodes are all whitespace.
+# Used by TAGGED data arrays
+my $IGNORE_WHITESPACE_ONLY_DATA = 1;
+
+# Class Attribute Initalization
+for my $attr ( @Class_Attributes ) { $field{$attr}++; }
 
 my $XDF; # reference to the top level structure object
          # and is the only thing passed back from the reader 
@@ -149,21 +212,12 @@ my %UnParsedEntity;
 # parsing it. 
 my @CURRENT_NODE_PATH = ();
 
-my $NROF_WARNING = 0; # a counter that is compared to $MAX_WARNINGS to see if we halt 
 
 # global (switch) variables 
-my $CDATA_IS_ARRAY_DATA; # Tells us when we are accepting char_data as data 
+my $CDATA_IS_ARRAY_DATA;     # Tells us when we are accepting char_data as data 
 my $DATA_NODE_LEVEL = 0;     # how nested we are within a set of datanodes. 
 my $CURRENT_DATA_TAG_LEVEL = 0; # how nested we are within d0/d1/d2 data tags
 my $DATA_TAG_LEVEL = 0;         # the level where the actual char data is
-
-# this is a BAD thing. I have been having troubles distinguishing between
-# important whitespace (e.g. char data within a data node) and text nodes
-# that are purely for the layout of the XML document. Right now I use the 
-# CRUDE distinquishing characteristic that fluff (eg. only there for the sake
-# of formatting the output doc) text nodes are all whitespace.
-# Used by TAGGED data arrays
-my $IGNORE_WHITESPACE_ONLY_DATA = 1;
 
 # other globals...
 
@@ -190,7 +244,11 @@ my %FieldObj;
 my %XMLDataIOStyleObj;
 my %NoteObj;
 
-# options for running the parser
+my $NROF_WARNING = 0; # a counter that is compared to $MAX_WARNINGS to see if we halt 
+
+#
+# OPTIONS for running the parser
+#
 my $MAX_WARNINGS = 10; # how many warnings we can have before termination. 
                        # Set to 0 for unlimited warnings 
 my $DEBUG = 0; # for printing out debug information 
@@ -199,69 +257,12 @@ my $DEF_ARRAY_AXIS_SIZE; # if defined, it will set this at start before loading.
 my $USE_VALIDATING_PARSER; # if true, it will use the XML::Parser::Checker 
 my $PARSER_MSG_THRESHOLD = 200; # we print all messages equal to and below this threshold
   
-# GLOBAL CONSTANTS. 
-
-#my $Tagged_Read_Style  = &XDF::XMLDataIOStyle::taggedXMLDataIOStyleName();
-#my $UnTagged_Read_Style  = &XDF::XMLDataIOStyle::untaggedXMLDataIOStyleName();
-
-my $Flag_Decimal = &XDF::Constants::INTEGER_TYPE_DECIMAL;
-my $Flag_Octal = &XDF::Constants::INTEGER_TYPE_OCTAL;
-my $Flag_Hex = &XDF::Constants::INTEGER_TYPE_HEX;
-
-
-# Now, Some defines based on XDF DTD 
-# change these to reflect new namings of same nodes as they occur.
-                      #'exponent' => 'exponential',
-my %XDF_node_name = ( 
-                      'textDelimiter' => 'textDelimiter',
-                      'array' => 'array',
-                      'axis' => 'axis',
-                      'axisUnits' => 'axisUnits',
-                      'binaryFloat' => 'binaryFloat',
-                      'binaryInteger' => 'binaryInteger',
-                      'data' => 'data',
-                      'dataFormat' => 'dataFormat',
-                      'field' => 'field',
-                      'fieldAxis' => 'fieldAxis',
-                      'float' => 'float',
-                      'for' => 'for',
-                      'fieldGroup' => 'fieldGroup',
-                      'index' => 'index',
-                      'integer' => 'integer',
-                      'locationOrder' => 'locationOrder',
-                      'note' => 'note',
-                      'notes' => 'notes',
-                      'parameter' => 'parameter',
-                      'parameterGroup' => 'parameterGroup',
-                      'root' => 'XDF',   # beware setting this to the same name as structure 
-                      'read' => 'read',
-                      'readCell' => 'readCell',
-                      'repeat' => 'repeat',
-                      'relationship' => 'relation',
-                      'skipChar' => 'skipChars',
-                      'structure' => 'structure',
-                      'string' => 'string',
-                      'tagToAxis' => 'tagToAxis',
-                      'td0' => 'd0',
-                      'td1' => 'd1',
-                      'td2' => 'd2',
-                      'td3' => 'd3',
-                      'td4' => 'd4',
-                      'td5' => 'd5',
-                      'td6' => 'd6',
-                      'td7' => 'd7',
-                      'td8' => 'd8',
-                      'unit' => 'unit',
-                      'units' => 'units',
-                      'unitless' => 'unitless',
-                      'valueList' => 'valueList',
-                      'value' => 'value',
-                      'valueGroup' => 'valueGroup',
-                      'vector' => 'unitDirection',
-                    );
+my %Default_Handler = ( 'start' => sub { my ($p,$e) = @_; &print_warning("Warning: UNKNOWN NODE [$e] encountered. Ignoring.\n") unless $QUIET; }, 
+                        'end' => sub { &null_cmd(); },
+                        'cdata' => sub { &null_cmd(); },
+                      ); 
 
 # dispatch table for the start node handler of the parser
-                     #  $XDF_node_name{'exponent'}     => sub { &exponentField_node_start(@_); },
 my %Start_Handler = (
                        $XDF_node_name{'array'}        => sub { &array_node_start(@_); },
                        $XDF_node_name{'axis'}         => sub { &axis_node_start(@_); },
@@ -341,19 +342,117 @@ my %End_Handler = (
                        $XDF_node_name{'valueGroup'}   => sub { &valueGroup_node_end(); },
                   );
 
-# Finally, some globals to help us do Valuelist nodes 
-my $Def_ValueList_Step = 1;
-my $Def_ValueList_Start = 1;
-my $Def_ValueList_Repeatable = 0;
-my $Def_ValueList_Delimiter = " ";
-
-
-
+#
 # M E T H O D S 
+#
 
-
+#
 # PUBLIC Methods
+#
 
+# /** new
+# Create a new reader object. Returns the reader object if successfull.
+# It takes an optional argument of an option HASH Reference
+# to initialize the object.  
+# */
+sub new {
+  my ($proto, $optionsHashRef) = @_;
+
+  my $class = ref ($proto) || $proto;
+  my $self = bless( { }, $class);
+
+  $self->_init($optionsHashRef);
+
+  return $self;
+
+}
+
+#/** addStartElementHandlers
+# Add new handlers to the internal XDF::Parser start element handler. The form of  
+# the entries in the passed hash should be 'nodename' => sub { &handler_for_nodename(@_); }; 
+# If a 'nodename' for a handler already exists in the XDF start handler table,  
+# this method will override it with the new handler. 
+#*/
+sub addStartElementHandlers {
+  my (%newHandlers) = @_;
+
+  # merge into existing XDF handlers
+  while ( my ($k, $v) = each (%newHandlers)) {
+     $Start_Handler{$k} = $v;
+  }
+
+}
+
+#/** addEndElementHandlers
+# Add new handlers to the internal XDF::Parser end element handler. The form of  
+# the entries in the passed hash should be 'nodename' => sub { &handler_for_nodename(@_); }; 
+# If a 'nodename' for a handler already exists in the XDF end handler table,  
+# this method will override it with the new handler. 
+#*/
+sub addEndElementHandlers {
+  my (%newHandlers) = @_;
+
+  # merge into existing XDF handlers
+  while ( my ($k, $v) = each (%newHandlers)) {
+     $End_Handler{$k} = $v;
+  }
+
+}
+
+#/** addCharDataHandlers
+# Add new handlers to the internal XDF::Parser CDATA element handler. The form of  
+# the entries in the passed hash should be 'nodename' => sub { &handler_for_nodename(@_); }; 
+# If a 'nodename' for a handler already exists in the XDF CDATA handler table,  
+# this method will override it with the new handler. 
+#*/
+sub addCharDataHandlers {
+  my (%newHandlers) = @_;
+
+  # merge into existing XDF handlers
+  while ( my ($k, $v) = each (%newHandlers)) {
+     $CharData_Handler{$k} = $v;
+  }
+
+}
+
+#/** setDefaultStartElementHandler
+# This sets the subroutine which will handle all nodes which DONT match  
+# an entry within the start element handler table. 
+#*/
+sub setDefaultStartElementHandler {
+  my ($self, $codeRef) = @_;
+  return unless defined $codeRef;
+  %{$self->{Default_Handler}}->{'start'} = $codeRef;
+}
+
+#/** setDefaultEndElementHandler
+# This sets the subroutine which will handle all nodes which DONT match  
+# an entry within the end element handler table. 
+#*/
+sub setDefaultEndElementHandler {
+  my ($codeRef) = @_;
+  return unless defined $codeRef;
+  $Default_Handler{'end'} = $codeRef;
+}
+
+#/** setDefaultCharDataHandler
+# This sets the subroutine which will handle all nodes which DONT match  
+# an entry within the CDATA handler table. 
+#*/
+sub setDefaultCharDataHandler {
+  my ($codeRef) = @_;
+  return unless defined $codeRef;
+  $Default_Handler{'cdata'} = $codeRef;
+}
+
+sub parseFile {
+  my ($self, $file) = @_;
+
+  my $QUIET = 0;
+  my $RetObject = &createXDFObjectFromFile($file);
+  return $RetObject;
+}
+ 
 # /** createXDFObjectFromFile
 # Reads in the given file and returns a full XDF Perl object (an L<XDF::Structure>
 #  with at least one L<XDF::Array>). A second HASH argument may be supplied to 
@@ -412,6 +511,18 @@ sub createXDFObjectFromFileHandle {
 # PRIVATE methods (all others) 
 
 # /** PRIVATE METHODS */
+
+sub _init {
+  my ($self, $optionsHashRef) = @_;
+
+  $self->{Options} = ();
+  $self->{Options} = %{$optionsHashRef} if defined $optionsHashRef;
+  $self->{Start_Handler} = %Start_Handler;
+  $self->{End_Handler} = %End_Handler;
+  $self->{CharData_Handler} = %CharData_Handler;
+  $self->{Default_Handler} = %Default_Handler;
+
+}
 
 sub create_parser {
   my ($optionsHashRef) = @_;
@@ -661,9 +772,21 @@ sub handle_start {
    } 
    else 
    {
-      &print_warning ("Warning: UNKNOWN NODE [$element] encountered.\n") unless $QUIET;
+      &default_Start_Handler($parser_ref, $element, \%attrib_hash);
    }
 
+}
+
+sub default_Start_Handler {
+   my ($parser_ref, $element, $attrib_hash_ref) = @_;
+
+   if ( exists $Default_Handler{'start'}) {
+      $Default_Handler{'start'}->($parser_ref, $element, $attrib_hash_ref);
+   }
+   else 
+   {
+      die "ERROR: default start handler NOT defined. Cannot continue parsing\n";
+   }
 }
 
 sub handle_end {
@@ -683,10 +806,22 @@ sub handle_end {
 
    } else {
 
-     # do nothing
+      &default_End_Handler($parser_ref, $element);
 
    } 
 
+}
+
+sub default_End_Handler {
+   my ($parser_ref, $element) = @_;
+
+   if ( exists $Default_Handler{'end'}) {
+      $Default_Handler{'end'}->($parser_ref, $element);
+   }
+   else
+   {
+      die "ERROR: default end handler NOT defined. Cannot continue parsing\n";
+   }
 }
 
 sub handle_char {
@@ -719,6 +854,7 @@ sub handle_char {
        } else { 
 
          # do nothing with other character data
+         &default_CData_Handler($parser_ref, $string);
 
        }
 
@@ -727,6 +863,19 @@ sub handle_char {
    }
 
 }
+
+sub default_CData_Handler {
+   my ($parser_ref, $string) = @_;
+
+   if ( exists $Default_Handler{'cdata'}) {
+      $Default_Handler{'end'}->(@_);
+   }
+   else
+   {
+      die "ERROR: default char data handler NOT defined. Cannot continue parsing\n";
+   }
+}
+
 
 # ignore comments
 sub handle_comment {
@@ -1022,7 +1171,7 @@ sub data_node_charData {
     if (!$IGNORE_WHITESPACE_ONLY_DATA || $string !~ m/^\s*$/) {
 
        &print_debug("ADDING DATA to ($TAGGED_LOCATOR_OBJ) : [$string]\n");
-       $DATA_TAG_LEVEL = $CURRENT_DATA_TAG_LEVEL;
+      # $DATA_TAG_LEVEL = $CURRENT_DATA_TAG_LEVEL;
        $CURRENT_ARRAY->addData($TAGGED_LOCATOR_OBJ, $string);
     }
 
@@ -2477,6 +2626,11 @@ sub _appendArrayToArray {
 # Modification History
 #
 # $Log$
+# Revision 1.18  2001/03/15 22:23:32  thomas
+# Interim class while I change reader over to a real object class.
+# For the time being it works for static class call, but object hooks
+# not yet implemented.
+#
 # Revision 1.17  2001/03/14 21:32:35  thomas
 # Updated perldoc section using new version of
 # makeDoc.pl.
@@ -2579,7 +2733,7 @@ XDF::Reader - Perl Class for Reader
 
 =head1 DESCRIPTION
 
- This module (XDF::Reader is not currently an object) allows the user to create  XDF objects from XDF files.  Currently XDF::Reader will only read in ASCII data.  Both tagged/untagged(formated/delimited) XDF data styles are supported. 
+ This class allows the user to create XDF objects from XDF files.  XDF::Reader will read in both Binary and ASCII data and tagged/delimited/ and formatted XDF data styles are supported. 
 
 
 
@@ -2587,10 +2741,39 @@ XDF::Reader - Perl Class for Reader
 
 =over 4
 
-=head2 INSTANCE Methods
+=head2 CLASS Methods
 
-The following instance methods are defined for XDF::Reader.
+The following methods are defined for the class XDF::Reader.
+
 =over 4
+
+=item new ($optionsHashRef)
+
+Create a new reader object. Returns the reader object if successfull. It takes an optional argument of an option HASH Referenceto initialize the object.   
+
+=item addStartElementHandlers (%newHandlers)
+
+Add new handlers to the internal XDF::Parser start element handler. The form of  the entries in the passed hash should be 'nodename' => sub { &handler_for_nodename(@_); }; If a 'nodename' for a handler already exists in the XDF start handler table,  this method will override it with the new handler.  
+
+=item addEndElementHandlers (%newHandlers)
+
+Add new handlers to the internal XDF::Parser end element handler. The form of  the entries in the passed hash should be 'nodename' => sub { &handler_for_nodename(@_); }; If a 'nodename' for a handler already exists in the XDF end handler table,  this method will override it with the new handler.  
+
+=item addCharDataHandlers (%newHandlers)
+
+Add new handlers to the internal XDF::Parser CDATA element handler. The form of  the entries in the passed hash should be 'nodename' => sub { &handler_for_nodename(@_); }; If a 'nodename' for a handler already exists in the XDF CDATA handler table,  this method will override it with the new handler.  
+
+=item setDefaultStartElementHandler ($codeRef)
+
+This sets the subroutine which will handle all nodes which DONT match  an entry within the start element handler table.  
+
+=item setDefaultEndElementHandler ($codeRef)
+
+This sets the subroutine which will handle all nodes which DONT match  an entry within the end element handler table.  
+
+=item setDefaultCharDataHandler ($codeRef)
+
+This sets the subroutine which will handle all nodes which DONT match  an entry within the CDATA handler table.  
 
 =item createXDFObjectFromFile ($optionsHashRef, $file)
 
@@ -2602,22 +2785,41 @@ Similar to createXDFObjectFromFile but takes an open filehandle as an argument (
 
 =back
 
+=head2 INSTANCE (Object) Methods
+
+The following instance (object) methods are defined for XDF::Reader.
+
 =over 4
+
+=item parseFile ($file)
+
+ 
+
+=back
+
+
 
 =head2 INHERITED Class Methods
 
-A change in the value of these attributes will change the functioning of ALL instances of these objects that inherit from the indicated super class.
+=over 4
+
 =back
 
-=over 4
+
 
 =head2 INHERITED INSTANCE Methods
 
+=over 4
+
+=back
+
+=back
+
+=head1 Reader Options 
+
 
 
 =over 4
-
-=head1 Reader Options 
 
  The following options are currently supported:  
   
@@ -2647,13 +2849,17 @@ A change in the value of these attributes will change the functioning of ALL ins
   'maxWarning" => Change the maximum allowed number of warnings before the XDF::Reader
                   will halt its parse of the input file/fileHandle. 
   
- 
+
 
 =back
 
 =head1 SEE ALSO
 
-L<XDF::Array>, L<XDF::BinaryFloatDataFormat>, L<XDF::BinaryIntegerDataFormat>, L<XDF::Constants>, L<XDF::DelimitedXMLDataIOStyle>, L<XDF::Field>, L<XDF::FieldRelation>, L<XDF::FloatDataFormat>, L<XDF::FormattedXMLDataIOStyle>, L<XDF::Href>, L<XDF::IntegerDataFormat>, L<XDF::Parameter>, L<XDF::RepeatFormattedIOCmd>, L<XDF::ReadCellFormattedIOCmd>, L<XDF::SkipCharFormattedIOCmd>, L<XDF::StringDataFormat>, L<XDF::Structure>, L<XDF::XMLDataIOStyle> 
+
+
+=over 4
+
+L<XDF::Array>, L<XDF::BinaryFloatDataFormat>, L<XDF::BinaryIntegerDataFormat>, L<XDF::Constants>, L<XDF::DelimitedXMLDataIOStyle>, L<XDF::Field>, L<XDF::FieldRelation>, L<XDF::FloatDataFormat>, L<XDF::FormattedXMLDataIOStyle>, L<XDF::Href>, L<XDF::IntegerDataFormat>, L<XDF::Parameter>, L<XDF::RepeatFormattedIOCmd>, L<XDF::ReadCellFormattedIOCmd>, L<XDF::SkipCharFormattedIOCmd>, L<XDF::StringDataFormat>, L<XDF::Structure>, L<XDF::XMLDataIOStyle>
 
 =back
 
