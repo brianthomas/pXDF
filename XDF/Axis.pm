@@ -28,6 +28,7 @@ use XDF::BaseObject;
 use XDF::UnitDirection;
 use XDF::ValueGroup;
 use XDF::Units;
+use XDF::Utility;
 use XDF::Value;
 
 use strict;
@@ -205,7 +206,12 @@ sub getAxisDatatype {
 # */
 sub setAxisDatatype {
    my ($self, $value) = @_;
+
+   carp "Cant set axisDatatype to $value, not allowed \n"
+      unless (&XDF::Utility::isValidDatatype($value));
+
    $self->{AxisDatatype} = $value;
+
 }
 
 # /** getAxisUnits
@@ -503,6 +509,9 @@ sub _init {
 # Modification History
 #
 # $Log$
+# Revision 1.6  2001/03/09 21:52:11  thomas
+# Added utility check on datatype attribute setting.
+#
 # Revision 1.5  2000/12/15 22:11:58  thomas
 # Regenerated perlDoc section in files. -b.t.
 #

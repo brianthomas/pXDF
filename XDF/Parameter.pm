@@ -49,6 +49,7 @@ package XDF::Parameter;
 
 use Carp;
 
+use XDF::Utility;
 use XDF::BaseObject;
 use XDF::Note;
 use XDF::Units;
@@ -207,6 +208,10 @@ sub getDatatype {
 # */
 sub setDatatype {
    my ($self, $value) = @_;
+
+   carp "Cant set datatype to $value, not allowed \n"
+      unless (&XDF::Utility::isValidDatatype($value));
+
    $self->{Datatype} = $value;
 }
 
@@ -396,6 +401,9 @@ sub _init {
 # Modification History
 #
 # $Log$
+# Revision 1.7  2001/03/09 21:52:11  thomas
+# Added utility check on datatype attribute setting.
+#
 # Revision 1.6  2000/12/18 16:35:54  thomas
 # Fixed Minor problem with getValue/addNote
 # in class. -b.t.
