@@ -52,9 +52,13 @@ samples/guiview.pl
 samples/read.pl
 samples/read_write.pl
 samples/manipulate.pl
+samples/XDF_sample1.xml
+samples/XDF_sample2.xml
 samples/XDF_sample3.xml
 samples/XDF_sample4.xml
 samples/XDF_sample5.xml
+samples/XDF_sample6.dat
+samples/XDF_sample6.xml
 samples/ApJ_464_79_table1.xml
 utils/makeDoc.pl
 utils/makeHtmlDoc.pl
