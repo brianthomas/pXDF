@@ -34,17 +34,48 @@ package XDF::Constants;
 # my $def_big_endian = &XDF::Constants::BIG_ENDIAN;
 # */
 
+use XML::DOM;
 use strict;
 use integer;
 
 # inherits from nothing
 #@ISA { (); #"XDF::GenericObject")}
 
+# This is used by XMLElement for referencing a document. Only
+# because the DOM spec requires that a document be specified 
+# do we do this. Ush. IF only the DocumentFragment (a lighterweight)
+# object would suffice. Nevertheless, we can save memory by always
+# using this single document.
+my $InternalDOMDocument;
+my $XDF_DTD_NAME = "XDF_0.17.dtd"; 
+
+# internal thing. 
+my $PCDATA_Attribute = 'value';
+
+my $XML_Spec_Version = '1.0';
 my $LittleEndian = 'LittleEndian';
 my $BigEndian = 'BigEndian';
 my $PlatformEndian = unpack("h*", pack("s", 1)) =~ /^1/ ? $LittleEndian : $BigEndian;
 
 # CLASS DATA/METHODS
+
+sub XDF_DTD_NAME {
+ return $XDF_DTD_NAME;
+}
+
+sub getInternalDOMDocument { # PRIVATE
+
+  if (!defined $InternalDOMDocument) { 
+    $InternalDOMDocument = new XML::DOM::Document();
+  }
+  return $InternalDOMDocument;
+}
+
+sub getPCDATAAttribute { # PRIVATE
+  return $PCDATA_Attribute; 
+} 
+
+sub XML_SPEC_VERSION { $XML_Spec_Version; }
 
 sub BIG_ENDIAN {  $BigEndian; } 
 sub LITTLE_ENDIAN {  $LittleEndian; } 
@@ -121,6 +152,11 @@ sub DEFAULT_VALUELIST_START { 1; }
 sub DEFAULT_VALUELIST_REPEATABLE { 0; }
 sub DEFAULT_VALUELIST_DELIMITER { " "; }
 
+sub XDF_ROOT_NODE_NAME {
+  my %hash = &XDF_NODE_NAMES; 
+  return $hash{'root'};
+}
+
 sub XDF_NODE_NAMES { (
                       'textDelimiter' => 'textDelimiter',
                       'array' => 'array',
@@ -173,6 +209,10 @@ sub XDF_NODE_NAMES { (
 # Modification History
 #
 # $Log$
+# Revision 1.6  2001/04/17 18:59:27  thomas
+# Added some stuff from BaseObject, and new
+# stuff needed by Specifiaction Class.
+#
 # Revision 1.5  2001/03/16 19:54:56  thomas
 # Documentation updated and improved, re-ran makeDoc on file.
 #
