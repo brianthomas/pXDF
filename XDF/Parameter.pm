@@ -52,6 +52,7 @@ use XDF::BaseObjectWithXMLElementsAndValueList;
 use XDF::ErroredValue;
 use XDF::Log;
 use XDF::Note;
+use XDF::StringDataFormat;
 use XDF::Units;
 use XDF::Utility;
 
@@ -79,8 +80,8 @@ use vars qw ($AUTOLOAD %field @ISA);
 # Note that in order to get the code to use the reference object,
 # the $obj->setObjRef($refFieldObj) method should be used.
 # */
-# /** datatype
-# Holds a SCALAR object reference to a single datatype (L<XDF::DataFormat>) object for this axis. 
+# /** dataFormat
+# Holds a SCALAR object reference to a single dataformat (L<XDF::DataFormat>) object for this axis. 
 # */
 # */
 # /** units
@@ -99,8 +100,9 @@ my @Local_Class_XML_Attributes = qw (
                       description
                       paramId
                       paramIdRef
-                      datatype
+                      conversion
                       units
+                      dataFormat
                       valueList
                       noteList
                           );
@@ -214,24 +216,66 @@ sub setParamIdRef {
    $self->{paramIdRef} = $value;
 }
 
+# /** getConversion
+#   
+#  */
+sub getConversion {
+   my ($self) = @_;
+   return $self->{conversion};
+}
+
+# /** setConversion
+#     Set how to convert values of the data in this array. 
+#  */
+sub setConversion {
+   my ($self, $value) = @_;
+   $self->{conversion} = $value;
+}
+
+# /** getDataFormat
+# 
+# */
+sub getDataFormat {
+   my ($self) = @_;
+   return $self->{dataFormat};
+}
+
+# /** setDataFormat
+# Sets the data format *type* for this parameter. Takes a SCALAR object reference
+# as its argument. Allowed objects to pass to this method include 
+# L<XDF::BinaryIntegerDataFormat>, L<XDF::BinaryFloatDataFormat>, L<XDF::FloatDataFormat>, 
+# L<XDF::IntegerDataFormat>, or L<XDF::StringDataFormat>.
+# */
+sub setDataFormat {
+   my ($self, $value) = @_;
+
+   unless (&XDF::Utility::isValidDataFormat(ref $value)) {
+     error("Cant set parameter DataFormat to $value, not allowed, ignoring \n");
+     return;
+   }
+
+   $self->{dataFormat} = $value;
+}
+
+
 # /** getDatatype
 # */
-sub getDatatype {
-   my ($self) = @_;
-   return $self->{datatype};
-}
+#sub getDatatype {
+#   my ($self) = @_;
+#   return $self->{datatype};
+#}
 
 # /** setDatatype
 #     Set the datatype attribute. 
 # */
-sub setDatatype {
-   my ($self, $value) = @_;
+#sub setDatatype {
+#   my ($self, $value) = @_;
 
-   error("Cant set datatype to $value, not allowed \n") 
-      unless (&XDF::Utility::isValidDatatype($value));
-
-   $self->{datatype} = $value;
-}
+#   error("Cant set datatype to $value, not allowed \n") 
+#      unless (&XDF::Utility::isValidParameterDatatype($value));
+#
+#   $self->{datatype} = $value;
+#}
 
 # /** getNoteList
 # */
@@ -366,7 +410,8 @@ sub addValueGroup {
   return 0 unless defined $valueGroupObj && ref $valueGroupObj;
 
   # add the group to the groupOwnedHash
-  %{$self->{_valueGroupOwnedHash}}->{$valueGroupObj} = $valueGroupObj;
+  #%{$self->{_valueGroupOwnedHash}}->{$valueGroupObj} = $valueGroupObj;
+  $self->{_valueGroupOwnedHash}->{$valueGroupObj} = $valueGroupObj;
 
   return 1;
 }
@@ -377,8 +422,12 @@ sub addValueGroup {
 # */
 sub removeValueGroup {
    my ($self, $hashKey) = @_;
-   if (exists %{$self->{_valueGroupOwnedHash}}->{$hashKey}) {
-      delete %{$self->{_valueGroupOwnedHash}}->{$hashKey};
+#   if (exists %{$self->{_valueGroupOwnedHash}}->{$hashKey}) {
+#      delete %{$self->{_valueGroupOwnedHash}}->{$hashKey};
+#      return 1;
+#   }
+   if (exists $self->{_valueGroupOwnedHash}->{$hashKey}) {
+      delete $self->{_valueGroupOwnedHash}->{$hashKey};
       return 1;
    }
    return 0;
@@ -486,6 +535,7 @@ sub _init {
   $self->{_valueGroupOwnedHash} = {};
   $self->setNoteList([]);
   $self->setValueList([]);
+#  $self->{dataFormat} = new XDF::StringDataFormat();
 
   $self->{_valueListGetMethodName} = "getValueList";
 
