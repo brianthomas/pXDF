@@ -100,6 +100,15 @@ sub isValidAxisSize {
    return 0;
 }
 
+# /** isValidComplexComponent
+# Determine if this value is a valid complex component for Fields.
+# */
+sub isValidComplexComponent {
+   my ($value) = @_;
+   for (&XDF::Constants::COMPLEX_COMPONENT_LIST) { return 1 if ($_ eq $value); }
+   return 0;
+}
+
 # /** isValidUnits
 # Determine if the passed quanity is an allowed value for Units (e.g. 
 # an object of Units class).
@@ -112,15 +121,25 @@ sub isValidUnits {
    return 0;
 }
 
-# /** isValidDatatype
+# /** isValidParameterDatatype
 # Determine if the passed quanity is an allowed value for the datatype
-# attribute of the Parameter object and the axisDatatype attribute of
-# the Axis object.
+# attribute of the Parameter object 
 # */
-sub isValidDatatype { 
+sub isValidParameterDatatype { 
    my ($value) = @_;
    return 0 unless defined $value;
-   for (&XDF::Constants::DATATYPE_LIST) { return 1 if ($_ eq $value); }
+   for (&XDF::Constants::PARAMETER_DATATYPE_LIST) { return 1 if ($_ eq $value); }
+   return 0;
+}
+
+# /** isValidDataFormat
+# Determine if the passed quanity is an allowed value for the dataformat
+# attribute of the Array/Axis/Field objects 
+# */
+sub isValidDataFormat {
+   my ($value) = @_;
+   return 0 unless defined $value;
+   for (&XDF::Constants::DATAFORMAT_LIST) { return 1 if ($_ eq $value); }
    return 0;
 }
 
@@ -161,16 +180,38 @@ sub isValidDataCompression {
 
 # /** isValidLogarithm
 # Determine if the passed quanity is an allowed value for the logarithm
-# attribute on the Units object.
+# attribute.
 # */
 sub isValidLogarithm {
    my ($value) = @_;
-   # it ok to be undefined
+   # its ok to be undefined
    return 1 unless defined $value;
    for (&XDF::Constants::LOGARITHM_LIST) { return 1 if ($_ eq $value); }
    return 0;
 }
 
+# /** isValidReverse
+# Determine if the passed quanity is an allowed value for the reverse
+# attribute.
+# */
+sub isValidReverse {
+   my ($value) = @_;
+   # its not ok to be undefined
+   return 0 unless defined $value;
+   for (&XDF::Constants::TRUE_FALSE_LIST) { return 1 if ($_ eq $value); }
+   return 0;
+}
+
+
+# /** isValidAlgorihtm
+# Determine if the passed quanity is an allowed algorithm object.
+# */
+sub isValidAlgorithm {
+   my ($value) = @_;
+   return 0 unless defined $value and ref $value;
+   for (&XDF::Constants::ALGORITHM_LIST) { return 1 if ($_ eq ref $value); }
+   return 0;
+}
 
 # /** isValidFloatBits
 # Determine if the passed quanity is an allowed value for the bits attribute
@@ -244,6 +285,25 @@ sub isValidValueInequality {
    return 0;
 }
 
+
+# /** isValidTaggedOutputStyle
+# Determine if the current TaggedDataStyle object may bechanged to the new output style.
+# Requires an array reference be also passed. It is assumed the array is the parent of
+# the tagged data style object.
+# */
+sub isValidTaggedOutputStyle {
+  my ($value, $parentArray) = @_;
+
+  return 0 unless ref $parentArray and $parentArray->isa('XDF::Array');
+  return 1 if (!$parentArray->hasRowAxis() and !$parentArray->hasColAxis() 
+                 and $value eq &XDF::Constants::TAGGED_DEFAULT_OUTPUTSTYLE);
+  return 1 if ($parentArray->hasRowAxis() and $value eq &XDF::Constants::TAGGED_BYROW_OUTPUTSTYLE);
+  return 1 if ($parentArray->hasRowAxis() and $value eq &XDF::Constants::TAGGED_BYROWANDCELL_OUTPUTSTYLE);
+  return 1 if ($parentArray->hasColAxis() and $value eq &XDF::Constants::TAGGED_BYCOL_OUTPUTSTYLE);
+  return 1 if ($parentArray->hasColAxis() and $value eq &XDF::Constants::TAGGED_BYCOLANDCELL_OUTPUTSTYLE);
+  return 0;
+} 
+
 # needed? seems a java thang only
 # sub isValidNumberObject { }
 
@@ -298,6 +358,54 @@ sub reverse64BitStringByteOrder {
   return $bitString;
 }
 
+# Certainly this implementation is bad, very bad. 
+# At the minimum we need to make this user configurable 
+# at 'perl Makefile.PL' time.
+sub getDataDecompressionProgram {
+  my ($compression_type) = @_;
+
+  return unless defined $compression_type;
+
+  my $compression_program;
+  if ($compression_type eq &XDF::Constants::DATA_COMPRESSION_GZIP() ) {
+     $compression_program = &XDF::Constants::DATA_COMPRESSION_GZIP_PATH() . ' -dc ';
+  } elsif ($compression_type eq &XDF::Constants::DATA_COMPRESSION_BZIP2() ) {
+     $compression_program = &XDF::Constants::DATA_COMPRESSION_BZIP2_PATH() . ' -dc ';
+  } elsif ($compression_type eq &XDF::Constants::DATA_COMPRESSION_COMPRESS() ) {
+     $compression_program = &XDF::Constants::DATA_COMPRESSION_COMPRESS_PATH() . ' -dc ';
+  } elsif ($compression_type eq &XDF::Constants::DATA_COMPRESSION_ZIP() ) {
+     $compression_program = &XDF::Constants::DATA_COMPRESSION_UNZIP_PATH() . ' -p ';
+  } else {
+     die "Error: Data decompression for type: $compression_type NOT Implemented.\n";
+  }
+
+  return $compression_program;
+}
+
+# Certainly this implementation is bad, very bad. 
+# At the minimum we need to make this user configurable 
+# at 'perl Makefile.PL' time.
+sub getDataCompressionProgram {
+  my ($compression_type) = @_;
+
+  return unless defined $compression_type;
+
+  my $compression_program;
+  if ($compression_type eq &XDF::Constants::DATA_COMPRESSION_GZIP() ) {
+     $compression_program = &XDF::Constants::DATA_COMPRESSION_GZIP_PATH() . ' -c ';
+  } elsif ($compression_type eq &XDF::Constants::DATA_COMPRESSION_BZIP2() ) {
+     $compression_program = &XDF::Constants::DATA_COMPRESSION_BZIP2_PATH() . ' -c ';
+  } elsif ($compression_type eq &XDF::Constants::DATA_COMPRESSION_COMPRESS() ) {
+     $compression_program = &XDF::Constants::DATA_COMPRESSION_COMPRESS_PATH() . ' -c ';
+  } elsif ($compression_type eq &XDF::Constants::DATA_COMPRESSION_ZIP() ) {
+     $compression_program = &XDF::Constants::DATA_COMPRESSION_ZIP_PATH() . ' -pq ';
+  } else {
+     die "Error: Data Compression for type: $compression_type NOT Implemented.\n";
+  }
+
+  return $compression_program;
+}
+
 # Private
 
 sub _isYesOrNoString {
@@ -306,6 +414,7 @@ sub _isYesOrNoString {
    return 1 if $string eq 'yes' || $string eq 'no';
    return 0;
 }  
+
 
 1;
 
