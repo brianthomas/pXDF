@@ -255,9 +255,9 @@ sub isGroupMember {
 # hardwire a number of things to enforce DTD compliance.
 # -b.t.
 sub toXMLFileHandle {
-   my ($self, $fileHandle, $XMLDeclAttribs, $indent, $dontCloseNode, $newNodeNameString, $noChildObjectNodeName) = @_;
+   my ($self, $fileHandle, $indent, $dontCloseNode, $newNodeNameString, $noChildObjectNodeName) = @_;
 
-   &_basicXMLWriter(@_);
+   $self->_basicXMLWriter($fileHandle, $indent, $dontCloseNode, $newNodeNameString, $noChildObjectNodeName);
    print $fileHandle "\n" if XDF::Specification->getInstance()->isPrettyXDFOutput;
 }
 
@@ -265,15 +265,20 @@ sub toXMLFileHandle {
 #  Print out the XML representation of this object.
 #  Similar to toXMLFileHandle method, takes the same arguments barring the
 #  first (e.g. the FileHandle reference) which is not needed for this method.
+#  Caution: IF you ask for the string reprentation of an XDF object that has
+#  Href Entities (e.g. data nodes which point to external files) you will only
+#  get the meta-data, not the (external) data. IF you want the data, then you
+#  will have to manipulate the XDF object *before* using this method to remove
+#  the Href Entities, and thereby force the data back into the XML representation.
 #  Returns a string XML representation of the object.
 # */
 sub toXMLString {
-   my ($self, $XMLDeclAttribs, $indent, $dontCloseNode, $newNodeNameString, $noChildObjectNodeName ) = @_;
+  my ($self, $indent, $dontCloseNode, $newNodeNameString, $noChildObjectNodeName ) = @_;
 
    # we will capture output to special filehandle class
    # defined at the end of this this file 
    tie *CAPTURE, '_fileHandleToString';
-   $self->toXMLFileHandle(\*CAPTURE, $XMLDeclAttribs, $indent, $dontCloseNode,
+   $self->toXMLFileHandle(\*CAPTURE, $indent, $dontCloseNode,
                           $newNodeNameString, $noChildObjectNodeName );
    my $string = <CAPTURE>;
    untie *CAPTURE;
@@ -288,7 +293,7 @@ sub toXMLString {
 # not appended to. The second, optional, argument has the same meaning as for toXMLFileHandle.
 # */
 sub toXMLFile {
-  my ($self, $file, $XMLDeclAttribs) = @_;
+  my ($self, $file) = @_;
 
   if(!open(FILE, ">$file")) {
     carp "Can't open file: $file for writing.\n";
@@ -296,7 +301,7 @@ sub toXMLFile {
   }
 
   # write myself out
-  $self->toXMLFileHandle(\*FILE, $XMLDeclAttribs);
+  $self->toXMLFileHandle(\*FILE);
 
   close FILE;
 
@@ -307,7 +312,7 @@ sub toXMLFile {
 #
 
 sub _basicXMLWriter { 
-  my ($self, $fileHandle, $XMLDeclAttribs, $indent, $dontCloseNode, $newNodeNameString, $noChildObjectNodeName) = @_;
+  my ($self, $fileHandle, $indent, $dontCloseNode, $newNodeNameString, $noChildObjectNodeName) = @_;
 
   if(!defined $fileHandle) {
     carp "Can't write out object, filehandle not defined.\n";
@@ -329,8 +334,6 @@ sub _basicXMLWriter {
   # open this node, print its attributes
   if ($nodename) {
      print $fileHandle $indent if $Pretty_XDF_Output;
-#     $nodename = $spec->getXDFRootNodeName if ( (defined $XMLDeclAttribs || $isRootNode) 
-#                                           && $self =~ m/XDF::Structure/);
      print $fileHandle "<" . $nodename;
   }
 
@@ -362,7 +365,7 @@ sub _basicXMLWriter {
 
          $indent = $self->_deal_with_closing_group_nodes($_, $fileHandle, $indent, $Pretty_XDF_Output, $Pretty_XDF_Output_Indentation);
          $indent = $self->_deal_with_opening_group_nodes($_, $fileHandle, $indent, $Pretty_XDF_Output_Indentation);
-         $_->toXMLFileHandle($fileHandle, undef, $indent . $Pretty_XDF_Output_Indentation); 
+         $_->toXMLFileHandle($fileHandle, $indent . $Pretty_XDF_Output_Indentation); 
 
       } else { 
 
@@ -396,8 +399,6 @@ sub _basicXMLWriter {
     $indent = $self->_deal_with_closing_group_nodes($self, $fileHandle, $indent, $Pretty_XDF_Output, $Pretty_XDF_Output_Indentation);
     print $fileHandle $indent if $Pretty_XDF_Output && !defined $objPCDATA;
     if(!$dontCloseNode) {
-        # $nodename = $spec->getXDFRootNodeName if ((defined $XMLDeclAttribs || $isRootNode)
-        #                                             && $self =~ m/XDF::Structure/);
          print $fileHandle "</". $nodename . ">";
     }
 
@@ -425,7 +426,7 @@ sub _objectToXMLFileHandle {
 
       $indent = $self->_deal_with_closing_group_nodes($obj, $fileHandle, $indent, $Pretty_XDF_Output, $Pretty_XDF_Output_Indentation);
       $indent = $self->_deal_with_opening_group_nodes($obj, $fileHandle, $indent, $Pretty_XDF_Output_Indentation);
-      $obj->toXMLFileHandle($fileHandle, undef, $indent . $Pretty_XDF_Output_Indentation);
+      $obj->toXMLFileHandle($fileHandle, $indent . $Pretty_XDF_Output_Indentation);
 
    }
 
@@ -467,10 +468,7 @@ sub _getXMLInfo {
     #next if $attrib =~ m/XMLNodeName/;
     #next if $attrib =~ m/^_/;
     
-if (ref ($self) eq 'XDF::FormattedXMLDataIOStyle') {
-  print STDERR "got XML attribute: $attrib\n"; 
-
-}
+#if (ref ($self) eq 'XDF::FormattedXMLDataIOStyle') { print STDERR "got XML attribute: $attrib\n"; }
 
     my $val = $self->{$attrib}; # get attribute value 
     next unless defined $val;
@@ -511,7 +509,7 @@ sub _deal_with_opening_group_nodes {
     unless (exists %{$self->{_openGroupNodeHash}}->{$group}) {
       my $groupObj = %{$obj->{_groupMemberHash}}->{$group};
       $indent .= $Pretty_XDF_Output_Indentation; # add some indent 
-      $groupObj->toXMLFileHandle($fileHandle, undef, $indent, 1); 
+      $groupObj->toXMLFileHandle($fileHandle, $indent, 1); 
       %{$self->{_openGroupNodeHash}}->{$group} = $groupObj;
     }
   }
@@ -551,25 +549,6 @@ sub _init {
   # adds to ordered list of XML attributes
   $self->_appendAttribsToXMLAttribOrder(\@Local_Class_XML_Attributes);
 
-}
-
-sub _find_All_child_Href_Objects {
-  my ($self) = @_;
-
-  my @list;
-
-  if (ref($self) eq 'XDF::XDF') {
-     foreach my $arrayObj (@{$self->getArrayList()}) { 
-        my $hrefObj = $arrayObj->getDataCube()->getHref();
-        push @list, $hrefObj if defined $hrefObj;
-     }
-
-     foreach my $structObj (@{$self->getStructList()}) { 
-        push @list, @{$structObj->_find_All_child_Href_Objects()};
-     }
-  }
-
-  return \@list;
 }
 
 # End BaseObject Class
@@ -681,15 +660,15 @@ Remove this object from membership in a group.
 
 Determine if this object is a member of the reference Group object. Returns 1 if true, undef if false.  
 
-=item toXMLFileHandle ($fileHandle, $XMLDeclAttribs, $indent, $dontCloseNode, $newNodeNameString, $noChildObjectNodeName)
+=item toXMLFileHandle ($fileHandle, $indent, $dontCloseNode, $newNodeNameString, $noChildObjectNodeName)
 
 Write this structure and all the objects it owns to the supplied filehandle in XML (XDF) format. The first argument is the name of the filehandle and is required.  
 
-=item toXMLString ($XMLDeclAttribs, $indent, $dontCloseNode, $newNodeNameString, $noChildObjectNodeName)
+=item toXMLString ($indent, $dontCloseNode, $newNodeNameString, $noChildObjectNodeName)
 
 Print out the XML representation of this object. Similar to toXMLFileHandle method, takes the same arguments barring thefirst (e.g. the FileHandle reference) which is not needed for this method. Returns a string XML representation of the object.  
 
-=item toXMLFile ($file, $XMLDeclAttribs)
+=item toXMLFile ($file)
 
 This is a convenience method which allows writing of this object and all the objects it owns to the indicated file in XML (XDF) format. The first argument is the name of the file and is required. The supplied filename will be OVERWRITTEN, not appended to. The second, optional, argument has the same meaning as for toXMLFileHandle.  
 

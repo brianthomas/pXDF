@@ -138,8 +138,8 @@ sub _resetBaseValueListObjects {
 #/** toXMLFileHandle
 #
 #*/
-sub _basicXMLWriter {
-  my ($self, $fileHandle, $XMLDeclAttribs, $indent, $dontCloseNode, $newNodeNameString, $noChildObjectNodeName) = @_;
+sub _basicXMLWriter_not_needed {
+  my ($self, $fileHandle, $indent, $dontCloseNode, $newNodeNameString, $noChildObjectNodeName) = @_;
 
   if(!defined $fileHandle) {
     carp "Can't write out object, filehandle not defined.\n";
@@ -161,8 +161,6 @@ sub _basicXMLWriter {
   # open this node, print its attributes
   if ($nodename) {
       print $fileHandle $indent if $Pretty_XDF_Output;
-  #    $nodename = $spec->getXDFRootNodeName if ( (defined $XMLDeclAttribs || $isRootNode)
-  #                                         && $self =~ m/XDF::Structure/);
       print $fileHandle "<" . $nodename;
   }
 
@@ -193,14 +191,13 @@ sub _basicXMLWriter {
 
          $indent = $self->_deal_with_closing_group_nodes($_, $fileHandle, $indent, $Pretty_XDF_Output, $Pretty_XDF_Output_Indentation);
          $indent = $self->_deal_with_opening_group_nodes($_, $fileHandle, $indent, $Pretty_XDF_Output_Indentation);
-         $_->toXMLFileHandle($fileHandle, undef, $indent . $Pretty_XDF_Output_Indentation);
+         $_->toXMLFileHandle($fileHandle, $indent . $Pretty_XDF_Output_Indentation);
 
       } else {
 
         die "BaseObject.pm got weird reference: $_\n";
 
       }
-
 
     }
 
@@ -294,7 +291,7 @@ sub _doObjectListtoXMLFileHandle {
             # use compact description
             $indent = $self->_deal_with_closing_group_nodes($valueObj, $fileHandle, $indent, $Pretty_XDF_Output, $Pretty_XDF_Output_Indentation);
             $indent = $self->_deal_with_opening_group_nodes($valueObj, $fileHandle, $indent, $Pretty_XDF_Output_Indentation);
-            $valueListObj->toXMLFileHandle($fileHandle, undef, $indent . $Pretty_XDF_Output_Indentation);
+            $valueListObj->toXMLFileHandle($fileHandle, $indent . $Pretty_XDF_Output_Indentation);
 
          } else {
             # use long description
@@ -390,7 +387,7 @@ The following instance (object) methods are defined for XDF::BaseObjectWithValue
 
 =over 4
 
-=item toXMLFileHandle ($fileHandle, $XMLDeclAttribs, $indent, $dontCloseNode, $newNodeNameString, $noChildObjectNodeName)
+=item toXMLFileHandle ($fileHandle, $indent, $dontCloseNode, $newNodeNameString, $noChildObjectNodeName)
 
  
 

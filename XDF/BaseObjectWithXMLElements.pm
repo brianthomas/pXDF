@@ -139,7 +139,7 @@ sub _init {
 }
 
 sub _basicXMLWriter {
-  my ($self, $fileHandle, $XMLDeclAttribs, $indent, $dontCloseNode, $newNodeNameString, $noChildObjectNodeName ) = @_;
+  my ($self, $fileHandle, $indent, $dontCloseNode, $newNodeNameString, $noChildObjectNodeName ) = @_;
 
   if(!defined $fileHandle) {
     carp "Can't write out object, filehandle not defined.\n";
@@ -152,12 +152,6 @@ sub _basicXMLWriter {
   my $Pretty_XDF_Output = $spec->isPrettyXDFOutput;
   my $Pretty_XDF_Output_Indentation = $spec->getPrettyXDFOutputIndentation;
 
-#  if (defined $XMLDeclAttribs) {
-#     $indent = "";
-#     # write the XML && DOCTYPE decl
-#     $self->_write_XML_decl_to_file_handle($fileHandle, $XMLDeclAttribs, $spec);
-#  }
-
   # We need to invoke a little bit of Voodoo to keep the DTD happy; 
   # the first structure node is always called by the root node name
   # also, we may have nodes (w/o attributes) that just hold other nodes.
@@ -167,8 +161,6 @@ sub _basicXMLWriter {
   # open this node, print its attributes
   if ($nodename) {
       print $fileHandle $indent if $Pretty_XDF_Output;
-#      $nodename = $spec->getXDFRootNodeName if ( (defined $XMLDeclAttribs || $isRootNode)
-#                                           && $self =~ m/XDF::Structure/);
       print $fileHandle "<" . $nodename;
   }
 
@@ -208,7 +200,7 @@ sub _basicXMLWriter {
 
          $indent = $self->_deal_with_closing_group_nodes($_, $fileHandle, $indent, $Pretty_XDF_Output, $Pretty_XDF_Output_Indentation);
          $indent = $self->_deal_with_opening_group_nodes($_, $fileHandle, $indent, $Pretty_XDF_Output_Indentation);
-         $_->toXMLFileHandle($fileHandle, undef, $indent . $Pretty_XDF_Output_Indentation);
+         $_->toXMLFileHandle($fileHandle, $indent . $Pretty_XDF_Output_Indentation);
 
       } else {
 
@@ -320,7 +312,7 @@ Remove a child XMLElement object to this one. Returns 1 on success, 0 on failure
 
  
 
-=item toXMLFileHandle ($fileHandle, $XMLDeclAttribs, $indent, $dontCloseNode, $newNodeNameString, $noChildObjectNodeName)
+=item toXMLFileHandle ($fileHandle, $indent, $dontCloseNode, $newNodeNameString, $noChildObjectNodeName)
 
  
 
