@@ -24,6 +24,9 @@ TODO: In other words, WHY is this package still ALPHA?!?
      -- use of unparsed entities
      -- checksum
 
+   - On exponential data size of mantissa and exponent, defined correctly? With DTD?
+     with Java package? Check!!
+
    - We need proper cloning. Remove setObj junk.
      Fix clone object functionality, clone DataCube and solve _objRef clone issue 
      Watch out for _parentArray and other object refs (e.g. ID ref problem).
@@ -41,6 +44,12 @@ TODO: In other words, WHY is this package still ALPHA?!?
      Do we just throw an error?  Whats the 'right' thing to do??
 
    - Note: Perl Binary Integer only support signed OR endian. How to do unsigned AND Endianess ?? 
+
+   - Need to implement a shadow array for precision on numbers within the dataCube.
+     setData may adjust precision to be *lower* than declared in the relevant
+     dataFormat object but may *never* insert a number with *higher* precision than
+     currently exists in the dataCube. Need a $array->getPrecision($locator) method
+     to identify precision on each cell.
 
 
    ---------------------------------------------------------------------------
@@ -81,7 +90,8 @@ TODO: In other words, WHY is this package still ALPHA?!?
      but alas, we can forsee *everything*). 
 
    - Allow handling of large arrays which will swamp the available memory 
-     (implement something like the Berkely DB module).
+     (implement something like the Berkely DB module so the XDF object will act
+     just like a database :) ). 
 
    - Allow improved efficiency of datacube operations (implement something 
      like the PDL module/Math::RealMatrix). 
