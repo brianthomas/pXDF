@@ -105,7 +105,7 @@ sub getFormatCommand {
 
   my @list;
   if ($expandRepeatCommands) {
-    @list = @{$self->getCommands()};
+    @list = $self->getCommands();
   } else { 
     @list = $self->getFormatCommands();
   }
@@ -151,7 +151,7 @@ sub getCommands () {
   foreach my $obj (@{$self->{FormatCmdList}}) {
      if (ref($obj) eq 'XDF::RepeatFormattedIOCmd') {
        my $count = $obj->getCount();
-       my @repeatCommandList = @{$obj->getCommands()};
+       my @repeatCommandList = $obj->getCommands();
        while ($count-- > 0) {
           push @commandList, @repeatCommandList;
        }
@@ -160,7 +160,7 @@ sub getCommands () {
      }
    }
 
-   return \@commandList;
+   return @commandList;
 }
 
 sub numOfBytes {
@@ -175,7 +175,7 @@ sub numOfBytes {
     return;
   }
 
-  foreach my $obj (@{$self->getCommands()}) {
+  foreach my $obj ($self->getCommands()) {
     if(ref($obj) eq 'XDF::ReadCellFormattedIOCmd') {
       my $readObj = shift @dataFormatList;
       push (@dataFormatList, $readObj); # its a circular list
@@ -311,7 +311,7 @@ sub _regexNotation {
     return;
   }
 
-  foreach my $obj (@{$self->getCommands()}) {
+  foreach my $obj ($self->getCommands()) {
     if(ref($obj) eq 'XDF::ReadCellFormattedIOCmd') {
       my $readObj = shift @dataFormatList;
       push (@dataFormatList, $readObj); # its a circular list
@@ -339,7 +339,7 @@ sub _outputSkipCharArray {
     return;
   }
   
-  foreach my $obj (@{$self->getCommands()}) {
+  foreach my $obj ($self->getCommands()) {
     if(ref($obj) eq 'XDF::ReadCellFormattedIOCmd') {
       my $readObj = shift @dataFormatList;
       push (@dataFormatList, $readObj); # its a circular list
@@ -368,7 +368,7 @@ sub _templateNotation {
     return;
   }
 
-  foreach my $obj (@{$self->getCommands()}) {
+  foreach my $obj ($self->getCommands()) {
     if(ref($obj) eq 'XDF::ReadCellFormattedIOCmd') {
       my $readObj = shift @dataFormatList;
       push (@dataFormatList, $readObj); # its a circular list
@@ -396,7 +396,7 @@ sub _sprintfNotation {
     return;
   }
 
-  foreach my $obj (@{$self->getCommands()}) {
+  foreach my $obj ($self->getCommands()) {
    if(ref($obj) eq 'XDF::ReadCellFormattedIOCmd') {
       my $readObj = shift @dataFormatList;
       push (@dataFormatList, $readObj); # its a circular list
@@ -415,6 +415,9 @@ sub _sprintfNotation {
 # Modification History
 #
 # $Log$
+# Revision 1.8  2001/03/07 23:12:00  thomas
+# getCommands changed to return ARRAY instead of ARRAY ref.
+#
 # Revision 1.7  2001/02/15 17:50:31  thomas
 # changed getBytes to numOfBytes method as per
 # java API.
