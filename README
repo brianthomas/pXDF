@@ -77,6 +77,11 @@ supported very well) using the libxml-enno parser. Part of the
 problem seems to be the LWP handler, but Im not 100% sure. Hopefully
 the maintainers can resolve this issue before too long. 
 
+Also, in order to use compression, you will have to edit the path
+to the compress executables in Constants.pm. Do this BEFORE install
+to save yourself a headache. I hope to integrate this into the 
+make proceedure in the future.
+
 
 CVS Repository Access
 ---------------------
@@ -95,8 +100,10 @@ information to obtain a nightly CVS snapshot (UNIX tcsh):
 
 > cvs checkout xml/XDF/Perl_Package
 
-Note that you only have to use "cvs login" step ONCE. Thereafter, only
-the last step is needed to obtain a copy from CVS.
+Note that you only have to use "cvs login" step ONCE. Thereafter, you
+only need to "update" to obtain the latest copy from CVS, e.g:
+
+> cvs update xml/XDF/Perl_Package
 
 
 ---

@@ -10,6 +10,8 @@
 
    - Href stuff only supports files. Need Entity Resolver type behavior ala Java.
      This may be a bug in libxml-enno that we need to patch.
+  
+   - incorporate compress exec. config into make proceedure.
 
    - readId/readIdRef implemented, however problems will result if readIdRef
      is specified AND the read node has child nodes. We probably need to 
