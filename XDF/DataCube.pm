@@ -232,10 +232,29 @@ sub toXMLFileHandle {
   # open the tagged data section
   print $fileHandle $indent if $niceOutput;
   print $fileHandle "<" . $nodeName ;
-  print $fileHandle " checksum=\"".$self->{Checksum}."\"" if defined $self->{Checksum};
-  print $fileHandle " compression=\"".$self->{Compression}."\"" if defined $self->{Compression};
-  print $fileHandle " encoding=\"".$self->{Encoding}."\"" if defined $self->{Encoding};
-  print $fileHandle " href=\"".$self->{Href}->getName()."\"" if defined $self->{Href};
+
+  # these have to be broken up, as _fileHandleToString doesn't like
+  # compound lines with '"' in them
+  if (defined $self->{Checksum}) {
+     print $fileHandle " checksum=\"";
+     print $fileHandle $self->{Checksum};
+     print $fileHandle "\"";
+  }
+  if (defined $self->{Compression}) {
+     print $fileHandle " compression=\"";
+     print $fileHandle $self->{Compression};
+     print $fileHandle "\"";
+  }
+  if (defined $self->{Encoding}) {
+     print $fileHandle " encoding=\"";
+     print $fileHandle $self->{Encoding};
+     print $fileHandle "\"";
+  }
+  if (defined $self->{Href}) {
+     print $fileHandle " href=\"";
+     print $self->{Href}->getName();
+     print $fileHandle "\"";
+  }
   print $fileHandle ">";
 
   # write the data
@@ -813,6 +832,10 @@ sub _build_locator_string {
 # Modification History
 #
 # $Log$
+# Revision 1.17  2001/03/23 20:38:40  thomas
+# broke up printing of attributes in toXMLFileHandle
+# so that toXMLString will work properly.
+#
 # Revision 1.16  2001/03/16 19:54:56  thomas
 # Documentation updated and improved, re-ran makeDoc on file.
 #

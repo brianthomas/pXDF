@@ -182,7 +182,11 @@ sub toXMLFileHandle {
     my $axisId = $axisObj->getAxisId();
     push @indent, $next_indent;
     print $fileHandle "$next_indent" if $niceOutput;
-    print $fileHandle "<$Untagged_Instruction_Node_Name axisIdRef=\"$axisId\">";
+    # next 3 lines: have to break up printing of '"' or toXMLString will behave badly
+    print $fileHandle "<$Untagged_Instruction_Node_Name axisIdRef=\"";
+    print $fileHandle $axisId;
+    print $fileHandle "\">";
+
     print $fileHandle "\n" if $niceOutput;
     $next_indent .= $more_indent;
   }
@@ -255,6 +259,10 @@ sub _sprintfNotation {
 # Modification History
 #
 # $Log$
+# Revision 1.9  2001/03/23 20:38:40  thomas
+# broke up printing of attributes in toXMLFileHandle
+# so that toXMLString will work properly.
+#
 # Revision 1.8  2001/03/16 19:54:56  thomas
 # Documentation updated and improved, re-ran makeDoc on file.
 #

@@ -127,7 +127,10 @@ sub toXMLFileHandle {
   my $indexIndent = $indent . $self->Pretty_XDF_Output_Indentation;
   foreach my $indexNodeAxisIdRef (@{$self->{LocationOrderList}}) {
      print $fileHandle $indexIndent if $Pretty_XDF_Output;
-     print $fileHandle "<index axisIdRef=\"",$indexNodeAxisIdRef,"\"/>";
+    # next 3 lines: have to break up printing of '"' or toXMLString will behave badly
+     print $fileHandle "<index axisIdRef=\"";
+     print $fileHandle $indexNodeAxisIdRef;
+     print $fileHandle "\">";
      print $fileHandle "\n" if $Pretty_XDF_Output;
   }
 
@@ -161,6 +164,10 @@ sub _init {
 # Modification History
 #
 # $Log$
+# Revision 1.5  2001/03/23 20:38:40  thomas
+# broke up printing of attributes in toXMLFileHandle
+# so that toXMLString will work properly.
+#
 # Revision 1.4  2001/03/16 19:54:57  thomas
 # Documentation updated and improved, re-ran makeDoc on file.
 #

@@ -160,7 +160,13 @@ sub toXMLFileHandle {
     my $axisId = $axisObj->getAxisId();
     my $tag = shift @tags;
     print $fileHandle "$more_indent" if $niceOutput;
-    print $fileHandle "<$Tag_To_Axis_Node_Name axisIdRef=\"$axisId\" tag=\"" . $tag . "\" />";
+    # next 5 lines: have to break up printing of '"' or toXMLString will behave badly
+    print $fileHandle "<$Tag_To_Axis_Node_Name axisIdRef=\"";
+    print $fileHandle $axisId . "\"";
+    print $fileHandle " tag=\"";
+    print $fileHandle $tag;
+    print $fileHandle "\">";
+
     print $fileHandle "\n" if $niceOutput;
   }
 
@@ -222,6 +228,10 @@ sub _removeAxisTag {
 # Modification History
 #
 # $Log$
+# Revision 1.10  2001/03/23 20:38:40  thomas
+# broke up printing of attributes in toXMLFileHandle
+# so that toXMLString will work properly.
+#
 # Revision 1.9  2001/03/16 19:54:57  thomas
 # Documentation updated and improved, re-ran makeDoc on file.
 #
