@@ -2237,10 +2237,21 @@ sub about_message {
   push @msg, "";
   push @msg, "The $TOOLNAME is a simple program to demonstrate how a";
   push @msg, "GUI might be written to use the Perl XDF package.";
+  push @msg, ""; 
+  push @msg, ""; 
+  push @msg, "Disclaimer:";
+  push @msg, ""; 
+  push @msg, "This program MAY be useful one day as a viewer/editor, but"; 
+  push @msg, "unlike the rest of the Perl XDF package, this sub-program is";
+  push @msg, "NOT beta quality software (yet!!). Much of the needed functionality ";
+  push @msg, "missing/incomplete and many bugs remain (!).";  
   push @msg, "";
+  push @msg, ""; 
   push @msg, "Author: Brian Thomas";
   push @msg, "";
+  push @msg, ""; 
   push @msg, "Licence:";
+  push @msg, ""; 
   push @msg, "  guiview.pl Copyright (C) 2000 Brian Thomas,";
   push @msg, "  ADC/GSFC-NASA, Code 631, Greenbelt MD, 20771"; 
   push @msg, ""; 
@@ -2251,6 +2262,7 @@ sub about_message {
   push @msg, "  This program is distributed in the hope that it will be useful,"; 
   push @msg, "  but WITHOUT ANY WARRANTY; without even the implied warranty of";
   push @msg, "  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. "; 
+  push @msg, ""; 
   push @msg, ""; 
 
   return @msg;
