@@ -721,6 +721,14 @@ sub removeAxis {
    }
 }
 
+# /** hasFieldAxis
+# 
+# */
+sub hasFieldAxis {
+  my ($self) = @_;
+  return defined $self->getFieldAxis() ? 1 : 0;
+}
+
 # /** addUnit
 # Insert an XDF::Unit object into the L<XDF::Units> object (e.g. $obj->units)
 # held in this object.
@@ -1220,6 +1228,10 @@ Insert an XDF::Axis object into this object. This method takes a reference to an
 =item removeAxis ($axisObj)
 
 Remove an XDF::Axis object from the list of XDF::Axesheld within this object. This method takes either the list index number or an object reference as its argument. RETURNS : 1 on success, 0 on failure.  
+
+=item hasFieldAxis (EMPTY)
+
+ 
 
 =item addUnit ($unitObj)
 
