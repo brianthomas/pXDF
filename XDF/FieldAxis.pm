@@ -171,7 +171,7 @@ sub getDataFormatList {
   my ($self) = @_;
 
   my @list;
-  foreach my $field (@{$self->getFields}) {
+  foreach my $field ($self->getFields) {
     if (!defined $field->getDataFormat()) {
       my $name = $field->getName();
       carp "Error! FieldAxis dataFormatList request has problem: $field ($name) does not have dataFormat defined, ignoring (probably will cause an IO error)\n";
@@ -272,6 +272,12 @@ sub getLength {
 sub addField {
   my ($self, $attribHashOrObjectRef) = @_;
 
+  unless (defined $attribHashOrObjectRef) {
+    # No point in adding a field w/o a value for it.
+    carp "Cannot add an Field, no attribHashOrObjectRef specified. Ignoring request.\n";
+    return;
+  }
+
   my $fieldObj;
   if (ref($attribHashOrObjectRef) eq 'XDF::Field') {
     $fieldObj = $attribHashOrObjectRef;
@@ -279,13 +285,24 @@ sub addField {
     $fieldObj = XDF::Field->new($attribHashOrObjectRef);
   }
   
-  # add the parameter to the list
-  push @{$self->{FieldList}}, $fieldObj;
+  my $index = $self->{_length};
 
-  # bump up the size
+  if (defined @{$self->{FieldList}}->[$index]) {
+     # increase the size of the array by pushing
+     push @{$self->{FieldList}}, $fieldObj;
+  } else {
+     # use a pre-alocated spot that is undefined
+     @{$self->{FieldList}}->[$index] = $fieldObj;
+  }
+
+  # bump up the size of this axis
   $self->{_length}++;
 
+  # add the parameter to the list
+#  push @{$self->{FieldList}}, $fieldObj;
+
   return $fieldObj;
+
 }
 
 # /** getField
@@ -308,18 +325,42 @@ sub getFields {
   foreach my $field (@{$self->{FieldList}}) {
     push @list, $field if defined $field;
   }
-  return \@list;
+  return @list;
 }
 
 # /** setField
-# Set the field object at indicated index. Returns the field object on
-# success, undef on failure.
+# Set the field object at indicated index. This method may also be used to 'remove'
+# a field, the user requests that the index location be set to 'undef'. In either
+# case this method returns the object that was set at the indicated index. If the
+# method cannot set the field at the index location, the method
+# returns undef on failure.
 # */
 sub setField {
   my ($self, $index, $fieldObjectRef) = @_;
 
-  return unless defined $index && defined $fieldObjectRef && $index >= 0; 
-  splice @{$self->{FieldList}}, $index, 1, $fieldObjectRef; 
+  return unless defined $index && $index >= 0;
+
+  # removing a value (setting to 'undef')
+  unless (defined $fieldObjectRef) {
+     if (defined @{$self->{FieldList}}->[$index]) {
+        # if the field at that location is presently defined, we lower
+        # the length of the field axis by 1
+        $self->{_length}--;
+        @{$self->{FieldList}}->[$index] = undef;
+     }
+     return;
+  }
+
+  # if a field is not presently defined at the indicated location
+  # we raise the length of the axis by 1
+  if (!defined @{$self->{FieldList}}->[$index]) {
+     $self->{_length}++;
+  }
+
+  # add the field
+  @{$self->{FieldList}}->[$index] = $fieldObjectRef;
+
+#  splice @{$self->{FieldList}}, $index, 1, $fieldObjectRef; 
   return $fieldObjectRef;
 }
 
@@ -397,6 +438,14 @@ sub _init {
 # Modification History
 #
 # $Log$
+# Revision 1.6  2001/03/14 16:10:36  thomas
+# addField and setField fixed. Previously these where just
+# pushing fields onto the end of the fieldList. The problem is that
+# that array is pre-allocated, so the operation resulted in tacking on
+# more fields to the end of the array. Now we set the field at a
+# free index, or if there are no free indices, we add a new one. We
+# will probably have to re-visit this issue again in the future.
+#
 # Revision 1.5  2000/12/15 22:11:59  thomas
 # Regenerated perlDoc section in files. -b.t.
 #
