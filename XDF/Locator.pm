@@ -300,6 +300,10 @@ sub toXMLFileHandle {
 # Modification History
 #
 # $Log$
+# Revision 1.4  2000/12/01 20:03:38  thomas
+# Brought Pod docmentation up to date. Bumped up version
+# number. -b.t.
+#
 # Revision 1.3  2000/11/28 19:54:19  thomas
 # Added hasNext method. Its not very performance
 # oriented. Need better implementation. -b.t.
@@ -345,6 +349,10 @@ XDF::Locator inherits class and attribute methods of L<XDF::GenericObject>.
 =over 4
 
 =item new ($attribHashRef)
+
+
+
+=item hasNext (EMPTY)
 
 
 

@@ -167,6 +167,10 @@ sub fortranNotation {
 # Modification History
 #
 # $Log$
+# Revision 1.2  2000/12/01 20:03:37  thomas
+# Brought Pod docmentation up to date. Bumped up version
+# number. -b.t.
+#
 # Revision 1.1  2000/11/28 21:53:41  thomas
 # First version. -b.t.
 #
@@ -182,3 +186,132 @@ sub fortranNotation {
 
 __END__
 
+=head1 NAME
+
+XDF::ExponentialDataFormat - Perl Class for ExponentialDataFormat
+
+=head1 SYNOPSIS
+
+  
+
+
+...
+
+=head1 DESCRIPTION
+
+ XDF::ExponentialDataFormat is the class that describes exponential  (ASCII) floating point numbers  (e.g. scientific notation, 1E10). 
+
+XDF::ExponentialDataFormat inherits class and attribute methods of L<XDF::GenericObject>, L<XDF::DataFormat>, L<XDF::BaseObject>.
+
+
+=over 4
+
+=head2 CLASS Methods
+
+A change in the value of these class attributes will change the value for ALL instances of XDF::ExponentialDataFormat.
+
+=over 4
+
+=item classXMLNodeName (EMPTY)
+
+This method returns the class node name of XDF::ExponentialDataFormat. This method takes no arguments may not be changed.  
+
+=item classAttributes (EMPTY)
+
+This method returns a list reference containing the namesof the class attributes of XDF::ExponentialDataFormat. This method takes no arguments may not be changed.  
+
+=back
+
+=head2 ATTRIBUTE Methods
+
+These methods set the requested attribute if an argument is supplied to the method. Whether or not an argument is supplied the current value of the attribute is always returned. Values of these methods are always SCALAR (may be number, string, or reference).
+
+=over 4
+
+=item width
+
+The entire width of this exponential field, including the 'E'and its exponential number.  
+
+=item precision
+
+The precision of this exponential field from the portion to theright of the '.' to the exponent that follows the 'E'.  
+
+=back
+
+=head2 OTHER Methods
+
+=over 4
+
+=item bytes (EMPTY)
+
+A convenience method. Return the number of bytes this XDF::ExponentialDataFormat holds. 
+
+=item fortranNotation (EMPTY)
+
+The fortran style notation for this object. 
+
+=back
+
+=over 4
+
+=head2 INHERITED Class Methods
+
+A change in the value of these attributes will change the functioning of ALL instances of these objects that inherit from the indicated super class.
+
+
+=over 4
+
+The following class attribute methods are inherited from L<XDF::BaseObject>:
+B<Pretty_XDF_Output>, B<Pretty_XDF_Output_Indentation>, B<DefaultDataArraySize>.
+
+=back
+
+=back
+
+=over 4
+
+=head2 INHERITED Other Methods
+
+
+
+=over 4
+
+XDF::ExponentialDataFormat inherits the following instance methods of L<XDF::GenericObject>:
+B<new>, B<clone>, B<update>, B<setObjRef>.
+
+=back
+
+
+
+=over 4
+
+XDF::ExponentialDataFormat inherits the following instance methods of L<XDF::DataFormat>:
+B<toXMLFileHandle>.
+
+=back
+
+
+
+=over 4
+
+XDF::ExponentialDataFormat inherits the following instance methods of L<XDF::BaseObject>:
+B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<toXMLFile>.
+
+=back
+
+=back
+
+=head1 SEE ALSO
+
+L<XDF::DataFormat>
+
+=back
+
+=head1 AUTHOR
+
+    Brian Thomas  (thomas@adc.gsfc.nasa.gov)
+    Astronomical Data Center <http://adc.gsfc.nasa.gov>
+    NASA/Goddard Space Flight Center
+
+
+=cut

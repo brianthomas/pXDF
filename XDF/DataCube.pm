@@ -572,6 +572,10 @@ sub getData {
 # Modification History
 #
 # $Log$
+# Revision 1.4  2000/12/01 20:03:37  thomas
+# Brought Pod docmentation up to date. Bumped up version
+# number. -b.t.
+#
 # Revision 1.3  2000/10/16 18:32:22  thomas
 # Added in checksum attribute. (Opps!)
 #
@@ -602,7 +606,7 @@ XDF::DataCube - Perl Class for DataCube
 
  Holds the data for a given L<XDF::Array>. It is designed to flexibly expand as data  is added/appended onto it. It doesnt treat swaping of large array data out to file currently. 
 
-XDF::DataCube inherits class and attribute methods of L<XDF::BaseObject>, L<XDF::GenericObject>.
+XDF::DataCube inherits class and attribute methods of L<XDF::GenericObject>, L<XDF::BaseObject>.
 
 
 =over 4
@@ -630,6 +634,10 @@ These methods set the requested attribute if an argument is supplied to the meth
 =over 4
 
 =item href
+
+ 
+
+=item checksum
 
  
 
@@ -705,8 +713,8 @@ B<Pretty_XDF_Output>, B<Pretty_XDF_Output_Indentation>, B<DefaultDataArraySize>.
 
 =over 4
 
-XDF::DataCube inherits the following instance methods of L<XDF::BaseObject>:
-B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<toXMLFile>.
+XDF::DataCube inherits the following instance methods of L<XDF::GenericObject>:
+B<new>, B<update>, B<setObjRef>.
 
 =back
 
@@ -714,8 +722,8 @@ B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<toXMLFile>.
 
 =over 4
 
-XDF::DataCube inherits the following instance methods of L<XDF::GenericObject>:
-B<new>, B<update>, B<setObjRef>.
+XDF::DataCube inherits the following instance methods of L<XDF::BaseObject>:
+B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<toXMLFile>.
 
 =back
 

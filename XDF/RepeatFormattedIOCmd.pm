@@ -105,7 +105,7 @@ sub bytes {
 
   my @dataFormatList = @{$dataFormatListRef};
 
-  if (!defined @dataFormatList or $#dataFormatList < 0) {
+  if (!@dataFormatList or $#dataFormatList < 0) {
     carp "Error: cant read Formatted ReadStyle w/o defined dataFormat\n";
     return;
   }
@@ -135,7 +135,7 @@ sub _outputSkipCharArray {
 
   my @dataFormatList = @{$dataFormatListRef};
 
-  if (!defined @dataFormatList or $#dataFormatList < 0) {
+  if (!@dataFormatList or $#dataFormatList < 0) {
     carp "Error: cant read Formatted ReadStyle w/o defined dataFormat\n";
     return;
   }
@@ -168,7 +168,7 @@ sub _templateNotation {
   my $notation; my @dataFormatList;
 
   if (!defined $dataFormatListRef 
-       or !defined (@dataFormatList = @{$dataFormatListRef}) 
+       or !(@dataFormatList = @{$dataFormatListRef}) 
        or $#dataFormatList < 0) 
   {
     carp "Error: cant read Formatted ReadStyle w/o defined dataFormat\n";
@@ -206,7 +206,7 @@ sub _regexNotation {
 
   my @dataFormatList = @{$dataFormatListRef};
 
-  if (!defined @dataFormatList or $#dataFormatList < 0) {
+  if (!@dataFormatList or $#dataFormatList < 0) {
     carp "Error: cant read Formatted ReadStyle w/o defined dataFormat\n";
     return;
   }
@@ -240,7 +240,7 @@ sub _sprintfNotation {
   
   my @dataFormatList = @{$listRef};
   
-  if (!defined @dataFormatList or $#dataFormatList < 0) {
+  if (!@dataFormatList or $#dataFormatList < 0) {
     carp "Error: cant read Formatted ReadStyle w/o defined dataFormat\n";
     return;
   }
@@ -271,6 +271,10 @@ sub _sprintfNotation {
 # Modification History
 #
 # $Log$
+# Revision 1.4  2000/12/01 20:03:38  thomas
+# Brought Pod docmentation up to date. Bumped up version
+# number. -b.t.
+#
 # Revision 1.3  2000/11/28 19:39:10  thomas
 # Fix to formatted  reads. Implemented getCommands
 # method. -b.t.
@@ -297,7 +301,7 @@ XDF::RepeatFormattedIOCmd - Perl Class for RepeatFormattedIOCmd
 
 =head1 DESCRIPTION
 
-XDF::RepeatFormattedIOCmd inherits class and attribute methods of L<XDF::BaseObject>, L<XDF::FormattedIOCmd>, L<XDF::GenericObject>.
+XDF::RepeatFormattedIOCmd inherits class and attribute methods of L<XDF::GenericObject>, L<XDF::FormattedIOCmd>, L<XDF::BaseObject>.
 
 
 =over 4
@@ -342,6 +346,10 @@ These methods set the requested attribute if an argument is supplied to the meth
 
 
 
+=item getCommands (EMPTY)
+
+
+
 =item bytes ($dataFormatListRef)
 
 
@@ -372,8 +380,8 @@ B<Pretty_XDF_Output>, B<Pretty_XDF_Output_Indentation>, B<DefaultDataArraySize>.
 
 =over 4
 
-XDF::RepeatFormattedIOCmd inherits the following instance methods of L<XDF::BaseObject>:
-B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<toXMLFileHandle>, B<toXMLFile>.
+XDF::RepeatFormattedIOCmd inherits the following instance methods of L<XDF::GenericObject>:
+B<new>, B<clone>, B<update>, B<setObjRef>.
 
 =back
 
@@ -381,8 +389,8 @@ B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<toXMLFileHandle>, B<toXML
 
 =over 4
 
-XDF::RepeatFormattedIOCmd inherits the following instance methods of L<XDF::GenericObject>:
-B<new>, B<clone>, B<update>, B<setObjRef>.
+XDF::RepeatFormattedIOCmd inherits the following instance methods of L<XDF::BaseObject>:
+B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<toXMLFileHandle>, B<toXMLFile>.
 
 =back
 

@@ -368,6 +368,10 @@ sub read {
 # Modification History
 #
 # $Log$
+# Revision 1.3  2000/12/01 20:03:38  thomas
+# Brought Pod docmentation up to date. Bumped up version
+# number. -b.t.
+#
 # Revision 1.2  2000/10/16 17:37:21  thomas
 # Changed over to BaseObject Class from Object Class.
 # Added in History Modification section.
@@ -443,7 +447,7 @@ XDF::Structure - Perl Class for Structure
     
  XDF::Structure is a means of grouping/associating L<XDF::Parameter> objects, which hold  scientific content of the data, and L<XDF::Array> objects which hold the mathematical content  of the data. If an XDF::Structure holds a parameter with several XDF::Array objects then the  parameter is assumed to be applicable to all of the array child nodes. Sub-structure (e.g. other  XDF::Structure objects) may be held within a structure to create more fine-grained associations between parameters and arrays. 
 
-XDF::Structure inherits class and attribute methods of L<XDF::BaseObject>, L<XDF::GenericObject>.
+XDF::Structure inherits class and attribute methods of L<XDF::GenericObject>, L<XDF::BaseObject>.
 
 
 =over 4
@@ -574,8 +578,8 @@ B<Pretty_XDF_Output>, B<Pretty_XDF_Output_Indentation>, B<DefaultDataArraySize>.
 
 =over 4
 
-XDF::Structure inherits the following instance methods of L<XDF::BaseObject>:
-B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<toXMLFileHandle>, B<toXMLFile>.
+XDF::Structure inherits the following instance methods of L<XDF::GenericObject>:
+B<new>, B<clone>, B<update>, B<setObjRef>.
 
 =back
 
@@ -583,8 +587,8 @@ B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<toXMLFileHandle>, B<toXML
 
 =over 4
 
-XDF::Structure inherits the following instance methods of L<XDF::GenericObject>:
-B<new>, B<clone>, B<update>, B<setObjRef>.
+XDF::Structure inherits the following instance methods of L<XDF::BaseObject>:
+B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<toXMLFileHandle>, B<toXMLFile>.
 
 =back
 

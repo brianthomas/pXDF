@@ -109,6 +109,10 @@ sub _sprintfNotation {
 # Modification History
 #
 # $Log$
+# Revision 1.3  2000/12/01 20:03:37  thomas
+# Brought Pod docmentation up to date. Bumped up version
+# number. -b.t.
+#
 # Revision 1.2  2000/10/16 17:37:20  thomas
 # Changed over to BaseObject Class from Object Class.
 # Added in History Modification section.
@@ -133,7 +137,7 @@ XDF::DelimitedXMLDataIOStyle - Perl Class for DelimitedXMLDataIOStyle
 
  XDF::DelimitedDataIOStyle is a class that indicates how delimited ASCII  records are to be read in. 
 
-XDF::DelimitedXMLDataIOStyle inherits class and attribute methods of L<XDF::BaseObject>, L<XDF::GenericObject>, L<XDF::XMLDataIOStyle>.
+XDF::DelimitedXMLDataIOStyle inherits class and attribute methods of L<XDF::GenericObject>, L<XDF::BaseObject>, L<XDF::XMLDataIOStyle>.
 
 
 =over 4
@@ -198,8 +202,8 @@ B<Pretty_XDF_Output>, B<Pretty_XDF_Output_Indentation>, B<DefaultDataArraySize>.
 
 =over 4
 
-XDF::DelimitedXMLDataIOStyle inherits the following instance methods of L<XDF::BaseObject>:
-B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<toXMLFile>.
+XDF::DelimitedXMLDataIOStyle inherits the following instance methods of L<XDF::GenericObject>:
+B<new>, B<clone>, B<update>, B<setObjRef>.
 
 =back
 
@@ -207,8 +211,8 @@ B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<toXMLFile>.
 
 =over 4
 
-XDF::DelimitedXMLDataIOStyle inherits the following instance methods of L<XDF::GenericObject>:
-B<new>, B<clone>, B<update>, B<setObjRef>.
+XDF::DelimitedXMLDataIOStyle inherits the following instance methods of L<XDF::BaseObject>:
+B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<toXMLFile>.
 
 =back
 

@@ -168,6 +168,10 @@ sub fortranNotation {
 # Modification History
 #
 # $Log$
+# Revision 1.4  2000/12/01 20:03:38  thomas
+# Brought Pod docmentation up to date. Bumped up version
+# number. -b.t.
+#
 # Revision 1.3  2000/11/29 21:50:07  thomas
 # Fix to shrink down inheritance of DataFormat classes.
 # No more *Style.pm class files. -b.t.
@@ -184,3 +188,132 @@ sub fortranNotation {
 
 __END__
 
+=head1 NAME
+
+XDF::FixedDataFormat - Perl Class for FixedDataFormat
+
+=head1 SYNOPSIS
+
+  
+
+
+...
+
+=head1 DESCRIPTION
+
+ XDF::FixedDataFormat is the class that describes (ASCII)  fixed (floating point) numbers. 
+
+XDF::FixedDataFormat inherits class and attribute methods of L<XDF::GenericObject>, L<XDF::DataFormat>, L<XDF::BaseObject>.
+
+
+=over 4
+
+=head2 CLASS Methods
+
+A change in the value of these class attributes will change the value for ALL instances of XDF::FixedDataFormat.
+
+=over 4
+
+=item classXMLNodeName (EMPTY)
+
+This method takes no arguments may not be changed. This method returns the class node name of XDF::FixedDataFormat.  
+
+=item classAttributes (EMPTY)
+
+This method takes no arguments may not be changed. This method returns a list reference containing the namesof the class attributes of XDF::FixedDataFormat.  
+
+=back
+
+=head2 ATTRIBUTE Methods
+
+These methods set the requested attribute if an argument is supplied to the method. Whether or not an argument is supplied the current value of the attribute is always returned. Values of these methods are always SCALAR (may be number, string, or reference).
+
+=over 4
+
+=item width
+
+The entire width of this fixed field.  
+
+=item precision
+
+The precision of this fixed field which is the number of digitsto the right of the '.'.  
+
+=back
+
+=head2 OTHER Methods
+
+=over 4
+
+=item bytes (EMPTY)
+
+A convenience method. Return the number of bytes this XDF::FixedDataFormat holds. 
+
+=item fortranNotation (EMPTY)
+
+The fortran style notation for this object. 
+
+=back
+
+=over 4
+
+=head2 INHERITED Class Methods
+
+A change in the value of these attributes will change the functioning of ALL instances of these objects that inherit from the indicated super class.
+
+
+=over 4
+
+The following class attribute methods are inherited from L<XDF::BaseObject>:
+B<Pretty_XDF_Output>, B<Pretty_XDF_Output_Indentation>, B<DefaultDataArraySize>.
+
+=back
+
+=back
+
+=over 4
+
+=head2 INHERITED Other Methods
+
+
+
+=over 4
+
+XDF::FixedDataFormat inherits the following instance methods of L<XDF::GenericObject>:
+B<new>, B<clone>, B<update>, B<setObjRef>.
+
+=back
+
+
+
+=over 4
+
+XDF::FixedDataFormat inherits the following instance methods of L<XDF::DataFormat>:
+B<toXMLFileHandle>.
+
+=back
+
+
+
+=over 4
+
+XDF::FixedDataFormat inherits the following instance methods of L<XDF::BaseObject>:
+B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<toXMLFile>.
+
+=back
+
+=back
+
+=head1 SEE ALSO
+
+L< XDF::DataFormat>, L<XDF::BaseObject>
+
+=back
+
+=head1 AUTHOR
+
+    Brian Thomas  (thomas@adc.gsfc.nasa.gov)
+    Astronomical Data Center <http://adc.gsfc.nasa.gov>
+    NASA/Goddard Space Flight Center
+
+
+=cut

@@ -557,23 +557,270 @@ sub fieldAxis {
 
 1;
 
-# Modification History
-#
-# $Log$
-# Revision 1.3  2000/11/28 21:56:08  thomas
-# Not sure what changed. Was working on debug of
-# binary data. Also, changed ExponentDataFormat to
-# ExponentialDataFormat, but dont think needed for
-# this version. Check diff to see. -b.t.
-#
-# Revision 1.2  2000/10/16 17:37:20  thomas
-# Changed over to BaseObject Class from Object Class.
-# Added in History Modification section.
-#
-#
-#
-
-
 
 __END__
 
+=head1 NAME
+
+XDF::Array - Perl Class for Array
+
+=head1 SYNOPSIS
+
+
+
+
+...
+
+=head1 DESCRIPTION
+
+ XDF is the eXtensible Data Structure, which is an XML format designed to contain n-dimensional  scientific/mathematical data. XDF::Array is the basic container for the n-dimensional array data.  It gives access to the array data and its descriptors (such as the array axii, associated parameters, notes, etc).     
+    
+ Here is a diagram showing the inter-relations between these components of the XDF::Array in a 2-dimensional dataset with no fields.     
+  
+     axisValue -----> "9" "8" "7" "6" "5" "A"  .   .  "?"
+     axisIndex ----->  0   1   2   3   4   5   .   .   n
+  
+                       |   |   |   |   |   |   |   |   |
+     axisIndex--\      |   |   |   |   |   |   |   |   |
+                |      |   |   |   |   |   |   |   |   |
+     axisValue  |      V   V   V   V   V   V   V   V   V
+         |      |
+         V      V      |   |   |   |   |   |   |   |   |
+       "star 1" 0 --> -====================================> axis 0
+       "star 2" 1 --> -|          8.1
+       "star 3" 2 --> -|
+       "star 4" 3 --> -|
+       "star 5" 4 --> -|
+       "star 6" 5 --> -|       7
+          .     . --> -|
+          .     . --> -|
+          .     . --> -|
+        "??"    m --> -|
+                       |
+                       v
+                     axis 1
+  
+  
+
+
+XDF::Array inherits class and attribute methods of L<XDF::GenericObject>, L<XDF::BaseObject>.
+
+
+=over 4
+
+=head2 CLASS Methods
+
+A change in the value of these class attributes will change the value for ALL instances of XDF::Array.
+
+=over 4
+
+=item classXMLNodeName (EMPTY)
+
+This method returns the class node name of XDF::Array; This method takes no arguments may not be changed.  
+
+=item classAttributes (EMPTY)
+
+This method returns a list reference containing the namesof the class attributes of XDF::Array; This method takes no arguments may not be changed.  
+
+=back
+
+=head2 ATTRIBUTE Methods
+
+These methods set the requested attribute if an argument is supplied to the method. Whether or not an argument is supplied the current value of the attribute is always returned. Values of these methods are always SCALAR (may be number, string, or reference).
+
+=over 4
+
+=item name
+
+The STRING description (short name) of this Array.  
+
+=item description
+
+A scalar string description (long name) of this Array.  
+
+=item paramList
+
+a SCALAR (ARRAY REF) of the list of L<XDF::Parameter> objects held within in this Array.  
+
+=item units
+
+a SCALAR (OBJECT REF) of the L<XDF::Units> object of this array. The XDF::Units object is used to hold the XDF::Unit objects.  
+
+=item dataFormat
+
+a SCALAR (OBJECT REF) of the L<XDF::DataFormat> object.  
+
+=item axisList
+
+a SCALAR (ARRAY REF) of the list of L<XDF::Axis> objects held within this array.  
+
+=item XmlDataIOStyle 
+
+ 
+
+=item dataCube
+
+a SCALAR (OBJECT REF) of the L<XDF::DataCube> object which is a matrix holding the mathematical dataof this array.  
+
+=item noteList   
+
+ 
+
+=back
+
+=head2 OTHER Methods
+
+=over 4
+
+=item XmlDataIOStyle ($val)
+
+Get/set the XMLDataIOStyle object for this array. Returns a SCALAR (OBJECT REF) holding an instance derived from the abstract class L<XDF::DataIOStyle>. 
+
+=item dimension ($dimension)
+
+Get/set the dimension of the L<XDF::DataCube> held within this Array. 
+
+=item createLocator (EMPTY)
+
+Create one instance of an L<XDF::Locator> object for this array. 
+
+=item addParamGroup ($objectRefOrAttribHashRef)
+
+Insert an XDF::ParameterGroup object into this object. This method takes either a reference to an attribute hash ORobject reference to an existing XDF::ParameterGroup asits argument. Attributes in the attribute hash reference shouldcorrespond to attributes of the L<XDF::ParameterGroup> object. The attribute/value pairs in the attribute hash reference areused to initialize the new XDF::ParameterGroup object. RETURNS : an XDF::ParameterGroup object reference on success, undef on failure. 
+
+=item removeParamGroup ($hashKey)
+
+Remove an XDF::ParameterGroup object from the hash table of XDF::ParameterGroups held within this object. This method takes the hash key its argument. RETURNS : 1 on success, undef on failure. 
+
+=item addAxis ($attribHashRefOrObjectRef)
+
+Insert an XDF::Axis object into this object. This method takes a reference to an attribute hash ORobject reference to an existing XDF::Axis asits argument. Attributes in the attribute hash reference shouldcorrespond to attributes of the L<XDF::Axis> object. The attribute/value pairs in the attribute hash reference areused to initialize the new XDF::Axis object. RETURNS : an XDF::Axis object reference on success, undef on failure. 
+
+=item removeAxis ($indexOrObjectRef)
+
+Remove an XDF::Axis object from the list of XDF::Axesheld within this object. This method takes either the list index number or an object reference as its argument. RETURNS : 1 on success, undef on failure. 
+
+=item addUnit (EMPTY)
+
+Insert an XDF::Unit object into the L<XDF::Units> object (e.g. $obj->units)held in this object. This method takes either a reference to an attribute hash ORobject reference to an existing XDF::Unit asits argument. Attributes in the attribute hash reference shouldcorrespond to attributes of the L<XDF::Unit> object. The attribute/value pairs in the attribute hash reference areused to initialize the new XDF::Unit object. RETURNS : an XDF::Unit object if successfull, undef if not. 
+
+=item removeUnit ($indexOrObjectRef)
+
+Remove an XDF::Unit object from the list of XDF::Units held inthe array units reference object. This method takes either the list index number or an object reference as its argument. RETURNS : 1 on success, undef on failure. 
+
+=item addParameter ($attribHashReference)
+
+Insert an XDF::Parameter object into this object. This method may optionally take a reference to an attribute hash asits argument. Attributes in the attribute hash shouldcorrespond to attributes of the L<XDF::Parameter> object. The attribute/value pairs in the attribute hash reference areused to initialize the new XDF::Parameter object. RETURNS : an XDF::Parameter object reference on success, undef on failure. 
+
+=item removeParameter ($indexOrObjectRef)
+
+Remove an XDF::Parameter object from the list of XDF::Parametersheld within this object. This method takes either the list index number or an object reference as its argument. RETURNS : 1 on success, undef on failure. 
+
+=item setDataFormat ($objectRef)
+
+Sets the data format *type* for this array (an XDF::DataFormat objectis held in the attribute $obj->dataFormat, its type is accessibleas $obj->dataFormat->type). Takes a SCALAR object referenceas its argument. Allowed objects to pass to this method include L<XDF::BinaryIntegerDataFormat>, L<XDF::BinaryFloatDataFormat>, L<XDF::ExponentialDataFormat>, L<XDF::FixedDataFormat>, L<XDF::IntegerDataFormat>, or L<XDF::StringDataFormat>. RETURNS an object reference if successfull, undef if not. 
+
+=item maxDataIndices (EMPTY)
+
+A convenience method [same as $ArrayObj->dataCube()->maxDimensionIndex]. Returns a SCALAR ARRAY REF of SCALARS (non-negative INTEGERS) which are the maximum indexvalues along each dimension (FieldAxis and Axis objects). 
+
+=item addNote ($info)
+
+Insert an XDF::Note object into the XDF::Notes object held by this object. This method may optionally take a reference to an attribute hash asits argument. Attributes in the attribute hash shouldcorrespond to attributes of the L<XDF::Note> object. The attribute/value pairs in the attribute hash reference areused to initialize the new XDF::Note object. RETURNS : an XDF::Note object reference on success, undef on failure. 
+
+=item removeNote ($what)
+
+Removes an XDF::Note object from the list of XDF::Note objectsheld within the XDF::Notes object of this object. This method takes either the list index number or an object reference as its argument. RETURNS : 1 on success, undef on failure. 
+
+=item getNotes ($what)
+
+Convenience method which returns a list of the notes held by this object. 
+
+=item addData ($dataValue, $locator)
+
+Append the SCALAR value onto the requested datacell (via L<XDF::DataCube> LOCATOR REF). 
+
+=item setData ($dataValue, $locator)
+
+Set the SCALAR value of the requested datacell (via L<XDF::DataCube> LOCATOR REF). Overwrites existing datacell value if any. 
+
+=item removeData ($data, $locator)
+
+Remove the requested data from the indicated datacell (via L<XDF::DataCube> LOCATOR REF) in the XDF::DataCube held in this Array. B<NOT CURRENTLY IMPLEMENTED>. 
+
+=item getData ($locator)
+
+Retrieve the SCALAR value of the requested datacell (via L<XDF::DataCube> LOCATOR REF). 
+
+=item dataFormatList (EMPTY)
+
+Get the dataFormatList for this array. 
+
+=item addFieldAxis ($attribHashRefOrObjectRef)
+
+A convenience method (same as $Array->fieldAxis($fieldAxisObj)). Changes the L<XDF::FieldAxis> object in this Array to the indicated one. 
+
+=item removeFieldAxis (EMPTY)
+
+A convenience method (same as $Array->fieldAxis(undef)). Removes the L<XDF::FieldAxis> object in this Array. B<CURRENTLY BROKEN>!
+
+=item fieldAxis ($value)
+
+a SCALAR (OBJECT REF) of the L<XDF::FieldAxis> object. Set/get the fieldAxis in this array. 
+
+=back
+
+=over 4
+
+=head2 INHERITED Class Methods
+
+A change in the value of these attributes will change the functioning of ALL instances of these objects that inherit from the indicated super class.
+
+
+=over 4
+
+The following class attribute methods are inherited from L<XDF::BaseObject>:
+B<Pretty_XDF_Output>, B<Pretty_XDF_Output_Indentation>, B<DefaultDataArraySize>.
+
+=back
+
+=back
+
+=over 4
+
+=head2 INHERITED Other Methods
+
+
+
+=over 4
+
+XDF::Array inherits the following instance methods of L<XDF::GenericObject>:
+B<new>, B<clone>, B<update>, B<setObjRef>.
+
+=back
+
+
+
+=over 4
+
+XDF::Array inherits the following instance methods of L<XDF::BaseObject>:
+B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<toXMLFileHandle>, B<toXMLFile>.
+
+=back
+
+=back
+
+=head1 SEE ALSO
+
+L<XDF::BaseObject>, L<XDF::Axis>, L<XDF::DataCube>, L<XDF::DataFormat>, L<XDF::FieldAxis>, L<XDF::Locator>, L<XDF::Note>, L<XDF::Parameter>, L<XDF::ParameterGroup>, L<XDF::TaggedXMLDataIOStyle>, L<XDF::Units>
+
+=back
+
+=head1 AUTHOR
+
+    Brian Thomas  (thomas@adc.gsfc.nasa.gov)
+    Astronomical Data Center <http://adc.gsfc.nasa.gov>
+    NASA/Goddard Space Flight Center
+
+
+=cut

@@ -77,7 +77,6 @@ use XDF::Field;
 use XDF::FieldRelation;
 use XDF::FixedDataFormat;
 use XDF::FormattedXMLDataIOStyle;
-use XDF::IntegerStyle;
 use XDF::IntegerDataFormat;
 use XDF::Parameter;
 use XDF::RepeatFormattedIOCmd;
@@ -195,9 +194,9 @@ my $PARSER_MSG_THRESHOLD = 200; # we print all messages equal to and below this 
 #my $Tagged_Read_Style  = &XDF::XMLDataIOStyle::taggedXMLDataIOStyleName();
 #my $UnTagged_Read_Style  = &XDF::XMLDataIOStyle::untaggedXMLDataIOStyleName();
 
-my $Flag_Hex = &XDF::IntegerStyle::typeHexadecimal();
-my $Flag_Decimal = &XDF::IntegerStyle::typeDecimal();
-my $Flag_Octal = &XDF::IntegerStyle::typeOctal();
+my $Flag_Hex = &XDF::IntegerDataFormat::typeHexadecimal();
+my $Flag_Decimal = &XDF::IntegerDataFormat::typeDecimal();
+my $Flag_Octal = &XDF::IntegerDataFormat::typeOctal();
 
 # Now, Some defines based on XDF DTD 
 # change these to reflect new namings of same nodes as they occur.
@@ -1976,6 +1975,10 @@ sub my_fail {
 # Modification History
 #
 # $Log$
+# Revision 1.6  2000/12/01 20:03:38  thomas
+# Brought Pod docmentation up to date. Bumped up version
+# number. -b.t.
+#
 # Revision 1.5  2000/11/28 21:54:29  thomas
 # Changed ExponentDataFormat name to ExponentialDataFormat.
 # Reflected change in the reader. -b.t.
@@ -2088,7 +2091,7 @@ A change in the value of these attributes will change the functioning of ALL ins
 
 =head1 SEE ALSO
 
-L<XDF::Array>, L<XDF::BinaryFloatDataFormat>, L<XDF::BinaryIntegerDataFormat>, L<XDF::DelimitedXMLDataIOStyle>, L<XDF::ExponentialDataFormat>, L<XDF::Field>, L<XDF::FieldRelation>, L<XDF::FixedDataFormat>, L<XDF::FormattedXMLDataIOStyle>, L<XDF::IntegerStyle>, L<XDF::IntegerDataFormat>, L<XDF::Parameter>, L<XDF::RepeatFormattedIOCmd>, L<XDF::ReadCellFormattedIOCmd>, L<XDF::SkipCharFormattedIOCmd>, L<XDF::StringDataFormat>, L<XDF::Structure>, L<XDF::XMLDataIOStyle>
+L<XDF::Array>, L<XDF::BinaryFloatDataFormat>, L<XDF::BinaryIntegerDataFormat>, L<XDF::DelimitedXMLDataIOStyle>, L<XDF::ExponentialDataFormat>, L<XDF::Field>, L<XDF::FieldRelation>, L<XDF::FixedDataFormat>, L<XDF::FormattedXMLDataIOStyle>, L<XDF::IntegerDataFormat>, L<XDF::Parameter>, L<XDF::RepeatFormattedIOCmd>, L<XDF::ReadCellFormattedIOCmd>, L<XDF::SkipCharFormattedIOCmd>, L<XDF::StringDataFormat>, L<XDF::Structure>, L<XDF::XMLDataIOStyle>
 
 =back
 

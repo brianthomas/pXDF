@@ -121,6 +121,10 @@ sub update {
 # Modification History
 #
 # $Log$
+# Revision 1.3  2000/12/01 20:03:37  thomas
+# Brought Pod docmentation up to date. Bumped up version
+# number. -b.t.
+#
 # Revision 1.2  2000/10/16 17:37:20  thomas
 # Changed over to BaseObject Class from Object Class.
 # Added in History Modification section.
@@ -148,7 +152,7 @@ XDF::ErroredValue - Perl Class for ErroredValue
 
  An XDF::ErroredValue describes a single scalar (number or string)  that has an associated error value. XDF::Parameter uses this object to store its (mathematical) value. 
 
-XDF::ErroredValue inherits class and attribute methods of L<XDF::BaseObject>, L<XDF::GenericObject>, L<XDF::Value>.
+XDF::ErroredValue inherits class and attribute methods of L<XDF::GenericObject>, L<XDF::BaseObject>, L<XDF::Value>.
 
 
 =over 4
@@ -219,8 +223,8 @@ B<Pretty_XDF_Output>, B<Pretty_XDF_Output_Indentation>, B<DefaultDataArraySize>.
 
 =over 4
 
-XDF::ErroredValue inherits the following instance methods of L<XDF::BaseObject>:
-B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<toXMLFileHandle>, B<toXMLFile>.
+XDF::ErroredValue inherits the following instance methods of L<XDF::GenericObject>:
+B<new>, B<clone>, B<setObjRef>.
 
 =back
 
@@ -228,8 +232,8 @@ B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<toXMLFileHandle>, B<toXML
 
 =over 4
 
-XDF::ErroredValue inherits the following instance methods of L<XDF::GenericObject>:
-B<new>, B<clone>, B<setObjRef>.
+XDF::ErroredValue inherits the following instance methods of L<XDF::BaseObject>:
+B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<toXMLFileHandle>, B<toXMLFile>.
 
 =back
 

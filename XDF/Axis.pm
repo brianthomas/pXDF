@@ -359,6 +359,10 @@ sub getIndexFromAxisValue {
 # Modification History
 #
 # $Log$
+# Revision 1.3  2000/12/01 20:03:37  thomas
+# Brought Pod docmentation up to date. Bumped up version
+# number. -b.t.
+#
 # Revision 1.2  2000/10/16 17:37:20  thomas
 # Changed over to BaseObject Class from Object Class.
 # Added in History Modification section.
@@ -367,6 +371,7 @@ sub getIndexFromAxisValue {
 #
 
 1;
+
 
 __END__
 
@@ -397,7 +402,7 @@ XDF::Axis - Perl Class for Axis
 
  There must be one axis (or fieldAxis) for every dimension in the datacube. There are n indices for every axis (n>= 1).  Each axis declaration defines the values of ALL the indices  along that dimension. Values of the indices in that axis need  not follow any algorthm for progression BUT each must be unique within the axis. A unit may be assocated with the axis.  Note that the unit specified for the axis indices is not the  same as the unit of the data held within the data cube. 
 
-XDF::Axis inherits class and attribute methods of L<XDF::BaseObject>, L<XDF::GenericObject>.
+XDF::Axis inherits class and attribute methods of L<XDF::GenericObject>, L<XDF::BaseObject>.
 
 
 =over 4
@@ -536,8 +541,8 @@ B<Pretty_XDF_Output>, B<Pretty_XDF_Output_Indentation>, B<DefaultDataArraySize>.
 
 =over 4
 
-XDF::Axis inherits the following instance methods of L<XDF::BaseObject>:
-B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<toXMLFileHandle>, B<toXMLFile>.
+XDF::Axis inherits the following instance methods of L<XDF::GenericObject>:
+B<new>, B<clone>, B<update>, B<setObjRef>.
 
 =back
 
@@ -545,8 +550,8 @@ B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<toXMLFileHandle>, B<toXML
 
 =over 4
 
-XDF::Axis inherits the following instance methods of L<XDF::GenericObject>:
-B<new>, B<clone>, B<update>, B<setObjRef>.
+XDF::Axis inherits the following instance methods of L<XDF::BaseObject>:
+B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<toXMLFileHandle>, B<toXMLFile>.
 
 =back
 

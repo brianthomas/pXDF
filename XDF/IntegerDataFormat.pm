@@ -193,6 +193,10 @@ sub fortranNotation {
 # Modification History
 #
 # $Log$
+# Revision 1.4  2000/12/01 20:03:38  thomas
+# Brought Pod docmentation up to date. Bumped up version
+# number. -b.t.
+#
 # Revision 1.3  2000/11/29 21:50:07  thomas
 # Fix to shrink down inheritance of DataFormat classes.
 # No more *Style.pm class files. -b.t.
@@ -222,9 +226,9 @@ XDF::IntegerDataFormat - Perl Class for IntegerDataFormat
 
 =head1 DESCRIPTION
 
- XDF::IntegerDataFormat is an class that describes (ASCII)  integer numbers. 
+ XDF::IntegerDataFormat is the class that describes (ASCII)  integer numbers. 
 
-XDF::IntegerDataFormat inherits class and attribute methods of L<XDF::DataFormat>, L<XDF::GenericObject>.
+XDF::IntegerDataFormat inherits class and attribute methods of L<XDF::GenericObject>, L<XDF::DataFormat>, L<XDF::BaseObject>.
 
 
 =over 4
@@ -296,7 +300,7 @@ A change in the value of these attributes will change the functioning of ALL ins
 
 =over 4
 
-The following class attribute methods are inherited from L<XDF::DataFormat>:
+The following class attribute methods are inherited from L<XDF::BaseObject>:
 B<Pretty_XDF_Output>, B<Pretty_XDF_Output_Indentation>, B<DefaultDataArraySize>.
 
 =back
@@ -311,8 +315,8 @@ B<Pretty_XDF_Output>, B<Pretty_XDF_Output_Indentation>, B<DefaultDataArraySize>.
 
 =over 4
 
-XDF::IntegerDataFormat inherits the following instance methods of L<XDF::DataFormat>:
-B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<toXMLFileHandle>, B<toXMLFile>.
+XDF::IntegerDataFormat inherits the following instance methods of L<XDF::GenericObject>:
+B<new>, B<clone>, B<update>, B<setObjRef>.
 
 =back
 
@@ -320,8 +324,17 @@ B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<toXMLFileHandle>, B<toXML
 
 =over 4
 
-XDF::IntegerDataFormat inherits the following instance methods of L<XDF::GenericObject>:
-B<new>, B<clone>, B<update>, B<setObjRef>.
+XDF::IntegerDataFormat inherits the following instance methods of L<XDF::DataFormat>:
+B<toXMLFileHandle>.
+
+=back
+
+
+
+=over 4
+
+XDF::IntegerDataFormat inherits the following instance methods of L<XDF::BaseObject>:
+B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<toXMLFile>.
 
 =back
 
@@ -329,7 +342,7 @@ B<new>, B<clone>, B<update>, B<setObjRef>.
 
 =head1 SEE ALSO
 
-L< XDF::IntegerDataFormat>, L< XDF::IntegerDataType>, L<XDF::DataFormat>
+L<XDF::DataFormat>
 
 =back
 

@@ -54,7 +54,7 @@ use integer;
 use vars qw ($VERSION @ISA %field);
 
 # the version of this module
-$VERSION = "0.17j";
+$VERSION = "0.17k";
 
 # inherits from XDF::GenericObject
 @ISA = ("XDF::GenericObject");
@@ -510,6 +510,10 @@ sub _write_XML_decl_to_file_handle {
 # Modification History
 #
 # $Log$
+# Revision 1.2  2000/12/01 20:03:37  thomas
+# Brought Pod docmentation up to date. Bumped up version
+# number. -b.t.
+#
 # Revision 1.1  2000/10/16 17:39:45  thomas
 # The old Object.pm. Moved to BaseObject name for consistency
 # with the Java code base.
