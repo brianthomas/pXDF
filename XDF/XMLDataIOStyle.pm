@@ -112,20 +112,6 @@ sub classAttributes {
   \@Class_Attributes;
 }
 
-# /** getLittleEndian
-# Returns the Little Endian string setting.
-# */
-sub getLittleEndian {
-  return $Little_Endian;
-}
-
-# /** getBigEndian
-# Returns the Big Endian string setting.
-# */
-sub getBigEndian {
-  return $Big_Endian;
-}
-
 sub untaggedInstructionNodeName { 
   return $Untagged_Instruction_Node_Name; 
 }
@@ -176,6 +162,10 @@ sub getEncoding{
 # */
 sub setEncoding {
    my ($self, $value) = @_;
+
+   carp "Cant set encoding to $value, not allowed \n"
+      unless (&XDF::Utility::isValidIOEncoding($value));
+
    $self->{Encoding} = $value;
 }
 
@@ -191,6 +181,10 @@ sub getEndian{
 # */
 sub setEndian {
    my ($self, $value) = @_;
+
+   carp "Cant set endian to $value, not allowed \n"
+      unless (&XDF::Utility::isValidEndian($value));
+
    $self->{Endian} = $value;
 }
 
@@ -227,6 +221,12 @@ sub _init {
 # Modification History
 #
 # $Log$
+# Revision 1.7  2001/03/09 21:44:57  thomas
+# removed getBigEndian, getLittleEndian methods.
+# Right way to do it is via Constants class, as it
+# now is done. Added in new utility class checks
+# for encoding and endian attributes.
+#
 # Revision 1.6  2001/03/07 23:14:25  thomas
 # added class methods of "getLittleEndian" and "getBigEndian" so
 # the values could be determined with/out DTD.
