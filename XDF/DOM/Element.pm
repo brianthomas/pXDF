@@ -75,9 +75,13 @@ sub new {
    die "Cannot instanciate an XDF::DOM::Element without an owner document" 
          unless defined $ownerDoc && ref($ownerDoc);
 
+   die "Cannot instanciate an XDF::DOM::Element without an XDF object" 
+         unless defined $ownerDoc && ref($ownerDoc);
+
    my $self = $proto->SUPER::new($ownerDoc, $XDF::DOM::XDF_ROOT_NAME);
    bless $self, $proto;
    $self->_init($XDFObject);
+
    return $self;
 }
 
@@ -120,6 +124,12 @@ sub replaceChild {
   die "ERROR: cannot replaceChild on XDF::DOM::Element\n";
 }
 
+# just an alias
+sub toXMLString {
+  my ($self) = @_;
+  return $self->toString();
+}
+
 #
 # Protected Methods
 #
@@ -132,13 +142,14 @@ sub replaceChild {
 sub print { # PRIVATE
    my ($self, $FILE) = @_;
 
-   my $obj = $self->getXDFObject;
+   my $obj = $self->getXDFObject();
+
 #   my $spec = XDF::Specification->getInstance;
    if (defined $obj) {
     # $obj->Pretty_XDF_Output(1);
 #     $spec->setPrettyXDFOutput(1); # huh? 
      my $string = $obj->toXMLString(undef,undef,undef,undef,undef,1);
-     $FILE->print("$string\n");
+     $FILE->print($string);
    } else { 
      $FILE->print("<$XDF::DOM::XDF_ROOT_NAME/>\n");
    }
@@ -151,7 +162,7 @@ sub print { # PRIVATE
 sub _init {
    my ($self, $XDFObject) = @_; 
 
-   # more crappiness. The object is declared as an array (!)
+   # more crappiness. The object is declared as an array so 
    # we need to record the index under which to store various
    # fields local to this object.
    push @{$self}, $XDFObject;
@@ -162,6 +173,10 @@ sub _init {
 # Modification History
 #
 # $Log$
+# Revision 1.3  2001/08/13 19:52:21  thomas
+# added alias method 'toXMLString'. Fixed toString to
+# *not* add newline at the end of printout.
+#
 # Revision 1.2  2001/04/17 18:48:54  thomas
 # now blessed properly. Removed pretty output
 # stuff. What was I thinking here??
