@@ -44,6 +44,7 @@
 package XDF::DOM::Document;
 
 use XDF::DOM;
+use XDF::DOM::Element;
 use vars qw { @ISA };
 
 @ISA = ( "XML::DOM::Document" );
