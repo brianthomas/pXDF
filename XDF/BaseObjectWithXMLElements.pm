@@ -118,6 +118,7 @@ sub setXMLElementList {
 
 sub _init {
   my ($self) = @_;
+  $self->SUPER::_init();
   $self->{_childXMLElementList} = []; # init of child XML object list (all objects have) 
 }
 
@@ -186,15 +187,10 @@ sub toXMLFileHandle {
     for (@objList) {
 
       if (ref($_) =~ m/ARRAY/ ) { # if its a list..
-        foreach my $obj (@{$_}) {
-           next unless defined $obj; # can happen because we allocate memory with
-                                     # $DefaultDataArraySize, making undef spots possible
 
-           $indent = $self->_deal_with_closing_group_nodes($obj, $fileHandle, $indent, $Pretty_XDF_Output, $Pretty_XDF_Output_Indentation);
-           $indent = $self->_deal_with_opening_group_nodes($obj, $fileHandle, $indent, $Pretty_XDF_Output_Indentation);
-           $obj->toXMLFileHandle($fileHandle, undef, $indent . $Pretty_XDF_Output_Indentation);
+         $indent = $self->_objectToXMLFileHandle($fileHandle, $_, $indent,
+                                                 $Pretty_XDF_Output, $Pretty_XDF_Output_Indentation);
 
-        }
       } elsif (ref($_) =~ m/XDF::/) { # if its an XDF object
 
          $indent = $self->_deal_with_closing_group_nodes($_, $fileHandle, $indent, $Pretty_XDF_Output, $Pretty_XDF_Output_Indentation);
@@ -251,6 +247,9 @@ sub toXMLFileHandle {
 # Modification History
 #
 # $Log$
+# Revision 1.5  2001/07/13 21:43:19  thomas
+# small changes to yank code out of toXMLFileHandle and put in sub-methods
+#
 # Revision 1.4  2001/07/06 18:29:12  thomas
 # stripped out unneeded nodenames stuff in toXMLFileHandle.
 # Fixed bug in group printing in toXMLFileHandle.

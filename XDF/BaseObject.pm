@@ -239,15 +239,10 @@ sub toXMLFileHandle {
     for (@objList) { 
 
       if (ref($_) =~ m/ARRAY/ ) { # if its a list..
-        foreach my $obj (@{$_}) { 
-           next unless defined $obj; # can happen because we allocate memory with
-                                     # $DefaultDataArraySize, making undef spots possible
 
-           $indent = $self->_deal_with_closing_group_nodes($obj, $fileHandle, $indent, $Pretty_XDF_Output, $Pretty_XDF_Output_Indentation);
-           $indent = $self->_deal_with_opening_group_nodes($obj, $fileHandle, $indent, $Pretty_XDF_Output_Indentation);
-           $obj->toXMLFileHandle($fileHandle, undef, $indent . $Pretty_XDF_Output_Indentation); 
+         $indent = $self->_objectToXMLFileHandle($fileHandle, $_, $indent, 
+                                                 $Pretty_XDF_Output, $Pretty_XDF_Output_Indentation);
 
-        }
       } elsif (ref($_) =~ m/XDF::/) { # if its an XDF object
 
 
@@ -326,6 +321,47 @@ sub toXMLString {
    untie *CAPTURE;
 
    return $string;
+}
+
+# /** toXMLFile
+# This is a convenience method which allows writing of this structure and all 
+# the objects it owns to the indicated file in XML (XDF) format. The first argument 
+# is the name of the file and is required. The supplied filename will be OVERWRITTEN, 
+# not appended to. The second, optional, argument has the same meaning as for toXMLFileHandle.
+# */
+sub toXMLFile {
+  my ($self, $file, $XMLDeclAttribs) = @_;
+
+  if(!open(FILE, ">$file")) {
+    carp "Can't open file: $file for writing.\n";
+    return;
+  }
+
+  # write myself out
+  $self->toXMLFileHandle(\*FILE, $XMLDeclAttribs);
+
+  close FILE;
+
+}
+
+#
+# Private/Protected Methods
+#
+
+sub _objectToXMLFileHandle { 
+   my ($self, $fileHandle, $listRef, $indent, $Pretty_XDF_Output, $Pretty_XDF_Output_Indentation) = @_;
+
+   foreach my $obj (@{$listRef}) {
+      next unless defined $obj; # can happen because we allocate memory with
+                                     # $DefaultDataArraySize, making undef spots possible
+
+      $indent = $self->_deal_with_closing_group_nodes($obj, $fileHandle, $indent, $Pretty_XDF_Output, $Pretty_XDF_Output_Indentation);
+      $indent = $self->_deal_with_opening_group_nodes($obj, $fileHandle, $indent, $Pretty_XDF_Output_Indentation);
+      $obj->toXMLFileHandle($fileHandle, undef, $indent . $Pretty_XDF_Output_Indentation);
+
+   }
+
+   return $indent;
 }
 
 sub _printAttributes {
@@ -426,27 +462,6 @@ sub _deal_with_closing_group_nodes {
   return $indent;
 }
 
-
-# /** toXMLFile
-# This is a convenience method which allows writing of this structure and all 
-# the objects it owns to the indicated file in XML (XDF) format. The first argument 
-# is the name of the file and is required. The supplied filename will be OVERWRITTEN, 
-# not appended to. The second, optional, argument has the same meaning as for toXMLFileHandle.
-# */
-sub toXMLFile {
-  my ($self, $file, $XMLDeclAttribs) = @_;
-
-  if(!open(FILE, ">$file")) {
-    carp "Can't open file: $file for writing.\n";
-    return;
-  }
-
-  # write myself out
-  $self->toXMLFileHandle(\*FILE, $XMLDeclAttribs);
-
-  close FILE;
-
-}
 
 # private method
 sub _init {
@@ -565,6 +580,9 @@ sub READLINE {
 # Modification History
 #
 # $Log$
+# Revision 1.17  2001/07/13 21:42:57  thomas
+# small changes to yank code out of toXMLFileHandle and put in sub-methods
+#
 # Revision 1.16  2001/07/06 18:29:33  thomas
 # stripped out unneeded nodenames stuff in toXMLFileHandle.
 # Fixed bug in group printing in toXMLFileHandle.
