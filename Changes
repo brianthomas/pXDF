@@ -29,8 +29,7 @@ Revision history for Perl extension XDF.
           iteration order and the order of traversal for next method.
 
 0.17-beta0 Fri Mar 14 05:31:00 2001
-        - changed getBytes() method name to numOfBytes to conform w/
-          Java API
+        - changed getBytes() method name to numOfBytes to conform w/ Java API
         - combined Fixed and Exponential dataFormat classes as FloatDataFormat.
         - added in Utility and Constants classes, shifted class data as needed
           into new Constants class.
@@ -57,5 +56,15 @@ Revision history for Perl extension XDF.
 0.17-beta1 
 	- allow user-defined start, end, charData handlers.
         - added XMLElement class to capture non-XDF nodes as per the XDF DTD.
+        - added XMLAttribute class to capture non-XDF nodes attributes. Unlike
+          in the Java package, this class is not used for XDF classes (yet) :P
         - fixed starthandlers in Reader.pm to return the object they create (where possible)
+        - regularized the axis ordering between the IterationOrderlist for the 
+          locator and the writeAxisOrderList for XMLDataIOStyle. The first axis
+          is the list is the *fastest*. TaggedData now has a setWriteAxisOrderList
+          method but its use is forbidden (and meaningless) for now. 
+        - added XDF::DOM and related classes XDF::DOM::Parser, XDF::DOM::Document
+          and XDF::DOM::Element. These allow the IO and manipulation of any
+          XML document and still may use the XDF API on the XDF bits of the XML 
+          document for easier handling.
 
