@@ -34,6 +34,7 @@
 
 package XDF::BinaryFloatDataFormat;
 
+use XDF::Utility;
 use XDF::DataFormat;
 use Carp;
 
@@ -51,7 +52,10 @@ my $Class_XML_Node_Name = "binaryFloat";
 my @Class_XML_Attributes = qw (
                              bits
                           );
-my @Class_Attributes = ();
+my @Class_Attributes = qw (
+                         _templateNotation
+                         _unpackTemplateNotation
+                       );
 
 # add in XML attributes
 push @Class_Attributes, @Class_XML_Attributes;
@@ -111,9 +115,10 @@ sub getBits {
 sub setBits {
    my ($self, $value) = @_;
 
-   carp "Cant set bits to value other than 32 or 64 \n" 
-      unless (defined $value && ($value == 64 or $value == 32));
+   carp "Cant set bits to $value, not allowed \n" 
+      unless (XDF::Utility::isValidFloatBits($value));
    $self->{Bits} = $value;
+   $self->_updateTemplate;
 }
 
 # /** numOfBytes
@@ -132,6 +137,35 @@ sub getXMLAttributes {
   return \@Class_XML_Attributes;
 }
 
+#/** convertBitStringToFloatBits
+# * Convert the string representation of bits into the binary
+# * float bits as specified by an instance of the BinaryFloatDataFormat object.
+# * The desired endianness of the output data bits must be supplied.
+# * The actual float bits are returned. 
+# */
+sub convertBitStringToFloatBits {
+  my ($self, $bitString, $dataEndian) = @_;
+
+  return undef unless defined $bitString && defined $dataEndian;
+
+  # this check could slow down things.
+  unless (length($bitString) == $self->{Bits})
+  {
+     warn "XDF::BinaryFloatDataFormat->convertBitStringToFloatBits got different number of bits than specified in the dataformat object, cannot convert passed string.\n";
+     return undef;
+  }
+
+  if ($dataEndian ne &XDF::Constants::PLATFORM_ENDIAN) {
+     $bitString = XDF::Utility::reverseBitStringByteOrder($bitString, $self->{Bits});
+  }
+
+  my $packtemplate = $self->{_templateNotation};
+  my $unpacktemplate = $self->{_unpackTemplateNotation};
+
+  return unpack $unpacktemplate, pack $packtemplate, $bitString;
+
+}
+
 #
 # Private/Protected Methods 
 #
@@ -147,65 +181,52 @@ sub AUTOLOAD {
 sub _init {
   my ($self) = @_;
   $self->{Bits} = $Def_BinaryFloat_Bits;
+  $self->_updateTemplate;
 }
 
 sub _templateNotation {
   my ($self) = @_;
-  my $width = $self->{Bits};
-  my $template = $self->getEndian() eq $self->SUPER::getLittleEndian ? "b" : "B";
-  return $template;
+  return $self->{_templateNotation};
 }
 
-sub _oldtemplateNotation {
-  my ($self, $endian, $encoding) = @_;
+sub _updateTemplate {
+  my ($self) = @_;
 
-  my $width = $self->getBits(); 
+  my $bits = $self->{Bits};
+  $self->{_templateNotation} = "B" . $bits;
 
-  # we have 64 bit numbers as upper limit on size
-  die "XDF::BinaryFloatDataFormat cant handle > 64 bit Numbers\n" unless ($width <= 64);
-
-  my $symbol = "d"; # we *should* always use double to prevent perl rounding 
-                    # that can occur for using the 32-bit "f" 
-
-  # hurm, IF we do this there will be rounding. 
-  $symbol = 'f' if ($width <= 32);
-  return "$symbol";
+  # determine unpack template from number of bits 
+  # Yes, we make the assumption here that the platform
+  # is POSIX 32 bit machine.
+  if ($bits == 32) {
+     $self->{_unpackTemplateNotation} = "f";
+  } elsif ($bits == 64) {
+     $self->{_unpackTemplateNotation} = "d";
+  } else {
+    die "Got weird number of bits $bits, cant assign unpackTemplate for BinaryFloatDataFormat.\n";
+  }
 
 }
 
 sub _regexNotation {
-  my ($self) = @_;
-
-  my $width = $self->numOfBytes();
-  my $symbol = $Perl_Regex_Field_BinaryFloat;
-
-  my $notation = '(';
-#  my $before_whitespace = $width - 1;
-#  $notation .= '\s' . "{0,$before_whitespace}" if($before_whitespace > 0);
-  $notation .= $symbol . '{' . $width . '}';
-  $notation .= ')';
-
-  return $notation;
-
+  carp "_regexNotation shouldnt be called for binary numbers\n";
 }
 
 # returns sprintf field notation
 sub _sprintfNotation {
-#  my ($self) = @_;
-#
-#  my $notation = '%';
-#  my $field_symbol = $Perl_Sprintf_Field_BinaryFloat;
-#
-#  $notation .= $self->numOfBytes();
-#  $notation .= $field_symbol;
-#
-#  return $notation;
    carp "_sprintfNotation shouldnt be called for binary numbers\n";
 }
 
 # Modification History
 #
 # $Log$
+# Revision 1.11  2001/03/09 22:04:23  thomas
+# Shunted some class data off to Constants class (where it should be).
+# Added come checks from Utility package to prevent bad assigned
+# values for some attributes. Fixed templateNotation stuff (added
+# unpackTemplateNotation) and added method for converting bitString
+# correctly into the prescribed bits.
+#
 # Revision 1.10  2001/03/07 23:12:57  thomas
 # messing with templateNotation. changed for time being.
 #
