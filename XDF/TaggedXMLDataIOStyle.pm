@@ -55,20 +55,28 @@ my @Class_Attributes = qw (
                           );
 
 # add in super class attributes
-push @Class_Attributes, @{&XDF::XMLDataIOStyle::classAttributes};
-push @Class_XML_Attributes, @{&XDF::XMLDataIOStyle::getXMLAttributes};
+push @Class_Attributes, @{&XDF::XMLDataIOStyle::getClassAttributes};
+push @Class_XML_Attributes, @{&XDF::XMLDataIOStyle::getClassXMLAttributes};
 
 # Initalization - set up object attributes.
 for my $attr ( @Class_Attributes ) { $field{$attr}++; }
 
-# /** classAttributes
+# /** getClassAttributes
 #  This method returns a list reference containing the names
-#  of the class attributes of this class.
+#  of the class attributes for this class.
 #  This method takes no arguments may not be changed. 
 # */
-sub classAttributes {
-  \@Class_Attributes;
+sub getClassAttributes {
+  return \@Class_Attributes;
 }
+
+# /** getClassXMLAttributes
+#      This method returns the XMLAttributes of this class. 
+#  */
+sub getClassXMLAttributes {
+  return \@Class_XML_Attributes;
+}
+
 
 #
 # Get/Set Methods
@@ -118,13 +126,6 @@ sub getAxisTags {
   }
   return @tags;
 
-}
-
-# /** getXMLAttributes
-#      This method returns the XMLAttributes of this class. 
-#  */
-sub getXMLAttributes { 
-  return \@Class_XML_Attributes;
 }
 
 #
@@ -194,8 +195,12 @@ sub AUTOLOAD {
 sub _init {
   my ($self) = @_;
 
-  $self->SUPER::_init(@_);
+  $self->SUPER::_init();
+
   $self->{_tagHash} = {};
+
+  # adds to ordered list of XML attributes
+  $self->_appendAttribsToXMLAttribOrder(\@Class_XML_Attributes);
 
   return $self;
 
@@ -230,6 +235,11 @@ sub _removeAxisTag {
 # Modification History
 #
 # $Log$
+# Revision 1.15  2001/07/23 15:58:07  thomas
+# added ability to add arbitary XML attribute to class.
+# getXMLattributes now an instance method, we
+# have old class method now called getClassXMLAttributes.
+#
 # Revision 1.14  2001/04/25 16:01:31  thomas
 # updated documentation
 #

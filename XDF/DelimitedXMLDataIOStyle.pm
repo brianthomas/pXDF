@@ -42,23 +42,24 @@ my $Class_XML_Node_Name = "textDelimiter";
 # the order of these attributes IS important. 
 # Note: _parentArray isnt needed by TextDelimiter, but is supplied for 
 # compatablity w/ FormattedReadStyle (the other untagged Read style at this time)
-my @My_XML_Attributes = qw (
+my @Class_XML_Attributes = qw (
                              delimiter
                              repeatable
                              recordTerminator
                           );
-my @Class_XML_Attributes = @My_XML_Attributes;
 
 my @Class_Attributes = qw (
                              writeAxisOrderList
                           );
 
+# add in super class attributes
+push @Class_XML_Attributes, @{&XDF::XMLDataIOStyle::getClassXMLAttributes};
+
 ## add in class XML attributes
 push @Class_Attributes, @Class_XML_Attributes;
 
 # add in super class attributes
-push @Class_Attributes, @{&XDF::XMLDataIOStyle::classAttributes};
-push @Class_XML_Attributes, @{&XDF::XMLDataIOStyle::getXMLAttributes};
+push @Class_Attributes, @{&XDF::XMLDataIOStyle::getClassAttributes};
 
 # Initalization
 # set up object attributes.
@@ -68,8 +69,15 @@ sub classXMLNodeName {
   $Class_XML_Node_Name; 
 }
 
-sub classAttributes { 
+sub getClassAttributes { 
   \@Class_Attributes; 
+}
+
+# /** getClassXMLAttributes
+#      This method returns the XMLAttributes of this class. 
+#  */
+sub getClassXMLAttributes {
+  return \@Class_XML_Attributes;
 }
 
 # 
@@ -80,7 +88,7 @@ sub classAttributes {
 # */
 sub getDelimiter {
    my ($self) = @_;
-   return $self->{Delimiter};
+   return $self->{delimiter};
 }
 
 # /** setDelimiter
@@ -88,14 +96,14 @@ sub getDelimiter {
 # */
 sub setDelimiter {
    my ($self, $value) = @_;
-   $self->{Delimiter} = $value;
+   $self->{delimiter} = $value;
 }
 
 # /** getRepeatable
 # */
 sub getRepeatable {
    my ($self) = @_;
-   return $self->{Repeatable};
+   return $self->{repeatable};
 }
 
 # /** setRepeatable
@@ -103,14 +111,14 @@ sub getRepeatable {
 # */
 sub setRepeatable {
    my ($self, $value) = @_;
-   $self->{Repeatable} = $value;
+   $self->{repeatable} = $value;
 }
 
 # /** getRecordTerminator
 # */
 sub getRecordTerminator {
    my ($self) = @_;
-   return $self->{RecordTerminator};
+   return $self->{recordTerminator};
 }
 
 # /** setRecordTerminator
@@ -118,14 +126,7 @@ sub getRecordTerminator {
 # */
 sub setRecordTerminator {
    my ($self, $value) = @_;
-   $self->{RecordTerminator} = $value;
-}
-
-# /** getXMLAttributes
-#      This method returns the XMLAttributes of this class. 
-#  */
-sub getXMLAttributes {
-  return \@Class_XML_Attributes;
+   $self->{recordTerminator} = $value;
 }
 
 #
@@ -146,7 +147,7 @@ sub toXMLFileHandle {
   # open the read block, print attributes 
   print $fileHandle "<" . $self->SUPER::classXMLNodeName;
   # print out attributes
-  $self->_printAttributes($fileHandle, $self->SUPER::classAttributes);
+  $self->_printAttributes($fileHandle, $self->SUPER::getClassAttributes);
   print $fileHandle ">";
   print $fileHandle "\n" if $niceOutput;
 
@@ -173,7 +174,7 @@ sub toXMLFileHandle {
   print $fileHandle "$next_indent" if $niceOutput;
   print $fileHandle "<" . $self->classXMLNodeName;
   # print out attributes
-  $self->_printAttributes($fileHandle, \@My_XML_Attributes);
+  $self->_printAttributes($fileHandle, \@Class_XML_Attributes);
   print $fileHandle "/>";
   print $fileHandle "\n" if $niceOutput;
 
@@ -209,9 +210,12 @@ sub _init {
   $self->SUPER::_init();
 
   # set these defaults. 
-  $self->{Delimiter} = $Def_Delimiter;
-  $self->{Repeatable} = $Def_Repeatable;
-  $self->{RecordTerminator} = $Def_Record_Terminator;
+  $self->{delimiter} = $Def_Delimiter;
+  $self->{repeatable} = $Def_Repeatable;
+  $self->{recordTerminator} = $Def_Record_Terminator;
+
+  # adds to ordered list of XML attributes
+  $self->_appendAttribsToXMLAttribOrder(\@Class_XML_Attributes);
 
 }
 
@@ -221,9 +225,9 @@ sub _regexNotation {
 
   my $notation = '(.*?)[';
   
-  $notation .= $self->{Delimiter};
-  $notation .= '|' . $self->{RecordTerminator} . ']';
-  $notation .= '+' if $self->{Repeatable} eq 'yes';
+  $notation .= $self->{delimiter};
+  $notation .= '|' . $self->{recordTerminator} . ']';
+  $notation .= '+' if $self->{repeatable} eq 'yes';
   return $notation;
 }
 
@@ -231,7 +235,7 @@ sub _regexNotation {
 sub _sprintfNotation {
   my ($self) = @_;
 
-  my $notation = '%s' . $self->{Delimiter};
+  my $notation = '%s' . $self->{delimiter};
 
   return $notation;
 }
@@ -239,6 +243,11 @@ sub _sprintfNotation {
 # Modification History
 #
 # $Log$
+# Revision 1.13  2001/07/23 15:58:07  thomas
+# added ability to add arbitary XML attribute to class.
+# getXMLattributes now an instance method, we
+# have old class method now called getClassXMLAttributes.
+#
 # Revision 1.12  2001/04/25 16:01:31  thomas
 # updated documentation
 #

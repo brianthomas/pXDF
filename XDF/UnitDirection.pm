@@ -44,18 +44,30 @@ my @Class_Attributes = ();
 push @Class_Attributes, @Class_XML_Attributes;
 
 # add in super class attributes
-push @Class_Attributes, @{&XDF::BaseObject::classAttributes};
+push @Class_Attributes, @{&XDF::BaseObject::getClassAttributes};
 
 # Initalization
 # set up object attributes.
 for my $attr ( @Class_Attributes ) { $field{$attr}++; }
 
 sub classXMLNodeName { 
-  $Class_XML_Node_Name; 
+  return $Class_XML_Node_Name; 
 }
 
-sub classAttributes { 
-  \@Class_Attributes; 
+# /** getClassAttributes
+#  This method returns a list reference containing the names
+#  of the class attributes for this class.
+#  This method takes no arguments may not be changed. 
+# */
+sub getClassAttributes {
+  return \@Class_Attributes;
+}
+
+# /** getClassXMLAttributes
+#      This method returns the XMLAttributes of this class. 
+#  */
+sub getClassXMLAttributes {
+  return \@Class_XML_Attributes;
 }
 
 #
@@ -66,7 +78,7 @@ sub classAttributes {
 # */
 sub getName {
    my ($self) = @_;
-   return $self->{Name};
+   return $self->{name};
 }
 
 # /** setName
@@ -74,49 +86,49 @@ sub getName {
 # */
 sub setName {
    my ($self, $value) = @_;
-   $self->{Name} = $value;
+   $self->{name} = $value;
 }
 
 # /** getDescription
 #  */
 sub getDescription {
    my ($self) = @_;
-   return $self->{Description};
+   return $self->{description};
 }
 
 # /** setDescription
 #  */
 sub setDescription {
    my ($self, $value) = @_;
-   $self->{Description} = $value;
+   $self->{description} = $value;
 }
 
 # /** getAxisIdRef
 #  */
 sub getAxisIdRef {
    my ($self) = @_;
-   return $self->{AxisIdRef};
+   return $self->{axisIdRef};
 }
 
 # /** setAxisIdRef
 #  */
 sub setAxisIdRef {
    my ($self, $value) = @_;
-   $self->{AxisIdRef} = $value;
+   $self->{axisIdRef} = $value;
 }
 
 # /** getComplex
 #  */
 sub getComplex {
    my ($self) = @_;
-   return $self->{Complex};
+   return $self->{complex};
 }
 
 # /** setComplex
 #  */
 sub setComplex {
    my ($self, $value) = @_;
-   $self->{Complex} = $value;
+   $self->{complex} = $value;
 }
 
 # Q: what is the (scalar) "value" of this vector?
@@ -130,23 +142,26 @@ sub setComplex {
 sub getValue {
   my ($self) = @_;
 
-  my $value = $self->{AxisIdRef};
-  $value = $self->{Name} unless defined $value;
-  $value = $self->{Description} unless defined $value;
+  my $value = $self->{axisIdRef};
+  $value = $self->{name} unless defined $value;
+  $value = $self->{description} unless defined $value;
 
   return $value;
-}
-
-# /** getXMLAttributes
-#      This method returns the XMLAttributes of this class. 
-#  */
-sub getXMLAttributes {
-  return \@Class_XML_Attributes;
 }
 
 #
 # Private Methods
 #
+
+sub _init {
+  my ($self) = @_;
+  
+  $self->SUPER::_init();
+
+  # adds to ordered list of XML attributes
+  $self->_appendAttribsToXMLAttribOrder(\@Class_XML_Attributes);
+
+}
 
 # This is called when we cant find any defined method
 # exists already. Used to handle general purpose set/get
@@ -159,6 +174,11 @@ sub AUTOLOAD {
 # Modification History
 #
 # $Log$
+# Revision 1.9  2001/07/23 15:58:07  thomas
+# added ability to add arbitary XML attribute to class.
+# getXMLattributes now an instance method, we
+# have old class method now called getClassXMLAttributes.
+#
 # Revision 1.8  2001/04/25 16:01:31  thomas
 # updated documentation
 #

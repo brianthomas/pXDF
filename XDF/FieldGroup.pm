@@ -54,9 +54,10 @@ my $Class_Node_Name = "fieldGroup";
 my @Class_XML_Attributes = ( );
 my @Class_Attributes = ( );
 
+push @Class_XML_Attributes, @{&XDF::Group::getClassXMLAttributes};
+
 # add in super class attributes
-push @Class_Attributes, @{&XDF::Group::classAttributes};
-push @Class_XML_Attributes, @{&XDF::Group::getXMLAttributes};
+push @Class_Attributes, @{&XDF::Group::getClassAttributes};
 
 # /** classXMLNodeName
 # This method returns the class node name for XDF::FieldGroup; 
@@ -66,14 +67,22 @@ sub classXMLNodeName {
   $Class_Node_Name;
 }
 
-# /** classAttributes
+# /** getClassAttributes
 #  This method returns a list reference containing the names
 #  of the class attributes for XDF::FieldGroup; 
 #  This method takes no arguments may not be changed. 
 # */
-sub classAttributes {
+sub getClassAttributes {
   \@Class_Attributes;
 }
+
+# /** getClassXMLAttributes
+#      This method returns the XMLAttributes of this class. 
+#  */
+sub getClassXMLAttributes {
+  return \@Class_XML_Attributes;
+}
+
 
 # Initalization
 # set up object attributes.
@@ -82,13 +91,6 @@ for my $attr ( @Class_Attributes ) { $field{$attr}++; }
 #
 # Get/Set Methods
 #
-
-# /** getXMLAttributes
-#      This method returns the XMLAttributes of this class. 
-#  */
-sub getXMLAttributes { 
-  return \@Class_XML_Attributes;
-}
 
 #
 # Other Public Methods
@@ -118,6 +120,16 @@ sub removeFieldGroup {
 # Private Methods 
 #
 
+sub _init {
+  my ($self) = @_;
+
+  $self->SUPER::_init();
+
+  # adds to ordered list of XML attributes
+  $self->_appendAttribsToXMLAttribOrder(\@Class_XML_Attributes);
+
+}
+
 # This is called when we cant find any defined method
 # exists already. Used to handle general purpose set/get
 # methods for our attributes (object fields).
@@ -130,6 +142,11 @@ sub AUTOLOAD {
 # Modification History
 #
 # $Log$
+# Revision 1.10  2001/07/23 15:58:07  thomas
+# added ability to add arbitary XML attribute to class.
+# getXMLattributes now an instance method, we
+# have old class method now called getClassXMLAttributes.
+#
 # Revision 1.9  2001/06/29 21:07:12  thomas
 # changed public add (and remove) methods to
 # conform to Java API standard: e.g. return boolean

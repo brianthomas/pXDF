@@ -67,19 +67,26 @@ my @Class_Attributes = qw (
 push @Class_Attributes, @Class_XML_Attributes;
 
 # add in super class attributes
-push @Class_Attributes, @{&XDF::BaseObject::classAttributes};
+push @Class_Attributes, @{&XDF::BaseObject::getClassAttributes};
 
 # Initalization
 # set up object attributes.
 for my $attr ( @Class_Attributes ) { $field{$attr}++; }
 
-# /** classAttributes
+# /** getClassAttributes
 #  This method returns a list reference containing the names
-#  of the class attributes of XDF::Group. 
+#  of the class attributes of XDF::FloatDataFormat. 
 #  This method takes no arguments may not be changed. 
 # */
-sub classAttributes {
-  \@Class_Attributes;
+sub getClassAttributes {
+  return \@Class_Attributes;
+}
+
+# /** getClassXMLAttributes
+#      This method returns the XMLAttributes of this class. 
+#  */
+sub getClassXMLAttributes {
+  return \@Class_XML_Attributes;
 }
 
 #
@@ -90,7 +97,7 @@ sub classAttributes {
 # */
 sub getName {
    my ($self) = @_;
-   return $self->{Name};
+   return $self->{name};
 }
 
 # /** setName
@@ -98,28 +105,21 @@ sub getName {
 # */
 sub setName {
    my ($self, $value) = @_;
-   $self->{Name} = $value;
+   $self->{name} = $value;
 }
 
 # /** getDescription
 #  */
 sub getDescription {
    my ($self) = @_;
-   return $self->{Description};
+   return $self->{description};
 }
 
 # /** setDescription
 #  */
 sub setDescription {
    my ($self, $value) = @_;
-   $self->{Description} = $value;
-}
-
-# /** getXMLAttributes
-#      This method returns the XMLAttributes of this class. 
-#  */
-sub getXMLAttributes {
-  return \@Class_XML_Attributes;
+   $self->{description} = $value;
 }
 
 #
@@ -185,12 +185,22 @@ sub _init {
    my ($self) = @_; 
 
    $self->SUPER::_init();
+
    $self->{_memberObjHash} = {}; 
+  
+  # adds to ordered list of XML attributes
+  $self->_appendAttribsToXMLAttribOrder(\@Class_XML_Attributes);
+
 }
 
 # Modification History
 #
 # $Log$
+# Revision 1.11  2001/07/23 15:58:07  thomas
+# added ability to add arbitary XML attribute to class.
+# getXMLattributes now an instance method, we
+# have old class method now called getClassXMLAttributes.
+#
 # Revision 1.10  2001/06/29 21:07:12  thomas
 # changed public add (and remove) methods to
 # conform to Java API standard: e.g. return boolean

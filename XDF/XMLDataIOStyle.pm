@@ -90,7 +90,7 @@ my @Class_Attributes = qw (
 push @Class_Attributes, @Class_XML_Attributes;
 
 # add in super class attributes
-push @Class_Attributes, @{&XDF::BaseObject::classAttributes};
+push @Class_Attributes, @{&XDF::BaseObject::getClassAttributes};
 
 # Initalization
 # set up object attributes.
@@ -104,13 +104,20 @@ sub classXMLNodeName {
   $Class_XML_Node_Name;
 }
 
-# /** classAttributes
+# /** getClassAttributes
 #  This method returns a list reference containing the names
-#  of the class attributes of this class.
+#  of the class attributes for this class.
 #  This method takes no arguments may not be changed. 
 # */
-sub classAttributes {
-  \@Class_Attributes;
+sub getClassAttributes {
+  return \@Class_Attributes;
+}
+
+# /** getClassXMLAttributes
+#      This method returns the XMLAttributes of this class. 
+#  */
+sub getClassXMLAttributes {
+  return \@Class_XML_Attributes;
 }
 
 sub untaggedInstructionNodeName { 
@@ -125,7 +132,7 @@ sub untaggedInstructionNodeName {
 # */
 sub getReadId{
    my ($self) = @_;
-   return $self->{ReadId};
+   return $self->{readId};
 }
 
 # /** setReadId
@@ -133,14 +140,14 @@ sub getReadId{
 # */
 sub setReadId {
    my ($self, $value) = @_;
-   $self->{ReadId} = $value;
+   $self->{readId} = $value;
 }
 
 # /** getReadIdRef 
 # */
 sub getReadIdRef {
    my ($self) = @_;
-   return $self->{ReadIdRef};
+   return $self->{readIdRef};
 }
 
 # /** setReadIdRef 
@@ -148,14 +155,14 @@ sub getReadIdRef {
 # */
 sub setReadIdRef {
    my ($self, $value) = @_;
-   $self->{ReadIdRef} = $value;
+   $self->{readIdRef} = $value;
 }
 
 # /** getEncoding
 # */
 sub getEncoding{
    my ($self) = @_;
-   return $self->{Encoding};
+   return $self->{encoding};
 }
 
 # /** setEncoding
@@ -167,14 +174,14 @@ sub setEncoding {
    carp "Cant set encoding to $value, not allowed \n"
       unless (&XDF::Utility::isValidIOEncoding($value));
 
-   $self->{Encoding} = $value;
+   $self->{encoding} = $value;
 }
 
 # /** getEndian
 # */
 sub getEndian{
    my ($self) = @_;
-   return $self->{Endian};
+   return $self->{endian};
 }
 
 # /** setEndian
@@ -186,7 +193,7 @@ sub setEndian {
    carp "Cant set endian to $value, not allowed \n"
       unless (&XDF::Utility::isValidEndian($value));
 
-   $self->{Endian} = $value;
+   $self->{endian} = $value;
 }
 
 #/** getWriteAxisOrderList 
@@ -225,14 +232,6 @@ sub setWriteAxisOrderList {
   $self->{_writeAxisOrderList} = \@list;
 }
 
-
-# /** getXMLAttributes
-#      This method returns the XMLAttributes of this class. 
-#  */
-sub getXMLAttributes {
-  return \@Class_XML_Attributes;
-}
-
 #
 # Private Methods 
 #
@@ -249,16 +248,25 @@ sub _init {
   my ($self) = @_; 
 
   $self->SUPER::_init();
-  $self->{Encoding} = $Def_Encoding;
-  $self->{Endian} = $Def_Endian;
 
-  return $self;
+  $self->{encoding} = $Def_Encoding;
+  $self->{endian} = $Def_Endian;
+
+  # adds to ordered list of XML attributes
+  $self->_appendAttribsToXMLAttribOrder(\@Class_XML_Attributes);
+
+#  return $self;
 
 }
 
 # Modification History
 #
 # $Log$
+# Revision 1.15  2001/07/23 15:58:07  thomas
+# added ability to add arbitary XML attribute to class.
+# getXMLattributes now an instance method, we
+# have old class method now called getClassXMLAttributes.
+#
 # Revision 1.14  2001/04/25 16:01:31  thomas
 # updated documentation
 #

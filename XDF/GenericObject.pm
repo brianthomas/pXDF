@@ -58,13 +58,13 @@ my @Class_Attributes = ();
 # set up object attributes.
 for my $attr ( @Class_Attributes ) { $field{$attr}++; }
 
-# /** classAttributes
+# /** getClassAttributes
 #  This method returns a list reference containing the names
-#  of the class attributes for this class.
+#  of the class attributes of XDF::FloatDataFormat. 
 #  This method takes no arguments may not be changed. 
 # */
-sub classAttributes { 
-  return \@Class_Attributes; 
+sub getClassAttributes {
+  return \@Class_Attributes;
 }
 
 #
@@ -102,8 +102,8 @@ sub AUTOLOAD {
 
     # now the general purpose set/get method part
     # set attribute to $val, if it exists 
-    $self->{ucfirst $attr} = $val if defined $val;
-    return $self->{ucfirst $attr}; # always return our current value 
+    $self->{$attr} = $val if defined $val;
+    return $self->{$attr}; # always return our current value 
 
 #  }
 
@@ -159,7 +159,7 @@ sub clone {
   # parent array of all sub-objects that it owns.
   $_parentArray = $clone if ref($clone) eq 'XDF::Array';
    
-  foreach my $attrib ( @{$self->classAttributes} ) { 
+  foreach my $attrib ( @{$self->getClassAttributes} ) { 
     if ($attrib !~ m/_parentArray/) {
       my $val = $self->_clone_attribute($attrib, $_parentArray);
       $clone->$attrib($val);
@@ -285,6 +285,11 @@ sub _remove_from_list {
 # Modification History
 #
 # $Log$
+# Revision 1.9  2001/07/23 15:58:07  thomas
+# added ability to add arbitary XML attribute to class.
+# getXMLattributes now an instance method, we
+# have old class method now called getClassXMLAttributes.
+#
 # Revision 1.8  2001/06/29 21:07:12  thomas
 # changed public add (and remove) methods to
 # conform to Java API standard: e.g. return boolean

@@ -69,7 +69,6 @@ my @Class_XML_Attributes = qw (
                              #_currentLocator
 my @Class_Attributes = qw (
                              dimension
-                             maxDimensionIndex
                              _parentArray
                              _data
                              _axisLookupIndexArray
@@ -77,10 +76,6 @@ my @Class_Attributes = qw (
 
 # /** dimension
 # The number of dimensions within this dataCube.
-# */
-# this shouldnt be publicly possible to set!
-# /** maxDimensionIndex
-# The maximum index value along each dimension (Axis). Returns an ARRAY of SCALARS (non-negative INTEGERS).
 # */
 # /** href
 # Reference to a separate resource (file, URL, etc) holding the actual data.
@@ -97,7 +92,7 @@ my @Class_Attributes = qw (
 push @Class_Attributes, @Class_XML_Attributes;
 
 # add in super class attributes
-push @Class_Attributes, @{&XDF::BaseObject::classAttributes};
+push @Class_Attributes, @{&XDF::BaseObject::getClassAttributes};
 
 # Initalization
 # set up object attributes.
@@ -112,13 +107,20 @@ sub classXMLNodeName {
   $Class_XML_Node_Name; 
 }
 
-# /** classAttributes
+# /** getClassAttributes
 #  This method returns a list reference containing the names
 #  of the class attributes of XDF::DataCube; 
 #  This method takes no arguments may not be changed. 
 # */
-sub classAttributes { 
+sub getClassAttributes { 
   \@Class_Attributes; 
+}
+
+# /** getClassXMLAttributes
+#      This method returns the XMLAttributes of this class. 
+#  */
+sub getClassXMLAttributes {
+  return \@Class_XML_Attributes;
 }
 
 #
@@ -129,7 +131,7 @@ sub classAttributes {
 # */
 sub getChecksum {
    my ($self) = @_;
-   return $self->{Checksum};
+   return $self->{checksum};
 }
 
 # /** setChecksum
@@ -137,14 +139,14 @@ sub getChecksum {
 # */
 sub setChecksum {
    my ($self, $value) = @_;
-   $self->{Checksum} = $value;
+   $self->{checksum} = $value;
 }
 
 # /** getHref
 # */
 sub getHref {
    my ($self) = @_;
-   return $self->{Href};
+   return $self->{href};
 }
 
 # /** setHref
@@ -153,7 +155,7 @@ sub getHref {
 sub setHref {
    my ($self, $hrefObjectRef) = @_;
    if (ref($hrefObjectRef) eq 'XDF::Href') {
-     $self->{Href} = $hrefObjectRef;
+     $self->{href} = $hrefObjectRef;
    }
 }
 
@@ -161,7 +163,7 @@ sub setHref {
 # */
 sub getCompression {
    my ($self) = @_;
-   return $self->{Compression};
+   return $self->{compression};
 }
 
 # /** setCompression 
@@ -173,14 +175,14 @@ sub setCompression {
    carp "Cant set compression to $value, not allowed \n"
       unless (&XDF::Utility::isValidDataCompression($value));
 
-   $self->{Compression} = $value;
+   $self->{compression} = $value;
 }
 
 # /** getEncoding
 # */
 sub getEncoding {
    my ($self) = @_;
-   return $self->{Encoding};
+   return $self->{encoding};
 }
 
 # /** setEncoding
@@ -192,21 +194,14 @@ sub setEncoding {
    carp "Cant set encoding to $value, not allowed \n"
       unless (&XDF::Utility::isValidDataEncoding($value));
 
-   $self->{Encoding} = $value;
+   $self->{encoding} = $value;
 }
 
 # /** getDimension
 # */
 sub getDimension {
    my ($self) = @_;
-   return $self->{Dimension};
-}
-
-# /** getXMLAttributes
-#      This method returns the XMLAttributes of this class. 
-#  */
-sub getXMLAttributes { 
-  return \@Class_XML_Attributes;
+   return $self->{dimension};
 }
 
 #
@@ -238,30 +233,30 @@ sub toXMLFileHandle {
 
   # these have to be broken up, as _fileHandleToString doesn't like
   # compound lines with '"' in them
-  if (defined $self->{Checksum}) {
+  if (defined $self->{checksum}) {
      print $fileHandle " checksum=\"";
-     print $fileHandle $self->{Checksum};
+     print $fileHandle $self->{checksum};
      print $fileHandle "\"";
   }
-  if (defined $self->{Compression}) {
+  if (defined $self->{compression}) {
      print $fileHandle " compression=\"";
-     print $fileHandle $self->{Compression};
+     print $fileHandle $self->{compression};
      print $fileHandle "\"";
   }
-  if (defined $self->{Encoding}) {
+  if (defined $self->{encoding}) {
      print $fileHandle " encoding=\"";
-     print $fileHandle $self->{Encoding};
+     print $fileHandle $self->{encoding};
      print $fileHandle "\"";
   }
-  if (defined $self->{Href}) {
+  if (defined $self->{href}) {
      print $fileHandle " href=\"";
-     print $fileHandle $self->{Href}->getName();
+     print $fileHandle $self->{href}->getName();
      print $fileHandle "\"";
   }
   print $fileHandle ">";
 
   # write the data
-  $self->writeDataToFileHandle($fileHandle, $indent, $self->{Compression} );
+  $self->writeDataToFileHandle($fileHandle, $indent, $self->{compression} );
 
   # close the tagged data section
   print $fileHandle "</" . $nodeName . ">";
@@ -283,7 +278,7 @@ sub writeDataToFileHandle {
 
   # a couple of shortcuts
   my $parentArray = $self->{_parentArray};
-  my $href = $self->{Href};
+  my $href = $self->{href};
 
   my $readObj = $parentArray->getXMLDataIOStyle();
 
@@ -598,13 +593,16 @@ sub _init {
   # declare the _data attribute as an array 
   # as we add data (below) it may grow in
   # dimensionality, but defaults to 0 at start. 
-  $self->{Dimension} = 0;
+  $self->{dimension} = 0;
   $self->{_data} = [];
   $self->{_axisLookupIndexArray} = [];
 
   # set the minimum array size (essentially the size of the axis)
   my $spec= XDF::Specification->getInstance();
   $#{$self->{_data}} = $spec->getDefaultDataArraySize();
+
+  # adds to ordered list of XML attributes
+  $self->_appendAttribsToXMLAttribOrder(\@Class_XML_Attributes);
 
 }
 
@@ -634,7 +632,7 @@ sub _write_tagged_data {
   my ($self, $fileHandle, $readObj, $indent, $niceOutput, $spec) = @_;
 
   # now we populate the data , if there are any dimensions 
-  if ($self->{Dimension} > 0) {
+  if ($self->{dimension} > 0) {
 
 #    my @axisList = @{$self->{_parentArray}->getAxisList()};
     my @axisList = @{$readObj->getWriteAxisOrderList()};
@@ -682,7 +680,7 @@ sub _write_untagged_data {
   my ($self, $fileHandle, $formatObj, $indent, $fastestAxis) = @_;
 
   # now we populate the data, if there are any dimensions 
-  if ($self->{Dimension} > 0) {
+  if ($self->{dimension} > 0) {
 
     my $sprintfFormat;
     my $terminator;
@@ -1016,6 +1014,11 @@ sub _build_locator_string {
 # Modification History
 #
 # $Log$
+# Revision 1.29  2001/07/23 15:58:07  thomas
+# added ability to add arbitary XML attribute to class.
+# getXMLattributes now an instance method, we
+# have old class method now called getClassXMLAttributes.
+#
 # Revision 1.28  2001/07/06 18:28:24  thomas
 # print empty string if getData returns null on
 # delmited data.

@@ -147,10 +147,10 @@ my @Class_Attributes = qw (
 push @Class_Attributes, @Class_XML_Attributes;
 
 # add in super class attributes
-push @Class_Attributes, @{&XDF::BaseObjectWithXMLElements::classAttributes};
+push @Class_Attributes, @{&XDF::BaseObjectWithXMLElements::getClassAttributes};
 
 # add in super class XML attributes to our list 
-push @Class_XML_Attributes, @{&XDF::BaseObjectWithXMLElements::getXMLAttributes};
+push @Class_XML_Attributes, @{&XDF::BaseObjectWithXMLElements::getClassXMLAttributes};
 
 # Initalization
 # set up object attributes.
@@ -164,13 +164,20 @@ sub classXMLNodeName {
   return $Class_XML_Node_Name; 
 }
 
-# /** classAttributes
-#  This method takes no arguments may not be changed. 
+# /** getClassAttributes
 #  This method returns a list reference containing the names
-#  of the class attributes for XDF::Structure; 
+#  of the class attributes for this class.
+#  This method takes no arguments may not be changed. 
 # */
-sub classAttributes { 
-  return \@Class_Attributes; 
+sub getClassAttributes {
+  return \@Class_Attributes;
+}
+
+# /** getClassXMLAttributes
+#      This method returns the XMLAttributes of this class. 
+#  */
+sub getClassXMLAttributes {
+  return \@Class_XML_Attributes;
 }
 
 # 
@@ -181,7 +188,7 @@ sub classAttributes {
 # */
 sub getName { 
    my ($self) = @_; 
-   return $self->{Name}; 
+   return $self->{name}; 
 }
 
 # /** setName
@@ -189,28 +196,28 @@ sub getName {
 # */
 sub setName { 
    my ($self, $value) = @_; 
-   $self->{Name} = $value; 
+   $self->{name} = $value; 
 }
 
 # /** getDescription
 #  */
 sub getDescription { 
    my ($self) = @_; 
-   return $self->{Description}; 
+   return $self->{description}; 
 }
 
 # /** setDescription
 #  */
 sub setDescription { 
    my ($self, $value) = @_; 
-   $self->{Description} = $value; 
+   $self->{description} = $value; 
 }
 
 # /** getArrayList
 #  */
 sub getArrayList { 
    my ($self) = @_; 
-   return $self->{ArrayList}; 
+   return $self->{arrayList}; 
 }
 
 # /** setArrayList
@@ -219,14 +226,14 @@ sub setArrayList {
    my ($self, $arrayRefValue) = @_;
    # you must do it this way, or when the arrayRef changes it changes us here!
    my @list = @{$arrayRefValue};
-   $self->{ArrayList} = \@list; 
+   $self->{arrayList} = \@list; 
 }
 
 # /** getStructList
 #  */
 sub getStructList { 
    my ($self) = @_; 
-   return $self->{StructList}; 
+   return $self->{structList}; 
 }
 
 # /** setStructList
@@ -235,14 +242,14 @@ sub setStructList {
    my ($self, $arrayRefValue) = @_;
    # you must do it this way, or when the arrayRef changes it changes us here!
    my @list = @{$arrayRefValue};
-   $self->{StructList} = \@list; 
+   $self->{structList} = \@list; 
 }
 
 # /** getParamList
 #  */
 sub getParamList { 
    my ($self) = @_; 
-   return $self->{ParamList}; 
+   return $self->{paramList}; 
 }
 
 # /** setParamList
@@ -251,14 +258,14 @@ sub setParamList {
    my ($self, $arrayRefValue) = @_;
    # you must do it this way, or when the arrayRef changes it changes us here!
    my @list = @{$arrayRefValue};
-   $self->{ParamList} = \@list; 
+   $self->{paramList} = \@list; 
 }
 
 # /** getNoteList
 #  */
 sub getNoteList { 
    my ($self) = @_; 
-   return $self->{NoteList}; 
+   return $self->{noteList}; 
 }
 
 # /** setNoteList
@@ -267,16 +274,9 @@ sub setNoteList {
    my ($self, $arrayRefValue) = @_;
    # you must do it this way, or when the arrayRef changes it changes us here!
    my @list = @{$arrayRefValue};
-   $self->{NoteList} = \@list; 
+   $self->{noteList} = \@list; 
 }
 
-# /** getXMLAttributes
-#      This method returns the XMLAttributes of this class. 
-#  */
-sub getXMLAttributes { 
-  return \@Class_XML_Attributes; 
-}
-  
 #
 # Other Public Methods 
 #
@@ -291,7 +291,7 @@ sub addNote {
   return 0 unless defined $noteObj && ref $noteObj;
 
   # add the parameter to the list
-  push @{$self->{NoteList}}, $noteObj;
+  push @{$self->{noteList}}, $noteObj;
 
   return 1;
 }
@@ -304,7 +304,7 @@ sub addNote {
 # */
 sub removeNote {
   my ($self, $what) = @_;
-  return $self->_remove_from_list($what, $self->{NoteList}, 'noteList');
+  return $self->_remove_from_list($what, $self->{noteList}, 'noteList');
 }
 
 # /** addParameter 
@@ -317,7 +317,7 @@ sub addParameter {
   return 0 unless defined $paramObj && ref $paramObj;
 
   # add the parameter to the list
-  push @{$self->{ParamList}}, $paramObj;
+  push @{$self->{paramList}}, $paramObj;
 
   return 1;
 }
@@ -330,7 +330,7 @@ sub addParameter {
 # */
 sub removeParameter {
   my ($self, $indexOrObjectRef) = @_;
-  return $self->_remove_from_list($indexOrObjectRef, $self->{ParamList}, 'paramList');
+  return $self->_remove_from_list($indexOrObjectRef, $self->{paramList}, 'paramList');
 }
 
 # /** addStructure
@@ -343,7 +343,7 @@ sub addStructure {
    return 0 unless defined $structObj && ref $structObj;
 
    # add the new structure to the list
-   push @{$self->{StructList}}, $structObj;
+   push @{$self->{structList}}, $structObj;
 
    return 1;
 }
@@ -356,7 +356,7 @@ sub addStructure {
 # */
 sub removeStructure {
   my ($self, $indexOrObjectRef) = @_; 
-  return $self->_remove_from_list($indexOrObjectRef, $self->{StructList}, 'structList');
+  return $self->_remove_from_list($indexOrObjectRef, $self->{structList}, 'structList');
 }
 
 # /** addArray
@@ -369,7 +369,7 @@ sub addArray {
    return 0 unless defined $arrayObj && ref $arrayObj;
 
    # add the parameter to the list
-   push @{$self->{ArrayList}}, $arrayObj;
+   push @{$self->{arrayList}}, $arrayObj;
 
    return 1;
 }
@@ -382,7 +382,7 @@ sub addArray {
 # */
 sub removeArray {
   my ($self, $indexOrObjectRef) = @_; 
-  return $self->_remove_from_list($indexOrObjectRef, $self->{ArrayList}, 'arrayList');
+  return $self->_remove_from_list($indexOrObjectRef, $self->{arrayList}, 'arrayList');
 }
 
 # /** addParamGroup
@@ -446,23 +446,31 @@ sub _init {
 
   # re-initialize attribs
   # this is only needed for Structure and not other XDF objects because
-  # of the needs of its loadXDFFromFile method 
-  $self->{Name} = undef; 
-  $self->{Description} = undef; 
+  # of the needs of the loadXDFFromFile method (in the sub-class XDF) 
+  $self->{name} = undef; 
+  $self->{description} = undef; 
 
   # initialize lists
-  $self->{StructList} = [];
-  $self->{ParamList} = [];
-  $self->{ArrayList} = [];
-  $self->{NoteList} = [];
+  $self->{structList} = [];
+  $self->{paramList} = [];
+  $self->{arrayList} = [];
+  $self->{noteList} = [];
 
   $self->{_paramGroupOwnedHash} = {};
+
+  # adds to ordered list of XML attributes
+  $self->_appendAttribsToXMLAttribOrder(\@Class_XML_Attributes);
 
 }
 
 # Modification History
 #
 # $Log$
+# Revision 1.14  2001/07/23 15:58:07  thomas
+# added ability to add arbitary XML attribute to class.
+# getXMLattributes now an instance method, we
+# have old class method now called getClassXMLAttributes.
+#
 # Revision 1.13  2001/07/17 17:38:56  thomas
 # yanked loadfromXDFFile method. Now in XDF class.
 #

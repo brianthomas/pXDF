@@ -66,7 +66,7 @@ my @Class_Attributes = ();
 push @Class_Attributes, @Class_XML_Attributes;
 
 # add in super class attributes
-push @Class_Attributes, @{&XDF::BaseObject::classAttributes};
+push @Class_Attributes, @{&XDF::BaseObject::getClassAttributes};
 
 # Initalization
 # set up object attributes.
@@ -77,17 +77,25 @@ for my $attr ( @Class_Attributes ) { $field{$attr}++; }
 # This method returns the class node name of XDF::Value.
 # */
 sub classXMLNodeName { 
-  $Class_XML_Node_Name; 
+  return $Class_XML_Node_Name; 
 }
 
-# /** classAttributes
-#  This method takes no arguments may not be changed. 
+# /** getClassAttributes
 #  This method returns a list reference containing the names
-#  of the class attributes of XDF::Value.
+#  of the class attributes for this class.
+#  This method takes no arguments may not be changed. 
 # */
-sub classAttributes { 
-  \@Class_Attributes; 
+sub getClassAttributes {
+  return \@Class_Attributes;
 }
+
+# /** getClassXMLAttributes
+#      This method returns the XMLAttributes of this class. 
+#  */
+sub getClassXMLAttributes {
+  return \@Class_XML_Attributes;
+}
+
 
 # 
 # SET/GET Methods
@@ -97,7 +105,7 @@ sub classAttributes {
 # */
 sub getValueId{
    my ($self) = @_;
-   return $self->{ValueId};
+   return $self->{valueId};
 }
 
 # /** setValueId
@@ -105,14 +113,14 @@ sub getValueId{
 # */
 sub setValueId {
    my ($self, $value) = @_;
-   $self->{ValueId} = $value;
+   $self->{valueId} = $value;
 }
 
 # /** getValueIdRef 
 # */
 sub getValueIdRef {
    my ($self) = @_;
-   return $self->{ValueIdRef};
+   return $self->{valueIdRef};
 }
 
 # /** setValueIdRef 
@@ -120,14 +128,14 @@ sub getValueIdRef {
 # */
 sub setValueIdRef {
    my ($self, $value) = @_;
-   $self->{ValueIdRef} = $value;
+   $self->{valueIdRef} = $value;
 }
 
 # /** getSpecial
 # */
 sub getSpecial{
    my ($self) = @_;
-   return $self->{Special};
+   return $self->{special};
 }
 
 # /** setSpecial
@@ -139,14 +147,14 @@ sub setSpecial {
    carp "Cant set special to $value, not allowed \n"
       unless (&XDF::Utility::isValidValueSpecial($value));
 
-   $self->{Special} = $value;
+   $self->{special} = $value;
 }
 
 # /** getInequality
 # */
 sub getInequality {
    my ($self) = @_;
-   return $self->{Inequality};
+   return $self->{inequality};
 }
 
 # /** setInequality
@@ -158,14 +166,14 @@ sub setInequality {
    carp "Cant set special to $value, not allowed \n"
       unless (&XDF::Utility::isValidValueInequality($value));
 
-   $self->{Inequality} = $value;
+   $self->{inequality} = $value;
 }
 
 # /** getValue
 # */
 sub getValue {
    my ($self) = @_;
-   return $self->{Value};
+   return $self->{value};
 }
 
 # /** setValue
@@ -173,14 +181,7 @@ sub getValue {
 # */
 sub setValue {
    my ($self, $value) = @_;
-   $self->{Value} = $value;
-}
-
-# /** getXMLAttributes
-#      This method returns the XMLAttributes of this class. 
-#  */
-sub getXMLAttributes {
-  return \@Class_XML_Attributes;
+   $self->{value} = $value;
 }
 
 #
@@ -209,7 +210,7 @@ sub setXMLAttributes {
     if (ref($info) ) {
       $self->SUPER::setXMLAttributes($info);
     } else {
-      $self->{Value} = $info;
+      $self->{value} = $info;
     }
   }
 }
@@ -217,6 +218,16 @@ sub setXMLAttributes {
 #
 # Private methods 
 #
+
+sub _init {
+  my ($self) = @_;
+  
+  $self->SUPER::_init();
+
+  # adds to ordered list of XML attributes
+  $self->_appendAttribsToXMLAttribOrder(\@Class_XML_Attributes);
+
+}
 
 # This is called when we cant find any defined method
 # exists already. Used to handle general purpose set/get
@@ -229,6 +240,11 @@ sub AUTOLOAD {
 # Modification History
 #
 # $Log$
+# Revision 1.11  2001/07/23 15:58:07  thomas
+# added ability to add arbitary XML attribute to class.
+# getXMLattributes now an instance method, we
+# have old class method now called getClassXMLAttributes.
+#
 # Revision 1.10  2001/07/03 17:56:40  thomas
 # trivial typeset change.
 #

@@ -67,24 +67,33 @@ my @Class_XML_Attributes = qw (
                           );
 my @Class_Attributes = ();
 
+# add in super class XML attributes
+push @Class_XML_Attributes, @{&XDF::Value::getClassXMLAttributes};
+
 # add in class XML attributes
 push @Class_Attributes, @Class_XML_Attributes;
 
 # add in super class attributes
-push @Class_Attributes, @{&XDF::Value::classAttributes};
-push @Class_XML_Attributes, @{&XDF::Value::getXMLAttributes};
+push @Class_Attributes, @{&XDF::Value::getClassAttributes};
 
 # Initalization
 # set up object attributes.
 for my $attr ( @Class_Attributes ) { $field{$attr}++; }
 
-# /** classAttributes
+# /** getClassAttributes
 #  This method returns a list reference containing the names
 #  of the class attributes of XDF::Value. 
 #  This method takes no arguments may not be changed. 
 # */
-sub classAttributes {
+sub getClassAttributes {
   \@Class_Attributes;
+}
+
+# /** getClassXMLAttributes
+#      This method returns the XMLAttributes of this class. 
+#  */
+sub getClassXMLAttributes {
+  return \@Class_XML_Attributes;
 }
 
 #
@@ -95,7 +104,7 @@ sub classAttributes {
 # */
 sub getUpperErrorValue{
    my ($self) = @_;
-   return $self->{UpperErrorValue};
+   return $self->{upperErrorValue};
 }
 
 # /** setUpperErrorValue
@@ -103,14 +112,14 @@ sub getUpperErrorValue{
 # */
 sub setUpperErrorValue {
    my ($self, $value) = @_;
-   $self->{UpperErrorValue} = $value;
+   $self->{upperErrorValue} = $value;
 }
 
 # /** getLowerErrorValue
 # */
 sub getLowerErrorValue {
    my ($self) = @_;
-   return $self->{LowerErrorValue};
+   return $self->{lowerErrorValue};
 }
 
 # /** setLowerErrorValue
@@ -118,7 +127,7 @@ sub getLowerErrorValue {
 # */
 sub setLowerErrorValue {
    my ($self, $value) = @_;
-   $self->{LowerErrorValue} = $value;
+   $self->{lowerErrorValue} = $value;
 }
 
 # /** getErrorValues
@@ -127,7 +136,7 @@ sub setLowerErrorValue {
 # */
 sub getErrorValues {
    my ($self) = @_;
-   my @values = ($self->{LowerErrorValue}, $self->{UpperErrorValue});
+   my @values = ($self->{lowerErrorValue}, $self->{upperErrorValue});
    return \@values;
 }
 
@@ -137,20 +146,23 @@ sub getErrorValues {
 # */
 sub setErrorValue {
    my ($self, $value) = @_;
-   $self->{UpperErrorValue} = $value;
-   $self->{LowerErrorValue} = $value;
-}
-
-# /** getXMLAttributes
-#      This method returns the XMLAttributes of this class. 
-#  */
-sub getXMLAttributes {
-  return \@Class_XML_Attributes;
+   $self->{upperErrorValue} = $value;
+   $self->{lowerErrorValue} = $value;
 }
 
 #
 # Private Methods 
 #
+
+sub _init {
+  my ($self) = @_;
+
+  $self->SUPER::_init();
+
+  # adds to ordered list of XML attributes
+  $self->_appendAttribsToXMLAttribOrder(\@Class_XML_Attributes);
+
+}
 
 # This is called when we cant find any defined method
 # exists already. Used to handle general purpose set/get
@@ -163,6 +175,11 @@ sub AUTOLOAD {
 # Modification History
 #
 # $Log$
+# Revision 1.9  2001/07/23 15:58:07  thomas
+# added ability to add arbitary XML attribute to class.
+# getXMLattributes now an instance method, we
+# have old class method now called getClassXMLAttributes.
+#
 # Revision 1.8  2001/04/25 16:01:31  thomas
 # updated documentation
 #

@@ -81,11 +81,14 @@ use XDF::FormattedXMLDataIOStyle;
 use XDF::Href;
 use XDF::IntegerDataFormat;
 use XDF::Parameter;
+use XDF::Reader::ValueList;
 use XDF::RepeatFormattedIOCmd;
 use XDF::ReadCellFormattedIOCmd;
 use XDF::SkipCharFormattedIOCmd;
 use XDF::StringDataFormat;
 use XDF::Structure;
+use XDF::ValueListAlgorithm;
+use XDF::ValueListDelimitedList;
 use XDF::XMLDataIOStyle;
 use XDF::XMLElement;
 use XDF::XDF;
@@ -133,7 +136,6 @@ my @Class_Attributes = qw (
                               dataFormatAttribRef
                               dataIOStyleAttribRef
                               nrofWarnings
-                              cdataIsArrayData
                               ArrayObj
                               AxisObj
                               FieldObj
@@ -259,11 +261,22 @@ my %End_Handler = (
                        $XDF_node_name{'td8'}          => sub { &_dataTag_node_end(@_);},
                        $XDF_node_name{'valueGroup'}   => sub { &_valueGroup_node_end(@_); },
                        $XDF_node_name{'value'}        => sub { &_value_node_end(@_); },
+                       $XDF_node_name{'valueList'}    => sub { &_valueList_node_end(@_); },
                   );
 
 # dispatch table for the chardata handler of the parser
 my %CharData_Handler = (
 
+                          $XDF_node_name{'data'}=> sub { &_untaggedData_node_charData(@_); },
+                          $XDF_node_name{'td0'}=> sub { &_taggedData_node_charData(@_); },
+                          $XDF_node_name{'td1'}=> sub { &_taggedData_node_charData(@_); },
+                          $XDF_node_name{'td2'}=> sub { &_taggedData_node_charData(@_); },
+                          $XDF_node_name{'td3'}=> sub { &_taggedData_node_charData(@_); },
+                          $XDF_node_name{'td4'}=> sub { &_taggedData_node_charData(@_); },
+                          $XDF_node_name{'td5'}=> sub { &_taggedData_node_charData(@_); },
+                          $XDF_node_name{'td6'}=> sub { &_taggedData_node_charData(@_); },
+                          $XDF_node_name{'td7'}=> sub { &_taggedData_node_charData(@_); },
+                          $XDF_node_name{'td8'}=> sub { &_taggedData_node_charData(@_); },
                           $XDF_node_name{'note'}=> sub { &_note_node_charData(@_); },
                           $XDF_node_name{'unit'}=> sub { &_unit_node_charData(@_); },
                           $XDF_node_name{'valueList'}=> sub { &_valueList_node_charData(@_); },
@@ -694,18 +707,8 @@ sub _handle_char {
 
      } else {
 
-       # perhaps we are reading in data at the moment??
-
-       if ($self->{dataNodeLevel} > 0) { 
-
-          $self->_data_node_charData($string) 
-
-       } else { 
-
-         # do nothing with other character data
+         # run the default handler
          $self->_exec_default_CData_Handler($string);
-
-       }
 
      }
 
@@ -745,13 +748,13 @@ sub _handle_proc {
 sub _handle_cdata_start {
    my ($self, $parser_ref) = @_;
    &_printDebug( "H_CDATA_START \n");
-   $self->{cdataIsArrayData} = 1;
+   $self->{inCdataBlock} = 1;
 }
 
 sub _handle_cdata_end {
    my ($self, $parser_ref) = @_;
    &_printDebug("H_CDATA_END \n");
-   $self->{cdataIsArrayData} = undef;
+   $self->{inCdataBlock} = undef;
 }
 
 # things like entity definitions get passed here
@@ -1017,36 +1020,84 @@ sub _dataTag_node_end {
   
 # what to do when we know this character data IS coming from within
 # the data node
-sub _data_node_charData {
-  my ($self, $string) = @_;
+#sub _data_node_charData {
+#  my ($self, $string) = @_;
 
-  my $readObj = $self->{currentArray}->getXMLDataIOStyle();
+#  my $readObj = $self->{currentArray}->getXMLDataIOStyle();
 
-  if (ref ($readObj) eq 'XDF::TaggedXMLDataIOStyle' ) {
+#  if (ref ($readObj) eq 'XDF::TaggedXMLDataIOStyle' ) {
 
     # dont add this data unless it has more than just whitespace
-    if (!$IGNORE_WHITESPACE_ONLY_DATA || $string !~ m/^\s*$/) {
+#    if (!$IGNORE_WHITESPACE_ONLY_DATA || $string !~ m/^\s*$/) {
 
 #       &_printDebug("ADDING DATA to ($self->{taggedLocatorObject}) : [$string]\n");
-       $self->{dataTagLevel} = $self->{currentDataTagLevel};
-       $self->{currentArray}->addData($self->{taggedLocatorObject}, $string);
-    }
+#       $self->{dataTagLevel} = $self->{currentDataTagLevel};
+#       $self->{currentArray}->addData($self->{taggedLocatorObject}, $string);
+#    }
 
-  } elsif (ref($readObj) eq 'XDF::DelimitedXMLDataIOStyle' or
-           ref($readObj) eq 'XDF::FormattedXMLDataIOStyle' )
-  {
+#  } elsif (ref($readObj) eq 'XDF::DelimitedXMLDataIOStyle' or
+#           ref($readObj) eq 'XDF::FormattedXMLDataIOStyle' )
+#  {
 
-    if ($self->{cdataIsArrayData}) {
+    # I dont think that there is any need to require char data always be
+    # inside of a CDATA block?
+#   if ($self->{cdataIsArrayData}) {
        # accumulate CDATA in the GLOBAL $self->{dataBlock} for later reading
-       $self->{dataBlock} .= $string;
-    }
+#       $self->{dataBlock} .= $string;
+#    }
 
-  } else {
+#  } else {
 
-     die "UNSUPPORTED data_node_charData style\n";
+#     die "UNSUPPORTED data_node_charData style\n";
 
-  }
+#  }
 
+#}
+
+sub _taggedData_node_charData {
+   my ($self, $string) = @_;
+
+   if ($self->{dataNodeLevel} > 0) { 
+
+      my $readObj = $self->{currentArray}->getXMLDataIOStyle();
+
+      if (ref ($readObj) eq 'XDF::TaggedXMLDataIOStyle' ) {
+
+         # dont add this data unless it has more than just whitespace
+         if (!$IGNORE_WHITESPACE_ONLY_DATA || $string !~ m/^\s*$/) {
+
+#       &_printDebug("ADDING DATA to ($self->{taggedLocatorObject}) : [$string]\n");
+           $self->{dataTagLevel} = $self->{currentDataTagLevel};
+           $self->{currentArray}->addData($self->{taggedLocatorObject}, $string);
+         }
+      }
+   }
+
+}
+
+sub _untaggedData_node_charData {
+   my ($self, $string) = @_;
+
+   # only do something here IF we are reading in data at the moment
+   # is this needed?? 
+   if ($self->{dataNodeLevel} > 0) { 
+
+     my $readObj = $self->{currentArray}->getXMLDataIOStyle();
+
+     if (ref($readObj) eq 'XDF::DelimitedXMLDataIOStyle' or
+         ref($readObj) eq 'XDF::FormattedXMLDataIOStyle' )
+     {
+
+         # add it to the datablock if it isnt all whitespace ?? 
+         if ( (!$IGNORE_WHITESPACE_ONLY_DATA || $string !~ m/^\s*$/) 
+             or $self->{inCdataBlock} )
+         {
+           # &_printDebug("ADDING String to DataBlock: [$string]\n");
+            $self->{dataBlock} .= $string;
+         }
+
+     }
+   }
 }
 
 sub _data_node_end {
@@ -1127,7 +1178,7 @@ sub _data_node_end {
         $_ = $self->{dataBlock}; 
         @data = m/$regex/;
 
-print STDERR "Got $#data data from regex:$regex data[0]:[",$data[0],"]\n";
+#print STDERR "Got $#data data from regex:$regex data[0]:[",$data[0],"]\n";
         # remove data from data 'resevoir' (yes, there is probably a one-liner
         # for these two statements, but I cant think of it :P
         $self->{dataBlock} =~ s/$regex//;
@@ -1144,6 +1195,7 @@ print STDERR "Got $#data data from regex:$regex data[0]:[",$data[0],"]\n";
 
         for (@data) {
 #          &_printDebug("ADDING DATA [$locator]($self->{currentArray}) : [".$_."]\n");
+#          &_printDebug("ADDING DATA : [".$_."]\n");
           $self->{currentArray}->setData($locator, $_);
           $locator->next();
         }
@@ -2029,8 +2081,8 @@ sub _valueGroup_node_start {
 
   }
 
-  foreach my $groupObj (@{$self->{currentValueGroupList}}) { 
-     $valueGroupObj->addToGroup($groupObj); 
+  foreach my $groupObj (@{$self->{currentValueGroupList}}) {
+     $valueGroupObj->addToGroup($groupObj);
   }
 
   # now add it to the list
@@ -2039,8 +2091,202 @@ sub _valueGroup_node_start {
   return $valueGroupObj;
 }
 
+
 sub _valueList_node_charData {
+   my ($self, $valueListString) = @_;
+
+   # IF we get here, we have the delmited case for populating
+   # a value list.
+
+   # so we wont try to calculate anything when the node closes 
+   $self->{currentValueList}->setIsDelimitedCase(1);
+
+   # 1. set up information we need
+   my $thisValueList = $self->{currentValueList};
+
+   # 2. reconsitute information we need
+   my $parentNodeName = $thisValueList->getParentNodeName();
+
+   # 3. If there is a reference object, clone it to get
+   #    the new valueList
+   my $valueListIdRef = $thisValueList->getValueListIdRef();
+   if (defined $valueListIdRef) {
+
+      if (exists $self->{ValueListObj}{$valueListIdRef})
+      {
+
+         # Just a simple clone since we have stored the value list rather than the
+         # ValueList object (which actually doesnt exist. :P
+         my $refValueListObj = $self->{ValueListObj}{$valueListIdRef};
+
+         $thisValueList = $refValueListObj->clone();
+
+         # override with local values
+         $thisValueList->setXMLAttributes($self->{currentValueList}->getAttributes());
+
+         # set ID attribute to unique name 
+         $thisValueList->setValueListId($self->_getUniqueIdName($valueListIdRef, \%{$self->{ValueListObj}}));
+         $thisValueList->setValueListIdRef(undef); # unset IDREF attribute 
+ 
+      } else {
+         $self->_printWarning("Error: Reader got an valueList with ValueListIdRef=\"$valueListIdRef\" but no previous valueList has that id! Ignoring add valueList request.\n");
+         return;
+      }
+   }
+
+   # 4. add these values to the lookup table, if the original valueList had an ID
+   my $valueListId = $thisValueList->getValueListId();
+   if (defined $valueListId) {
+
+       # a warning check, just in case 
+       if (exists $self->{ValueListObj}{$valueListId})
+       {
+            $self->_printWarning("More than one valueList node with noteId=\"$valueListId\", using latest node.\n")
+                if defined $self->{ValueListObj}{$valueListId};
+
+            # add the valueList array into the list of valueList objects
+            $self->{ValueListObj}{$valueListId} = $thisValueList;
+
+       }
+   }
+
+   # 5. split up string into Value Objects based on declared delimiter
+   my @myValueList = &_splitStringIntoValueObjects( $valueListString, $thisValueList);
+
+   # 6. create new valueList object
+   my $newValueListObj = new XDF::ValueListDelimitedList ( \@myValueList,
+                                                       $thisValueList->getDelimiter(),
+                                                       $thisValueList->getNoData(),
+                                                       $thisValueList->getInfinite(),
+                                                       $thisValueList->getInfiniteNegative(),
+                                                       $thisValueList->getNotANumber(),
+                                                       $thisValueList->getOverflow(),
+                                                       $thisValueList->getUnderflow()
+                                                     );
+   # 7. now add to parent node as appropriate
+   $self->_addValueListToParent($newValueListObj, $parentNodeName);
+
+   # 8. now add valueObjects to groups 
+   # add these new value objects to all open groups
+   foreach my $groupObj (@{$self->{currentValueGroupList}}) {
+       foreach my $valueObj (@myValueList) {
+          $valueObj->addToGroup($groupObj);
+       }
+   }
+
+   return $newValueListObj;
+
+}
+
+sub _valueList_node_end {
+   my ($self) = @_;
+
+   my $thisValueList = $self->{currentValueList};
+
+   # generate valuelist values from algoritm IF we need to
+   # (e.g. values where'nt in a delimited cdata list)
+   # check to see if we didnt alrealy parse from a delmited string.
+   if ( $thisValueList->getIsDelimitedCase() )
+   {
+      return; # we already did the list, leave here 
+   }
+
+   # 1. grab parent node name
+   my $parentNodeName = $thisValueList->getParentNodeName();
+
+   # 2. If there is a reference object, clone it to get
+   #    the new valueList
+   my $valueListIdRef = $thisValueList->getValueListIdRef();
+   if (defined $valueListIdRef) {
+
+      if (exists $self->{ValueListObj}{$valueListIdRef})
+      {
+
+         # Just a simple clone since we have stored the value list rather than the
+         # ValueList object (which actually doesnt exist. :P
+         my $refValueListObj = $self->{ValueListObj}{$valueListIdRef};
+
+         $thisValueList = $refValueListObj->clone();
+
+         # override with local values
+         $thisValueList->setXMLAttributes($self->{currentValueList}->getAttributes());
+
+         # set ID attribute to unique name 
+         $thisValueList->setValueListId($self->_getUniqueIdName($valueListIdRef, \%{$self->{ValueListObj}}));
+         $thisValueList->setValueListIdRef(undef); # unset IDREF attribute 
+
+      } else {
+         $self->_printWarning("Error: Reader got an valueList with ValueListIdRef=\"$valueListIdRef\" but no previous valueList has that id! Ignoring add valueList request.\n");
+         return;
+      }
+   }
+
+   # 3. add these values to the lookup table, if the original valueList had an ID
+   my $valueListId = $thisValueList->getValueListId();
+   if (defined $valueListId) {
+
+       # a warning check, just in case 
+       if (exists $self->{ValueListObj}{$valueListId})
+       {
+            $self->_printWarning("More than one valueList node with noteId=\"$valueListId\", using latest node.\n")
+                if defined $self->{ValueListObj}{$valueListId};
+
+            # add the valueList array into the list of valueList objects
+            $self->{ValueListObj}{$valueListId} = $thisValueList;
+
+       }
+   }
+
+   # 4. Create valueList Object from algorithm
+   my $newValueListObj = new XDF::ValueListAlgorithm ( $thisValueList->getStart(),
+                                                    $thisValueList->getStep(),
+                                                    $thisValueList->getSize(),
+                                                    $thisValueList->getNoData(),
+                                                    $thisValueList->getInfinite(),
+                                                    $thisValueList->getInfiniteNegative(),
+                                                    $thisValueList->getNotANumber(),
+                                                    $thisValueList->getOverflow(),
+                                                    $thisValueList->getUnderflow()
+                                                  );
+
+   # 5. now add to parent node as appropriate
+   $self->_addValueListToParent($newValueListObj, $parentNodeName);
+
+   # 6. now add valueObjects to groups 
+   # add these new value objects to all open groups
+   foreach my $groupObj (@{$self->{currentValueGroupList}}) {
+       foreach my $valueObj (@{$newValueListObj->getValues}) {
+          $valueObj->addToGroup($groupObj);
+       }
+   }
+
+   return $newValueListObj;
+
+}
+
+sub _valueList_node_start {
+   my ($self, %attrib_hash) = @_;
+
+   # 1. re-init and populate ValueListparameters from attribute list 
+   $self->{currentValueList} = new XDF::Reader::ValueList(\%attrib_hash);
+
+   # 2. populate ValueListparameters w/ parent name 
+   my $parentNodeName = $self->_parentNodeName();
+   $self->{currentValueList}->setParentNodeName($parentNodeName);
+
+   # 3. set this parameter to false to indicate the future is not
+   #    yet determined for this :)
+   $self->{currentValueList}->setIsDelimitedCase(0);
+
+   return undef;
+
+}
+
+sub _valueList_node_charData_orig {
   my ($self, $string) = @_;
+
+  # so we wont try to calculate anything when the node closes
+  $self->{currentValueList}->{'isDelimited'} = 1;
 
   # split up string based on declared delimiter
   my $delimiter = $self->{currentValueList}->{'delimiter'};
@@ -2117,18 +2363,18 @@ sub _valueList_node_charData {
 
 }
 
-sub _valueList_node_start { 
-   my ($self, %attrib_hash) = @_;
+sub _valueList_node_end_orig { 
+   my ($self) = @_;
 
-   my $parent_node = $self->_parentNodeName();
-
-   my @values = &_get_valueList_node_values(%attrib_hash);
+   my $parent_node = $self->{currentValueList}->{'parent_node'};
 
    # IT could be that no values exist because they are stored
    # in PCDATA rather than as alorithm (treat in char data handler
    # in that case).
-   if($#values != -1 ) {
-    
+   if (!$self->{currentValueList}->{'isDelimited'}) {
+
+     my %attrib_hash = %{$self->{currentValueList}->{'attrib_hash'}};
+     my @values = &_get_valueList_node_values(%attrib_hash);
      my @valueObjList = ();
 
      # adding values to the last axis in the array
@@ -2137,7 +2383,7 @@ sub _valueList_node_start {
         my $axisObj = $self->_lastAxisObj();
         foreach my $val (@values) { 
            my $valueObj = _create_valueList_value_object($val, %attrib_hash);
-           die "cant add value" unless $axisObj->addAxisValue($valueObj); 
+           die "cant add value:$val to axis:$axisObj\n" unless $axisObj->addAxisValue($valueObj); 
            push @valueObjList, $valueObj;
         }
 
@@ -2155,7 +2401,7 @@ sub _valueList_node_start {
 
         foreach my $val (@values) { 
            my $valueObj = _create_valueList_value_object($val, %attrib_hash);
-           die "cant add value to lastValueGroup\n" unless $self->{lastValueGroupParentObject}->$method($val); 
+           die "cant add value:$val to lastValueGroup\n" unless $self->{lastValueGroupParentObject}->$method($val); 
            push @valueObjList, $valueObj;
         }
 
@@ -2181,16 +2427,24 @@ sub _valueList_node_start {
       }
 
    } else {
-
-         # cache info for chardata style.
-         $self->{currentValueList}->{'parent_node'} = $parent_node;
-         $self->{currentValueList}->{'delimiter'} = defined $attrib_hash{'delimiter'} ?
-               $attrib_hash{'delimiter'} : $Def_ValueList_Delimiter;
-         $self->{currentValueList}->{'repeatable'} = defined $attrib_hash{'repeatable'} ?
-               $attrib_hash{'repeatable'} : $Def_ValueList_Repeatable;
-         $self->{currentValueList}->{'attrib_hash'} = \%attrib_hash;
-
+      # we already did this because its delimited char data, so ignore now
    }
+}
+
+sub _valueList_node_start_orig {
+   my ($self, %attrib_hash) = @_;
+
+   my $parent_node = $self->_parentNodeName();
+
+   # cache info for chardata style.
+   $self->{currentValueList}->{'parent_node'} = $parent_node;
+   $self->{currentValueList}->{'delimiter'} = defined $attrib_hash{'delimiter'} ?
+               $attrib_hash{'delimiter'} : $Def_ValueList_Delimiter;
+   $self->{currentValueList}->{'repeatable'} = defined $attrib_hash{'repeatable'} ?
+               $attrib_hash{'repeatable'} : $Def_ValueList_Repeatable;
+   $self->{currentValueList}->{'attrib_hash'} = \%attrib_hash;
+
+   $self->{currentValueList}->{'isDelimited'} = 0;
 
    return undef;
 }
@@ -2309,6 +2563,77 @@ sub _getUniqueIdName {
 #
 # Private methods
 #
+
+sub _addValueListToParent {
+  my ($self,$newValueListObj, $parentNodeName) = @_;
+
+    if( $parentNodeName eq $XDF_node_name{'axis'} ) 
+    {
+
+        my $axisObj = $self->_lastAxisObj();
+        $self->_printWarning("Error: cant add AxisValueListObj\n") 
+            unless $axisObj->addAxisValueList($newValueListObj);
+
+    }
+    elsif( $parentNodeName eq $XDF_node_name{'parameter'} ) 
+    {
+
+        my $paramObj = $self->{lastParamObject};
+        $self->_printWarning("Error: cant add ValueListObj\n") 
+              unless $paramObj->addValueList($newValueListObj);
+
+    }
+    elsif ( $parentNodeName eq $XDF_node_name{'valueGroup'} ) 
+    {
+
+       if (ref($self->{lastValueGroupParentObject}) eq 'XDF::Parameter') {
+
+           die "cant add valueListObj to parameter\n" unless 
+              $self->{lastValueGroupParentObject}->addValueList($newValueListObj);
+
+       } elsif (ref($self->{lastValueGroupParentObject}) eq 'XDF::Axis') {
+
+           die "cant add valueListObj to axis\n" unless 
+              $self->{lastValueGroupParentObject}->addAxisValueList($newValueListObj);
+
+       } else {
+          my $name = ref($self->{lastValueGroupParentObject});
+          die " ERROR: UNKNOWN valueGroupParent object ($name), can't treat for valueList.\n";
+       }
+
+    } 
+    else
+    {
+        $self->_printError("Error: weird parent node $parentNodeName for valueList node, aborting read.\n");
+        exit -1;
+    }
+
+    return $newValueListObj;
+
+}
+
+sub _splitStringIntoValueObjects {
+  my ( $valueListString, $thisValueList) = @_;
+
+  my $delimiter = $thisValueList->getDelimiter();
+  $delimiter =~ s/(\|)/\\$1/g; # kludge for making pipes work in perl 
+  $delimiter = '/' . $delimiter;
+  if ($thisValueList->getRepeatable() eq 'yes') {
+    $delimiter .= '+/';
+  } else {
+    $delimiter .= '/';
+  }
+  my @values;
+  eval " \@values = split $delimiter, \$valueListString ";
+
+  my @valueObjList;
+  for (@values) {
+     my $valueObj = _create_valueList_value_object($_, %{$thisValueList->getAttributes});
+     push @valueObjList, $valueObj;
+  }
+
+  return @valueObjList;
+}
 
 sub _null_cmd { }
 
@@ -2459,7 +2784,6 @@ sub _init {
   $self->{currentNodePath} = []; # array
 
   # global (switch) variables 
-  #$self->{cdataIsArrayData};    # Tells us when we are accepting char_data as data 
   $self->{dataNodeLevel} = 0;   # how nested we are within a set of datanodes. 
   $self->{currentDataTagLevel} = 0; # how nested we are within d0/d1/d2 data tags
   $self->{dataTagLevel} = 0;         # the level where the actual char data is
@@ -3101,6 +3425,11 @@ sub _appendArrayToArray {
 # Modification History
 #
 # $Log$
+# Revision 1.36  2001/07/23 15:58:07  thomas
+# added ability to add arbitary XML attribute to class.
+# getXMLattributes now an instance method, we
+# have old class method now called getClassXMLAttributes.
+#
 # Revision 1.35  2001/07/17 17:38:22  thomas
 # changes to make XDF the root object instead of XDF::Structure.
 #
@@ -3245,5 +3574,3 @@ sub _appendArrayToArray {
 #
 
 1;
-
-

@@ -54,15 +54,15 @@ use vars qw { $AUTOLOAD @ISA };
 my $Class_XML_Node_Name = ""; # doesnt have one!! 
 my @Class_Attributes = (); # none!, we should probably fix this 
 
-# /** classAttributes
+# /** getClassAttributes
 # This method returns a list reference containing the names
 # of the class attributes of XDF::XMLElement.
 # Note that for XDF::XMLElement this is an empty list. Any attributes
 # that this class has are inherited from XML::DOM::Element, a class
 # outside of the XDF package.
 # */
-sub classAttributes { 
-  \@Class_Attributes; 
+sub getClassAttributes { 
+  return \@Class_Attributes; 
 }
 
 #/** new
@@ -219,6 +219,12 @@ sub setCData {
    $self->appendChild($textNode);
 }
 
+sub getXMLAttributes {
+  my ($self) = @_;
+
+   die "Error: getXMLAttributes not implemented for this class yet ($self) \n";
+}
+
 
 #
 # Other Public Methods
@@ -287,6 +293,11 @@ sub toXMLFileHandle {
 # Modification History
 #
 # $Log$
+# Revision 1.7  2001/07/23 15:58:07  thomas
+# added ability to add arbitary XML attribute to class.
+# getXMLattributes now an instance method, we
+# have old class method now called getClassXMLAttributes.
+#
 # Revision 1.6  2001/06/29 21:07:12  thomas
 # changed public add (and remove) methods to
 # conform to Java API standard: e.g. return boolean

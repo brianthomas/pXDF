@@ -64,10 +64,10 @@ my @Class_Attributes = qw (
 push @Class_Attributes, @Class_XML_Attributes;
 
 # add in super class attributes
-push @Class_Attributes, @{&XDF::DataFormat::classAttributes};
+push @Class_Attributes, @{&XDF::DataFormat::getClassAttributes};
 
 # add in super class XML attributes
-push @Class_XML_Attributes, @{&XDF::DataFormat::getXMLAttributes};
+push @Class_XML_Attributes, @{&XDF::DataFormat::getClassXMLAttributes};
 
 # /** bits
 # The number of bits this XDF::BinaryIntegerDataFormat holds.
@@ -94,13 +94,20 @@ sub classXMLNodeName {
   $Class_XML_Node_Name;
 }
 
-# /** classAttributes
+# /** getClassAttributes
 #  This method returns a list containing the names
 #  of the attributes of this class.
 #  This method takes no arguments may not be changed. 
 # */
-sub classAttributes {
+sub getClassAttributes {
   \@Class_Attributes;
+}
+
+# /** getClassXMLAttributes
+#      This method returns the XMLAttributes of this class. 
+#  */
+sub getClassXMLAttributes {
+  return \@Class_XML_Attributes;
 }
 
 #
@@ -111,7 +118,7 @@ sub classAttributes {
 # */
 sub getBits {
    my ($self) = @_;
-   return $self->{Bits};
+   return $self->{bits};
 }
 
 # /** setBits
@@ -122,7 +129,7 @@ sub setBits {
 
    carp "Cant set bits to $value, not allowed \n"
       unless (&XDF::Utility::isValidIntegerBits($value));
-   $self->{Bits} = $value;
+   $self->{bits} = $value;
    $self->_updateTemplate;
 }
 
@@ -130,7 +137,7 @@ sub setBits {
 # */
 sub getSigned{
    my ($self) = @_;
-   return $self->{Signed};
+   return $self->{signed};
 }
 
 # /** setSigned
@@ -140,7 +147,7 @@ sub setSigned {
    my ($self, $value) = @_;
    carp "Cant set signed to $value, not allowed \n"
       unless (&XDF::Utility::isValidBinaryIntegerSigned($value));
-   $self->{Signed} = $value;
+   $self->{signed} = $value;
 }
 
 #
@@ -159,14 +166,14 @@ sub convertBitStringToIntegerBits {
   return undef unless defined $bitString && defined $dataEndian;
 
   # this check could slow down things.
-  unless (length($bitString) == $self->{Bits})
+  unless (length($bitString) == $self->{bits})
   {
      warn "XDF::BinaryIntegerDataFormat->convertBitStringToInteger got different number of bits than specified in the dataformat object, cannot convert passed string.\n";
      return undef;
   }
 
   if ($dataEndian ne &XDF::Constants::PLATFORM_ENDIAN) {
-     $bitString = XDF::Utility::reverseBitStringByteOrder($bitString, $self->{Bits});
+     $bitString = XDF::Utility::reverseBitStringByteOrder($bitString, $self->{bits});
   } 
 
   my $packtemplate = $self->{_templateNotation};
@@ -196,7 +203,7 @@ sub convertIntegerToIntegerBits {
   # from what is given.
   if ($dataEndian ne &XDF::Constants::PLATFORM_ENDIAN) {
      my $bitString = unpack $bitTemplate, $bits; 
-     $bitString = XDF::Utility::reverseBitStringByteOrder($bitString, $self->{Bits});
+     $bitString = XDF::Utility::reverseBitStringByteOrder($bitString, $self->{bits});
      $bits = pack $bitTemplate, $bitString;
   }
 
@@ -211,16 +218,9 @@ sub convertIntegerToIntegerBits {
 # */
 sub numOfBytes { 
   my ($self) = @_; 
-  return int($self->{Bits}/8); 
+  return int($self->{bits}/8); 
 }
 
-
-# /** getXMLAttributes
-#      This method returns the XMLAttributes of this class. 
-#  */
-sub getXMLAttributes {
-  return \@Class_XML_Attributes;
-}
 
 #
 # Private/Protected methods 
@@ -239,9 +239,13 @@ sub _init {
 
   $self->SUPER::_init();
 
-  $self->{Bits} = $Def_BinaryInteger_Bits;
-  $self->{Signed} = $Def_BinaryInteger_Signed;
+  $self->{bits} = $Def_BinaryInteger_Bits;
+  $self->{signed} = $Def_BinaryInteger_Signed;
   $self->_updateTemplate;
+
+  # adds to ordered list of XML attributes
+  $self->_appendAttribsToXMLAttribOrder(\@Class_XML_Attributes);
+
 }
 
 sub _templateNotation {
@@ -257,7 +261,7 @@ sub _outputTemplateNotation {
 sub _updateTemplate {
   my ($self) = @_;
 
-  my $bits = $self->{Bits};
+  my $bits = $self->{bits};
   $self->{_templateNotation} = "B" . $bits;
 
   # determine unpack template from number of bits 
@@ -274,7 +278,7 @@ sub _updateTemplate {
   }
 
   # if signed, then perl wants a capital letter
-  if ($self->{Signed}) {
+  if ($self->{signed}) {
      $self->{_unpackTemplateNotation} = ucfirst $self->{_unpackTemplateNotation}; 
   }
 
@@ -292,6 +296,11 @@ sub _sprintfNotation {
 # Modification History
 #
 # $Log$
+# Revision 1.18  2001/07/23 15:58:07  thomas
+# added ability to add arbitary XML attribute to class.
+# getXMLattributes now an instance method, we
+# have old class method now called getClassXMLAttributes.
+#
 # Revision 1.17  2001/05/23 17:24:14  thomas
 # change to allow right-justification of ASCII
 # numbers.

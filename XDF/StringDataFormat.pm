@@ -52,19 +52,14 @@ my @Class_XML_Attributes = qw (
                           );
 my @Class_Attributes = ();
 
+# add in super class XML attributes
+push @Class_XML_Attributes, @{&XDF::DataFormat::getClassXMLAttributes};
+
 # add in class XML attributes
 push @Class_Attributes, @Class_XML_Attributes;
 
-# /** length
-# The width of this string field in characters.
-# Normally this translates to the number of bytes the object holds,
-# however, note that the encoding of the data is important. When
-# the encoding is UTF-16, then the number of bytes effectively is 2x $obj->length.
-# */
-
 # add in super class attributes
-push @Class_Attributes, @{&XDF::DataFormat::classAttributes};
-push @Class_XML_Attributes, @{&XDF::DataFormat::getXMLAttributes};
+push @Class_Attributes, @{&XDF::DataFormat::getClassAttributes};
 
 # Something specific to Perl
 my $Perl_Sprintf_Field_String = 's';
@@ -79,27 +74,39 @@ for my $attr ( @Class_Attributes ) { $field{$attr}++; }
 # This method takes no arguments may not be changed. 
 # */
 sub classXMLNodeName {
-  $Class_XML_Node_Name;
+  return $Class_XML_Node_Name;
 }
 
-# /** classAttributes
-#  This method returns a list containing the names
-#  of the attributes of this class.
+# /** getClassAttributes
+#  This method returns a list reference containing the names
+#  of the class attributes for this class.
 #  This method takes no arguments may not be changed. 
 # */
-sub classAttributes {
-  \@Class_Attributes;
+sub getClassAttributes {
+  return \@Class_Attributes;
 }
+
+# /** getClassXMLAttributes
+#      This method returns the XMLAttributes of this class. 
+#  */
+sub getClassXMLAttributes {
+  return \@Class_XML_Attributes;
+}
+
 
 #
 # Get/Set Methods
 #
 
 # /** getLength
+# Get the width of this string field in characters.
+# Normally this translates to the number of bytes the object holds,
+# however, note that the encoding of the data is important. When
+# the encoding is UTF-16, then the number of bytes effectively is 2x $obj->length.
 # */
 sub getLength {
    my ($self) = @_;
-   return $self->{Length};
+   return $self->{length};
 }
 
 # /** setLength
@@ -107,7 +114,7 @@ sub getLength {
 # */
 sub setLength {
    my ($self, $value) = @_;
-   $self->{Length} = $value;
+   $self->{length} = $value;
 }
 
 # /** numOfBytes
@@ -122,9 +129,9 @@ sub numOfBytes {
 # /** getXMLAttributes
 #      This method returns the XMLAttributes of this class. 
 #  */
-sub getXMLAttributes { 
-  return \@Class_XML_Attributes;
-}
+#sub getXMLAttributes { 
+#  return \@Class_XML_Attributes;
+#}
 
 # 
 # Other Public Methods
@@ -155,8 +162,13 @@ sub AUTOLOAD {
 
 sub _init {
   my ($self)  = @_;
+
   $self->SUPER::_init();
+
   $self->setLength(0);
+
+  # adds to ordered list of XML attributes
+  $self->_appendAttribsToXMLAttribOrder(\@Class_XML_Attributes);
 
 }
 
@@ -200,6 +212,11 @@ sub _sprintfNotation {
 # Modification History
 #
 # $Log$
+# Revision 1.14  2001/07/23 15:58:07  thomas
+# added ability to add arbitary XML attribute to class.
+# getXMLattributes now an instance method, we
+# have old class method now called getClassXMLAttributes.
+#
 # Revision 1.13  2001/05/23 17:24:14  thomas
 # change to allow right-justification of ASCII
 # numbers.

@@ -52,24 +52,32 @@ my @Class_XML_Attributes = qw (
 my @Class_Attributes = qw (
                           );
 
+push @Class_XML_Attributes, @{&XDF::XMLDataIOStyle::getClassXMLAttributes};
+
 # add in class XML attributes
 push @Class_Attributes, @Class_XML_Attributes;
 
 # add in super class attributes
-push @Class_Attributes, @{&XDF::XMLDataIOStyle::classAttributes};
-push @Class_XML_Attributes, @{&XDF::XMLDataIOStyle::getXMLAttributes};
+push @Class_Attributes, @{&XDF::XMLDataIOStyle::getClassAttributes};
 
 # Initalization
 # set up object attributes.
 for my $attr ( @Class_Attributes ) { $field{$attr}++; }
 
-# /** classAttributes
-#  This method takes no arguments may not be changed. 
+# /** getClassAttributes
 #  This method returns a list reference containing the names
-#  of the class attributes for XDF::Structure; 
+#  of the class attributes of XDF::FloatDataFormat. 
+#  This method takes no arguments may not be changed. 
 # */
-sub classAttributes {
+sub getClassAttributes {
   return \@Class_Attributes;
+}
+
+# /** getClassXMLAttributes
+#      This method returns the XMLAttributes of this class. 
+#  */
+sub getClassXMLAttributes {
+  return \@Class_XML_Attributes;
 }
 
 #
@@ -80,7 +88,7 @@ sub classAttributes {
 #  */
 sub getFormatCmdList {
    my ($self) = @_;
-   return $self->{FormatCmdList};
+   return $self->{formatCmdList};
 }
 
 # /** setFormatCmdList
@@ -89,7 +97,7 @@ sub setFormatCmdList {
    my ($self, $arrayRefValue) = @_;
    # you must do it this way, or when the arrayRef changes it changes us here!
    my @list = @{$arrayRefValue};
-   $self->{FormatCmdList} = \@list;
+   $self->{formatCmdList} = \@list;
 }
 
 #sub getFormatCommands {
@@ -122,7 +130,7 @@ sub getCommands () {
 
   my @commandList = ();
 
-  foreach my $obj (@{$self->{FormatCmdList}}) {
+  foreach my $obj (@{$self->{formatCmdList}}) {
      if (ref($obj) eq 'XDF::RepeatFormattedIOCmd') {
        my $count = $obj->getCount();
        my @repeatCommandList = $obj->getCommands();
@@ -167,9 +175,9 @@ sub numOfBytes {
 # /** getXMLAttributes
 #      This method returns the XMLAttributes of this class. 
 #  */
-sub getXMLAttributes {
-  return \@Class_XML_Attributes;
-}
+#sub getXMLAttributes {
+#  return \@Class_XML_Attributes;
+#}
 
 #
 # Other Public Methods
@@ -188,7 +196,7 @@ sub addFormatCommand {
   return 0 unless defined $obj && ref $obj;
 
   # push into our array
-  push @{$self->{FormatCmdList}}, $obj;
+  push @{$self->{formatCmdList}}, $obj;
 
   return 1;
 }
@@ -207,7 +215,7 @@ sub toXMLFileHandle {
   # open the read block, print attributes 
   print $fileHandle "<" . $self->SUPER::classXMLNodeName;
   # print out attributes
-  $self->_printAttributes($fileHandle, $self->SUPER::classAttributes);
+  $self->_printAttributes($fileHandle, $self->SUPER::getClassAttributes);
   print $fileHandle ">";
   print $fileHandle "\n" if $niceOutput;
 
@@ -263,8 +271,13 @@ sub AUTOLOAD {
 sub _init {
   my ($self) = @_;
 
+  $self->SUPER::_init();
+
   # set defaults
-  $self->{FormatCmdList} = []; 
+  $self->{formatCmdList} = []; 
+
+  # adds to ordered list of XML attributes
+  $self->_appendAttribsToXMLAttribOrder(\@Class_XML_Attributes);
 
 }
 
@@ -383,6 +396,11 @@ sub _sprintfNotation {
 # Modification History
 #
 # $Log$
+# Revision 1.20  2001/07/23 15:58:07  thomas
+# added ability to add arbitary XML attribute to class.
+# getXMLattributes now an instance method, we
+# have old class method now called getClassXMLAttributes.
+#
 # Revision 1.19  2001/06/29 21:07:12  thomas
 # changed public add (and remove) methods to
 # conform to Java API standard: e.g. return boolean

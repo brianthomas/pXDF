@@ -61,7 +61,7 @@ push @Class_Attributes, @Class_XML_Attributes;
 # */
 
 # add in super class attributes
-push @Class_Attributes, @{&XDF::BaseObject::classAttributes};
+push @Class_Attributes, @{&XDF::BaseObject::getClassAttributes};
 
 # Initalization
 # set up object attributes.
@@ -72,17 +72,23 @@ for my $attr ( @Class_Attributes ) { $field{$attr}++; }
 # This method takes no arguments may not be changed. 
 # */
 sub classXMLNodeName {
-  $Class_XML_Node_Name;
+  return $Class_XML_Node_Name;
 }
 
-# /** classAttributes
+# /** getClassAttributes
 #  This method returns a list reference containing the names
-#  of the class attributes of XDF::Unit. 
+#  of the class attributes for this class.
 #  This method takes no arguments may not be changed. 
 # */
-sub classAttributes {
+sub getClassAttributes {
+  return \@Class_Attributes;
+}
 
-  \@Class_Attributes;
+# /** getClassXMLAttributes
+#      This method returns the XMLAttributes of this class. 
+#  */
+sub getClassXMLAttributes {
+  return \@Class_XML_Attributes;
 }
 
 #
@@ -93,7 +99,7 @@ sub classAttributes {
 # */
 sub getPower {
    my ($self) = @_;
-   return $self->{Power};
+   return $self->{power};
 }
 
 # /** setPower
@@ -101,14 +107,14 @@ sub getPower {
 # */
 sub setPower {
    my ($self, $value) = @_;
-   $self->{Power} = $value;
+   $self->{power} = $value;
 }
 
 # /** getValue
 # */
 sub getValue {
    my ($self) = @_;
-   return $self->{Value};
+   return $self->{value};
 }
 
 # /** setValue
@@ -116,14 +122,7 @@ sub getValue {
 # */
 sub setValue {
    my ($self, $value) = @_;
-   $self->{Value} = $value;
-}
-
-# /** getXMLAttributes
-#      This method returns the XMLAttributes of this class. 
-#  */
-sub getXMLAttributes { 
-  return \@Class_XML_Attributes;
+   $self->{value} = $value;
 }
 
 #
@@ -162,6 +161,16 @@ sub setXMLAttributes {
 # Private Methods
 #
 
+sub _init {
+  my ($self) = @_;
+  
+  $self->SUPER::_init();
+  
+  # adds to ordered list of XML attributes
+  $self->_appendAttribsToXMLAttribOrder(\@Class_XML_Attributes);
+
+}
+
 # This is called when we cant find any defined method
 # exists already. Used to handle general purpose set/get
 # methods for our attributes (object fields).
@@ -173,6 +182,11 @@ sub AUTOLOAD {
 # Modification History
 #
 # $Log$
+# Revision 1.9  2001/07/23 15:58:07  thomas
+# added ability to add arbitary XML attribute to class.
+# getXMLattributes now an instance method, we
+# have old class method now called getClassXMLAttributes.
+#
 # Revision 1.8  2001/04/25 16:01:31  thomas
 # updated documentation
 #

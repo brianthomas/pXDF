@@ -37,12 +37,14 @@ my @Class_XML_Attributes = qw (
                           );
 my @Class_Attributes = ();
 
+# add in super class XML attributes
+push @Class_XML_Attributes, @{&XDF::FormattedIOCmd::getClassXMLAttributes};
+
 # add in class XML attributes
 push @Class_Attributes, @Class_XML_Attributes;
 
 # add in super class attributes
-push @Class_Attributes, @{&XDF::FormattedIOCmd::classAttributes};
-push @Class_XML_Attributes, @{&XDF::FormattedIOCmd::getXMLAttributes};
+push @Class_Attributes, @{&XDF::FormattedIOCmd::getClassAttributes};
 
 # Initalization
 # set up object attributes.
@@ -52,8 +54,20 @@ sub classXMLNodeName {
   $Class_XML_Node_Name; 
 }
 
-sub classAttributes { 
-  \@Class_Attributes; 
+# /** getClassAttributes
+#  This method returns a list reference containing the names
+#  of the class attributes of XDF::FloatDataFormat. 
+#  This method takes no arguments may not be changed. 
+# */
+sub getClassAttributes {
+  return \@Class_Attributes;
+}
+
+# /** getClassXMLAttributes
+#      This method returns the XMLAttributes of this class. 
+#  */
+sub getClassXMLAttributes {
+  return \@Class_XML_Attributes;
 }
 
 #
@@ -64,7 +78,7 @@ sub classAttributes {
 # */
 sub getCount {
    my ($self) = @_;
-   return $self->{Count};
+   return $self->{count};
 }
 
 # /** setCount
@@ -72,14 +86,14 @@ sub getCount {
 # */
 sub setCount {
    my ($self, $value) = @_;
-   $self->{Count} = $value;
+   $self->{count} = $value;
 }
 
 # /** getFormatCmdList
 # */
 sub getFormatCmdList {
    my ($self) = @_;
-   return $self->{FormatCmdList};
+   return $self->{formatCmdList};
 }
 
 # /** setFormatCmdList
@@ -89,7 +103,7 @@ sub setFormatCmdList {
    my ($self, $arrayRefValue) = @_;
    # you must do it this way, or when the arrayRef changes it changes us here!
    my @list = @{$arrayRefValue};
-   $self->{FormatCmdList} = \@list;
+   $self->{formatCmdList} = \@list;
 }
 
 sub numOfBytes {
@@ -128,7 +142,7 @@ sub getCommands () {
 
   my @commandList = ();
 
-  foreach my $obj (@{$self->{FormatCmdList}}) {
+  foreach my $obj (@{$self->{formatCmdList}}) {
      if (ref($obj) eq 'XDF::RepeatFormattedIOCmd') {
        my $count = $obj->getCount();
        my @repeatCommandList = $obj->getCommands();
@@ -141,13 +155,6 @@ sub getCommands () {
    }
 
    return @commandList;
-}
-
-# /** getXMLAttributes
-#      This method returns the XMLAttributes of this class. 
-#  */
-sub getXMLAttributes {
-  return \@Class_XML_Attributes;
 }
 
 #
@@ -163,7 +170,7 @@ sub addFormatCommand {
   return 0 unless defined $obj && ref $obj;
 
   # push into our array
-  push @{$self->{FormatCmdList}}, $obj;
+  push @{$self->{formatCmdList}}, $obj;
 
   return 1;
 }
@@ -182,9 +189,15 @@ sub AUTOLOAD {
 
 sub _init {
    my ($self) = @_;
-  $self->SUPER::_init();
+
+   $self->SUPER::_init();
+
    $self->setFormatCmdList([]);
    $self->setCount($Def_Count);
+
+   # adds to ordered list of XML attributes
+   $self->_appendAttribsToXMLAttribOrder(\@Class_XML_Attributes);
+
 }
 
 # this is only called from dataCube
@@ -200,7 +213,7 @@ sub _outputSkipCharArray {
     return;
   }
 
-  foreach my $obj (@{$self->{FormatCmdList}}) {
+  foreach my $obj (@{$self->{formatCmdList}}) {
     if(ref($obj) eq 'XDF::ReadCellFormattedIOCmd') {
       my $readObj = shift @dataFormatList;
       push (@dataFormatList, $readObj); # its a circular list
@@ -236,7 +249,7 @@ sub _templateNotation {
   }
   
 
-  foreach my $obj (@{$self->{FormatCmdList}}) {
+  foreach my $obj (@{$self->{formatCmdList}}) {
     if(ref($obj) eq 'XDF::ReadCellFormattedIOCmd') {
       my $readObj = shift @dataFormatList;
       push (@dataFormatList, $readObj); # its a circular list
@@ -271,7 +284,7 @@ sub _regexNotation {
     return;
   }
 
-  foreach my $obj (@{$self->{FormatCmdList}}) { 
+  foreach my $obj (@{$self->{formatCmdList}}) { 
     if(ref($obj) eq 'XDF::ReadCellFormattedIOCmd') {
       my $readObj = shift @dataFormatList;
       push (@dataFormatList, $readObj); # its a circular list
@@ -305,7 +318,7 @@ sub _sprintfNotation {
     return;
   }
   
-  foreach my $obj (@{$self->{FormatCmdList}}) {
+  foreach my $obj (@{$self->{formatCmdList}}) {
     if(ref($obj) eq 'XDF::ReadCellFormattedIOCmd') {
       my $readObj = shift @dataFormatList;
       push (@dataFormatList, $readObj); # its a circular list
@@ -331,6 +344,11 @@ sub _sprintfNotation {
 # Modification History
 #
 # $Log$
+# Revision 1.15  2001/07/23 15:58:07  thomas
+# added ability to add arbitary XML attribute to class.
+# getXMLattributes now an instance method, we
+# have old class method now called getClassXMLAttributes.
+#
 # Revision 1.14  2001/06/29 21:07:12  thomas
 # changed public add (and remove) methods to
 # conform to Java API standard: e.g. return boolean

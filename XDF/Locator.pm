@@ -67,7 +67,7 @@ my @Class_Attributes = qw (
                           );
 
 # add in super class attributes
-push @Class_Attributes, @{&XDF::GenericObject::classAttributes};
+push @Class_Attributes, @{&XDF::GenericObject::getClassAttributes};
 
 # Initalization
 # set up object attributes.
@@ -350,6 +350,11 @@ sub _init {
 # Modification History
 #
 # $Log$
+# Revision 1.15  2001/07/23 15:58:07  thomas
+# added ability to add arbitary XML attribute to class.
+# getXMLattributes now an instance method, we
+# have old class method now called getClassXMLAttributes.
+#
 # Revision 1.14  2001/04/25 16:01:31  thomas
 # updated documentation
 #

@@ -59,25 +59,25 @@ my @Class_XML_Attributes = qw (
                               );
 
 # add in super class XML attributes
-#push @Class_XML_Attributes, @{&XDF::BaseObject::classXMLAttributes};
+push @Class_XML_Attributes, @{&XDF::BaseObject::getClassXMLAttributes};
 
 # add in super class attributes
-push @Class_Attributes, @{&XDF::BaseObjectWithXMLElements::classAttributes};
-push @Class_Attributes, @{&XDF::BaseObjectWithValueList::classAttributes};
+push @Class_Attributes, @{&XDF::BaseObjectWithXMLElements::getClassAttributes};
+push @Class_Attributes, @{&XDF::BaseObjectWithValueList::getClassAttributes};
 
 # Initalization - set up object attributes.
 for my $attr ( @Class_Attributes ) { $field{$attr}++; }
 
-# /** classAttributes
+# /** getClassAttributes
 #  This method returns a list reference containing the names
 #  of the class attributes for this object;
 #  This method takes no arguments may not be changed. 
 # */
-sub classAttributes {
+sub getClassAttributes {
   return \@Class_Attributes;
 }
 
-sub getXMLAttributes {
+sub getClassXMLAttributes {
   return \@Class_XML_Attributes;
 }
 
@@ -220,13 +220,19 @@ sub _init {
   $self->{_openGroupNodeHash} = {}; # used only by toXMLFileHandle
   $self->{_groupMemberHash} = {}; # init of groupMember Hash (all objects have) 
   
-
+  # adds to ordered list of XML attributes
+  $self->_appendAttribsToXMLAttribOrder(\@Class_XML_Attributes);
 
 }
 
 # Modification History
 #
 # $Log$
+# Revision 1.3  2001/07/23 15:58:07  thomas
+# added ability to add arbitary XML attribute to class.
+# getXMLattributes now an instance method, we
+# have old class method now called getClassXMLAttributes.
+#
 # Revision 1.2  2001/07/17 17:37:51  thomas
 # Removed printing of XMLDecl from toXMLFileHandle method.
 # Removed isRootNode var on toXMLFileHandle method.

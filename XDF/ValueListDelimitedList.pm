@@ -56,8 +56,8 @@ use vars qw ($AUTOLOAD %field @ISA);
 # CLASS DATA
 my $Class_XML_Node_Name = "valueList";
 my @Class_XML_Attributes = qw (
-                             Id
-                             IdRef
+                             valueListId
+                             valueListIdRef
                              delimiter
                              noData
                              infinite
@@ -74,7 +74,7 @@ my @Class_Attributes = qw (
 push @Class_Attributes, @Class_XML_Attributes;
 
 # add in super class attributes
-push @Class_Attributes, @{&XDF::GenericObject::classAttributes};
+push @Class_Attributes, @{&XDF::GenericObject::getClassAttributes};
 
 # Initalization
 # set up object attributes.
@@ -85,16 +85,23 @@ for my $attr ( @Class_Attributes ) { $field{$attr}++; }
 # This method returns the class node name of XDF::ValueListDelimitedList.
 # */
 sub classXMLNodeName { 
-  $Class_XML_Node_Name; 
+  return $Class_XML_Node_Name; 
 }
 
-# /** classAttributes
-#  This method takes no arguments may not be changed. 
+# /** getClassAttributes
 #  This method returns a list reference containing the names
-#  of the class attributes of XDF::ValueListDelimitedList.
+#  of the class attributes for this class.
+#  This method takes no arguments may not be changed. 
 # */
-sub classAttributes { 
-  \@Class_Attributes; 
+sub getClassAttributes {
+  return \@Class_Attributes;
+}
+
+# /** getClassXMLAttributes
+#      This method returns the XMLAttributes of this class. 
+#  */
+sub getClassXMLAttributes {
+  return \@Class_XML_Attributes;
 }
 
 # 
@@ -131,7 +138,7 @@ sub new {
 # */
 sub getValueListId {
    my ($self) = @_;
-   return $self->{Id};
+   return $self->{valueListId};
 }
 
 # /** setValueListId
@@ -139,14 +146,14 @@ sub getValueListId {
 # */
 sub setValueListId {
    my ($self, $value) = @_;
-   $self->{Id} = $value;
+   $self->{valueListId} = $value;
 }
 
 # /** getValueListIdRef 
 # */
 sub getValueListIdRef {
    my ($self) = @_;
-   return $self->{IdRef};
+   return $self->{valueListIdRef};
 }
 
 # /** setValueListIdRef 
@@ -154,7 +161,7 @@ sub getValueListIdRef {
 # */
 sub setValueListIdRef {
    my ($self, $value) = @_;
-   $self->{IdRef} = $value;
+   $self->{valueListIdRef} = $value;
 }
 
 # /** getValues
@@ -162,14 +169,7 @@ sub setValueListIdRef {
 # */
 sub getValues {
    my ($self) = @_;
-   return $self->{Values};
-}
-
-# /** getXMLAttributes
-#      This method returns the XMLAttributes of this class. 
-#  */
-sub getXMLAttributes {
-  return \@Class_XML_Attributes;
+   return $self->{values};
 }
 
 #
@@ -192,8 +192,8 @@ sub toXMLFileHandle {
    print $fileHandle $indent if $isPrettyXDFOutput;
 
    print $fileHandle "<valueList delimiter=\"",$self->{Delimiter},"\" repeatable=\"no\"";
-   print $fileHandle " valueListId=\"",$self->{Id},"\"" if (defined $self->{Id});
-   print $fileHandle " valueListIdRef=\"",$self->{IdRef},"\"" if (defined $self->{IdRef});
+   print $fileHandle " valueListId=\"",$self->{valueListId},"\"" if (defined $self->{valueListId});
+   print $fileHandle " valueListIdRef=\"",$self->{valueListIdRef},"\"" if (defined $self->{valueListIdRef});
    print $fileHandle " noDataValue=\"",$self->{NoData},"\"" if (defined $self->{NoData});
    print $fileHandle " infiniteValue=\"",$self->{Infinite},"\"" if (defined $self->{Infinite});
    print $fileHandle " infiniteNegativeValue=\"",$self->{InfiniteNegative},"\"" 
@@ -203,7 +203,7 @@ sub toXMLFileHandle {
    print $fileHandle " underflowValue=\"",$self->{Underflow},"\"" if (defined $self->{Underflow});
    print $fileHandle ">";
 
-   my @values = @{$self->{Values}};
+   my @values = @{$self->{values}};
    foreach my $valIndex (0 .. $#values) {
 
       my $thisValue = $values[$valIndex];
@@ -255,11 +255,11 @@ sub _init {
    $self->{Underflow} = $underflowValue;
 
    # init values
-   $self->{Values} = [];
+   $self->{values} = [];
    # you must do it this way, or when the arrayRef changes it changes us here!
    # however we DO want to preserve the valueObj ref tho.
    foreach my $valueObj (@{$valueListRef}) {
-      push @{$self->{Values}}, $valueObj;
+      push @{$self->{values}}, $valueObj;
    }
 
 }
@@ -285,6 +285,11 @@ sub AUTOLOAD {
 # Modification History
 #
 # $Log$
+# Revision 1.2  2001/07/23 15:58:07  thomas
+# added ability to add arbitary XML attribute to class.
+# getXMLattributes now an instance method, we
+# have old class method now called getClassXMLAttributes.
+#
 # Revision 1.1  2001/07/13 21:38:25  thomas
 # Initial Version
 #

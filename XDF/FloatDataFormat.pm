@@ -83,12 +83,14 @@ my @Class_XML_Attributes = qw (
                           );
 my @Class_Attributes = ();
 
+# add in super class XML attributes
+push @Class_XML_Attributes, @{&XDF::DataFormat::getClassXMLAttributes};
+
 # add in class XML attributes
 push @Class_Attributes, @Class_XML_Attributes;
 
 # add in super class attributes
-push @Class_Attributes, @{&XDF::DataFormat::classAttributes};
-push @Class_XML_Attributes, @{&XDF::DataFormat::getXMLAttributes};
+push @Class_Attributes, @{&XDF::DataFormat::getClassAttributes};
 
 # /** width
 # The entire width of this float field, including the 'E'
@@ -115,13 +117,20 @@ sub classXMLNodeName {
   $Class_XML_Node_Name;
 }
 
-# /** classAttributes
+# /** getClassAttributes
 #  This method returns a list reference containing the names
 #  of the class attributes of XDF::FloatDataFormat. 
 #  This method takes no arguments may not be changed. 
 # */
-sub classAttributes {
-  \@Class_Attributes;
+sub getClassAttributes {
+  return \@Class_Attributes;
+}
+
+# /** getClassXMLAttributes
+#      This method returns the XMLAttributes of this class. 
+#  */
+sub getClassXMLAttributes {
+  return \@Class_XML_Attributes;
 }
 
 # 
@@ -137,7 +146,7 @@ sub classAttributes {
 # */
 sub getWidth {
    my ($self) = @_;
-   return $self->{Width};
+   return $self->{width};
 }
 
 # /** setWidth
@@ -149,7 +158,7 @@ sub getWidth {
 # */
 sub setWidth {
    my ($self, $value) = @_;
-   $self->{Width} = $value;
+   $self->{width} = $value;
 }
 
 
@@ -160,7 +169,7 @@ sub setWidth {
 # */
 sub getPrecision {
    my ($self) = @_;
-   return $self->{Precision};
+   return $self->{precision};
 }
 
 # /** setPrecision
@@ -170,7 +179,7 @@ sub getPrecision {
 # */
 sub setPrecision {
    my ($self, $value) = @_;
-   $self->{Precision} = $value;
+   $self->{precision} = $value;
 }
 
 # /** getExponent
@@ -182,7 +191,7 @@ sub setPrecision {
 # */
 sub getExponent {
    my ($self) = @_;
-   return $self->{Exponent};
+   return $self->{exponent};
 }
 
 # /** setExponent
@@ -194,7 +203,7 @@ sub getExponent {
 # */
 sub setExponent {
    my ($self, $value) = @_;
-   $self->{Exponent} = $value;
+   $self->{exponent} = $value;
 }
 
 # /** numOfBytes
@@ -202,19 +211,30 @@ sub setExponent {
 # */
 sub numOfBytes { 
   my ($self) = @_;
-  return $self->{Width};
+  return $self->{width};
 }
 
 # /** getXMLAttributes
 #    This method returns the XMLAttributes of this class. 
 #  */
-sub getXMLAttributes {
-  return \@Class_XML_Attributes;
-}
+#sub getXMLAttributes {
+#  return \@Class_XML_Attributes;
+#}
 
 #
 # Private Methods 
 #
+
+sub _init {
+  my ($self) = @_;
+
+  $self->SUPER::_init();
+ 
+  # adds to ordered list of XML attributes
+  $self->_appendAttribsToXMLAttribOrder(\@Class_XML_Attributes);
+
+}
+
 
 # This is called when we cant find any defined method
 # exists already. Used to handle general purpose set/get
@@ -231,20 +251,20 @@ sub _templateNotation {
 
 sub _outputTemplateNotation {
    my ($self, $endian, $encoding) = @_;
-   if (defined $self->{Exponent} && $self->{Exponent} > 1)
+   if (defined $self->{exponent} && $self->{exponent} > 1)
    {
-      return "%" . $self->{Width} . "\." . $self->{Precision} . "g";
+      return "%" . $self->{width} . "\." . $self->{precision} . "g";
    } else { 
-      return "%" . $self->{Width} . "\." . $self->{Precision} . "f"; 
+      return "%" . $self->{width} . "\." . $self->{precision} . "f"; 
    }
 }
 
 sub _regexNotation {
   my ($self) = @_;
 
-  my $width = $self->{Width};
-  my $precision = $self->{Precision};
-  my $exponent = $self->{Exponent};
+  my $width = $self->{width};
+  my $precision = $self->{precision};
+  my $exponent = $self->{exponent};
   my $notation = '(';
 
   my $float_symbol = $Perl_Regex_Field_Float;
@@ -274,9 +294,9 @@ sub _sprintfNotation {
 
   my $notation = '%';
 
-  $notation .= $self->{Width}; 
-  $notation .= '.' . $self->{Precision};
-  my $exponent = $self->{Exponent};
+  $notation .= $self->{width}; 
+  $notation .= '.' . $self->{precision};
+  my $exponent = $self->{exponent};
   if ($exponent > 0) {
      $notation .= $Perl_Sprintf_Field_Exponent;
   } else {
@@ -289,6 +309,11 @@ sub _sprintfNotation {
 # Modification History
 #
 # $Log$
+# Revision 1.9  2001/07/23 15:58:07  thomas
+# added ability to add arbitary XML attribute to class.
+# getXMLattributes now an instance method, we
+# have old class method now called getClassXMLAttributes.
+#
 # Revision 1.8  2001/05/23 17:24:14  thomas
 # change to allow right-justification of ASCII
 # numbers.

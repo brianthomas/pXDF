@@ -112,7 +112,7 @@ my @Class_Attributes = qw (
 push @Class_Attributes, @Class_XML_Attributes;
 
 # add in super class attributes
-push @Class_Attributes, @{&XDF::BaseObjectWithValueList::classAttributes};
+push @Class_Attributes, @{&XDF::BaseObjectWithValueList::getClassAttributes};
 
 # Initalization
 # set up object attributes.
@@ -123,16 +123,23 @@ for my $attr ( @Class_Attributes ) { $field{$attr}++; }
 # This method takes no arguments may not be changed. 
 # */
 sub classXMLNodeName {
-  $Class_XML_Node_Name;
+  return $Class_XML_Node_Name;
 }
 
-# /** classAttributes
+# /** getClassAttributes
 #  This method returns a list reference containing the names
-#  of the class attributes of XDF::Parameter. 
+#  of the class attributes of XDF::FloatDataFormat. 
 #  This method takes no arguments may not be changed. 
 # */
-sub classAttributes {
-  \@Class_Attributes;
+sub getClassAttributes {
+  return \@Class_Attributes;
+}
+
+# /** getClassXMLAttributes
+#      This method returns the XMLAttributes of this class. 
+#  */
+sub getClassXMLAttributes {
+  return \@Class_XML_Attributes;
 }
 
 #
@@ -143,7 +150,7 @@ sub classAttributes {
 # */
 sub getName {
    my ($self) = @_;
-   return $self->{Name};
+   return $self->{name};
 }
 
 # /** setName
@@ -151,28 +158,28 @@ sub getName {
 # */
 sub setName {
    my ($self, $value) = @_;
-   $self->{Name} = $value;
+   $self->{name} = $value;
 }
 
 # /** getDescription
 #  */
 sub getDescription {
    my ($self) = @_;
-   return $self->{Description};
+   return $self->{description};
 }
 
 # /** setDescription
 #  */
 sub setDescription {
    my ($self, $value) = @_;
-   $self->{Description} = $value;
+   $self->{description} = $value;
 }
 
 # /** getParamId
 # */
 sub getParamId {
    my ($self) = @_;
-   return $self->{ParamId};
+   return $self->{paramId};
 }
 
 # /** setParamId
@@ -180,14 +187,14 @@ sub getParamId {
 # */
 sub setParamId {
    my ($self, $value) = @_;
-   $self->{ParamId} = $value;
+   $self->{paramId} = $value;
 }
 
 # /** getParamIdRef
 # */
 sub getParamIdRef {
    my ($self) = @_;
-   return $self->{ParamIdRef};
+   return $self->{paramIdRef};
 }
 
 # /** setParamIdRef
@@ -195,14 +202,14 @@ sub getParamIdRef {
 # */
 sub setParamIdRef {
    my ($self, $value) = @_;
-   $self->{ParamIdRef} = $value;
+   $self->{paramIdRef} = $value;
 }
 
 # /** getDatatype
 # */
 sub getDatatype {
    my ($self) = @_;
-   return $self->{Datatype};
+   return $self->{datatype};
 }
 
 # /** setDatatype
@@ -214,14 +221,14 @@ sub setDatatype {
    carp "Cant set datatype to $value, not allowed \n"
       unless (&XDF::Utility::isValidDatatype($value));
 
-   $self->{Datatype} = $value;
+   $self->{datatype} = $value;
 }
 
 # /** getNoteList
 # */
 sub getNoteList {
    my ($self) = @_;
-   return $self->{NoteList};
+   return $self->{noteList};
 }
 
 # /** setNoteList
@@ -231,14 +238,14 @@ sub setNoteList {
    my ($self, $arrayRefValue) = @_;
    # you must do it this way, or when the arrayRef changes it changes us here!
    my @list = @{$arrayRefValue};
-   $self->{NoteList} = \@list;
+   $self->{noteList} = \@list;
 }
 
 # /** getValueList
 # */
 sub getValueList {
    my ($self) = @_;
-   return $self->{ValueList};
+   return $self->{valueList};
 }
 
 # /** setValueList
@@ -260,7 +267,7 @@ sub setValueList {
 # */
 sub getUnits {
    my ($self) = @_;
-   return $self->{Units};
+   return $self->{units};
 }
 
 # /** setUnits
@@ -268,14 +275,7 @@ sub getUnits {
 # */
 sub setUnits {
    my ($self, $value) = @_;
-   $self->{Units} = $value;
-}
-
-# /** getXMLAttributes
-#      This method returns the XMLAttributes of this class. 
-#  */
-sub getXMLAttributes {
-  return \@Class_XML_Attributes;
+   $self->{units} = $value;
 }
 
 #
@@ -297,7 +297,7 @@ sub addValueList {
       # you must do it this way, or when the arrayRef changes it changes us here!
       if ($#{$arrayOrValueListObjRefValue} >= 0) {
          foreach my $valueObj (@{$arrayOrValueListObjRefValue}) {
-            push @{$self->{ValueList}}, $valueObj;
+            push @{$self->{valueList}}, $valueObj;
          }
 
          # since we added vanilla values
@@ -315,7 +315,7 @@ sub addValueList {
        if ($#values >= 0) {
           $self->_addValueListObj($arrayOrValueListObjRefValue);
           foreach my $valueObj (@values) {
-             push @{$self->{ValueList}}, $valueObj;
+             push @{$self->{valueList}}, $valueObj;
           }
           return 1;
        } else {
@@ -339,7 +339,7 @@ sub resetValues {
    my ($self) = @_;
 
    # free up all declared values
-   $self->{ValueList} = []; # has to be this way to avoid deep recursion 
+   $self->{valueList} = []; # has to be this way to avoid deep recursion 
 
    # no compact description allowed now 
    $self->_resetBaseValueListObjects();
@@ -384,7 +384,7 @@ sub addValue {
   return 0 unless (defined $valueObj && ref $valueObj );
 
   # add the new value to the list
-  push @{$self->{ValueList}}, $valueObj;
+  push @{$self->{valueList}}, $valueObj;
 
   # no compact description allowed now 
   $self->_resetBaseValueListObjects();
@@ -399,7 +399,7 @@ sub addValue {
 # */
 sub removeValue {
   my ($self, $indexOrObjectRef) = @_;
-  my $success = $self->_remove_from_list($indexOrObjectRef, $self->{ValueList}, 'valueList');
+  my $success = $self->_remove_from_list($indexOrObjectRef, $self->{valueList}, 'valueList');
   if ($success) {
      # no compact description allowed now 
      $self->_resetBaseValueListObjects();
@@ -417,7 +417,7 @@ sub addNote {
   return 0 unless defined $noteObj && ref $noteObj;
 
   # add the parameter to the list
-  push @{$self->{NoteList}}, $noteObj;
+  push @{$self->{noteList}}, $noteObj;
 
   return 1;
 
@@ -431,7 +431,7 @@ sub addNote {
 # */
 sub removeNote {
   my ($self, $what) = @_;
-  $self->_remove_from_list($what, $self->{NoteList}, 'noteList');
+  $self->_remove_from_list($what, $self->{noteList}, 'noteList');
 }
 
 # /** addUnit
@@ -440,7 +440,7 @@ sub removeNote {
 # RETURNS : 1 on success, 0 on failure.
 sub addUnit { 
    my ($self, $unitObj) = @_;
-   return $self->{Units}->addUnit($unitObj);
+   return $self->{units}->addUnit($unitObj);
 }
 
 # /** removeUnit
@@ -450,7 +450,7 @@ sub addUnit {
 # */
 sub removeUnit {
   my ($self, $unitObj) = @_;
-  return $self->{Units}->removeUnit($unitObj);
+  return $self->{units}->removeUnit($unitObj);
 }
 
 #
@@ -479,12 +479,20 @@ sub _init {
 
   $self->{_valueListGetMethodName} = "getValueList";
 
+  # adds to ordered list of XML attributes
+  $self->_appendAttribsToXMLAttribOrder(\@Class_XML_Attributes);
+
 }
 
  
 # Modification History
 #
 # $Log$
+# Revision 1.14  2001/07/23 15:58:07  thomas
+# added ability to add arbitary XML attribute to class.
+# getXMLattributes now an instance method, we
+# have old class method now called getClassXMLAttributes.
+#
 # Revision 1.13  2001/07/13 21:42:10  thomas
 # added ValueList stuff
 #

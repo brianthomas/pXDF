@@ -42,18 +42,30 @@ my @Class_Attributes = ( );
 push @Class_Attributes, @Class_XML_Attributes;
 
 # add in super class attributes
-push @Class_Attributes, @{&XDF::BaseObject::classAttributes};
+push @Class_Attributes, @{&XDF::BaseObject::getClassAttributes};
 
 # Initalization
 # set up object attributes.
 for my $attr ( @Class_Attributes ) { $field{$attr}++; }
 
 sub classXMLNodeName { 
-  $Class_XML_Node_Name; 
+  return $Class_XML_Node_Name; 
 }
 
-sub classAttributes { 
-  \@Class_Attributes; 
+# /** getClassAttributes
+#  This method returns a list reference containing the names
+#  of the class attributes of XDF::FloatDataFormat. 
+#  This method takes no arguments may not be changed. 
+# */
+sub getClassAttributes {
+  return \@Class_Attributes;
+}
+
+# /** getClassXMLAttributes
+#      This method returns the XMLAttributes of this class. 
+#  */
+sub getClassXMLAttributes {
+  return \@Class_XML_Attributes;
 }
 
 #
@@ -64,7 +76,7 @@ sub classAttributes {
 # */
 sub getLocationOrder {
    my ($self) = @_;
-   return $self->{LocationOrder};
+   return $self->{locationOrder};
 }
 
 # /** setLocationOrder
@@ -72,28 +84,28 @@ sub getLocationOrder {
 # */
 sub setLocationOrder {
    my ($self, $value) = @_;
-   $self->{LocationOrder} = $value;
+   $self->{locationOrder} = $value;
 }
 
 # /** getLocationOrderList
 # */
 sub getLocationOrderList {
    my ($self) = @_;
-   return $self->{LocationOrder}->getLocationOrderList();
+   return $self->{locationOrder}->getLocationOrderList();
 }
 
 # /** setLocationOrderList
 # */
 sub setLocationOrderList {
    my ($self, $arrayRefValue) = @_;
-   $self->{LocationOrder}->setLocationOrderList($arrayRefValue);
+   $self->{locationOrder}->setLocationOrderList($arrayRefValue);
 }
 
 # /** getNoteList
 # */
 sub getNoteList {
    my ($self) = @_;
-   return $self->{NoteList};
+   return $self->{noteList};
 }
 
 # /** setNoteList
@@ -103,14 +115,7 @@ sub setNoteList {
    my ($self, $arrayRefValue) = @_;
    # you must do it this way, or when the arrayRef changes it changes us here!
    my @list = @{$arrayRefValue};
-   $self->{NoteList} = \@list;
-}
-
-# /** getXMLAttributes
-#      This method returns the XMLAttributes of this class. 
-#  */
-sub getXMLAttributes {
-  return \@Class_XML_Attributes;
+   $self->{noteList} = \@list;
 }
 
 #
@@ -123,7 +128,7 @@ sub getXMLAttributes {
 # */
 sub addAxisIdToLocatorOrder {
    my ($self, $axisId) = @_;
-   return $self->{LocationOrder}->addAxisIdToLocatorOrder($axisId);
+   return $self->{locationOrder}->addAxisIdToLocatorOrder($axisId);
 }
 
 #/** addNote
@@ -136,7 +141,7 @@ sub addNote {
   return 0 unless defined $noteObj && ref $noteObj;
 
   # add it to our list
-  push @{$self->{NoteList}}, $noteObj;
+  push @{$self->{noteList}}, $noteObj;
 
   return 1;
 
@@ -148,7 +153,7 @@ sub addNote {
 # */
 sub removeNote {
   my ($self, $what) = @_;
-  return $self->_remove_from_list($what, $self->{NoteList}, 'noteList');
+  return $self->_remove_from_list($what, $self->{noteList}, 'noteList');
 }
 
 #
@@ -167,14 +172,23 @@ sub _init {
   my ($self) = @_;
 
   $self->SUPER::_init();
-  $self->{LocationOrder} = new XDF::NotesLocationOrder();
-  $self->{NoteList} = [];
+
+  $self->{locationOrder} = new XDF::NotesLocationOrder();
+  $self->{noteList} = [];
+
+  # adds to ordered list of XML attributes
+  $self->_appendAttribsToXMLAttribOrder(\@Class_XML_Attributes);
 
 }
 
 # Modification History
 #
 # $Log$
+# Revision 1.8  2001/07/23 15:58:07  thomas
+# added ability to add arbitary XML attribute to class.
+# getXMLattributes now an instance method, we
+# have old class method now called getClassXMLAttributes.
+#
 # Revision 1.7  2001/06/29 21:07:12  thomas
 # changed public add (and remove) methods to
 # conform to Java API standard: e.g. return boolean

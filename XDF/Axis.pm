@@ -139,7 +139,7 @@ my @Class_Attributes = qw (
 push @Class_Attributes, @Class_XML_Attributes;
 
 # add in super class attributes
-push @Class_Attributes, @{&XDF::BaseObjectWithXMLElementsAndValueList::classAttributes};
+push @Class_Attributes, @{&XDF::BaseObjectWithXMLElementsAndValueList::getClassAttributes};
 
 # Initalization
 # set up object attributes.
@@ -150,17 +150,25 @@ for my $attr ( @Class_Attributes ) { $field{$attr}++; }
 # This method takes no arguments may not be changed. 
 # */
 sub classXMLNodeName { 
-  $Class_XML_Node_Name; 
+  return $Class_XML_Node_Name; 
 }
 
-# /** classAttributes
+# /** getClassAttributes
 #  This method returns a list reference containing the names
-#  of the class attributes for XDF::Axis; 
+#  of the class attributes for this class.
 #  This method takes no arguments may not be changed. 
 # */
-sub classAttributes { 
-  \@Class_Attributes; 
+sub getClassAttributes { 
+  return \@Class_Attributes; 
 }
+
+# /** getClassXMLAttributes
+#      This method returns the XMLAttributes of this class. 
+#  */
+sub getClassXMLAttributes {
+  return \@Class_XML_Attributes;
+}
+
 
 #
 # set/get Methods
@@ -170,7 +178,7 @@ sub classAttributes {
 # */
 sub getName {
    my ($self) = @_;
-   return $self->{Name};
+   return $self->{name};
 }
 
 # /** setName
@@ -178,28 +186,28 @@ sub getName {
 # */
 sub setName {
    my ($self, $value) = @_;
-   $self->{Name} = $value;
+   $self->{name} = $value;
 }
 
 # /** getDescription
 #  */
 sub getDescription {
    my ($self) = @_;
-   return $self->{Description};
+   return $self->{description};
 }
 
 # /** setDescription
 #  */
 sub setDescription {
    my ($self, $value) = @_;
-   $self->{Description} = $value;
+   $self->{description} = $value;
 }
 
 # /** getAxisDatatype
 # */
 sub getAxisDatatype {
    my ($self) = @_;
-   return $self->{AxisDatatype};
+   return $self->{axisDatatype};
 }
 
 # /** setAxisDatatype
@@ -211,7 +219,7 @@ sub setAxisDatatype {
    carp "Cant set axisDatatype to $value, not allowed \n"
       unless (&XDF::Utility::isValidDatatype($value));
 
-   $self->{AxisDatatype} = $value;
+   $self->{axisDatatype} = $value;
 
 }
 
@@ -219,7 +227,7 @@ sub setAxisDatatype {
 # */
 sub getAxisUnits {
    my ($self) = @_;
-   return $self->{AxisUnits};
+   return $self->{axisUnits};
 }
 
 # /** setAxisUnits
@@ -227,14 +235,14 @@ sub getAxisUnits {
 # */
 sub setAxisUnits {
    my ($self, $value) = @_;
-   $self->{AxisUnits} = $value;
+   $self->{axisUnits} = $value;
 }
 
 # /** getAxisId
 # */
 sub getAxisId {
    my ($self) = @_;
-   return $self->{AxisId};
+   return $self->{axisId};
 }
 
 # /** setAxisId
@@ -242,14 +250,14 @@ sub getAxisId {
 # */
 sub setAxisId {
    my ($self, $value) = @_;
-   $self->{AxisId} = $value;
+   $self->{axisId} = $value;
 }
 
 # /** getAxisIdRef 
 # */
 sub getAxisIdRef {
    my ($self) = @_;
-   return $self->{AxisIdRef};
+   return $self->{axisIdRef};
 }
 
 # /** setAxisIdRef
@@ -257,14 +265,14 @@ sub getAxisIdRef {
 # */
 sub setAxisIdRef {
    my ($self, $value) = @_;
-   $self->{AxisIdRef} = $value;
+   $self->{axisIdRef} = $value;
 }
 
 # /** getAlign
 # */
 sub getAlign {
    my ($self) = @_;
-   return $self->{Align};
+   return $self->{align};
 }
 
 # /** setAlign
@@ -272,14 +280,14 @@ sub getAlign {
 # */
 sub setAlign {
    my ($self, $value) = @_;
-   $self->{Align} = $value;
+   $self->{align} = $value;
 }
 
 # /** getValueList
 #  */
 sub getValueList {
    my ($self) = @_;
-   return $self->{ValueList};
+   return $self->{valueList};
 }
 
 # /** setValueList
@@ -296,13 +304,6 @@ sub setValueList {
    $self->resetValues();
    $self->addValueList($arrayOrValueListObjRefValue);
 
-}
-
-# /** getXMLAttributes
-#      This method returns the XMLAttributes of this class. 
-#  */
-sub getXMLAttributes {
-  return \@Class_XML_Attributes;
 }
 
 # /** getLength
@@ -331,11 +332,11 @@ sub setAxisValue {
   return 0 unless defined $index && $index >= 0;
 
   unless (defined $valueObj ) {
-     if (defined @{$self->{ValueList}}->[$index]) {
+     if (defined @{$self->{valueList}}->[$index]) {
         # if the axisValue is presently defined, we lower
         # the length of the axis by 1
         $self->{_length} = $self->{_length} - 1;
-        @{$self->{ValueList}}->[$index] = undef;
+        @{$self->{valueList}}->[$index] = undef;
      }
 
      # no compact description allowed now 
@@ -353,7 +354,7 @@ sub setAxisValue {
 
   # if the axisValue is not presently defined, we raise
   # the length of the axis by 1
-  if (!defined @{$self->{ValueList}}->[$index]) {
+  if (!defined @{$self->{valueList}}->[$index]) {
      $self->{_length} = $self->{_length} + 1;
 
      # also means length changed, so lets update array internal datacube 
@@ -363,7 +364,7 @@ sub setAxisValue {
 
    }
 
-   @{$self->{ValueList}}->[$index] = $valueObj;
+   @{$self->{valueList}}->[$index] = $valueObj;
 
    # no compact description allowed now 
    $self->_resetBaseValueListObjects();
@@ -379,7 +380,7 @@ sub getAxisValues {
    my ($self) = @_;
 
    my @values = ();
-   foreach my $axisVal (@{$self->{ValueList}}) {
+   foreach my $axisVal (@{$self->{valueList}}) {
       next unless defined $axisVal;
       push @values, $axisVal->getValue();
    }
@@ -387,12 +388,24 @@ sub getAxisValues {
    return @values;
 }
 
+# /** getParentArray
+# */
+sub getParentArray { # PRIVATE 
+   my ($self) = @_;
+   return $self->{_parentArray};
+}
+
+# /** setParentArray
+# */
+sub setParentArray { # PRIVATE
+   my ($self, $value) = @_;
+   $self->{_parentArray} = $value;
+}
 
 
 #
 # Other Public Methods
 #
-
 
 # /** resetValues
 # The valueList (which holds either Value or UnitDirection objects) is
@@ -402,7 +415,7 @@ sub resetValues {
    my ($self) = @_;
 
    # free up all declared values
-   $self->{ValueList} = []; # has to be this way to avoid deep recursion 
+   $self->{valueList} = []; # has to be this way to avoid deep recursion 
 
    # no compact description allowed now 
    $self->_resetBaseValueListObjects();
@@ -416,38 +429,16 @@ sub resetValues {
 sub addAxisValue {
   my ($self, $valueObj ) = @_;
 
-  unless (defined $valueObj) {
-    # No point in adding an axis value w/o a value for it.
-    carp "Cannot add an AxisValue, no value specified. Ignoring request.\n"; 
-    return 0;
-  } 
 
-  # hmm. if we have a reference object, what happens?
-  # I guess this *should* become its own, new object
-  # ah the pain of it all. It would seem wiser to just
-  # NOT have reference objects at all.
+   if ($self->_addAxisValue($valueObj)) {
 
-  my $index = $self->{_length};
+      # no compact description allowed now 
+      $self->_resetBaseValueListObjects();
+      return 1;
 
-  if (defined @{$self->{ValueList}}->[$index]) {
-     # increase the size of the array by pushing
-     push @{$self->{ValueList}}, $valueObj;
-  } else {
-     # use a pre-alocated spot that is undefined
-     @{$self->{ValueList}}->[$index] = $valueObj;
-  }
+   }
 
-  # bump up the size of this axis
-  $self->{_length} = $self->{_length} + 1;
-
-  if (defined $self->{_parentArray}) {
-     $self->{_parentArray}->_updateInternalLookupIndices();
-  }
-
-  # no compact description allowed now 
-  $self->_resetBaseValueListObjects();
-
-  return 1;
+   return 0;
 
 }
 
@@ -466,10 +457,10 @@ sub addAxisUnitDirection {
   my $index = $self->{_length};
   if (defined @{$self->{ValueList}}->[$index]) {
      # increase the size of the array by pushing
-     push @{$self->{ValueList}}, $obj;
+     push @{$self->{valueList}}, $obj;
   } else {
      # use a pre-alocated spot that is undefined
-     @{$self->{ValueList}}->[$index] = $obj;
+     @{$self->{valueList}}->[$index] = $obj;
   }
 
   if (defined $self->{_parentArray}) {
@@ -502,11 +493,11 @@ sub removeAxisValue {
   return 0;
 }
 
-# /** addValueList
+# /** addAxisValueList
 # Append a list of (axis) Values held by the passed ValueListObject (or Array of Values)
 # into this Axis object.
 # */
-sub addValueList {
+sub addAxisValueList {
    my ($self, $arrayOrValueListObjRefValue) = @_;
 
    croak "axis->setAxisValueList() passed non-reference.\n"
@@ -517,7 +508,7 @@ sub addValueList {
       # you must do it this way, or when the arrayRef changes it changes us here!
       if ($#{$arrayOrValueListObjRefValue} >= 0) {
          foreach my $valueObj (@{$arrayOrValueListObjRefValue}) {
-            push @{$self->{ValueList}}, $valueObj;
+            $self->_addAxisValue($valueObj);
          }
 
          # since we added vanilla values
@@ -535,7 +526,7 @@ sub addValueList {
        if ($#values >= 0) {
           $self->_addValueListObj($arrayOrValueListObjRefValue);
           foreach my $valueObj (@values) {
-             push @{$self->{ValueList}}, $valueObj;
+             $self->_addAxisValue($valueObj);
           }
           return 1;
        } else {
@@ -557,7 +548,7 @@ sub addValueList {
 # */ 
 sub addUnit { 
    my ($self, $unitObj) = @_;
-   return $self->{AxisUnits}->addUnit($unitObj);
+   return $self->{axisUnits}->addUnit($unitObj);
 }
 
 # /** removeUnit 
@@ -566,7 +557,7 @@ sub addUnit {
 # */ 
 sub removeUnit { 
   my ($self, $indexOrObjectRef) = @_; 
-  return $self->{AxisUnits}->removeUnit($indexOrObjectRef); 
+  return $self->{axisUnits}->removeUnit($indexOrObjectRef); 
 }
 
 # /** addValueGroup 
@@ -619,8 +610,8 @@ sub getIndexFromAxisValue {
   $value = $value->getValue() if ref($valueOrValueObj);
 
   my $index;
-  foreach $index (0 .. $#{$self->{ValueList}}) {
-    my $axisValue = @{$self->{ValueList}}->[$index];
+  foreach $index (0 .. $#{$self->{valueList}}) {
+    my $axisValue = @{$self->{valueList}}->[$index];
     if (defined $axisValue && $value eq $axisValue->getValue) {
       return $index;
     }
@@ -645,44 +636,76 @@ sub _init {
 
   $self->SUPER::_init();
 
-  $self->{AxisUnits} = new XDF::Units();
-  $self->{AxisUnits}->setXMLNodeName("axisUnits");
+  $self->{axisUnits} = new XDF::Units();
+  $self->{axisUnits}->setXMLNodeName("axisUnits");
 
   $self->{_valueGroupOwnedHash} = {};
 
   # initialize lists 
-  $self->{ValueList} = [];
+  $self->{valueList} = [];
 
   # set the minimum array size (essentially the size of the axis)
   my $spec = XDF::Specification->getInstance();
-  $#{$self->{ValueList}} = $spec->getDefaultDataArraySize();
+  $#{$self->{valueList}} = $spec->getDefaultDataArraySize();
 
-  # this variable is needed because $#{$self->{ValueList}}
+  # this variable is needed because $#{$self->{valueList}}
   # is pre-allocated in prior statement, and is not necess.
   # reflective of the real axis size.
   $self->{_length} = 0;
 
   $self->{_valueListGetMethodName} = "getValueList";
 
+  # adds to ordered list of XML attributes
+  $self->_appendAttribsToXMLAttribOrder(\@Class_XML_Attributes);
+
 }
 
-# /** getParentArray
-# */
-sub getParentArray { # PRIVATE 
-   my ($self) = @_;
-   return $self->{_parentArray};
+# private routine. It doenst reset the BaseValueList objects
+# as per the public method.
+sub _addAxisValue {
+  my ($self, $valueObj ) = @_; 
+             
+  unless (defined $valueObj) {
+    # No point in adding an axis value w/o a value for it.
+    carp "Cannot add an AxisValue, no value specified. Ignoring request.\n";
+    return 0; 
+  }       
+   
+  # hmm. if we have a reference object, what happens?
+  # I guess this *should* become its own, new object
+  # ah the pain of it all. It would seem wiser to just
+  # NOT have reference objects at all.
+
+  my $index = $self->{_length};
+
+  if (defined @{$self->{valueList}}->[$index]) {
+     # increase the size of the array by pushing
+     push @{$self->{valueList}}, $valueObj;
+  } else {
+     # use a pre-alocated spot that is undefined
+     @{$self->{valueList}}->[$index] = $valueObj;
+  }
+
+  # bump up the size of this axis
+  $self->{_length} = $self->{_length} + 1;
+
+  if (defined $self->{_parentArray}) {
+     $self->{_parentArray}->_updateInternalLookupIndices();
+  }
+
+  return 1;
+
 }
 
-# /** setParentArray
-# */
-sub setParentArray { # PRIVATE
-   my ($self, $value) = @_;
-   $self->{_parentArray} = $value;
-}
 
 # Modification History
 #
 # $Log$
+# Revision 1.16  2001/07/23 15:58:07  thomas
+# added ability to add arbitary XML attribute to class.
+# getXMLattributes now an instance method, we
+# have old class method now called getClassXMLAttributes.
+#
 # Revision 1.15  2001/07/13 21:43:36  thomas
 # added methods for ValueList stuff
 #

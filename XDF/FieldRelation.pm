@@ -44,18 +44,25 @@ my @Class_Attributes = ();
 push @Class_Attributes, @Class_XML_Attributes;
 
 # add in super class attributes
-push @Class_Attributes, @{&XDF::BaseObject::classAttributes};
+push @Class_Attributes, @{&XDF::BaseObject::getClassAttributes};
 
 # Initalization
 # set up object attributes.
 for my $attr ( @Class_Attributes ) { $field{$attr}++; }
 
 sub classXMLNodeName { 
-  $Class_XML_Node_Name; 
+  return $Class_XML_Node_Name; 
 }
 
-sub classAttributes { 
-  \@Class_Attributes; 
+sub getClassAttributes { 
+  return \@Class_Attributes; 
+}
+
+# /** getClassXMLAttributes
+#      This method returns the XMLAttributes of this class. 
+#  */
+sub getClassXMLAttributes {
+  return \@Class_XML_Attributes;
 }
 
 #
@@ -66,7 +73,7 @@ sub classAttributes {
 # */
 sub getFieldIdRefs {
    my ($self) = @_;
-   return $self->{FieldIdRefs};
+   return $self->{fieldIdRefs};
 }
 
 # /** setFieldIdRefs 
@@ -74,14 +81,14 @@ sub getFieldIdRefs {
 # */
 sub setFieldIdRefs {
    my ($self, $value) = @_;
-   $self->{FieldIdRefs} = $value;
+   $self->{fieldIdRefs} = $value;
 }
 
 # /** getRole 
 # */
 sub getRole {
    my ($self) = @_;
-   return $self->{Role};
+   return $self->{role};
 }
 
 # /** setRole 
@@ -93,27 +100,37 @@ sub setRole {
    carp "Cant set role to $value, not allowed \n"
       unless (&XDF::Utility::isValidRelationRole($value));
 
-   $self->{Role} = $value;
+   $self->{role} = $value;
 }
 
 # /** getXMLAttributes
 #      This method returns the XMLAttributes of this class. 
 #  */
-sub getXMLAttributes {
-  return \@Class_XML_Attributes;
-}
+#sub getXMLAttributes {
+#  return \@Class_XML_Attributes;
+#}
 
 # /** getRelatedFieldIdRefs
 # Convience method which returns an array of related fieldIdRefs.    
 # */
 sub getRelatedFieldIdRefs {
   my ($self) = @_;
-  return split / /, $self->{FieldIdRefs};
+  return split / /, $self->{fieldIdRefs};
 }
 
 #
 # Private Methods 
 #
+
+sub _init {
+  my ($self) = @_;
+
+  $self->SUPER::_init();
+
+  # adds to ordered list of XML attributes
+  $self->_appendAttribsToXMLAttribOrder(\@Class_XML_Attributes);
+
+}
 
 # This is called when we cant find any defined method
 # exists already. Used to handle general purpose set/get
@@ -126,6 +143,11 @@ sub AUTOLOAD {
 # Modification History
 #
 # $Log$
+# Revision 1.10  2001/07/23 15:58:07  thomas
+# added ability to add arbitary XML attribute to class.
+# getXMLattributes now an instance method, we
+# have old class method now called getClassXMLAttributes.
+#
 # Revision 1.9  2001/04/25 16:01:31  thomas
 # updated documentation
 #

@@ -99,14 +99,14 @@ my @Class_XML_Attributes = qw (
 my @Class_Attributes = qw (
                           ); 
 
+# add in super class XML attributes to our list 
+push @Class_XML_Attributes, @{&XDF::Structure::getClassXMLAttributes};
+
 # add in class XML attributes
 push @Class_Attributes, @Class_XML_Attributes;
 
 # add in super class attributes
-push @Class_Attributes, @{&XDF::Structure::classAttributes};
-
-# add in super class XML attributes to our list 
-push @Class_XML_Attributes, @{&XDF::Structure::getXMLAttributes};
+push @Class_Attributes, @{&XDF::Structure::getClassAttributes};
 
 # Initalization
 # set up object attributes.
@@ -120,26 +120,41 @@ sub classXMLNodeName {
   return $Class_XML_Node_Name; 
 }
 
-# /** classAttributes
-#  This method takes no arguments may not be changed. 
+# /** getClassAttributes
 #  This method returns a list reference containing the names
-#  of the class attributes for XDF::XDF; 
+#  of the class attributes for this class.
+#  This method takes no arguments may not be changed. 
 # */
-sub classAttributes { 
-  return \@Class_Attributes; 
+sub getClassAttributes {
+  return \@Class_Attributes;
+}
+
+# /** getClassXMLAttributes
+#      This method returns the XMLAttributes of this class. 
+#  */
+sub getClassXMLAttributes {
+  return \@Class_XML_Attributes;
 }
 
 # 
 # SET/GET Methods
 #
 
-# /** getXMLAttributes
-#      This method returns the XMLAttributes of this class. 
-#  */
-sub getXMLAttributes { 
-  return \@Class_XML_Attributes; 
+# /** getType
+# */
+sub getType {
+   my ($self) = @_;
+   return $self->{type};
 }
-  
+
+# /** setType
+# */
+sub setType {
+   my ($self, $value) = @_;
+   $self->{type} = $value;
+}
+
+
 #
 # Other Public Methods 
 #
@@ -212,6 +227,9 @@ sub _init {
   
   $self->SUPER::_init(); 
 
+  # adds to ordered list of XML attributes
+  $self->_appendAttribsToXMLAttribOrder(\@Class_XML_Attributes);
+
 }
 
 sub _write_XML_decl_to_file_handle {
@@ -275,6 +293,11 @@ sub _write_XML_decl_to_file_handle {
 # Modification History
 #
 # $Log$
+# Revision 1.3  2001/07/23 15:58:07  thomas
+# added ability to add arbitary XML attribute to class.
+# getXMLattributes now an instance method, we
+# have old class method now called getClassXMLAttributes.
+#
 # Revision 1.2  2001/07/17 17:39:45  thomas
 # fine tuning to loadFromXDFFile method. Improved
 # documentation on toXMLFileHandle method.

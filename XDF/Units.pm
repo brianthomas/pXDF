@@ -48,7 +48,7 @@ my @Class_Attributes = qw (
 push @Class_Attributes, @Class_XML_Attributes;
 
 # add in super class attributes
-push @Class_Attributes, @{&XDF::BaseObject::classAttributes};
+push @Class_Attributes, @{&XDF::BaseObject::getClassAttributes};
 
 # Initalization
 # set up object attributes.
@@ -63,11 +63,23 @@ sub classNoUnitChildNodeName {
 }
 
 sub classXMLNodeName { 
-  $Class_XML_Node_Name; 
+  return $Class_XML_Node_Name; 
 }
 
-sub classAttributes { 
-  \@Class_Attributes; 
+# /** getClassAttributes
+#  This method returns a list reference containing the names
+#  of the class attributes for this class.
+#  This method takes no arguments may not be changed. 
+# */
+sub getClassAttributes {
+  return \@Class_Attributes;
+}
+
+# /** getClassXMLAttributes
+#      This method returns the XMLAttributes of this class. 
+#  */
+sub getClassXMLAttributes {
+  return \@Class_XML_Attributes;
 }
 
 #
@@ -78,7 +90,7 @@ sub classAttributes {
 # */
 sub getFactor {
    my ($self) = @_;
-   return $self->{Factor};
+   return $self->{factor};
 }
 
 # /** setFactor
@@ -86,14 +98,14 @@ sub getFactor {
 # */
 sub setFactor {
    my ($self, $value) = @_;
-   $self->{Factor} = $value;
+   $self->{factor} = $value;
 }
 
 # /** getSystem
 # */
 sub getSystem {
    my ($self) = @_;
-   return $self->{System};
+   return $self->{system};
 }
 
 # /** setSystem
@@ -101,14 +113,14 @@ sub getSystem {
 # */
 sub setSystem {
    my ($self, $value) = @_;
-   $self->{System} = $value;
+   $self->{system} = $value;
 }
 
 # /** getLogarithm
 # */
 sub getLogarithm {
    my ($self) = @_;
-   return $self->{Logarithm};
+   return $self->{logarithm};
 }
 
 # /** setLogarithm
@@ -120,14 +132,14 @@ sub setLogarithm {
      carp "Cant set units logarithm to $value, not allowed \n"; 
      return;
    }
-   $self->{Logarithm} = $value;
+   $self->{logarithm} = $value;
 }
 
 # /** getUnitList
 # */
 sub getUnitList {
    my ($self) = @_;
-   return $self->{UnitList};
+   return $self->{unitList};
 }
 
 # /** setUnitList
@@ -137,7 +149,7 @@ sub setUnitList {
    my ($self, $arrayRefValue) = @_;
    # you must do it this way, or when the arrayRef changes it changes us here!
    my @list = @{$arrayRefValue};
-   $self->{UnitList} = \@list;
+   $self->{unitList} = \@list;
 }
 
 # /** getXMLNodeName
@@ -164,7 +176,7 @@ sub getValue {
 
   $string .= $self->getFactor() if defined $self->getFactor();
 
-  foreach my $unitObj (@{$self->{UnitList}}) {
+  foreach my $unitObj (@{$self->{unitList}}) {
     $string .= $unitObj->getValue();
     $string .= "**" . $unitObj->getPower() if ref($unitObj) !~ m/Unitless/ and defined $unitObj->getPower();
     $string .= " ";
@@ -180,14 +192,7 @@ sub getValue {
 # */
 sub getUnits {
   my ($self) = @_;
-  return @{$self->{UnitList}};
-}
-
-# /** getXMLAttributes
-#      This method returns the XMLAttributes of this class. 
-#  */
-sub getXMLAttributes {
-  return \@Class_XML_Attributes;
+  return @{$self->{unitList}};
 }
 
 #
@@ -204,7 +209,7 @@ sub addUnit {
   return 0 unless defined $unitObj && ref $unitObj;
 
   # add it to our list
-  push @{$self->{UnitList}}, $unitObj;
+  push @{$self->{unitList}}, $unitObj;
 
   return 1;
 
@@ -216,7 +221,7 @@ sub addUnit {
 #*/
 sub removeUnit {
   my ($self, $what) = @_;
-  return $self->_remove_from_list($what, $self->{UnitList}, 'unitList');
+  return $self->_remove_from_list($what, $self->{unitList}, 'unitList');
 }
 
 sub toXMLFileHandle {
@@ -240,14 +245,25 @@ sub AUTOLOAD {
 
 sub _init {
   my ($self) = @_;
+
   $self->SUPER::_init();
-  $self->{UnitList} = [];
+
+  $self->{unitList} = [];
   $self->{XMLNodeName} = $Class_XML_Node_Name;
+  
+  # adds to ordered list of XML attributes
+  $self->_appendAttribsToXMLAttribOrder(\@Class_XML_Attributes);
+
 }
 
 # Modification History
 #
 # $Log$
+# Revision 1.12  2001/07/23 15:58:07  thomas
+# added ability to add arbitary XML attribute to class.
+# getXMLattributes now an instance method, we
+# have old class method now called getClassXMLAttributes.
+#
 # Revision 1.11  2001/06/29 21:07:12  thomas
 # changed public add (and remove) methods to
 # conform to Java API standard: e.g. return boolean

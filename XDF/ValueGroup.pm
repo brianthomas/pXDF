@@ -44,6 +44,7 @@ package XDF::ValueGroup;
 
 use Carp;
 use XDF::Group;
+use XDF::BaseObject;
 
 use strict;
 use integer;
@@ -51,6 +52,7 @@ use integer;
 use vars qw ($AUTOLOAD %field @ISA);
 
 # inherits from XDF::BaseObject and XDF::GroupObject
+#@ISA = ("XDF::Group", "XDF::BaseObject");
 @ISA = ("XDF::Group");
 
 # CLASS DATA
@@ -59,8 +61,8 @@ my @Class_XML_Attributes = ();
 my @Class_Attributes = ();
 
 # add in super class attributes
-push @Class_Attributes, @{&XDF::Group::classAttributes};
-push @Class_XML_Attributes, @{&XDF::Group::getXMLAttributes};
+push @Class_Attributes, @{&XDF::Group::getClassAttributes};
+push @Class_XML_Attributes, @{&XDF::Group::getClassXMLAttributes};
 
 # Initalization
 # set up object attributes.
@@ -71,29 +73,30 @@ for my $attr ( @Class_Attributes ) { $field{$attr}++; }
 # This method takes no arguments may not be changed. 
 # */
 sub classXMLNodeName {
-  $Class_XML_Node_Name;
+  return $Class_XML_Node_Name;
 }
 
-# /** classAttributes
+# /** getClassAttributes
 #  This method returns a list reference containing the names
-#  of the class attributes for XDF::FieldGroup; 
+#  of the class attributes for this class.
 #  This method takes no arguments may not be changed. 
 # */
-sub classAttributes {
-  \@Class_Attributes;
+sub getClassAttributes {
+  return \@Class_Attributes;
 }
+
+# /** getClassXMLAttributes
+#      This method returns the XMLAttributes of this class. 
+#  */
+sub getClassXMLAttributes {
+  return \@Class_XML_Attributes;
+}
+
 
 #
 # Set/Get Methods
 #
 
-# /** getXMLAttributes
-#      This method returns the XMLAttributes of this class. 
-#  */
-sub getXMLAttributes {
-  return \@Class_XML_Attributes; 
-}   
-  
 #   
 # Other Public Methods 
 # 
@@ -122,6 +125,16 @@ sub removeValueGroup {
 # Private Methods
 #
 
+sub _init {
+  my ($self) = @_;
+  
+  $self->SUPER::_init();
+  
+  # adds to ordered list of XML attributes
+  $self->_appendAttribsToXMLAttribOrder(\@Class_XML_Attributes);
+
+}
+
 # This is called when we cant find any defined method
 # exists already. Used to handle general purpose set/get
 # methods for our attributes (object fields).
@@ -133,6 +146,11 @@ sub AUTOLOAD {
 # Modification History
 #
 # $Log$
+# Revision 1.11  2001/07/23 15:58:07  thomas
+# added ability to add arbitary XML attribute to class.
+# getXMLattributes now an instance method, we
+# have old class method now called getClassXMLAttributes.
+#
 # Revision 1.10  2001/07/06 18:23:21  thomas
 # bug fix: xmlAttributes not correctly specified.
 #

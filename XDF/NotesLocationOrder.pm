@@ -39,18 +39,30 @@ my @Class_Attributes = ( );
 push @Class_Attributes, @Class_XML_Attributes;
 
 # add in super class attributes
-push @Class_Attributes, @{&XDF::BaseObject::classAttributes};
+push @Class_Attributes, @{&XDF::BaseObject::getClassAttributes};
 
 # Initalization
 # set up object attributes.
 for my $attr ( @Class_Attributes ) { $field{$attr}++; }
 
 sub classXMLNodeName { 
-  $Class_XML_Node_Name; 
+  return $Class_XML_Node_Name; 
 }
 
-sub classAttributes { 
-  \@Class_Attributes; 
+# /** getClassAttributes
+#  This method returns a list reference containing the names
+#  of the class attributes of XDF::FloatDataFormat. 
+#  This method takes no arguments may not be changed. 
+# */
+sub getClassAttributes {
+  return \@Class_Attributes;
+}
+
+# /** getClassXMLAttributes
+#      This method returns the XMLAttributes of this class. 
+#  */
+sub getClassXMLAttributes {
+  return \@Class_XML_Attributes;
 }
 
 #
@@ -61,7 +73,7 @@ sub classAttributes {
 # */
 sub getLocationOrderList {
    my ($self) = @_;
-   return $self->{LocationOrderList};
+   return $self->{locationOrderList};
 }
 
 # /** setLocationOrderList
@@ -71,15 +83,15 @@ sub setLocationOrderList {
    my ($self, $arrayRefValue) = @_;
    # you must do it this way, or when the arrayRef changes it changes us here!
    my @list = @{$arrayRefValue};
-   $self->{LocationOrderList} = \@list;
+   $self->{locationOrderList} = \@list;
 }
 
 # /** getXMLAttributes
 #      This method returns the XMLAttributes of this class. 
 #  */
-sub getXMLAttributes {
-  return \@Class_XML_Attributes;
-}
+#sub getXMLAttributes {
+#  return \@Class_XML_Attributes;
+#}
 
 #
 # Other Public Methods
@@ -94,7 +106,7 @@ sub addAxisIdToLocatorOrder {
 
    return 0 unless defined $axisId && !ref $axisId;
 
-   push @{$self->{LocationOrderList}}, $axisId;
+   push @{$self->{locationOrderList}}, $axisId;
 
    return 1;
 }
@@ -133,7 +145,7 @@ sub toXMLFileHandle {
 
   # print out index sub-nodes
   my $indexIndent = $indent . $spec->getPrettyXDFOutputIndentation;
-  foreach my $indexNodeAxisIdRef (@{$self->{LocationOrderList}}) {
+  foreach my $indexNodeAxisIdRef (@{$self->{locationOrderList}}) {
      print $fileHandle $indexIndent if $Pretty_XDF_Output;
     # next 3 lines: have to break up printing of '"' or toXMLString will behave badly
      print $fileHandle "<index axisIdRef=\"";
@@ -164,15 +176,24 @@ sub AUTOLOAD {
 
 sub _init {
   my ($self) = @_;
+
   $self->SUPER::_init();
 
-  $self->{LocationOrderList} = [];
+  $self->{locationOrderList} = [];
+
+  # adds to ordered list of XML attributes
+  $self->_appendAttribsToXMLAttribOrder(\@Class_XML_Attributes);
 
 }
 
 # Modification History
 #
 # $Log$
+# Revision 1.10  2001/07/23 15:58:07  thomas
+# added ability to add arbitary XML attribute to class.
+# getXMLattributes now an instance method, we
+# have old class method now called getClassXMLAttributes.
+#
 # Revision 1.9  2001/06/29 21:07:12  thomas
 # changed public add (and remove) methods to
 # conform to Java API standard: e.g. return boolean

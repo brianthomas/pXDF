@@ -37,31 +37,36 @@ my @Class_XML_Attributes = ( );
 my @Class_Attributes = ( );
 
 # add in super class attributes
-push @Class_Attributes, @{&XDF::FormattedIOCmd::classAttributes};
-push @Class_XML_Attributes, @{&XDF::FormattedIOCmd::getXMLAttributes};
+push @Class_Attributes, @{&XDF::FormattedIOCmd::getClassAttributes};
+push @Class_XML_Attributes, @{&XDF::FormattedIOCmd::getClassXMLAttributes};
 
 # Initalization
 # set up object attributes.
 for my $attr ( @Class_Attributes ) { $field{$attr}++; }
 
 sub classXMLNodeName { 
-  $Class_XML_Node_Name; 
+  return $Class_XML_Node_Name; 
 }
 
-sub classAttributes { 
-  \@Class_Attributes; 
+# /** getClassAttributes
+#  This method returns a list reference containing the names
+#  of the class attributes of XDF::FloatDataFormat. 
+#  This method takes no arguments may not be changed. 
+# */
+sub getClassAttributes {
+  return \@Class_Attributes;
+}
+
+# /** getClassXMLAttributes
+#      This method returns the XMLAttributes of this class. 
+#  */
+sub getClassXMLAttributes {
+  return \@Class_XML_Attributes;
 }
 
 #
 # Get/Set Methods
 #
-
-# /** getXMLAttributes
-#      This method returns the XMLAttributes of this class. 
-#  */
-sub getXMLAttributes {
-  return \@Class_XML_Attributes;
-}
 
 #
 # Private MEthods
@@ -90,9 +95,28 @@ sub _sprintfNotation {
   my ($self, $listRef) = @_;
 }
 
+#
+# private methods
+#
+
+sub _init {
+  my ($self) = @_;
+  
+  $self->SUPER::_init();
+ 
+  # adds to ordered list of XML attributes
+  $self->_appendAttribsToXMLAttribOrder(\@Class_XML_Attributes);
+
+}
+
 # Modification History
 #
 # $Log$
+# Revision 1.10  2001/07/23 15:58:07  thomas
+# added ability to add arbitary XML attribute to class.
+# getXMLattributes now an instance method, we
+# have old class method now called getClassXMLAttributes.
+#
 # Revision 1.9  2001/04/25 16:01:31  thomas
 # updated documentation
 #

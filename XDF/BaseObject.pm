@@ -81,28 +81,105 @@ my $PCDATA_ATTRIBUTE = &XDF::Constants::getPCDATAAttribute;
 my @Class_Attributes = qw (
                              _openGroupNodeHash
                              _groupMemberHash
+                             _hasXMLAttribHash
+                             _XMLAttribOrder
                           );
 
 my @Class_XML_Attributes = qw (
                               );
 
 # add in super class attributes
-push @Class_Attributes, @{&XDF::GenericObject::classAttributes};
+push @Class_Attributes, @{&XDF::GenericObject::getClassAttributes};
 
 # Initalization - set up object attributes.
 for my $attr ( @Class_Attributes ) { $field{$attr}++; }
 
-# /** classAttributes
+# /** getClassAttributes
 #  This method returns a list reference containing the names
 #  of the class attributes for this object;
 #  This method takes no arguments may not be changed. 
 # */
-sub classAttributes { 
+sub getClassAttributes { 
   return \@Class_Attributes; 
 }
 
+#/** getClassXMLAttributes
+# Return a list ref of the XML attributes for this class.
+#*/
+sub getClassXMLAttributes {
+  return \@Class_XML_Attributes; 
+}
+
+#/** getXMLAttributes
+# Return a list reference of the XML attributes held by this object. 
+# This list *may* differ from that returned by getClassXMLAttributes
+# as new, user-defined Attributes may have been added to this instance. 
+#*/
 sub getXMLAttributes {
-  return \@Class_XML_Attributes;
+  my ($self) = @_;
+  return $self->{_XMLAttribOrder};
+}
+
+# /** setXMLAttributes
+#   Set the XML attributes of this object using a passed Hashtable ref.
+# */
+sub setXMLAttributes { 
+  my ($self, $attribHashRef) = @_;
+  while (my ($attrib, $value) = each (%{$attribHashRef}) ) {
+     $self->setXMLAttribute($attrib,$value);
+  }
+}
+
+sub setXMLAttribute {
+   my ($self, $attrib, $value) = @_;
+
+   return unless (defined $attrib);
+
+   die "Cannot set private XML attribute (starts with underscore)\n"
+      if ($attrib =~ m/^_/);
+
+   if (exists $self->{_hasXMLAttribHash}{$attrib}) {
+      $self->{$attrib} = $value; # set the attribute value 
+   } else {
+      $self->addXMLAttribute($attrib,$value);
+   }
+
+}
+
+sub addXMLAttribute {
+   my ($self, $attrib, $value) = @_;
+
+   return 0 unless (defined $attrib);
+
+   die "Cannot add private XML attribute (starts with underscore)\n"
+      if ($attrib =~ m/^_/);
+
+   if (!exists $self->{_hasXMLAttribHash}{$attrib}) {
+
+      $self->{_hasXMLAttribHash}{$attrib} = 1;
+
+      $self->{$attrib} = $value; # set the attribute value 
+
+      # append onto order list
+      push @{$self->{_XMLAttribOrder}}, $attrib;
+
+      return 1;      
+
+   } else {
+      carp "$attrib already exists within $self, cannot addXMLAttribute, Ignoring";
+      return 0;      
+   }
+
+}
+
+sub _appendAttribsToXMLAttribOrder {
+  my ($self, $listRef) = @_;
+
+  foreach my $attrib (@$listRef) { 
+     $self->{_hasXMLAttribHash}{$attrib} = 1;
+     push @{$self->{_XMLAttribOrder}}, $attrib;
+  }
+
 }
 
 #
@@ -157,16 +234,6 @@ sub isGroupMember {
   my ($self, $groupObj) = @_;
   return unless defined $groupObj && ref $groupObj;
   return exists %{$self->{_groupMemberHash}}->{$groupObj} ? 1 : undef;
-}
-
-# /** setXMLAttributes
-#   Set the XML attributes of this object using a passed Hashtable ref.
-# */
-sub setXMLAttributes { 
-  my ($self, $attribHashRef) = @_;
-  while (my ($attrib, $value) = each (%{$attribHashRef}) ) { 
-     $self->{ucfirst $attrib} = $value; # set the attribute value 
-  }
 }
 
 # /** toXMLFileHandle
@@ -355,7 +422,7 @@ sub _printAttributes {
 
   foreach my $attrib (@{$listRef}) {
     next if $attrib =~ /^_/;
-    my $val = $self->{ucfirst $attrib};
+    my $val = $self->{$attrib};
     if ($replaceNewlineWithEntityInOutputAttribute && $val) {
        $val =~ s/\n/&#10;/g; # newline gets entity 
        $val =~ s/\r/&#13;/g; # carriage return gets entity 
@@ -376,13 +443,13 @@ sub _getXMLInfo {
   my @objList = ();
   my @attribs;
 
-  #foreach my $attrib (@{$self->classAttributes}) {
+  #foreach my $attrib (@{$self->getClassXMLAttributes}) {
   foreach my $attrib (@{$self->getXMLAttributes}) {
     # DONT show private attributes (which have a leading underscore)
     #next if $attrib =~ m/XMLNodeName/;
     #next if $attrib =~ m/^_/;
     
-    my $val = $self->{ucfirst $attrib}; # get attribute value 
+    my $val = $self->{$attrib}; # get attribute value 
     next unless defined $val;
 
     if (ref $val) {
@@ -455,6 +522,11 @@ sub _init {
 
   $self->{_openGroupNodeHash} = {}; # used only by toXMLFileHandle
   $self->{_groupMemberHash} = {}; # init of groupMember Hash (all objects have) 
+  $self->{_hasXMLAttribHash} = {}; # init of xmlAttributes of this object
+  $self->{_XMLAttribOrder} = []; # init of xmlAttribute order of this object
+
+  # adds to ordered list of XML attributes
+  $self->_appendAttribsToXMLAttribOrder(\@Class_XML_Attributes);
 
 }
 
@@ -509,6 +581,11 @@ sub READLINE {
 # Modification History
 #
 # $Log$
+# Revision 1.19  2001/07/23 15:58:07  thomas
+# added ability to add arbitary XML attribute to class.
+# getXMLattributes now an instance method, we
+# have old class method now called getClassXMLAttributes.
+#
 # Revision 1.18  2001/07/17 17:36:55  thomas
 # moved writeXMLDecl. and DOCTYPE to XDF.pm class. removed isRootNode var
 # on toXMLFileHandle method.

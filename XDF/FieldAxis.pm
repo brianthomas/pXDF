@@ -80,7 +80,7 @@ my @Class_Attributes = qw (
 push @Class_Attributes, @Class_XML_Attributes;
 
 # add in super class attributes
-push @Class_Attributes, @{&XDF::BaseObject::classAttributes};
+push @Class_Attributes, @{&XDF::BaseObject::getClassAttributes};
 
 # /** name
 # The STRING description (short name) of this object.
@@ -116,19 +116,25 @@ for my $attr ( @Class_Attributes ) { $field{$attr}++; }
 # This method takes no arguments may not be changed. 
 # */
 sub classXMLNodeName {
-
-  $Class_Node_Name;
+  return $Class_Node_Name;
 }
 
-# /** classAttributes
+# /** getClassAttributes
 #  This method returns a list reference containing the names
 #  of the class attributes for XDF::FieldAxis; 
 #  This method takes no arguments may not be changed. 
 # */
-sub classAttributes {
-  
-  \@Class_Attributes;
+sub getClassAttributes {
+  return \@Class_Attributes;
 }
+
+# /** getClassXMLAttributes
+#      This method returns the XMLAttributes of this class. 
+#  */
+sub getClassXMLAttributes {
+  return \@Class_XML_Attributes;
+}
+
 
 #
 # set/get Methods
@@ -138,7 +144,7 @@ sub classAttributes {
 # */
 sub getName {
    my ($self) = @_;
-   return $self->{Name};
+   return $self->{name};
 }
 
 # /** setName
@@ -146,21 +152,21 @@ sub getName {
 # */
 sub setName {
    my ($self, $value) = @_;
-   $self->{Name} = $value;
+   $self->{name} = $value;
 }
 
 # /** getDescription
 #  */
 sub getDescription {
    my ($self) = @_;
-   return $self->{Description};
+   return $self->{description};
 }
 
 # /** setDescription
 #  */
 sub setDescription {
    my ($self, $value) = @_;
-   $self->{Description} = $value;
+   $self->{description} = $value;
 }
 
 # /** getDataFormatList
@@ -188,7 +194,7 @@ sub getDataFormatList {
 # */
 sub getAxisId {
    my ($self) = @_;
-   return $self->{AxisId};
+   return $self->{axisId};
 }
 
 # /** setAxisId
@@ -196,14 +202,14 @@ sub getAxisId {
 # */
 sub setAxisId {
    my ($self, $value) = @_;
-   $self->{AxisId} = $value;
+   $self->{axisId} = $value;
 }
 
 # /** getAxisIdRef 
 # */
 sub getAxisIdRef {
    my ($self) = @_;
-   return $self->{AxisIdRef};
+   return $self->{axisIdRef};
 }
 
 # /** setAxisIdRef
@@ -211,14 +217,14 @@ sub getAxisIdRef {
 # */
 sub setAxisIdRef {
    my ($self, $value) = @_;
-   $self->{AxisIdRef} = $value;
+   $self->{axisIdRef} = $value;
 }
 
 # /** getAlign
 # */
 sub getAlign {
    my ($self) = @_;
-   return $self->{Align};
+   return $self->{align};
 }
 
 # /** setAlign
@@ -226,14 +232,14 @@ sub getAlign {
 # */
 sub setAlign {
    my ($self, $value) = @_;
-   $self->{Align} = $value;
+   $self->{align} = $value;
 }
 
 # /** getFieldList
 #  */
 sub getFieldList {
    my ($self) = @_;
-   return $self->{FieldList};
+   return $self->{fieldList};
 }
 
 # /** setFieldList
@@ -242,15 +248,15 @@ sub setFieldList {
    my ($self, $arrayRefValue) = @_;
    # you must do it this way, or when the arrayRef changes it changes us here!
    my @list = @{$arrayRefValue};
-   $self->{FieldList} = \@list;
+   $self->{fieldList} = \@list;
 }
 
 # /** getXMLAttributes
 #      This method returns the XMLAttributes of this class. 
 #  */
-sub getXMLAttributes {
-  return \@Class_XML_Attributes;
-}
+#sub getXMLAttributes {
+#  return \@Class_XML_Attributes;
+#}
 
 # /** getLength
 # return the length of this field axis (eg number of field objects) 
@@ -279,12 +285,12 @@ sub addField {
 
   my $index = $self->{_length};
 
-  if (defined @{$self->{FieldList}}->[$index]) {
+  if (defined @{$self->{fieldList}}->[$index]) {
      # increase the size of the array by pushing
-     push @{$self->{FieldList}}, $fieldObj;
+     push @{$self->{fieldList}}, $fieldObj;
   } else {
      # use a pre-alocated spot that is undefined
-     @{$self->{FieldList}}->[$index] = $fieldObj;
+     @{$self->{fieldList}}->[$index] = $fieldObj;
   }
 
   # bump up the size of this axis
@@ -295,7 +301,7 @@ sub addField {
   }
 
   # add the parameter to the list
-#  push @{$self->{FieldList}}, $fieldObj;
+#  push @{$self->{fieldList}}, $fieldObj;
 
   return 1;
 
@@ -307,7 +313,7 @@ sub addField {
 sub getField {
   my ($self, $index) = @_;
   return unless defined $index && $index >= 0;
-  return @{$self->{FieldList}}->[$index];
+  return @{$self->{fieldList}}->[$index];
 }
 
 # /** getFields
@@ -318,7 +324,7 @@ sub getField {
 sub getFields { 
   my ($self) = @_; 
   my @list;
-  foreach my $field (@{$self->{FieldList}}) {
+  foreach my $field (@{$self->{fieldList}}) {
     push @list, $field if defined $field;
   }
   return @list;
@@ -338,18 +344,18 @@ sub setField {
 
   # removing a value (setting to 'undef')
   unless (defined $fieldObjectRef) {
-     if (defined @{$self->{FieldList}}->[$index]) {
+     if (defined @{$self->{fieldList}}->[$index]) {
         # if the field at that location is presently defined, we lower
         # the length of the field axis by 1
         $self->{_length}--;
-        @{$self->{FieldList}}->[$index] = undef;
+        @{$self->{fieldList}}->[$index] = undef;
      }
      return;
   }
 
   # if a field is not presently defined at the indicated location
   # we raise the length of the axis by 1
-  if (!defined @{$self->{FieldList}}->[$index]) {
+  if (!defined @{$self->{fieldList}}->[$index]) {
      $self->{_length}++;
     
      # also means that length changed, so we need to update this too
@@ -360,9 +366,9 @@ sub setField {
   }
 
   # add the field
-  @{$self->{FieldList}}->[$index] = $fieldObjectRef;
+  @{$self->{fieldList}}->[$index] = $fieldObjectRef;
 
-#  splice @{$self->{FieldList}}, $index, 1, $fieldObjectRef; 
+#  splice @{$self->{fieldList}}, $index, 1, $fieldObjectRef; 
   return $fieldObjectRef;
 }
 
@@ -375,7 +381,7 @@ sub setField {
 sub removeField {
   my ($self, $fieldObj) = @_;
 
-  if ($self->_remove_from_list($fieldObj, $self->{FieldList}, 'fieldList')) {
+  if ($self->_remove_from_list($fieldObj, $self->{fieldList}, 'fieldList')) {
 
      $self->{_length}--;
 
@@ -436,14 +442,18 @@ sub _init {
   $self->SUPER::_init();
 
   # initialize lists
-  $self->{FieldList} = [];
+  $self->{fieldList} = [];
   $self->{_fieldGroupOwnedHash} = {};
 
   # set the minimum array size (essentially the size of the axis)
   my $spec= XDF::Specification->getInstance();
-  $#{$self->{FieldList}} = $spec->getDefaultDataArraySize();
+  $#{$self->{fieldList}} = $spec->getDefaultDataArraySize();
 
   $self->{_length} = 0;
+
+  # adds to ordered list of XML attributes
+  $self->_appendAttribsToXMLAttribOrder(\@Class_XML_Attributes);
+
 
 }
 
@@ -466,6 +476,11 @@ sub setParentArray { # PRIVATE
 # Modification History
 #
 # $Log$
+# Revision 1.14  2001/07/23 15:58:07  thomas
+# added ability to add arbitary XML attribute to class.
+# getXMLattributes now an instance method, we
+# have old class method now called getClassXMLAttributes.
+#
 # Revision 1.13  2001/06/29 21:07:12  thomas
 # changed public add (and remove) methods to
 # conform to Java API standard: e.g. return boolean

@@ -138,10 +138,10 @@ my @Class_Attributes = ();
 push @Class_Attributes, @Class_XML_Attributes;
 
 # add in super class attributes
-push @Class_Attributes, @{&XDF::BaseObjectWithXMLElements::classAttributes};
+push @Class_Attributes, @{&XDF::BaseObjectWithXMLElements::getClassAttributes};
 
 # add in super class XML attributes to our list 
-push @Class_XML_Attributes, @{&XDF::BaseObjectWithXMLElements::getXMLAttributes};
+push @Class_XML_Attributes, @{&XDF::BaseObjectWithXMLElements::getClassXMLAttributes};
 
 # Initalization
 # set up object attributes.
@@ -160,7 +160,7 @@ sub classXMLNodeName {
 #  of the class attributes of XDF::Field. 
 #  This method takes no arguments may not be changed. 
 # */
-sub classAttributes {
+sub getClassAttributes {
   \@Class_Attributes;
 }
 
@@ -172,7 +172,7 @@ sub classAttributes {
 # */
 sub getName{
    my ($self) = @_;
-   return $self->{Name};
+   return $self->{name};
 }
 
 # /** setName
@@ -180,14 +180,14 @@ sub getName{
 # */
 sub setName {
    my ($self, $value) = @_;
-   $self->{Name} = $value;
+   $self->{name} = $value;
 }
 
 # /** getDescription
 # */
 sub getDescription{
    my ($self) = @_;
-   return $self->{Description};
+   return $self->{description};
 }
 
 # /** setDescription
@@ -195,14 +195,14 @@ sub getDescription{
 # */
 sub setDescription {
    my ($self, $value) = @_;
-   $self->{Description} = $value;
+   $self->{description} = $value;
 }
 
 # /** getFieldId
 # */
 sub getFieldId{
    my ($self) = @_;
-   return $self->{FieldId};
+   return $self->{fieldId};
 }
 
 # /** setFieldId
@@ -210,14 +210,14 @@ sub getFieldId{
 # */
 sub setFieldId {
    my ($self, $value) = @_;
-   $self->{FieldId} = $value;
+   $self->{fieldId} = $value;
 }
 
 # /** getFieldIdRef
 # */
 sub getFieldIdRef{
    my ($self) = @_;
-   return $self->{FieldIdRef};
+   return $self->{fieldIdRef};
 }
 
 # /** setFieldIdRef
@@ -225,14 +225,14 @@ sub getFieldIdRef{
 # */
 sub setFieldIdRef {
    my ($self, $value) = @_;
-   $self->{FieldIdRef} = $value;
+   $self->{fieldIdRef} = $value;
 }
 
 # /** getClass
 # */
 sub getClass {
    my ($self) = @_;
-   return $self->{Class};
+   return $self->{class};
 }
 
 # /** setClass
@@ -240,14 +240,14 @@ sub getClass {
 # */
 sub setClass {
    my ($self, $value) = @_;
-   $self->{Class} = $value;
+   $self->{class} = $value;
 }
 
 # /** getLessThanValue
 # */
 sub getLessThanValue {
    my ($self) = @_;
-   return $self->{LessThanValue};
+   return $self->{lessThanValue};
 }
 
 # /** setLessThanValue
@@ -255,14 +255,14 @@ sub getLessThanValue {
 # */
 sub setLessThanValue {
    my ($self, $value) = @_;
-   $self->{LessThanValue} = $value;
+   $self->{lessThanValue} = $value;
 }
 
 # /** getLessThanOrEqualValue
 # */
 sub getLessThanOrEqualValue {
    my ($self) = @_;
-   return $self->{LessThanOrEqualValue};
+   return $self->{lessThanOrEqualValue};
 }
 
 # /** setLessThanOrEqualValue
@@ -270,12 +270,12 @@ sub getLessThanOrEqualValue {
 # */
 sub setLessThanOrEqualValue {
    my ($self, $value) = @_;
-   $self->{LessThanOrEqualValue} = $value;
+   $self->{lessThanOrEqualValue} = $value;
 }
 
 sub getGreaterThanValue {
    my ($self) = @_;
-   return $self->{GreaterThanValue};
+   return $self->{greaterThanValue};
 }
 
 # /** setGreaterThanValue
@@ -283,14 +283,14 @@ sub getGreaterThanValue {
 # */
 sub setGreaterThanValue {
    my ($self, $value) = @_;
-   $self->{GreaterThanValue} = $value;
+   $self->{greaterThanValue} = $value;
 }
 
 # /** getGreaterThanOrEqualValue
 # */
 sub getGreaterThanOrEqualValue {
    my ($self) = @_;
-   return $self->{GreaterThanOrEqualValue};
+   return $self->{greaterThanOrEqualValue};
 }
 
 # /** setGreaterThanOrEqualValue
@@ -298,14 +298,14 @@ sub getGreaterThanOrEqualValue {
 # */
 sub setGreaterThanOrEqualValue {
    my ($self, $value) = @_;
-   $self->{GreaterThanOrEqualValue} = $value;
+   $self->{greaterThanOrEqualValue} = $value;
 }
 
 # /** getInfiniteValue
 # */
 sub getInfiniteValue {
    my ($self) = @_;
-   return $self->{InfiniteValue};
+   return $self->{infiniteValue};
 }
 
 # /** setInfiniteValue
@@ -313,14 +313,14 @@ sub getInfiniteValue {
 # */
 sub setInfiniteValue {
    my ($self, $value) = @_;
-   $self->{InfiniteValue} = $value;
+   $self->{infiniteValue} = $value;
 }
 
 # /** getInfiniteNegativeValue
 # */
 sub getInfiniteNegativeValue {
    my ($self) = @_;
-   return $self->{InfiniteNegativeValue};
+   return $self->{infiniteNegativeValue};
 }
 
 # /** setInfiniteNegativeValue
@@ -328,14 +328,14 @@ sub getInfiniteNegativeValue {
 # */
 sub setInfiniteNegativeValue {
    my ($self, $value) = @_;
-   $self->{InfiniteNegativeValue} = $value;
+   $self->{infiniteNegativeValue} = $value;
 }
 
 # /** getNoDataValue
 # */
 sub getNoDataValue {
    my ($self) = @_;
-   return $self->{NoDataValue};
+   return $self->{noDataValue};
 }
 
 # /** setNoDataValue
@@ -343,7 +343,7 @@ sub getNoDataValue {
 # */
 sub setNoDataValue {
    my ($self, $value) = @_;
-   $self->{NoDataValue} = $value;
+   $self->{noDataValue} = $value;
 }
 
 # /** getNotANumberValue
@@ -351,7 +351,7 @@ sub setNoDataValue {
 # */
 sub getNotANumberValue {
    my ($self) = @_;
-   return $self->{NotANumberValue};
+   return $self->{notANumberValue};
 }
 
 # /** setNotANumberValue            
@@ -359,7 +359,7 @@ sub getNotANumberValue {
 # */                            
 sub setNotANumberValue {
    my ($self, $value) = @_;
-   $self->{NotANumberValue} = $value;
+   $self->{notANumberValue} = $value;
 }
 
 # /** getOverFlowValue
@@ -367,7 +367,7 @@ sub setNotANumberValue {
 # */
 sub getOverFlowValue {
    my ($self) = @_;
-   return $self->{OverFlowValue};
+   return $self->{overFlowValue};
 }
 
 # /** setOverFlowValue            
@@ -375,7 +375,7 @@ sub getOverFlowValue {
 # */                            
 sub setOverFlowValue {
    my ($self, $value) = @_;
-   $self->{OverFlowValue} = $value;
+   $self->{overFlowValue} = $value;
 }
 
 # /** getUnderFlowValue
@@ -383,7 +383,7 @@ sub setOverFlowValue {
 # */
 sub getUnderFlowValue {
    my ($self) = @_;
-   return $self->{UnderFlowValue};
+   return $self->{underFlowValue};
 }
 
 # /** setUnderFlowValue            
@@ -391,7 +391,7 @@ sub getUnderFlowValue {
 # */                            
 sub setUnderFlowValue {
    my ($self, $value) = @_;
-   $self->{UnderFlowValue} = $value;
+   $self->{underFlowValue} = $value;
 }
 
 # /** getDisabledValue
@@ -399,7 +399,7 @@ sub setUnderFlowValue {
 # */
 sub getDisabledValue {
    my ($self) = @_;
-   return $self->{DisabledValue};
+   return $self->{disabledValue};
 }
 
 # /** setDisabledValue            
@@ -407,14 +407,14 @@ sub getDisabledValue {
 # */                            
 sub setDisabledValue {
    my ($self, $value) = @_;
-   $self->{DisabledValue} = $value;
+   $self->{disabledValue} = $value;
 }
 
 # /** getUnits
 # */
 sub getUnits{
    my ($self) = @_;
-   return $self->{Units};
+   return $self->{units};
 }
 
 # /** setUnits
@@ -422,14 +422,14 @@ sub getUnits{
 # */
 sub setUnits {
    my ($self, $value) = @_;
-   $self->{Units} = $value;
+   $self->{units} = $value;
 }
 
 # /** getDataFormat
 # */
 sub getDataFormat{
    my ($self) = @_;
-   return $self->{DataFormat};
+   return $self->{dataFormat};
 }
 
 # /** setDataFormat
@@ -437,14 +437,14 @@ sub getDataFormat{
 # */
 sub setDataFormat {
    my ($self, $value) = @_;
-   $self->{DataFormat} = $value;
+   $self->{dataFormat} = $value;
 }
 
 # /** getRelation
 # */
 sub getRelation{
    my ($self) = @_;
-   return $self->{Relation};
+   return $self->{relation};
 }
 
 # /** setRelation
@@ -452,14 +452,14 @@ sub getRelation{
 # */
 sub setRelation {
    my ($self, $value) = @_;
-   $self->{Relation} = $value;
+   $self->{relation} = $value;
 }
 
 # /** getNoteList
 # */
 sub getNoteList{
    my ($self) = @_;
-   return $self->{NoteList};
+   return $self->{noteList};
 }
 
 # /** setNoteList
@@ -469,15 +469,15 @@ sub setNoteList {
    my ($self, $arrayRefValue) = @_;
    # you must do it this way, or when the arrayRef changes it changes us here!
    my @list = @{$arrayRefValue};
-   $self->{NoteList} = \@list;
+   $self->{noteList} = \@list;
 }
 
 # /** getXMLAttributes
 #      This method returns the XMLAttributes of this class. 
 #  */
-sub getXMLAttributes {
-  return \@Class_XML_Attributes;
-}
+#sub getXMLAttributes {
+#  return \@Class_XML_Attributes;
+#}
 
 #
 # Other Public Methods
@@ -493,7 +493,7 @@ sub addNote {
   return 0 unless defined $noteObj && ref $noteObj;
   
   # add the parameter to the list
-  push @{$self->{NoteList}}, $noteObj;
+  push @{$self->{noteList}}, $noteObj;
 
   return 1;
 }
@@ -505,7 +505,7 @@ sub addNote {
 # */
 sub removeNote {
   my ($self, $what) = @_;
-  return $self->_remove_from_list($what, $self->{NoteList}, 'noteList');
+  return $self->_remove_from_list($what, $self->{noteList}, 'noteList');
 }
 
 # /** addUnit
@@ -514,7 +514,7 @@ sub removeNote {
 # RETURNS : 1 on success, 0 on failure.
 sub addUnit { 
    my ($self, $unitObj) = @_;
-   return $self->{Units}->addUnit($unitObj);
+   return $self->{units}->addUnit($unitObj);
 }
 
 # /** removeUnit
@@ -524,7 +524,7 @@ sub addUnit {
 # */
 sub removeUnit {
   my ($self, $unitObj) = @_;
-  return $self->{Units}->removeUnit($unitObj);
+  return $self->{units}->removeUnit($unitObj);
 }
 
 #
@@ -545,13 +545,22 @@ sub _init {
   $self->SUPER::_init();
 
   # initialize lists
-  $self->{NoteList} = [];
-  $self->{Units} = new XDF::Units();
+  $self->{noteList} = [];
+  $self->{units} = new XDF::Units();
+
+  # adds to ordered list of XML attributes
+  $self->_appendAttribsToXMLAttribOrder(\@Class_XML_Attributes);
+
 }
 
 # Modification History
 #
 # $Log$
+# Revision 1.15  2001/07/23 15:58:07  thomas
+# added ability to add arbitary XML attribute to class.
+# getXMLattributes now an instance method, we
+# have old class method now called getClassXMLAttributes.
+#
 # Revision 1.14  2001/07/02 17:25:15  thomas
 # added notANumberValue, disabledValue, overflowValue,
 # and underflowValue attributes.

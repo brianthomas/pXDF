@@ -58,8 +58,8 @@ use vars qw ($AUTOLOAD %field @ISA);
 # CLASS DATA
 my $Class_XML_Node_Name = "valueList";
 my @Class_XML_Attributes = qw (
-                             Id
-                             IdRef
+                             valueListId
+                             valueListIdRef
                              start
                              step
                              size
@@ -78,7 +78,7 @@ my @Class_Attributes = qw (
 push @Class_Attributes, @Class_XML_Attributes;
 
 # add in super class attributes
-push @Class_Attributes, @{&XDF::GenericObject::classAttributes};
+push @Class_Attributes, @{&XDF::GenericObject::getClassAttributes};
 
 # Initalization
 # set up object attributes.
@@ -89,16 +89,23 @@ for my $attr ( @Class_Attributes ) { $field{$attr}++; }
 # This method returns the class node name of XDF::ValueListAlgorithm.
 # */
 sub classXMLNodeName { 
-  $Class_XML_Node_Name; 
+  return $Class_XML_Node_Name; 
 }
 
-# /** classAttributes
-#  This method takes no arguments may not be changed. 
+# /** getClassAttributes
 #  This method returns a list reference containing the names
-#  of the class attributes of XDF::ValueListAlgorithm.
+#  of the class attributes for this class.
+#  This method takes no arguments may not be changed. 
 # */
-sub classAttributes { 
-  \@Class_Attributes; 
+sub getClassAttributes {
+  return \@Class_Attributes;
+}
+
+# /** getClassXMLAttributes
+#      This method returns the XMLAttributes of this class. 
+#  */
+sub getClassXMLAttributes {
+  return \@Class_XML_Attributes;
 }
 
 # 
@@ -134,7 +141,7 @@ sub new {
 # */
 sub getValueListId {
    my ($self) = @_;
-   return $self->{Id};
+   return $self->{valueListId};
 }
 
 # /** setValueListId
@@ -142,14 +149,14 @@ sub getValueListId {
 # */
 sub setValueListId {
    my ($self, $value) = @_;
-   $self->{Id} = $value;
+   $self->{valueListId} = $value;
 }
 
 # /** getValueListIdRef 
 # */
 sub getValueListIdRef {
    my ($self) = @_;
-   return $self->{IdRef};
+   return $self->{valueListIdRef};
 }
 
 # /** setValueListIdRef 
@@ -157,7 +164,7 @@ sub getValueListIdRef {
 # */
 sub setValueListIdRef {
    my ($self, $value) = @_;
-   $self->{IdRef} = $value;
+   $self->{valueListIdRef} = $value;
 }
 
 # /** getValues
@@ -165,14 +172,7 @@ sub setValueListIdRef {
 # */
 sub getValues {
    my ($self) = @_;
-   return $self->{Values};
-}
-
-# /** getXMLAttributes
-#      This method returns the XMLAttributes of this class. 
-#  */
-sub getXMLAttributes {
-  return \@Class_XML_Attributes;
+   return $self->{values};
 }
 
 #
@@ -186,18 +186,18 @@ sub getXMLAttributes {
 sub _init {
    my ($self, $start, $step, $size, $noDataValue, $infiniteValue, $infiniteNegativeValue, $notANumberValue, $overflowValue, $underflowValue) = @_;
 
-   $self->{Start} = defined $start ? $start : &XDF::Constants::DEFAULT_VALUELIST_START;
-   $self->{Step} = defined $step ? $step : &XDF::Constants::DEFAULT_VALUELIST_STEP;
-   $self->{Size} = defined $size ? $size : &XDF::Constants::DEFAULT_VALUELIST_SIZE;
+   $self->{start} = defined $start ? $start : &XDF::Constants::DEFAULT_VALUELIST_START;
+   $self->{step} = defined $step ? $step : &XDF::Constants::DEFAULT_VALUELIST_STEP;
+   $self->{size} = defined $size ? $size : &XDF::Constants::DEFAULT_VALUELIST_SIZE;
 
-   $self->{NoData} = $noDataValue;
-   $self->{Infinite} = $infiniteValue;
-   $self->{InfiniteNegative} = $infiniteNegativeValue;
-   $self->{NotANumber} = $notANumberValue;
-   $self->{Overflow} = $overflowValue;
-   $self->{Underflow} = $underflowValue;
+   $self->{noDataValue} = $noDataValue;
+   $self->{infiniteValue} = $infiniteValue;
+   $self->{infiniteNegativeValue} = $infiniteNegativeValue;
+   $self->{notANumberValue} = $notANumberValue;
+   $self->{overflowValue} = $overflowValue;
+   $self->{underflowValue} = $underflowValue;
 
-   $self->{Values} = [];
+   $self->{values} = [];
   
    $self->_initValuesFromParams(); 
 }
@@ -206,14 +206,14 @@ sub _initValuesFromParams {
    my ($self) = @_;
 
    # now populate values list
-   my $currentValue = $self->{Start};
-   my $step = $self->{Step};
-   my $size = $self->{Size};
+   my $currentValue = $self->{start};
+   my $step = $self->{step};
+   my $size = $self->{size};
 
    for(my $i = 0; $i < $size; $i++) {
       my $thisValue = $self->_create_value_object($currentValue);
       $currentValue += $step;
-      push @{$self->{Values}}, $thisValue;
+      push @{$self->{values}}, $thisValue;
    }
 
 }
@@ -224,27 +224,27 @@ sub _create_value_object {
    my $valueObj = new XDF::Value();
 
    if (defined $string_val) {
-      if (defined $self->{Infinite} && $self->{Infinite} eq $string_val)
+      if (defined $self->{infiniteValue} && $self->{infiniteValue} eq $string_val)
       {
          $valueObj->setSpecial('infinite');
       }
-      elsif (defined $self->{InfiniteNegative} && $self->{InfiniteNegative} eq $string_val)
+      elsif (defined $self->{infiniteNegativeValue} && $self->{infiniteNegativeValue} eq $string_val)
       {
          $valueObj->setSpecial('infiniteNegative');
       }
-      elsif (defined $self->{NoData} && $self->{NoData} eq $string_val)
+      elsif (defined $self->{noDataValue} && $self->{noDataValue} eq $string_val)
       {
          $valueObj->setSpecial('noData');
       }
-      elsif (defined $self->{NotANumber} && $self->{NotANumber} eq $string_val)
+      elsif (defined $self->{notANumberValue} && $self->{notANumberValue} eq $string_val)
       {
          $valueObj->setSpecial('notANumber');
       }
-      elsif (defined $self->{Underflow} && $self->{Underflow} eq $string_val)
+      elsif (defined $self->{underflowValue} && $self->{underflowValue} eq $string_val)
       {
          $valueObj->setSpecial('underflow');
       }
-      elsif (defined $self->{Overflow} && $self->{Overflow} eq $string_val)
+      elsif (defined $self->{overflowValue} && $self->{overflowValue} eq $string_val)
       {
          $valueObj->setSpecial('overflow');
       }
@@ -272,19 +272,19 @@ sub toXMLFileHandle {
 
    print $fileHandle $indent if $isPrettyXDFOutput;
 
-   print $fileHandle "<valueList start=\"",$self->{Start},
-                    "\" step=\"",$self->{Step},
-                    "\" size=\"",$self->{Size},"\"";
+   print $fileHandle "<valueList start=\"",$self->{start},
+                    "\" step=\"",$self->{step},
+                    "\" size=\"",$self->{size},"\"";
 
-   print $fileHandle " valueListId=\"",$self->{Id},"\"" if (defined $self->{Id});
-   print $fileHandle " valueListIdRef=\"",$self->{IdRef},"\"" if (defined $self->{IdRef});
-   print $fileHandle " noDataValue=\"",$self->{NoData},"\"" if (defined $self->{NoData});
-   print $fileHandle " infiniteValue=\"",$self->{Infinite},"\"" if (defined $self->{Infinite});
-   print $fileHandle " infiniteNegativeValue=\"",$self->{InfiniteNegative},"\"" 
-                       if (defined $self->{InfiniteNegative});
-   print $fileHandle " notANumberValue=\"",$self->{NotANumber},"\"" if (defined $self->{NotANumber});
-   print $fileHandle " overflowValue=\"",$self->{Overflow},"\"" if (defined $self->{Overflow});
-   print $fileHandle " underflowValue=\"",$self->{Underflow},"\"" if (defined $self->{Underflow});
+   print $fileHandle " valueListId=\"",$self->{valueListId},"\"" if (defined $self->{valueListId});
+   print $fileHandle " valueListIdRef=\"",$self->{valueListIdRef},"\"" if (defined $self->{valueListIdRef});
+   print $fileHandle " noDataValue=\"",$self->{noDataValue},"\"" if (defined $self->{noDataValue});
+   print $fileHandle " infiniteValue=\"",$self->{infiniteValue},"\"" if (defined $self->{infiniteValue});
+   print $fileHandle " infiniteNegativeValue=\"",$self->{infiniteNegativeValue},"\"" 
+                       if (defined $self->{infiniteNegativeValue});
+   print $fileHandle " notANumberValue=\"",$self->{notANumberValue},"\"" if (defined $self->{notANumberValue});
+   print $fileHandle " overflowValue=\"",$self->{overflowValue},"\"" if (defined $self->{overflowValue});
+   print $fileHandle " underflowValue=\"",$self->{underflowValue},"\"" if (defined $self->{underflowValue});
    print $fileHandle "/>";
 
    print $fileHandle "\n" if $isPrettyXDFOutput;
@@ -302,6 +302,11 @@ sub AUTOLOAD {
 # Modification History
 #
 # $Log$
+# Revision 1.2  2001/07/23 15:58:07  thomas
+# added ability to add arbitary XML attribute to class.
+# getXMLattributes now an instance method, we
+# have old class method now called getClassXMLAttributes.
+#
 # Revision 1.1  2001/07/13 21:38:14  thomas
 # Initial Version
 #

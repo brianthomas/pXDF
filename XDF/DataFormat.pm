@@ -73,7 +73,7 @@ my @Class_Attributes = ();
 push @Class_Attributes, @Class_XML_Attributes;
 
 # add in super class attributes
-push @Class_Attributes, @{&XDF::BaseObject::classAttributes};
+push @Class_Attributes, @{&XDF::BaseObject::getClassAttributes};
 
 # Initalization -- set up object attributes.
 for my $attr ( @Class_Attributes ) { $field{$attr}++; }
@@ -109,14 +109,22 @@ sub classXMLNodeName {
   $Class_XML_Node_Name;
 }
 
-# /** classAttributes
+# /** getClassAttributes
 #  This method takes no arguments may not be changed. 
 #  This method returns a list reference containing the names
 #  of the class attributes of XDF::BinaryFloatField. 
 # */
-sub classAttributes {
+sub getClassAttributes {
   \@Class_Attributes;
 }
+
+# /** getClassXMLAttributes
+#      This method returns the XMLAttributes of this class. 
+#  */
+sub getClassXMLAttributes {
+  return \@Class_XML_Attributes;
+}
+
 
 # 
 # SET/GET Methods
@@ -225,13 +233,6 @@ sub classAttributes {
 #   $self->{NoDataValue} = $value;
 #}
 
-# /** getXMLAttributes
-#      This method returns the XMLAttributes of this class. 
-#  */
-sub getXMLAttributes {
-  return \@Class_XML_Attributes;
-}
-
 # /** numOfBytes
 # This returns the number of bytes this object describes.
 # Undef is returned if not successfull.
@@ -278,6 +279,11 @@ sub AUTOLOAD {
 # Modification History
 #
 # $Log$
+# Revision 1.13  2001/07/23 15:58:07  thomas
+# added ability to add arbitary XML attribute to class.
+# getXMLattributes now an instance method, we
+# have old class method now called getClassXMLAttributes.
+#
 # Revision 1.12  2001/04/25 16:01:31  thomas
 # updated documentation
 #

@@ -96,17 +96,17 @@ my @Class_XML_Attributes = qw (
                                 description
                                 arrayId
                                 appendTo
-                     lessThanValue
-                     lessThanOrEqualValue
-                     greaterThanValue
-                     greaterThanOrEqualValue
-                     infiniteValue
-                     infiniteNegativeValue
-                     noDataValue
-                     notANumberValue
-                     overFlowValue
-                     underFlowValue
-                     disabledValue
+                                lessThanValue
+                                lessThanOrEqualValue
+                                greaterThanValue
+                                greaterThanOrEqualValue
+                                infiniteValue
+                                infiniteNegativeValue
+                                noDataValue
+                                notANumberValue
+                                overFlowValue
+                                underFlowValue
+                                disabledValue
                                 paramList
                                 units
                                 dataFormat
@@ -158,7 +158,7 @@ my @Class_Attributes = qw (
 push @Class_Attributes, @Class_XML_Attributes;
 
 # add in super class attributes
-push @Class_Attributes, @{&XDF::BaseObjectWithXMLElements::classAttributes};
+push @Class_Attributes, @{&XDF::BaseObjectWithXMLElements::getClassAttributes};
 
 # Initalization
 # set up object attributes.
@@ -177,7 +177,7 @@ sub classXMLNodeName {
 #  of the class attributes of XDF::Array; 
 #  This method takes no arguments may not be changed. 
 # */
-sub classAttributes { 
+sub getClassAttributes { 
   \@Class_Attributes; 
 }
 
@@ -189,7 +189,7 @@ sub classAttributes {
 # */
 sub getName {
    my ($self) = @_;
-   return $self->{Name};
+   return $self->{name};
 }
 
 # /** setName
@@ -197,7 +197,7 @@ sub getName {
 # */
 sub setName {
    my ($self, $value) = @_;
-   $self->{Name} = $value;
+   $self->{name} = $value;
 }
 
 # /** getDescription
@@ -205,7 +205,7 @@ sub setName {
 #  */
 sub getDescription {
    my ($self) = @_;
-   return $self->{Description};
+   return $self->{description};
 }
 
 # /** setDescription
@@ -213,7 +213,7 @@ sub getDescription {
 #  */
 sub setDescription {
    my ($self, $value) = @_;
-   $self->{Description} = $value;
+   $self->{description} = $value;
 }
 
 # /** getArrayId
@@ -221,7 +221,7 @@ sub setDescription {
 # */                 
 sub getArrayId {                   
    my ($self) = @_;
-   return $self->{ArrayId};        
+   return $self->{arrayId};        
 }                               
                                 
 # /** setArrayId
@@ -229,7 +229,7 @@ sub getArrayId {
 # */                          
 sub setArrayId {
    my ($self, $value) = @_;  
-   $self->{ArrayId} = $value;   
+   $self->{arrayId} = $value;   
 }
 
 # /** getAppendTo
@@ -237,7 +237,7 @@ sub setArrayId {
 # */                 
 sub getAppendTo {                   
    my ($self) = @_;
-   return $self->{AppendTo};        
+   return $self->{appendTo};        
 }                               
                                 
 # /** setAppendTo
@@ -245,7 +245,7 @@ sub getAppendTo {
 # */                          
 sub setAppendTo {
    my ($self, $value) = @_;  
-   $self->{AppendTo} = $value;   
+   $self->{appendTo} = $value;   
 }
 
 
@@ -254,7 +254,7 @@ sub setAppendTo {
 # */
 sub getLessThanValue {
    my ($self) = @_;
-   return $self->{LessThanValue};
+   return $self->{lessThanValue};
 }
 
 # /** setLessThanValue
@@ -262,7 +262,7 @@ sub getLessThanValue {
 # */
 sub setLessThanValue {
    my ($self, $value) = @_;
-   $self->{LessThanValue} = $value;
+   $self->{lessThanValue} = $value;
 }
 
 # /** getLessThanOrEqualValue
@@ -270,7 +270,7 @@ sub setLessThanValue {
 # */
 sub getLessThanOrEqualValue {
    my ($self) = @_;
-   return $self->{LessThanOrEqualValue};
+   return $self->{lessThanOrEqualValue};
 }
 
 # /** setLessThanOrEqualValue
@@ -278,7 +278,7 @@ sub getLessThanOrEqualValue {
 # */
 sub setLessThanOrEqualValue {
    my ($self, $value) = @_;
-   $self->{LessThanOrEqualValue} = $value;
+   $self->{lessThanOrEqualValue} = $value;
 }
 
 # /** getGreaterThanValue
@@ -286,7 +286,7 @@ sub setLessThanOrEqualValue {
 # */
 sub getGreaterThanValue {
    my ($self) = @_;
-   return $self->{GreaterThanValue};
+   return $self->{greaterThanValue};
 }
 
 # /** setGreaterThanValue
@@ -294,7 +294,7 @@ sub getGreaterThanValue {
 # */
 sub setGreaterThanValue {
    my ($self, $value) = @_;
-   $self->{GreaterThanValue} = $value;
+   $self->{greaterThanValue} = $value;
 }
 
 # /** getGreaterThanOrEqualValue
@@ -302,7 +302,7 @@ sub setGreaterThanValue {
 # */
 sub getGreaterThanOrEqualValue {
    my ($self) = @_;
-   return $self->{GreaterThanOrEqualValue};
+   return $self->{greaterThanOrEqualValue};
 }
 
 # /** setGreaterThanOrEqualValue
@@ -310,7 +310,7 @@ sub getGreaterThanOrEqualValue {
 # */
 sub setGreaterThanOrEqualValue {
    my ($self, $value) = @_;
-   $self->{GreaterThanOrEqualValue} = $value;
+   $self->{greaterThanOrEqualValue} = $value;
 }
 
 # /** getInfiniteValue
@@ -318,7 +318,7 @@ sub setGreaterThanOrEqualValue {
 # */
 sub getInfiniteValue {
    my ($self) = @_;
-   return $self->{InfiniteValue};
+   return $self->{infiniteValue};
 }
 
 # /** setInfiniteValue
@@ -326,7 +326,7 @@ sub getInfiniteValue {
 # */
 sub setInfiniteValue {
    my ($self, $value) = @_;
-   $self->{InfiniteValue} = $value;
+   $self->{infiniteValue} = $value;
 }
 
 # /** getInfiniteNegativeValue
@@ -334,7 +334,7 @@ sub setInfiniteValue {
 # */
 sub getInfiniteNegativeValue {
    my ($self) = @_;
-   return $self->{InfiniteNegativeValue};
+   return $self->{infiniteNegativeValue};
 }
 
 # /** setInfiniteNegativeValue
@@ -342,7 +342,7 @@ sub getInfiniteNegativeValue {
 # */
 sub setInfiniteNegativeValue {
    my ($self, $value) = @_;
-   $self->{InfiniteNegativeValue} = $value;
+   $self->{infiniteNegativeValue} = $value;
 }
 
 # /** getNoDataValue
@@ -350,7 +350,7 @@ sub setInfiniteNegativeValue {
 # */
 sub getNoDataValue {
    my ($self) = @_;
-   return $self->{NoDataValue};
+   return $self->{noDataValue};
 }
 
 # /** setNoDataValue
@@ -358,7 +358,7 @@ sub getNoDataValue {
 # */
 sub setNoDataValue {
    my ($self, $value) = @_;
-   $self->{NoDataValue} = $value;
+   $self->{noDataValue} = $value;
 }
 
 # /** getNotANumberValue
@@ -366,7 +366,7 @@ sub setNoDataValue {
 # */
 sub getNotANumberValue {
    my ($self) = @_;
-   return $self->{NotANumberValue};
+   return $self->{notANumberValue};
 }
                                 
 # /** setNotANumberValue            
@@ -374,7 +374,7 @@ sub getNotANumberValue {
 # */                            
 sub setNotANumberValue {            
    my ($self, $value) = @_;     
-   $self->{NotANumberValue} = $value;
+   $self->{notANumberValue} = $value;
 } 
 
 # /** getOverFlowValue
@@ -382,7 +382,7 @@ sub setNotANumberValue {
 # */
 sub getOverFlowValue {
    my ($self) = @_;
-   return $self->{OverFlowValue};
+   return $self->{overFlowValue};
 }
                                 
 # /** setOverFlowValue            
@@ -390,7 +390,7 @@ sub getOverFlowValue {
 # */                            
 sub setOverFlowValue {            
    my ($self, $value) = @_;     
-   $self->{OverFlowValue} = $value;
+   $self->{overFlowValue} = $value;
 }
 
 # /** getUnderFlowValue
@@ -398,7 +398,7 @@ sub setOverFlowValue {
 # */
 sub getUnderFlowValue {
    my ($self) = @_;
-   return $self->{UnderFlowValue};
+   return $self->{underFlowValue};
 }
                                 
 # /** setUnderFlowValue            
@@ -406,7 +406,7 @@ sub getUnderFlowValue {
 # */                            
 sub setUnderFlowValue {            
    my ($self, $value) = @_;     
-   $self->{UnderFlowValue} = $value;
+   $self->{underFlowValue} = $value;
 } 
 
 # /** getDisabledValue
@@ -414,7 +414,7 @@ sub setUnderFlowValue {
 # */
 sub getDisabledValue {
    my ($self) = @_;
-   return $self->{DisabledValue};
+   return $self->{disabledValue};
 }
                                 
 # /** setDisabledValue            
@@ -422,7 +422,7 @@ sub getDisabledValue {
 # */                            
 sub setDisabledValue {            
    my ($self, $value) = @_;     
-   $self->{DisabledValue} = $value;
+   $self->{disabledValue} = $value;
 } 
 
 # /** getDataCube
@@ -430,7 +430,7 @@ sub setDisabledValue {
 #  */
 sub getDataCube {
    my ($self) = @_;
-   return $self->{DataCube};
+   return $self->{dataCube};
 }
 
 # /** getAxisList
@@ -438,7 +438,7 @@ sub getDataCube {
 #  */
 sub getAxisList {
    my ($self) = @_;
-   return $self->{AxisList};
+   return $self->{axisList};
 }
 
 # /** setAxisList
@@ -448,7 +448,7 @@ sub setAxisList {
    my ($self, $arrayRefValue) = @_;
    # you must do it this way, or when the arrayRef changes it changes us here!
    my @list = @{$arrayRefValue};
-   $self->{AxisList} = \@list;
+   $self->{axisList} = \@list;
 }
 
 # /** getParamList
@@ -456,7 +456,7 @@ sub setAxisList {
 #  */
 sub getParamList {
    my ($self) = @_;
-   return $self->{ParamList};
+   return $self->{paramList};
 }
 
 # /** setParamList
@@ -466,7 +466,7 @@ sub setParamList {
    my ($self, $arrayRefValue) = @_;
    # you must do it this way, or when the arrayRef changes it changes us here!
    my @list = @{$arrayRefValue};
-   $self->{ParamList} = \@list;
+   $self->{paramList} = \@list;
 }
 
 # /** getNoteList
@@ -474,7 +474,7 @@ sub setParamList {
 #  */
 sub getNoteList {
    my ($self) = @_;
-   return $self->{Notes}->{NoteList};
+   return $self->{notes}->{noteList};
 }
 
 # /** setNoteList
@@ -484,7 +484,7 @@ sub setNoteList {
    my ($self, $arrayRefValue) = @_;
    # you must do it this way, or when the arrayRef changes it changes us here!
    my @list = @{$arrayRefValue};
-   $self->{Notes}->{NoteList} = \@list;
+   $self->{notes}->{noteList} = \@list;
 }
 
 # /** getDataFormat
@@ -492,7 +492,7 @@ sub setNoteList {
 # */
 sub getDataFormat {
    my ($self) = @_;
-   return $self->{DataFormat};
+   return $self->{dataFormat};
 }
 
 # /** setDataFormat
@@ -503,7 +503,7 @@ sub getDataFormat {
 # */
 sub setDataFormat {
    my ($self, $value) = @_;
-   $self->{DataFormat} = $value;
+   $self->{dataFormat} = $value;
 }
 
 # /** getNotes
@@ -511,7 +511,7 @@ sub setDataFormat {
 # */
 sub getNotes { 
   my ($self, $what) = @_;
-  return $self->{Notes};
+  return $self->{notes};
 }
 
 # /** setNotes
@@ -519,7 +519,7 @@ sub getNotes {
 # */
 sub setNotes {
    my ($self, $value) = @_;
-   $self->{Notes} = $value;
+   $self->{notes} = $value;
 }
 
 # /** getUnits
@@ -527,7 +527,7 @@ sub setNotes {
 # */
 sub getUnits {
    my ($self) = @_;
-   return $self->{Units};
+   return $self->{units};
 }
 
 # /** setUnits
@@ -535,7 +535,7 @@ sub getUnits {
 # */
 sub setUnits {
    my ($self, $value) = @_;
-   $self->{Units} = $value;
+   $self->{units} = $value;
 }
 
 # /** getFieldAxis
@@ -543,7 +543,7 @@ sub setUnits {
 # */
 sub getFieldAxis {
   my ($self) = @_;
-  my $axisObj = @{$self->{AxisList}}[0];
+  my $axisObj = @{$self->{axisList}}[0];
   return ref($axisObj) eq 'XDF::FieldAxis' ? $axisObj : undef;
 }
 
@@ -571,7 +571,7 @@ sub getXMLDataIOStyle {
 # /** getXMLAttributes
 #      This method returns the XMLAttributes of this class. 
 #  */
-sub getXMLAttributes {
+sub getClassXMLAttributes {
   return \@Class_XML_Attributes;
 }
 
@@ -580,7 +580,7 @@ sub getXMLAttributes {
 # */
 sub getDimension {
   my ($self) = @_;
-  return $self->{DataCube}->getDimension();
+  return $self->{dataCube}->getDimension();
 }
 
 # /** getDataFormatList
@@ -667,10 +667,10 @@ sub addAxis {
   return 0 unless &_can_add_axisObj_to_array($axisObj);
 
   # add this axis to the list 
-  push @{$self->{AxisList}}, $axisObj; 
+  push @{$self->{axisList}}, $axisObj; 
 
   # bump up the number of dimensions
-  $self->{DataCube}->{Dimension} = $self->{DataCube}->{Dimension} + 1;
+  $self->{dataCube}->{dimension} = $self->{dataCube}->{dimension} + 1;
 
   $self->_updateInternalLookupIndices();
 
@@ -681,7 +681,7 @@ sub addAxis {
 
 sub _updateInternalLookupIndices {
   my ($self) = @_;
-  $self->{DataCube}->_updateInternalLookupIndices();
+  $self->{dataCube}->_updateInternalLookupIndices();
 }
 
 # Can we add this axisObject to the array?
@@ -705,7 +705,7 @@ sub _can_add_axisObj_to_array {
 # */
 sub removeAxis {
    my ($self, $axisObj) = @_;
-   if (defined $axisObj && $self->_remove_from_list($axisObj, $self->{AxisList}, 'axisList')) {
+   if (defined $axisObj && $self->_remove_from_list($axisObj, $self->{axisList}, 'axisList')) {
      $axisObj->setParentArray(undef);
      return 1;
    } else {
@@ -725,7 +725,7 @@ sub removeAxis {
 # RETURNS : 1 if successfull, 0 if not. 
 sub addUnit {
    my ($self, $unitObj ) = @_;
-   return $self->{Units}->addUnit($unitObj);
+   return $self->{units}->addUnit($unitObj);
 }
 
 # /** removeUnit
@@ -736,7 +736,7 @@ sub addUnit {
 # */
 sub removeUnit { 
   my ($self, $indexOrObjectRef) = @_;
-  return $self->{Units}->removeUnit($indexOrObjectRef); 
+  return $self->{units}->removeUnit($indexOrObjectRef); 
 }
 
 
@@ -755,7 +755,7 @@ sub addParameter {
   return 0 unless defined $paramObj && ref($paramObj);
 
   # add the parameter to the list
-  push @{$self->{ParamList}}, $paramObj;
+  push @{$self->{paramList}}, $paramObj;
 
   return 1;
 }
@@ -768,7 +768,7 @@ sub addParameter {
 # */
 sub removeParameter {
    my ($self, $indexOrObjectRef) = @_;
-   return $self->_remove_from_list($indexOrObjectRef, $self->{ParamList}, 'paramList');
+   return $self->_remove_from_list($indexOrObjectRef, $self->{paramList}, 'paramList');
 }
 
 # /** addNote
@@ -777,7 +777,7 @@ sub removeParameter {
 # */
 sub addNote {
    my ($self, $noteObj ) = @_;
-   return $self->{Notes}->addNote($noteObj);
+   return $self->{notes}->addNote($noteObj);
 }
 
 # /** removeNote
@@ -797,7 +797,7 @@ sub removeNote {
 # */
 sub addData {
   my ($self, $locator, $dataValue) = @_;
-  return $self->{DataCube}->addData($locator, $dataValue);
+  return $self->{dataCube}->addData($locator, $dataValue);
 }
 
 # /** setData
@@ -806,7 +806,7 @@ sub addData {
 # */
 sub setData {
   my ($self, $locator, $dataValue ) = @_;
-  $self->{DataCube}->setData($locator, $dataValue);
+  $self->{dataCube}->setData($locator, $dataValue);
 }
 
 # /* removeData
@@ -816,7 +816,7 @@ sub setData {
 # */
 # sub removeData {
 #  my ($self, $locator, $data) = @_;
-#  $self->{DataCube}->removeData($locator, $data);
+#  $self->{dataCube}->removeData($locator, $data);
 # }
 
 # /** getData
@@ -824,7 +824,7 @@ sub setData {
 # */
 sub getData {
   my ($self, $locator ) = @_;
-  return $self->{DataCube}->getData($locator);
+  return $self->{dataCube}->getData($locator);
 }
 
 # /** addFieldAxis
@@ -841,11 +841,11 @@ sub addFieldAxis {
 
      # By convention, the fieldAxis is always first axis in the axis list.
      # Make sure that we *replace* the existing fieldAxis, if it exists.
-     shift @{$self->{AxisList}} if ref(@{$self->{AxisList}}[0]) eq 'XDF::FieldAxis';
-     unshift @{$self->{AxisList}}, $fieldAxisObj;
+     shift @{$self->{axisList}} if ref(@{$self->{axisList}}[0]) eq 'XDF::FieldAxis';
+     unshift @{$self->{axisList}}, $fieldAxisObj;
 
      # bump up the number of dimensions
-     $self->{DataCube}->{Dimension} = $self->{DataCube}->getDimension() + 1;
+     $self->{dataCube}->{dimension} = $self->{dataCube}->getDimension() + 1;
      $self->_updateInternalLookupIndices();
 
      $fieldAxisObj->setParentArray($self);
@@ -876,8 +876,8 @@ sub removeFieldAxis {
    my ($self) = @_; 
 
    my $fieldAxis;
-   if (ref(@{$self->{AxisList}}[0]) eq 'XDF::FieldAxis') {
-      $fieldAxis = shift @{$self->{AxisList}};
+   if (ref(@{$self->{axisList}}[0]) eq 'XDF::FieldAxis') {
+      $fieldAxis = shift @{$self->{axisList}};
       $self->dimension( $self->dimension() - 1 );
       $fieldAxis->setParentArray(undef);
       return 1;
@@ -905,20 +905,20 @@ sub _init {
   $self->SUPER::_init(); 
 
   # initalize objects we always have
-  $self->{DataCube} = new XDF::DataCube();
-  $self->{DataCube}->{_parentArray} = $self; # cross reference w/ dataCube 
-  $self->{Units} = new XDF::Units();
-  $self->{Notes} = new XDF::Notes();
+  $self->{dataCube} = new XDF::DataCube();
+  $self->{dataCube}->{_parentArray} = $self; # cross reference w/ dataCube 
+  $self->{units} = new XDF::Units();
+  $self->{notes} = new XDF::Notes();
   $self->setXMLDataIOStyle(new XDF::TaggedXMLDataIOStyle()); # set the default IO style to Tagged.
 
-  # initialize variables
- # $self->dimension(0);
-
   # initialize lists/hashes 
-  $self->{AxisList} = [];
-  $self->{ParamList} = [];
+  $self->{axisList} = [];
+  $self->{paramList} = [];
 
   $self->{_paramGroupOwnedHash} = {};
+
+  # adds to ordered list of XML attributes
+  $self->_appendAttribsToXMLAttribOrder(\@Class_XML_Attributes);
 
 }
 

@@ -37,24 +37,39 @@ my @Class_XML_Attributes = qw (
                           );
 my @Class_Attributes = ();
 
+# add in super class XML attributes
+push @Class_XML_Attributes, @{&XDF::FormattedIOCmd::getClassXMLAttributes};
+
 # add in class XML attributes
 push @Class_Attributes, @Class_XML_Attributes;
 
 # add in super class attributes
-push @Class_Attributes, @{&XDF::FormattedIOCmd::classAttributes};
-push @Class_XML_Attributes, @{&XDF::FormattedIOCmd::getXMLAttributes};
+push @Class_Attributes, @{&XDF::FormattedIOCmd::getClassAttributes};
 
 # Initalization
 # set up object attributes.
 for my $attr ( @Class_Attributes ) { $field{$attr}++; }
 
 sub classXMLNodeName { 
-  $Class_XML_Node_Name; 
+  return $Class_XML_Node_Name; 
 }
 
-sub classAttributes { 
-  \@Class_Attributes; 
+# /** getClassAttributes
+#  This method returns a list reference containing the names
+#  of the class attributes of XDF::FloatDataFormat. 
+#  This method takes no arguments may not be changed. 
+# */
+sub getClassAttributes {
+  return \@Class_Attributes;
 }
+
+# /** getClassXMLAttributes
+#      This method returns the XMLAttributes of this class. 
+#  */
+sub getClassXMLAttributes {
+  return \@Class_XML_Attributes;
+}
+
 
 #
 # Get/Set Methods
@@ -64,7 +79,7 @@ sub classAttributes {
 # */
 sub getCount {
    my ($self) = @_;
-   return $self->{Count};
+   return $self->{count};
 }
 
 # /** setCount
@@ -72,14 +87,14 @@ sub getCount {
 # */
 sub setCount {
    my ($self, $value) = @_;
-   $self->{Count} = $value;
+   $self->{count} = $value;
 }
 
 # /** getOutput
 # */
 sub getOutput {
    my ($self) = @_;
-   return $self->{Output};
+   return $self->{output};
 }
 
 # /** setOutput
@@ -87,19 +102,12 @@ sub getOutput {
 # */
 sub setOutput {
    my ($self, $value) = @_;
-   $self->{Output} = $value;
+   $self->{output} = $value;
 }
 
 sub numOfBytes { 
   my ($self) = @_;  
-  return $self->{Count}; 
-}
-
-# /** getXMLAttributes
-#      This method returns the XMLAttributes of this class. 
-#  */
-sub getXMLAttributes {
-  return \@Class_XML_Attributes;
+  return $self->{count}; 
 }
 
 #
@@ -116,21 +124,27 @@ sub AUTOLOAD {
 
 sub _init { 
   my ($self) = @_;
+
   $self->SUPER::_init();
-  $self->{Count} = $Def_Count;
-  $self->{Output} = $Def_Output_Char;
+
+  $self->{count} = $Def_Count;
+  $self->{output} = $Def_Output_Char;
+  
+  # adds to ordered list of XML attributes
+  $self->_appendAttribsToXMLAttribOrder(\@Class_XML_Attributes);
+
 }
 
 sub _templateNotation { 
   my ($self, $endian, $encoding, $input) = @_; 
   return "x" . $self->numOfBytes() if $input; 
-  return "A" . length($self->{Output});
+  return "A" . length($self->{output});
 }
 
 sub _regexNotation {
   my ($self) = @_;
 
-  my $notation = "\.{". $self->{Count}. "}";
+  my $notation = "\.{". $self->{count}. "}";
   return $notation;
 }
 
@@ -138,8 +152,8 @@ sub _regexNotation {
 sub _sprintfNotation {
   my ($self) = @_;
 
-  my $char = $self->{Output};
-  my $notation = "$char" x $self->{Count};
+  my $char = $self->{output};
+  my $notation = "$char" x $self->{count};
 
   return $notation;
 
@@ -148,6 +162,11 @@ sub _sprintfNotation {
 # Modification History
 #
 # $Log$
+# Revision 1.11  2001/07/23 15:58:07  thomas
+# added ability to add arbitary XML attribute to class.
+# getXMLattributes now an instance method, we
+# have old class method now called getClassXMLAttributes.
+#
 # Revision 1.10  2001/04/25 16:01:31  thomas
 # updated documentation
 #

@@ -72,12 +72,14 @@ my $Octal_Perl_Sprintf_Field_Integer = 'lo';
 my $Hex_Perl_Sprintf_Field_Integer = 'lx';
 my $Perl_Regex_Field_Integer = '\d';
 
+# add in super class XML attributes
+push @Class_XML_Attributes, @{&XDF::DataFormat::getClassXMLAttributes};
+
 # add in class XML attributes
 push @Class_Attributes, @Class_XML_Attributes;
 
 # add in super class attributes
-push @Class_Attributes, @{&XDF::DataFormat::classAttributes};
-push @Class_XML_Attributes, @{&XDF::DataFormat::getXMLAttributes};
+push @Class_Attributes, @{&XDF::DataFormat::getClassAttributes};
 
 # Initalization
 # set up object attributes.
@@ -91,13 +93,20 @@ sub classXMLNodeName {
   $Class_XML_Node_Name;
 }
 
-# /** classAttributes
+# /** getClassAttributes
 #  This method returns a list reference containing the names
-#  of the class attributes of XDF::BinaryFloatField. 
+#  of the class attributes of XDF::FloatDataFormat. 
 #  This method takes no arguments may not be changed. 
 # */
-sub classAttributes {
-  \@Class_Attributes;
+sub getClassAttributes {
+  return \@Class_Attributes;
+}
+
+# /** getClassXMLAttributes
+#      This method returns the XMLAttributes of this class. 
+#  */
+sub getClassXMLAttributes {
+  return \@Class_XML_Attributes;
 }
 
 #
@@ -108,7 +117,7 @@ sub classAttributes {
 # */
 sub getWidth {
    my ($self) = @_;
-   return $self->{Width};
+   return $self->{width};
 }
 
 # /** setWidth
@@ -116,14 +125,14 @@ sub getWidth {
 # */
 sub setWidth {
    my ($self, $value) = @_;
-   $self->{Width} = $value;
+   $self->{width} = $value;
 }
 
 # /** getType
 # */
 sub getType {
    my ($self) = @_;
-   return $self->{Type};
+   return $self->{type};
 }
 
 # /** setType
@@ -134,7 +143,7 @@ sub setType {
 
    carp "Cant set type to $value, not allowed \n"
       unless (&XDF::Utility::isValidIntegerType($value));
-   $self->{Type} = $value;
+   $self->{type} = $value;
 }
 
 # /** numOfBytes
@@ -144,13 +153,6 @@ sub setType {
 sub numOfBytes { 
   my ($self) = @_;
   $self->getWidth();
-}
-
-# /** getXMLAttributes
-#      This method returns the XMLAttributes of this class. 
-#  */
-sub getXMLAttributes { 
-  return \@Class_XML_Attributes;
 }
 
 #
@@ -170,29 +172,32 @@ sub _init {
 
   $self->SUPER::_init();
 
-  $self->{Width} = 0;
-  $self->{Type} = $Integer_Type_Decimal;
+  $self->{width} = 0;
+  $self->{type} = $Integer_Type_Decimal;
+
+  # adds to ordered list of XML attributes
+  $self->_appendAttribsToXMLAttribOrder(\@Class_XML_Attributes);
 
 }
 
 sub _templateNotation {
   my ($self, $endian, $encoding) = @_;
-  return "A" . $self->{Width};
+  return "A" . $self->{width};
 }
 
 #sub _outputTemplateNotation {
 #  my ($self, $endian, $encoding) = @_;
-#  return "%" . $self->{Width} . "d";
+#  return "%" . $self->{width} . "d";
 #}
 
 sub _regexNotation {
   my ($self) = @_;
 
-  my $width = $self->width;
+  my $width = $self->{width};
   my $symbol = $Perl_Regex_Field_Integer;
 
   # treat the read as a string unless decimal
-  $symbol = '\.' unless ($self->{Type} eq $Integer_Type_Decimal);
+  $symbol = '\.' unless ($self->{type} eq $Integer_Type_Decimal);
 
   my $notation = '(';
   my $before_whitespace = $width - 1;
@@ -215,7 +220,7 @@ sub _outputTemplateNotation {
   $field_symbol = $Octal_Perl_Sprintf_Field_Integer if ($self->getType() eq $Integer_Type_Octal );
   $field_symbol = $Hex_Perl_Sprintf_Field_Integer if ($self->getType() eq $Integer_Type_Hex );
 
-  $notation .= $self->{Width}; 
+  $notation .= $self->{width}; 
   $notation .= $field_symbol;
 
   return $notation;
@@ -224,6 +229,11 @@ sub _outputTemplateNotation {
 # Modification History
 #
 # $Log$
+# Revision 1.16  2001/07/23 15:58:07  thomas
+# added ability to add arbitary XML attribute to class.
+# getXMLattributes now an instance method, we
+# have old class method now called getClassXMLAttributes.
+#
 # Revision 1.15  2001/05/29 21:09:27  thomas
 # fixed outputTemplate method to encompass hex and octal data.
 #
