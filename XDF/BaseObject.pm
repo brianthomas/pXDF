@@ -46,6 +46,7 @@ package XDF::BaseObject;
 # */
 
 use XDF::GenericObject;
+use XDF::Specification;
 use Carp;
 
 use strict;
@@ -61,43 +62,25 @@ $VERSION = "0.17-beta1";
 
 # XDF::BaseObject CLASS Data
 
-# Public Data
+# CLass Data
 
 # Users MIGHT want to set these values, the following class data/attributes 
 # have get/set methods.
 
-my $Pretty_XDF_Output = 0; # IF TRUE then user gets indentation, carrage returns that make
-                           # the output of toXMLFile* methods human readable. 
-
-my $Pretty_XDF_Output_Indentation = "  "; # Indentation to use for pretty print 
-
-my $DefaultDataArraySize = 1000; # Number stuff for holding data. We want to 
-                                 # have a minimum array size for numbers (axis, dataCube, etc.)
-                                 # This is what we declare as a default 
-
 my $replaceNewlineWithEntityInOutputAttribute = 1;
-
-my %XML_NOTATION_HASH;
 
 # Private CLASS Data. 
 
-# ALL CAPS STUFF: these aren't meant to be changed by users of the package, only
-# by the maintainers, which is why they have no set/get methods.
-
-my $XML_STRUCTURE_VERSION = "1.0";
-my $XDF_ROOT_NODE_NAME = "XDF";
-my $XDF_DTD_NAME = "XDF_0.17.dtd";
-my $PCDATA_ATTRIBUTE = 'value';    # Used by toXMLFileHandle method. This says that
-                                   # when we get an attribute in an object with this name
-                                   # we print it as PCDATA of the object node rather than 
-                                   # as an attribute when its value is scalar, eg attribute="value"
-
+# Used by toXMLFileHandle method. This says that
+# when we get an attribute in an object with this name
+# we print it as PCDATA of the object node rather than 
+# as an attribute when its value is scalar, eg attribute="value"
+my $PCDATA_ATTRIBUTE = &XDF::Constants::getPCDATAAttribute;
 
 # CLASS DATA
 my @Class_Attributes = qw (
                              _openGroupNodeHash
                              _groupMemberHash
-                             _childXMLElementList
                           );
 
 my @Class_XML_Attributes = qw (
@@ -125,41 +108,6 @@ sub getXMLAttributes {
 #
 # Methods ..
 #
-
-# /** addXMLElement
-# 
-# */
-sub addXMLElement {
-  my ($self, $xmlElementObjRef) = @_;
-
-  push @{$self->{_ChildXMLElementList}}, $xmlElementObjRef;
-  return $xmlElementObjRef;
-}
-
-# /** removeXMLElement
-# 
-# */
-sub removeXMLElement {
-   my ($self, $xmlElementObjRef) = @_;
-
-   die "removeXMLElement not implemented yet.\n";
-}
-
-# /** getXMLElementList 
-# 
-# */
-sub getXMLElementList {
-  my ($self) = @_;
-  return $self->{_ChildXMLElementList};
-}
-
-# /** setXMLElementList 
-# 
-# */
-sub setXMLElementList {
-  my ($self, $listRef) = @_;
-  $self->{_ChildXMLElementList} = $listRef;
-}
 
 # /** addToGroup
 # Add this object as a member of a group.
@@ -219,68 +167,6 @@ sub setXMLAttributes {
   }
 }
 
-#/** setXMLNotationHash
-# Set the baseobject class field NotationHash. This will be 
-# printed out with other XMLDeclarations in a toXMLFileHandle call. 
-# */
-sub setXMLNotationHash {
-  my ($self, $attribHashRef) = @_;
-  my %newhash;
-  while (my ($attrib, $value) = each (%{$attribHashRef}) ) { 
-     $newhash{$attrib} = $value;
-  }
-  %XML_NOTATION_HASH = %newhash;
-}
-
-# a few Class Methods..
-
-# /** Pretty_XDF_Output
-# If a non-zero value is supplied then pretty XDF output format will be used 
-# when the toXMLFileHandle/toXMLFile methods are called.
-#@
-# The default setting is 0.
-# */
-sub Pretty_XDF_Output {
-  my ($self, $value) = @_;
-  $Pretty_XDF_Output = $value if defined $value;
-  return $Pretty_XDF_Output;
-}
-
-# /** Pretty_XDF_Output_Indentation
-# This sets value of the indentation to use if pretty XDF output format is turned on.
-#@
-# The default setting is 2 spaces.
-# */
-sub Pretty_XDF_Output_Indentation {
-  my ($self, $value) = @_;
-  $Pretty_XDF_Output_Indentation = $value if defined $value;
-  return $Pretty_XDF_Output_Indentation;
-}
-
-# /** 
-# This value indicates the initial size of each L<XDF::Axis>/L<XDF::FieldAxis> (the 
-# number of axisValues/fields along the axis) and the number of data cells within a 
-# dimension of the dataCube (L<XDF::DataCube>). If more axisValues/fields/datacells are placed on a 
-# given Axis/FieldAxis or data in a unallocated spot within the dataCube then the 
-# package allocates the needed memory and enlarges the dataCube/Axis objects as it is needed. 
-#@
-#@
-# This automated allocation is slow however, so it is desirable, IF you know how big your 
-# arrays will be, to pre-set this value to encompass your data set. Doing so will to improve 
-# efficenecy. Note that if you are having keeping all of your data in memory (a multi-dimensional 
-# dataset) it may be desirable to DECREASE the value. 
-#@
-#@
-# The default value is 1000. 
-# */
-sub DefaultDataArraySize {
-  my ($self, $value) = @_;
-  $DefaultDataArraySize = $value if defined $value;
-  return $DefaultDataArraySize;
-}
-
-# now some instance methods ...
-
 # /** toXMLFileHandle
 # Write this structure and all the objects it owns to the supplied filehandle 
 # in XML (XDF) format. The first argument is the name of the filehandle and is required. 
@@ -308,10 +194,14 @@ sub toXMLFileHandle {
 
   $indent = "" unless defined $indent;
 
+  my $spec = XDF::Specification->getInstance();
+  my $Pretty_XDF_Output = $spec->isPrettyXDFOutput;
+  my $Pretty_XDF_Output_Indentation = $spec->getPrettyXDFOutputIndentation;
+
   if (defined $XMLDeclAttribs) {
-     $indent = ""; #$Pretty_XDF_Output_Indentation;
+     $indent = ""; 
      # write the XML && DOCTYPE decl
-     $self->_write_XML_decl_to_file_handle($fileHandle, $XMLDeclAttribs);
+     $self->_write_XML_decl_to_file_handle($fileHandle, $XMLDeclAttribs, $spec);
   }
 
   # We need to invoke a little bit of Voodoo to keep the DTD happy; 
@@ -328,7 +218,7 @@ sub toXMLFileHandle {
     # open this node, print its attributes
     if ($nodename) {
       print $fileHandle $indent if $Pretty_XDF_Output;
-      $nodename = $XDF_ROOT_NODE_NAME if ( (defined $XMLDeclAttribs || $isRootNode) 
+      $nodename = $spec->getXDFRootNodeName if ( (defined $XMLDeclAttribs || $isRootNode) 
                                            && $self =~ m/XDF::Structure/);
       print $fileHandle "<" . $nodename;
       if( $node ne $#nodenames ) {
@@ -345,11 +235,7 @@ sub toXMLFileHandle {
   # print out attributes
   $self->_printAttributes($fileHandle, $attribListRef);
 
-  # now, does this object own others? if so print them
-  my @childXMLElements; # generic XML nodes we need to print 
-  @childXMLElements = @{$self->{_ChildXMLElementList}} if defined $self->{_ChildXMLElementList};
   if ( $#objList > -1 
-       or $#childXMLElements > -1 
        or defined $objPCDATA 
        or defined $noChildObjectNodeName) 
   {
@@ -357,11 +243,6 @@ sub toXMLFileHandle {
     # close the opening node
     print $fileHandle ">";
     print $fileHandle "\n" if $Pretty_XDF_Output && !defined $objPCDATA;
-
-    # by definition these are printed first 
-    for (@childXMLElements) { 
-      $_->toXMLFileHandle($fileHandle, $indent . $Pretty_XDF_Output_Indentation);
-    }
 
     # these are objects owned by this one, print them out too 
     for (@objList) { 
@@ -371,15 +252,15 @@ sub toXMLFileHandle {
            next unless defined $obj; # can happen because we allocate memory with
                                      # $DefaultDataArraySize, making undef spots possible
 
-           $indent = $self->_deal_with_opening_group_nodes($obj, $fileHandle, $indent);
-           $indent = $self->_deal_with_closing_group_nodes($obj, $fileHandle, $indent);
+           $indent = $self->_deal_with_opening_group_nodes($obj, $fileHandle, $indent, $Pretty_XDF_Output_Indentation);
+           $indent = $self->_deal_with_closing_group_nodes($obj, $fileHandle, $indent, $Pretty_XDF_Output, $Pretty_XDF_Output_Indentation);
            $obj->toXMLFileHandle($fileHandle, undef, $indent . $Pretty_XDF_Output_Indentation); 
 
         }
       } elsif (ref($_) =~ m/XDF::/) { # if its an XDF object
 
-         $indent = $self->_deal_with_opening_group_nodes($_, $fileHandle, $indent);
-         $indent = $self->_deal_with_closing_group_nodes($_, $fileHandle, $indent);
+         $indent = $self->_deal_with_opening_group_nodes($_, $fileHandle, $indent, $Pretty_XDF_Output_Indentation);
+         $indent = $self->_deal_with_closing_group_nodes($_, $fileHandle, $indent, $Pretty_XDF_Output, $Pretty_XDF_Output_Indentation);
          $_->toXMLFileHandle($fileHandle, undef, $indent . $Pretty_XDF_Output_Indentation); 
 
       } else { 
@@ -406,12 +287,12 @@ sub toXMLFileHandle {
 
     # Ok, no deal with closing this node
     if ($#nodenames > -1) {
-      $indent = $self->_deal_with_closing_group_nodes($self, $fileHandle, $indent);
+      $indent = $self->_deal_with_closing_group_nodes($self, $fileHandle, $indent, $Pretty_XDF_Output, $Pretty_XDF_Output_Indentation);
       print $fileHandle $indent if $Pretty_XDF_Output && !defined $objPCDATA;
       if(!$dontCloseNode) {
         # Im not sure that this is correct at ALL. 
         foreach my $nodename (reverse @nodenames) {
-          $nodename = $XDF_ROOT_NODE_NAME if ((defined $XMLDeclAttribs || $isRootNode)
+          $nodename = $spec->getXDFRootNodeName if ((defined $XMLDeclAttribs || $isRootNode)
                                                && $self =~ m/XDF::Structure/);
           print $fileHandle "</". $nodename . ">";
         }
@@ -486,7 +367,6 @@ sub _getXMLInfo {
   my @objList = ();
   my @attribs;
 
- 
   #foreach my $attrib (@{$self->classAttributes}) {
   foreach my $attrib (@{$self->getXMLAttributes}) {
     # DONT show private attributes (which have a leading underscore)
@@ -526,7 +406,7 @@ sub _getXMLInfo {
 
 # deal with group stuff here. Open all groups not previously opened 
 sub _deal_with_opening_group_nodes {
-  my ($self, $obj, $fileHandle, $indent) = @_;
+  my ($self, $obj, $fileHandle, $indent, $Pretty_XDF_Output_Indentation ) = @_;
 
   foreach my $group (keys %{$obj->{_groupMemberHash}}) {
     unless (exists %{$self->{_openGroupNodeHash}}->{$group}) {
@@ -542,8 +422,8 @@ sub _deal_with_opening_group_nodes {
 
 # close all groups not in this object
 sub _deal_with_closing_group_nodes {
-  my ($self, $obj, $fileHandle, $indent) = @_;
- 
+  my ($self, $obj, $fileHandle, $indent, $Pretty_XDF_Output, $Pretty_XDF_Output_Indentation) = @_;
+
   foreach my $openGroup (keys %{$self->{_openGroupNodeHash}}) {
     unless (exists %{$obj->{_groupMemberHash}}->{$openGroup}) {
        my $groupNodeName = %{$self->{_openGroupNodeHash}}->{$openGroup}->classXMLNodeName;
@@ -582,8 +462,16 @@ sub toXMLFile {
 }
 
 # private method
+sub _init {
+  my ($self) = @_;
+
+  $self->{_openGroupNodeHash} = {}; # used only by toXMLFileHandle
+  $self->{_groupMemberHash} = {}; # init of groupMember Hash (all objects have) 
+
+}
+
 sub _write_XML_decl_to_file_handle {
-  my ($self, $fileHandle, $XMLDeclAttribs) = @_;
+  my ($self, $fileHandle, $XMLDeclAttribs, $spec) = @_;
 
 # write the XML && DOCTYPE decl
   if (defined $XMLDeclAttribs) {
@@ -597,10 +485,12 @@ sub _write_XML_decl_to_file_handle {
       #  print $fileHandle " $attrib=\"",%{$XMLDeclAttribs}->{$attrib},"\"";
       #}
     } else {
-      print $fileHandle "version =\"$XML_STRUCTURE_VERSION\"";
+      print $fileHandle "version =\"".$spec->getXMLSpecVersion."\"";
     }
     print $fileHandle "?>\n";
-    print $fileHandle "<!DOCTYPE $XDF_ROOT_NODE_NAME SYSTEM \"$XDF_DTD_NAME\"";
+    my $root_name = $spec->getXDFRootNodeName;
+    my $dtd_name = $spec->getXDFDTDName;
+    print $fileHandle "<!DOCTYPE $root_name SYSTEM \"$dtd_name\"";
 
     # find all XML Href entities
     my @HrefList = @{$self->_find_All_child_Href_Objects()};
@@ -616,7 +506,7 @@ sub _write_XML_decl_to_file_handle {
 
     # find all XML notation
     my $notationString;
-    while (my ($name, $notHashRef) = each (%XML_NOTATION_HASH)) { 
+    while (my ($name, $notHashRef) = each (%{$spec->getXMLNotationHash})) { 
        my %notationHash = %{$notHashRef};
        $notationString .= "  <!NOTATION $name";
        $notationString .= " BASE \"" . $notationHash{'base'} . "\"" if defined $notationHash{'base'};
@@ -688,6 +578,9 @@ sub READLINE {
 # Modification History
 #
 # $Log$
+# Revision 1.14  2001/04/17 18:58:55  thomas
+# Ripped a ton of stuff out and put into Specification class.
+#
 # Revision 1.13  2001/03/23 22:21:45  thomas
 # *** empty log message ***
 #
@@ -791,10 +684,6 @@ This method returns a list reference containing the namesof the class attributes
 
  
 
-=item toXMLFileHandle (EMPTY)
-
-Write this structure and all the objects it owns to the supplied filehandle in XML (XDF) format. The first argument is the name of the filehandle and is required. The second, optional, argument indicates whether/how to write out the XML declaration at the beginning of the file. This second argument may either be a string or hash table. As a string is means simply to write the XML declaration and DOCTYPE. As a hash table, the attributes of the XML declaration are arranged in attribute/value pairs, e.g. %XMLDeclAttribs = ( 'version' => "1.0",'standalone => 'no',); 
-
 =back
 
 =head2 INSTANCE (Object) Methods
@@ -802,22 +691,6 @@ Write this structure and all the objects it owns to the supplied filehandle in X
 The following instance (object) methods are defined for XDF::BaseObject.
 
 =over 4
-
-=item addXMLElement ($xmlElementObjRef)
-
- 
-
-=item removeXMLElement ($xmlElementObjRef)
-
- 
-
-=item getXMLElementList (EMPTY)
-
- 
-
-=item setXMLElementList ($listRef)
-
- 
 
 =item addToGroup ($groupObj)
 
@@ -835,23 +708,15 @@ Determine if this object is a member of the reference Group object. Returns 1 if
 
 Set the XML attributes of this object using a passed Hashtable ref.  
 
-=item setXMLNotationHash ($attribHashRef)
+=item toXMLFileHandle ($fileHandle, $XMLDeclAttribs, $indent, $dontCloseNode, $newNodeNameString, $noChildObjectNodeName, $isRootNode)
 
-Set the baseobject class field NotationHash. This will be printed out with other XMLDeclarations in a toXMLFileHandle call.  
+Write this structure and all the objects it owns to the supplied filehandle in XML (XDF) format. The first argument is the name of the filehandle and is required. The second, optional, argument indicates whether/how to write out the XML declaration at the beginning of the file. This second argument may either be a string or hash table. As a string is means simply to write the XML declaration and DOCTYPE. As a hash table, the attributes of the XML declaration are arranged in attribute/value pairs, e.g. %XMLDeclAttribs = ( 'version' => "1.0",'standalone => 'no',); 
 
-=item Pretty_XDF_Output ($value)
+=item toXMLString ($XMLDeclAttribs, $indent, $dontCloseNode, $newNodeNameString, $noChildObjectNodeName, $isRootNode)
 
-If a non-zero value is supplied then pretty XDF output format will be used when the toXMLFileHandle/toXMLFile methods are called. @The default setting is 0.  
+Similar to toXMLFileHandle method, takes the same arguments barring thefirst (e.g. the FileHandle reference) which is not needed for this method. Returns a string XML representation of the object.  
 
-=item Pretty_XDF_Output_Indentation ($value)
-
-This sets value of the indentation to use if pretty XDF output format is turned on. @The default setting is 2 spaces.  
-
-=item DefaultDataArraySize ($value)
-
- 
-
-=item toXMLFile ($XMLDeclAttribs, $file)
+=item toXMLFile ($file, $XMLDeclAttribs)
 
 This is a convenience method which allows writing of this structure and all the objects it owns to the indicated file in XML (XDF) format. The first argument is the name of the file and is required. The supplied filename will be OVERWRITTEN, not appended to. The second, optional, argument has the same meaning as for toXMLFileHandle.  
 
@@ -890,7 +755,7 @@ B<new>, B<clone>, B<update>.
 
 =over 4
 
-L< XDF::Array>, L< XDF::Axis>, L< XDF::DataCube>, L< XDF::FieldAxis>, L<XDF::GenericObject>
+L< XDF::Array>, L< XDF::Axis>, L< XDF::DataCube>, L< XDF::FieldAxis>, L<XDF::GenericObject>, L<XDF::Specification>
 
 =back
 
