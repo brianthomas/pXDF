@@ -129,6 +129,10 @@ sub DATA_COMPRESSION_LIST { ( &DATA_COMPRESSION_ZIP, &DATA_COMPRESSION_GZIP,
                               &DATA_COMPRESSION_BZIP2, &DATA_COMPRESSION_XMILL,
                               &DATA_COMPRESSION_COMPRESS ); }
 
+sub LOGARITHM_NATURAL { "natural"; }
+sub LOGARITHM_BASE10  { "base10"; }
+sub LOGARITHM_LIST { (&LOGARITHM_NATURAL, &LOGARITHM_BASE10, ); }
+
 sub DATA_COMPRESSION_GZIP_PATH { "/usr/bin/gzip"; }
 sub DATA_COMPRESSION_BZIP2_PATH { "/usr/bin/bzip2"; }
 sub DATA_COMPRESSION_COMPRESS_PATH { "/usr/bin/compress"; }
@@ -215,6 +219,9 @@ sub XDF_NODE_NAMES { (
 # Modification History
 #
 # $Log$
+# Revision 1.10  2001/06/21 17:23:26  thomas
+# added Logarithm check
+#
 # Revision 1.9  2001/06/19 21:19:43  thomas
 # added compression.
 #
