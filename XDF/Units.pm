@@ -315,22 +315,6 @@ The following instance (object) methods are defined for XDF::Units.
 
 Set the factor attribute.  
 
-=item getSystem (EMPTY)
-
- 
-
-=item setSystem ($value)
-
-Set the system attribute.  
-
-=item getLogarithm (EMPTY)
-
- 
-
-=item setLogarithm ($value)
-
-Set the logarithm attribute.  
-
 =item getUnitList (EMPTY)
 
  
@@ -354,6 +338,14 @@ Set the unitList attribute.
 =item getUnits (EMPTY)
 
 Convience method. Returns an Array of units held within this object.  
+
+=item isUnitless (EMPTY)
+
+Returns true ("1") if this objects lacks any child unit objects.  
+
+=item makeUnitless (EMPTY)
+
+Releases all child unit objects, thus making this a "unitless" Units object.  
 
 =item addUnit ($unitObj)
 
@@ -393,7 +385,7 @@ B<new>, B<clone>, B<update>.
 =over 4
 
 XDF::Units inherits the following instance (object) methods of L<XDF::BaseObject>:
-B<getXMLAttributes>, B<setXMLAttributes>, B<setXMLAttribute>, B<addXMLAttribute>, B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<toXMLFileHandle>, B<toXMLString>, B<toXMLFile>.
+B<getXMLAttributes>, B<setXMLAttributes>, B<getXMLAttribute>, B<setXMLAttribute>, B<addXMLAttribute>, B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<toXMLFileHandle>, B<toXMLString>, B<toXMLFile>.
 
 =back
 
@@ -407,7 +399,7 @@ B<getXMLAttributes>, B<setXMLAttributes>, B<setXMLAttribute>, B<addXMLAttribute>
 
 =over 4
 
-L<XDF::BaseObject>, L<XDF::Utility>, L<XDF::Unit>
+L<XDF::BaseObject>, L<XDF::Log>, L<XDF::Utility>, L<XDF::Unit>
 
 =back
 

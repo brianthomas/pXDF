@@ -16,9 +16,9 @@ package XDF::XMLDeclaration;
 #    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
 # */
 
-# /** AUTHOR 
-#    Brian Thomas  (thomas@adc.gsfc.nasa.gov)
-#    Astronomical Data Center <http://adc.gsfc.nasa.gov>
+# /** AUTHOR
+#    Brian Thomas  (brian.thomas@gsfc.nasa.gov)
+#    XML Group <http://xml.gsfc.nasa.gov>
 #    NASA/Goddard Space Flight Center
 # */
 
@@ -273,7 +273,7 @@ B<new>, B<clone>, B<update>.
 =over 4
 
 XDF::XMLDeclaration inherits the following instance (object) methods of L<XDF::BaseObject>:
-B<getXMLAttributes>, B<setXMLAttributes>, B<setXMLAttribute>, B<addXMLAttribute>, B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<toXMLFileHandle>, B<toXMLString>, B<toXMLFile>.
+B<getXMLAttributes>, B<setXMLAttributes>, B<getXMLAttribute>, B<setXMLAttribute>, B<addXMLAttribute>, B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<toXMLFileHandle>, B<toXMLString>, B<toXMLFile>.
 
 =back
 
@@ -287,14 +287,14 @@ B<getXMLAttributes>, B<setXMLAttributes>, B<setXMLAttribute>, B<addXMLAttribute>
 
 =over 4
 
-L<XDF::BaseObject>, L<XDF::Utility>
+L<XDF::BaseObject>, L<XDF::Log>, L<XDF::Utility>
 
 =back
 
 =head1 AUTHOR
 
-    Brian Thomas  (thomas@adc.gsfc.nasa.gov)
-    Astronomical Data Center <http://adc.gsfc.nasa.gov>
+    Brian Thomas  (brian.thomas@gsfc.nasa.gov)
+    XML Group <http://xml.gsfc.nasa.gov>
     NASA/Goddard Space Flight Center
  
 

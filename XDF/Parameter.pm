@@ -17,9 +17,9 @@ package XDF::Parameter;
 # */
 
 
-# /** AUTHOR 
-#    Brian Thomas  (thomas@adc.gsfc.nasa.gov)
-#    Astronomical Data Center <http://adc.gsfc.nasa.gov>
+# /** AUTHOR
+#    Brian Thomas  (brian.thomas@gsfc.nasa.gov)
+#    XML Group <http://xml.gsfc.nasa.gov>
 #    NASA/Goddard Space Flight Center
 # */
 
@@ -571,7 +571,7 @@ XDF::Parameter - Perl Class for Parameter
 
  An XDF::Parameter describes a scientific parameter assocated with the  L<XDF::Structure> or L<XDF::Array> that it is contained in.  Parameter is a flexible container for holding what is essentially information  about data but is not needed to read/write/manipulate the data in a mathematical sense. 
 
-XDF::Parameter inherits class and attribute methods of L< = (>, L<XDF::BaseObjectWithXMLElementsAndValueList>.
+XDF::Parameter inherits class and attribute methods of L<XDF::BaseObjectWithXMLElementsAndValueList>, L< = (>.
 
 
 =head1 METHODS
@@ -636,13 +636,21 @@ Set the paramId attribute.
 
 Set the paramIdRef attribute.  
 
-=item getDatatype (EMPTY)
+=item getConversion (EMPTY)
 
  
 
-=item setDatatype ($value)
+=item setConversion ($value)
 
-Set the datatype attribute.  
+Set how to convert values of the data in this array.  
+
+=item getDataFormat (EMPTY)
+
+ 
+
+=item setDataFormat ($value)
+
+Sets the data format *type* for this parameter. Takes a SCALAR object referenceas its argument. Allowed objects to pass to this method include L<XDF::BinaryIntegerDataFormat>, L<XDF::BinaryFloatDataFormat>, L<XDF::FloatDataFormat>, L<XDF::IntegerDataFormat>, or L<XDF::StringDataFormat>.  
 
 =item getNoteList (EMPTY)
 
@@ -734,14 +742,14 @@ Remove an XDF::Unit object from the list of XDF::Units held inthe array units re
 
 =over 4
 
-L< XDF::Array>, L< XDF::ParameterGroup>, L< XDF::Structure>, L<XDF::Utility>, L<XDF::BaseObjectWithXMLElementsAndValueList>, L<XDF::Note>, L<XDF::Units>, L<XDF::ErroredValue>
+L< XDF::Array>, L< XDF::ParameterGroup>, L< XDF::Structure>, L<XDF::BaseObjectWithXMLElementsAndValueList>, L<XDF::ErroredValue>, L<XDF::Log>, L<XDF::Note>, L<XDF::StringDataFormat>, L<XDF::Units>, L<XDF::Utility>
 
 =back
 
 =head1 AUTHOR
 
-    Brian Thomas  (thomas@adc.gsfc.nasa.gov)
-    Astronomical Data Center <http://adc.gsfc.nasa.gov>
+    Brian Thomas  (brian.thomas@gsfc.nasa.gov)
+    XML Group <http://xml.gsfc.nasa.gov>
     NASA/Goddard Space Flight Center
  
 

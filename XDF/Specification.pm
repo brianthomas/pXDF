@@ -14,9 +14,9 @@
 #    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
 # */
 
-# /** AUTHOR 
-#    Brian Thomas  (thomas@adc.gsfc.nasa.gov)
-#    Astronomical Data Center <http://adc.gsfc.nasa.gov>
+# /** AUTHOR
+#    Brian Thomas  (brian.thomas@gsfc.nasa.gov)
+#    XML Group <http://xml.gsfc.nasa.gov>
 #    NASA/Goddard Space Flight Center
 # */
 
@@ -295,6 +295,18 @@ This value indicates the initial size of each L<XDF::Axis>/L<XDF::FieldAxis> (th
 
 Whatever new value is set currently only applies to objects created *after* this method is called.  
 
+=item setLogMessageLevel ($msgLevel)
+
+Set the log chattyness of the XDF package. All log messages are sent to STDERR. There are four levels of priority, error > warn > debug > infowhich have numerical values:@0: all levels are printed1: priority >= debug are printed2: priority >= warn are printed3: priority >= error are printed@ 
+
+=item getLogMessageLevel (EMPTY)
+
+Get the log chattyness of the XDF package. There are four levels of priority, error > warn > debug > infowhich have numerical equivalents:@0: all levels are printed1: priority >= debug are printed2: priority >= warn are printed3: priority >= error are printed 
+
+=item setLogFileHandle ($fileHandle)
+
+Set the fileHandle to which log messages will be sent. By default, messages are sent to STDERR. Usage: $Specification->getLogFileHandle(\*FILEHANDLE); 
+
 =back
 
 
@@ -321,14 +333,14 @@ Whatever new value is set currently only applies to objects created *after* this
 
 =over 4
 
-L< XDF::BaseObject>, L<XDF::Constants>
+L< XDF::Log>, L<XDF::Utility>, L<XDF::Constants>
 
 =back
 
 =head1 AUTHOR
 
-    Brian Thomas  (thomas@adc.gsfc.nasa.gov)
-    Astronomical Data Center <http://adc.gsfc.nasa.gov>
+    Brian Thomas  (brian.thomas@gsfc.nasa.gov)
+    XML Group <http://xml.gsfc.nasa.gov>
     NASA/Goddard Space Flight Center
  
 

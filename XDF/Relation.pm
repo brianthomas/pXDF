@@ -169,3 +169,129 @@ sub AUTOLOAD {
 1;
 
 
+__END__
+
+=head1 NAME
+
+XDF::Relation - Perl Class for Relation
+
+=head1 SYNOPSIS
+
+...
+
+=head1 DESCRIPTION
+
+XDF::Relation inherits class and attribute methods of L<XDF::GenericObject>, L<XDF::BaseObject>.
+
+
+=head1 METHODS
+
+=over 4
+
+=head2 CLASS Methods
+
+The following methods are defined for the class XDF::Relation.
+
+=over 4
+
+=item classXMLNodeName (EMPTY)
+
+ 
+
+=item getClassAttributes (EMPTY)
+
+ 
+
+=item getClassXMLAttributes (EMPTY)
+
+This method returns the XMLAttributes of this class.  
+
+=back
+
+=head2 INSTANCE (Object) Methods
+
+The following instance (object) methods are defined for XDF::Relation.
+
+=over 4
+
+=item getDescription (EMPTY)
+
+ 
+
+=item setDescription ($value)
+
+Set the description attribute.  
+
+=item getIdRefs (EMPTY)
+
+ 
+
+=item setIdRefs ($value)
+
+Set the idRefs attribute.  
+
+=item getRole (EMPTY)
+
+ 
+
+=item setRole ($value)
+
+Set the role attribute.  
+
+=item getRelatedIdRefs (EMPTY)
+
+Convience method which returns an array of related IdRefs.     
+
+=back
+
+
+
+=head2 INHERITED Class Methods
+
+=over 4
+
+=back
+
+
+
+=head2 INHERITED INSTANCE Methods
+
+=over 4
+
+
+
+=over 4
+
+XDF::Relation inherits the following instance (object) methods of L<XDF::GenericObject>:
+B<new>, B<clone>, B<update>.
+
+=back
+
+
+
+=over 4
+
+XDF::Relation inherits the following instance (object) methods of L<XDF::BaseObject>:
+B<getXMLAttributes>, B<setXMLAttributes>, B<getXMLAttribute>, B<setXMLAttribute>, B<addXMLAttribute>, B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<toXMLFileHandle>, B<toXMLString>, B<toXMLFile>.
+
+=back
+
+=back
+
+=back
+
+=head1 SEE ALSO
+
+
+
+=over 4
+
+L<XDF::BaseObject>, L<XDF::Log>
+
+=back
+
+=head1 AUTHOR
+
+ 
+
+=cut

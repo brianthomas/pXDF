@@ -17,9 +17,9 @@ package XDF::ValueGroup;
 # */
 
 
-# /** AUTHOR 
-#    Brian Thomas  (thomas@adc.gsfc.nasa.gov)
-#    Astronomical Data Center <http://adc.gsfc.nasa.gov>
+# /** AUTHOR
+#    Brian Thomas  (brian.thomas@gsfc.nasa.gov)
+#    XML Group <http://xml.gsfc.nasa.gov>
 #    NASA/Goddard Space Flight Center
 # */
 
@@ -243,7 +243,7 @@ B<new>, B<clone>, B<update>.
 =over 4
 
 XDF::ValueGroup inherits the following instance (object) methods of L<XDF::BaseObject>:
-B<getXMLAttributes>, B<setXMLAttributes>, B<setXMLAttribute>, B<addXMLAttribute>, B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<toXMLFileHandle>, B<toXMLString>, B<toXMLFile>.
+B<getXMLAttributes>, B<setXMLAttributes>, B<getXMLAttribute>, B<setXMLAttribute>, B<addXMLAttribute>, B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<toXMLFileHandle>, B<toXMLString>, B<toXMLFile>.
 
 =back
 
@@ -266,14 +266,14 @@ B<getName>, B<setName>, B<getDescription>, B<setDescription>, B<addMemberObject>
 
 =over 4
 
-L< XDF::ErroredValue>, L< XDF::FieldGroup>, L< XDF::ParameterGroup>, L< XDF::Value>, L<XDF::Group>, L<XDF::BaseObject>
+L< XDF::ErroredValue>, L< XDF::FieldGroup>, L< XDF::ParameterGroup>, L< XDF::Value>, L<XDF::BaseObject>, L<XDF::Group>, L<XDF::Log>
 
 =back
 
 =head1 AUTHOR
 
-    Brian Thomas  (thomas@adc.gsfc.nasa.gov)
-    Astronomical Data Center <http://adc.gsfc.nasa.gov>
+    Brian Thomas  (brian.thomas@gsfc.nasa.gov)
+    XML Group <http://xml.gsfc.nasa.gov>
     NASA/Goddard Space Flight Center
  
 

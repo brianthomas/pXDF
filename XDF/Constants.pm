@@ -16,9 +16,9 @@ package XDF::Constants;
 #    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
 # */
 
-# /** AUTHOR 
-#    Brian Thomas  (thomas@adc.gsfc.nasa.gov)
-#    Astronomical Data Center <http://adc.gsfc.nasa.gov>
+# /** AUTHOR
+#    Brian Thomas  (brian.thomas@gsfc.nasa.gov)
+#    XML Group <http://xml.gsfc.nasa.gov>
 #    NASA/Goddard Space Flight Center
 # */
 
@@ -367,6 +367,26 @@ The following methods are defined for the class XDF::Constants.
 
  
 
+=item COMPLEX_COMPONENT_LIST (EMPTY)
+
+ 
+
+=item TAGGED_DEFAULT_OUTPUTSTYLE (EMPTY)
+
+ 
+
+=item TAGGED_BYCOLANDCELL_OUTPUTSTYLE (EMPTY)
+
+ 
+
+=item TAGGED_BYROWANDCELL_OUTPUTSTYLE (EMPTY)
+
+ 
+
+=item SIMPLE_ROW_TAG (EMPTY)
+
+ 
+
 =item IO_ENCODING_UTF_8 (EMPTY)
 
  
@@ -391,7 +411,23 @@ The following methods are defined for the class XDF::Constants.
 
  
 
-=item DATATYPE_LIST (EMPTY)
+=item PARAMETER_DATATYPE_LIST (EMPTY)
+
+ 
+
+=item DATAFORMAT_ARRAY_REF (EMPTY)
+
+ 
+
+=item DATAFORMAT_BINARY_INTEGER (EMPTY)
+
+ 
+
+=item DATAFORMAT_FLOAT{ (EMPTY)
+
+ 
+
+=item DATAFORMAT_LIST (EMPTY)
 
  
 
@@ -415,6 +451,14 @@ The following methods are defined for the class XDF::Constants.
 
  
 
+=item DATA_COMPRESSION_BZIP2_PATH (EMPTY)
+
+ 
+
+=item DATA_COMPRESSION_UNZIP_PATH (EMPTY)
+
+ 
+
 =item DATA_COMPRESSION_LIST (EMPTY)
 
  
@@ -427,15 +471,11 @@ The following methods are defined for the class XDF::Constants.
 
  
 
-=item DATA_COMPRESSION_GZIP_PATH (EMPTY)
+=item TRUE_FALSE_LIST (EMPTY)
 
  
 
-=item DATA_COMPRESSION_COMPRESS_PATH (EMPTY)
-
- 
-
-=item DATA_COMPRESSION_ZIP_PATH (EMPTY)
+=item ALGORITHM_LIST (EMPTY)
 
  
 
@@ -467,15 +507,23 @@ The following methods are defined for the class XDF::Constants.
 
  
 
+=item DEFAULT_AXIS_SIZE (EMPTY)
+
+ 
+
 =item DEFAULT_VALUELIST_SIZE (EMPTY)
 
  
 
-=item DEFAULT_VALUELIST_START (EMPTY)
+=item DEFAULT_VALUELIST_DELIMITER (EMPTY)
 
  
 
-=item DEFAULT_VALUELIST_DELIMITER (EMPTY)
+=item LOG_WARN_MSG_LEVEL (EMPTY)
+
+ 
+
+=item LOG_INFO_MSG_LEVEL (EMPTY)
 
  
 
@@ -527,8 +575,8 @@ The following methods are defined for the class XDF::Constants.
 
 =head1 AUTHOR
 
-    Brian Thomas  (thomas@adc.gsfc.nasa.gov)
-    Astronomical Data Center <http://adc.gsfc.nasa.gov>
+    Brian Thomas  (brian.thomas@gsfc.nasa.gov)
+    XML Group <http://xml.gsfc.nasa.gov>
     NASA/Goddard Space Flight Center
  
 

@@ -16,9 +16,9 @@ package XDF::Field;
 #    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
 # */
 
-# /** AUTHOR 
-#    Brian Thomas  (thomas@adc.gsfc.nasa.gov)
-#    Astronomical Data Center <http://adc.gsfc.nasa.gov>
+# /** AUTHOR
+#    Brian Thomas  (brian.thomas@gsfc.nasa.gov)
+#    XML Group <http://xml.gsfc.nasa.gov>
 #    NASA/Goddard Space Flight Center
 # */
 
@@ -411,7 +411,7 @@ XDF::Field - Perl Class for Field
 
  An XDF::Field describes a field at a given indice on a field axis. 
 
-XDF::Field inherits class and attribute methods of L<XDF::GenericObject>, L<XDF::BaseObject>, L<XDF::BaseObjectWithXMLElements>.
+XDF::Field inherits class and attribute methods of L<XDF::BaseObjectWithXMLElements>, L<XDF::GenericObject>, L<XDF::BaseObject>.
 
 
 =head1 METHODS
@@ -472,7 +472,23 @@ Set the fieldId attribute.
 
 Set the fieldIdRef attribute.  
 
-=item getClass (EMPTY)
+=item getComplexComponent (EMPTY)
+
+ 
+
+=item setComplexComponent ($value)
+
+Set the complexComponent Value.  
+
+=item getConversion (EMPTY)
+
+ 
+
+=item setConversion ($value)
+
+Set how to convert values of the data in this array.  
+
+=item getUnits (EMPTY)
 
  
 
@@ -540,6 +556,15 @@ Remove an XDF::Unit object from the list of XDF::Units held inthe array units re
 
 =over 4
 
+XDF::Field inherits the following instance (object) methods of L<XDF::BaseObjectWithXMLElements>:
+B<getClassXMLAttributes>, B<addXMLElement>, B<removeXMLElement>, B<getXMLElementList>, B<setXMLElementList>.
+
+=back
+
+
+
+=over 4
+
 XDF::Field inherits the following instance (object) methods of L<XDF::GenericObject>:
 B<new>, B<clone>, B<update>.
 
@@ -550,16 +575,7 @@ B<new>, B<clone>, B<update>.
 =over 4
 
 XDF::Field inherits the following instance (object) methods of L<XDF::BaseObject>:
-B<getXMLAttributes>, B<setXMLAttributes>, B<setXMLAttribute>, B<addXMLAttribute>, B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<toXMLFileHandle>, B<toXMLString>, B<toXMLFile>.
-
-=back
-
-
-
-=over 4
-
-XDF::Field inherits the following instance (object) methods of L<XDF::BaseObjectWithXMLElements>:
-B<getClassXMLAttributes>, B<addXMLElement>, B<removeXMLElement>, B<getXMLElementList>, B<setXMLElementList>.
+B<getXMLAttributes>, B<setXMLAttributes>, B<getXMLAttribute>, B<setXMLAttribute>, B<addXMLAttribute>, B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<toXMLFileHandle>, B<toXMLString>, B<toXMLFile>.
 
 =back
 
@@ -573,14 +589,14 @@ B<getClassXMLAttributes>, B<addXMLElement>, B<removeXMLElement>, B<getXMLElement
 
 =over 4
 
-L< XDF::FieldAxis>, L<XDF::BaseObjectWithXMLElements>, L<XDF::DataFormat>, L<XDF::Units>
+L< XDF::FieldAxis>, L< XDF::Relationship;>, L<XDF::BaseObjectWithXMLElements>, L<XDF::DataFormat>, L<XDF::Units>
 
 =back
 
 =head1 AUTHOR
 
-    Brian Thomas  (thomas@adc.gsfc.nasa.gov)
-    Astronomical Data Center <http://adc.gsfc.nasa.gov>
+    Brian Thomas  (brian.thomas@gsfc.nasa.gov)
+    XML Group <http://xml.gsfc.nasa.gov>
     NASA/Goddard Space Flight Center
  
 

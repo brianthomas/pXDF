@@ -21,9 +21,9 @@
 # This is meant to be a private, internal class of the XDF Reader
 # */
 
-# /** AUTHOR 
-#    Brian Thomas  (thomas@adc.gsfc.nasa.gov)
-#    Astronomical Data Center <http://adc.gsfc.nasa.gov>
+# /** AUTHOR
+#    Brian Thomas  (brian.thomas@gsfc.nasa.gov)
+#    XML Group <http://xml.gsfc.nasa.gov>
 #    NASA/Goddard Space Flight Center
 # */
 
@@ -71,8 +71,6 @@ for my $attr ( @Class_Attributes ) { $field{$attr}++; }
 
 # /** new
 # We use default values for start, step, and size unless they are defined.
-# The other parameters are optional (e.g. noDataValue, infiniteValue, ...)
-# and will remain undefined unless specified by the user.
 # */
 sub new {
   my ($proto, $attribs_ref) = @_;
@@ -161,12 +159,13 @@ sub getStep { my ($self) = @_; return $self->{Attribs}{step}; }
 sub getSize { my ($self) = @_; return $self->{Attribs}{size}; }
 sub getDelimiter { my ($self) = @_; return $self->{Attribs}{delimiter}; }
 sub getRepeatable { my ($self) = @_; return $self->{Attribs}{repeatable}; }
-sub getInfinite { my ($self) = @_; return $self->{Attribs}{infiniteValue}; }
-sub getInfiniteNegative { my ($self) = @_; return $self->{Attribs}{infiniteNegativeValue}; }
-sub getNoData{ my ($self) = @_; return $self->{Attribs}{noDataValue}; }
-sub getNotANumber { my ($self) = @_; return $self->{Attribs}{notANumberValue}; }
-sub getOverflow { my ($self) = @_; return $self->{Attribs}{overflowValue}; }
-sub getUnderflow { my ($self) = @_; return $self->{Attribs}{underflowValue}; }
+
+#sub getInfinite { my ($self) = @_; return $self->{Attribs}{infiniteValue}; }
+#sub getInfiniteNegative { my ($self) = @_; return $self->{Attribs}{infiniteNegativeValue}; }
+#sub getNoData{ my ($self) = @_; return $self->{Attribs}{noDataValue}; }
+#sub getNotANumber { my ($self) = @_; return $self->{Attribs}{notANumberValue}; }
+#sub getOverflow { my ($self) = @_; return $self->{Attribs}{overflowValue}; }
+#sub getUnderflow { my ($self) = @_; return $self->{Attribs}{underflowValue}; }
 
 sub _init {
    my ($self, $attribs_ref) = @_;
@@ -243,7 +242,7 @@ The following methods are defined for the class XDF::Reader::ValueList.
 
 =item new ($attribs_ref)
 
-We use default values for start, step, and size unless they are defined. The other parameters are optional (e.g. noDataValue, infiniteValue, ...)and will remain undefined unless specified by the user.  
+We use default values for start, step, and size unless they are defined. 
 
 =item getStart (EMPTY)
 
@@ -254,18 +253,6 @@ We use default values for start, step, and size unless they are defined. The oth
  
 
 =item getRepeatable (EMPTY)
-
- 
-
-=item getInfiniteNegative (EMPTY)
-
- 
-
-=item getNotANumber (EMPTY)
-
- 
-
-=item getUnderflow (EMPTY)
 
  
 
@@ -354,8 +341,8 @@ L<XDF::GenericObject>
 
 =head1 AUTHOR
 
-    Brian Thomas  (thomas@adc.gsfc.nasa.gov)
-    Astronomical Data Center <http://adc.gsfc.nasa.gov>
+    Brian Thomas  (brian.thomas@gsfc.nasa.gov)
+    XML Group <http://xml.gsfc.nasa.gov>
     NASA/Goddard Space Flight Center
  
 

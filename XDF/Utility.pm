@@ -16,9 +16,9 @@ package XDF::Utility;
 #    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
 # */
 
-# /** AUTHOR 
-#    Brian Thomas  (thomas@adc.gsfc.nasa.gov)
-#    Astronomical Data Center <http://adc.gsfc.nasa.gov>
+# /** AUTHOR
+#    Brian Thomas  (brian.thomas@gsfc.nasa.gov)
+#    XML Group <http://xml.gsfc.nasa.gov>
 #    NASA/Goddard Space Flight Center
 # */
 
@@ -468,9 +468,25 @@ Determine if the passed quanity is an allowed value for the typeattribute of the
 
 Determine if the passed quanity is an allowed value for the encodingattribute of XMLDataIOStyle objects.  
 
-=item isValidDatatype ($value)
+=item isValidAxisSize ($value)
 
-Determine if the passed quanity is an allowed value for the datatypeattribute of the Parameter object and the axisDatatype attribute ofthe Axis object.  
+Determine if the passed quanity is an allowed value for the size ofan XDF::Axis object.  
+
+=item isValidComplexComponent ($value)
+
+Determine if this value is a valid complex component for Fields.  
+
+=item isValidUnits ($value)
+
+Determine if the passed quanity is an allowed value for Units (e.g. an object of Units class).  
+
+=item isValidParameterDatatype ($value)
+
+Determine if the passed quanity is an allowed value for the datatypeattribute of the Parameter object  
+
+=item isValidDataFormat ($value)
+
+Determine if the passed quanity is an allowed value for the dataformatattribute of the Array/Axis/Field objects  
 
 =item isValidDataEncoding ($value)
 
@@ -486,7 +502,15 @@ Determine if the passed quanity is an allowed value for the compressionattribute
 
 =item isValidLogarithm ($value)
 
-Determine if the passed quanity is an allowed value for the logarithmattribute on the Units object.  
+Determine if the passed quanity is an allowed value for the logarithmattribute.  
+
+=item isValidReverse ($value)
+
+Determine if the passed quanity is an allowed value for the reverseattribute.  
+
+=item isValidAlgorithm ($value)
+
+ 
 
 =item isValidFloatBits ($value)
 
@@ -500,6 +524,10 @@ Determine if the passed quanity is an allowed value for the bits attributeof the
 
 Determine if the passed quanity is an allowed value for the signed attributeof the BinaryIntegerDataFormat object.  
 
+=item isValidLogMsgLevel ($value)
+
+Determine if the passed quanity is an allowed value for the setLogMsgLevel method in Specification.  
+
 =item isValidXMLStandalone ($value)
 
 Determine if the passed quanity is an allowed value for the XMLDeclarationstandalone attribute.  
@@ -511,6 +539,10 @@ Determine if the passed quanity is an allowed value for the special attributeof 
 =item isValidValueInequality ($value)
 
 Determine if the passed quanity is an allowed value for the inequality attributeof the Value object.  
+
+=item isValidTaggedOutputStyle ($value, $parentArray)
+
+Determine if the current TaggedDataStyle object may bechanged to the new output style. Requires an array reference be also passed. It is assumed the array is the parent ofthe tagged data style object.  
 
 =item reverseBitStringByteOrder ($bitString, $numOfBits)
 
@@ -527,6 +559,14 @@ Reverses the *byte* ordering of the passed 32 bit string. Returns revsersed bits
 =item reverse64BitStringByteOrder ($bitString)
 
 Reverses the *byte* ordering of the passed 64 bit string. Returns revsersed bitstring.  
+
+=item getDataDecompressionProgram ($compression_type)
+
+ 
+
+=item getDataCompressionProgram ($compression_type)
+
+ 
 
 =back
 
@@ -560,8 +600,8 @@ L<XDF::Constants>
 
 =head1 AUTHOR
 
-    Brian Thomas  (thomas@adc.gsfc.nasa.gov)
-    Astronomical Data Center <http://adc.gsfc.nasa.gov>
+    Brian Thomas  (brian.thomas@gsfc.nasa.gov)
+    XML Group <http://xml.gsfc.nasa.gov>
     NASA/Goddard Space Flight Center
  
 

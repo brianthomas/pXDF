@@ -14,9 +14,9 @@
 #    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
 # */
 
-# /** AUTHOR 
-#    Brian Thomas  (thomas@adc.gsfc.nasa.gov)
-#    Astronomical Data Center <http://adc.gsfc.nasa.gov>
+# /** AUTHOR
+#    Brian Thomas  (brian.thomas@gsfc.nasa.gov)
+#    XML Group <http://xml.gsfc.nasa.gov>
 #    NASA/Goddard Space Flight Center
 # */
 
@@ -507,9 +507,9 @@ This method returns a list reference containing the namesof the class attributes
 
 This method returns the XMLAttributes of this class.  
 
-=item new ($valueListRef, $delimiter, $noDataValue, $infiniteValue, $infiniteNegativeValue, $notANumberValue, $overflowValue, $underflowValue)
+=item new ($attrib_hash_ref, $valueListRef)
 
-Constructs a valueList object with Values in passed List. Care should be taken that none of the Value objects are setto the same sequence of characters as the passed delimiter (or the default delimiter if no delimiter variable is passed).  
+Constructs a delimited valueList object with ValueObjs in passed List. Care should be taken that none of the Value objects are setto the same sequence of characters as the passed delimiter (or the default delimiter if no delimiter attribute is passed).  
 
 =back
 
@@ -541,51 +541,27 @@ Set the valueListIdRef attribute.
 
 =item getValues (EMPTY)
 
-Return the list of values held in this object.  
+Return the list of valueObjs held in this object.  
 
-=item getNoDataValue (EMPTY)
+=item setValues ($valueListRef)
 
-Return the particular value in the list that indicates a 'noData' value.  
+Set the list of valueObjs held by this object.  
 
-=item setNoDataValue ($value)
+=item getDelimiter (EMPTY)
 
-Set the particular value in the list that indicates a 'noData' value.  
+Return the delimiter string between values.   
 
-=item getInfiniteValue (EMPTY)
+=item setDelimiter ($value)
 
-Return the particular value in the list that indicates an 'infinite' value.  
+Set the delimiter string between values.   
 
-=item setInfiniteValue ($value)
+=item getRepeatable (EMPTY)
 
-Set the particular value in the list that indicates an 'infinite' value.  
+Get the repeatable attribute. Repeatable will tell whether or not the delimiting string between values may repeat.  
 
-=item getNotANumberValue (EMPTY)
+=item setRepeatable ($value)
 
-Return the particular value in the list that indicates an 'notANumber' value.  
-
-=item setNotANumberValue ($value)
-
-Set the particular value in the list that indicates an 'notANumber' value.  
-
-=item getUnderflowValue (EMPTY)
-
-Return the particular value in the list that indicates an 'underflow' value.  
-
-=item setUnderflowValue ($value)
-
-Set the particular value in the list that indicates an 'underflow' value.  
-
-=item getOverflowValue (EMPTY)
-
-Return the particular value in the list that indicates an 'overflow' value.  
-
-=item setOverflowValue ($value)
-
-Set the particular value in the list that indicates an 'overflow' value.  
-
-=item toXMLFileHandle ($fileHandle, $XMLDeclAttribs, $indent)
-
- 
+Set whether or not the delimiting string between values may repeat.  
 
 =back
 
@@ -617,7 +593,7 @@ B<update>.
 =over 4
 
 XDF::ValueListDelimitedList inherits the following instance (object) methods of L<XDF::BaseObject>:
-B<getXMLAttributes>, B<setXMLAttributes>, B<setXMLAttribute>, B<addXMLAttribute>, B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<toXMLFileHandle>, B<toXMLString>, B<toXMLFile>.
+B<getXMLAttributes>, B<setXMLAttributes>, B<getXMLAttribute>, B<setXMLAttribute>, B<addXMLAttribute>, B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<toXMLFileHandle>, B<toXMLString>, B<toXMLFile>.
 
 =back
 
@@ -631,14 +607,14 @@ B<getXMLAttributes>, B<setXMLAttributes>, B<setXMLAttribute>, B<addXMLAttribute>
 
 =over 4
 
-L< XDF::Axis>, L< XDF::Parameter>, L< XDF::ValueListAlgorithm>, L<XDF::BaseObject>, L<XDF::Value>
+L< XDF::Axis>, L< XDF::Parameter>, L< XDF::ValueListAlgorithm>, L<XDF::BaseObject>, L<XDF::Log>, L<XDF::Value>
 
 =back
 
 =head1 AUTHOR
 
-    Brian Thomas  (thomas@adc.gsfc.nasa.gov)
-    Astronomical Data Center <http://adc.gsfc.nasa.gov>
+    Brian Thomas  (brian.thomas@gsfc.nasa.gov)
+    XML Group <http://xml.gsfc.nasa.gov>
     NASA/Goddard Space Flight Center
  
 

@@ -17,9 +17,9 @@ package XDF::TaggedXMLDataIOStyle;
 
 # $Id$
 
-# /** AUTHOR 
-#    Brian Thomas  (thomas@adc.gsfc.nasa.gov)
-#    Astronomical Data Center <http://adc.gsfc.nasa.gov>
+# /** AUTHOR
+#    Brian Thomas  (brian.thomas@gsfc.nasa.gov)
+#    XML Group <http://xml.gsfc.nasa.gov>
 #    NASA/Goddard Space Flight Center
 # */
 
@@ -385,6 +385,14 @@ The following instance (object) methods are defined for XDF::TaggedXMLDataIOStyl
 
 =over 4
 
+=item getOutputStyle (EMPTY)
+
+Get the type of tagged output which is desired 
+
+=item setOutputStyle ($value)
+
+ 
+
 =item setAxisTag ($tag, $axisId)
 
 Set an association between an XDF data tag and axis reference. One day we will hopefully be able to support user defined tags, but for the time being you will have to stick to those specified by the XDF DTD(e.g. "d0","d1", ... "d8"). Note that choosing the wrong tag name will break the current XDF DTD, so go with the defaults (e.g. DONT use this method) if you dont know what you are doing here.  
@@ -395,7 +403,7 @@ Set an association between an XDF data tag and axis reference. One day we will h
 
 =item getAxisTags (EMPTY)
 
- 
+Return an axis ordered list (ARRAY REF) of tags to be used to write tagged data.  
 
 =back
 
@@ -427,7 +435,7 @@ B<new>, B<clone>, B<update>.
 =over 4
 
 XDF::TaggedXMLDataIOStyle inherits the following instance (object) methods of L<XDF::BaseObject>:
-B<getXMLAttributes>, B<setXMLAttributes>, B<setXMLAttribute>, B<addXMLAttribute>, B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<toXMLFileHandle>, B<toXMLString>, B<toXMLFile>.
+B<getXMLAttributes>, B<setXMLAttributes>, B<getXMLAttribute>, B<setXMLAttribute>, B<addXMLAttribute>, B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<toXMLString>, B<toXMLFile>.
 
 =back
 
@@ -436,7 +444,7 @@ B<getXMLAttributes>, B<setXMLAttributes>, B<setXMLAttribute>, B<addXMLAttribute>
 =over 4
 
 XDF::TaggedXMLDataIOStyle inherits the following instance (object) methods of L<XDF::XMLDataIOStyle>:
-B<untaggedInstructionNodeName>, B<getDataStyleId{>, B<setDataStyleId>, B<getDataStyleIdRef>, B<setDataStyleIdRef>, B<getEncoding{>, B<setEncoding>, B<getEndian{>, B<setEndian>, B<getWriteAxisOrderList>, B<setWriteAxisOrderList>.
+B<untaggedInstructionNodeName>, B<getDataStyleId{>, B<setDataStyleId>, B<getDataStyleIdRef>, B<setDataStyleIdRef>, B<getEncoding>, B<setEncoding>, B<getEndian{>, B<setEndian>, B<getWriteAxisOrderList>, B<setWriteAxisOrderList>, B<setParentArray>, B<toXMLFileHandle>.
 
 =back
 
@@ -450,14 +458,14 @@ B<untaggedInstructionNodeName>, B<getDataStyleId{>, B<setDataStyleId>, B<getData
 
 =over 4
 
-L<XDF::XMLDataIOStyle>, L<XDF::Constants>
+L<XDF::XMLDataIOStyle>, L<XDF::Constants>, L<XDF::Log>
 
 =back
 
 =head1 AUTHOR
 
-    Brian Thomas  (thomas@adc.gsfc.nasa.gov)
-    Astronomical Data Center <http://adc.gsfc.nasa.gov>
+    Brian Thomas  (brian.thomas@gsfc.nasa.gov)
+    XML Group <http://xml.gsfc.nasa.gov>
     NASA/Goddard Space Flight Center
  
 

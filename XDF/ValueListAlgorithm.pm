@@ -14,9 +14,9 @@
 #    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
 # */
 
-# /** AUTHOR 
-#    Brian Thomas  (thomas@adc.gsfc.nasa.gov)
-#    Astronomical Data Center <http://adc.gsfc.nasa.gov>
+# /** AUTHOR
+#    Brian Thomas  (brian.thomas@gsfc.nasa.gov)
+#    XML Group <http://xml.gsfc.nasa.gov>
 #    NASA/Goddard Space Flight Center
 # */
 
@@ -548,9 +548,9 @@ This method returns a list reference containing the namesof the class attributes
 
 This method returns the XMLAttributes of this class.  
 
-=item new ($start, $step, $size, $noDataValue, $infiniteValue, $infiniteNegativeValue, $notANumberValue, $overflowValue, $underflowValue)
+=item new ($attribHashRef)
 
-We use default values for start, step, and size unless they are defined. The other parameters are optional (e.g. noDataValue, infiniteValue, ...)and will remain undefined unless specified by the user.  
+We use default values for start, step, and size unless they are defined. The other parameters are optional and will remain undefined unless specified by the user.  
 
 =back
 
@@ -580,57 +580,14 @@ Set the valueListIdRef attribute.
 
 Return the list of values held in this object.  
 
-=item getNoDataValue (EMPTY)
+=item getAlgorithm (EMPTY)
 
-Return the particular value in the list that indicates a 'noData' value.  
+Return the algorithm used to generate the values held in this object.  
 
-=item setNoDataValue ($value)
-
-Set the particular value in the list that indicates a 'noData' value.  
-
-=item getInfiniteValue (EMPTY)
-
-Return the particular value in the list that indicates an 'infinite' value.  
-
-=item setInfiniteValue ($value)
-
-Set the particular value in the list that indicates an 'infinite' value.  
-
-=item getInfiniteNegativeValue (EMPTY)
-
-Return the particular value in the list that indicates an 'infiniteNegative' value.  
-
-=item setInfiniteNegativeValue ($value)
-
-Set the particular value in the list that indicates an 'infiniteNegative' value.  
-
-=item getNotANumberValue (EMPTY)
-
-Return the particular value in the list that indicates an 'notANumber' value.  
-
-=item setNotANumberValue ($value)
-
-Set the particular value in the list that indicates an 'notANumber' value.  
-
-=item getUnderflowValue (EMPTY)
-
-Return the particular value in the list that indicates an 'underflow' value.  
-
-=item setUnderflowValue ($value)
-
-Set the particular value in the list that indicates an 'underflow' value.  
-
-=item getOverflowValue (EMPTY)
-
-Return the particular value in the list that indicates an 'overflow' value.  
-
-=item setOverflowValue ($value)
-
-Set the particular value in the list that indicates an 'overflow' value.  
-
-=item toXMLFileHandle ($fileHandle, $XMLDeclAttribs, $indent)
+=item setAlgorithm ($algorithm)
 
  
+
 =back
 
 
@@ -661,7 +618,7 @@ B<clone>, B<update>.
 =over 4
 
 XDF::ValueListAlgorithm inherits the following instance (object) methods of L<XDF::BaseObject>:
-B<getXMLAttributes>, B<setXMLAttributes>, B<setXMLAttribute>, B<addXMLAttribute>, B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<toXMLFileHandle>, B<toXMLString>, B<toXMLFile>.
+B<getXMLAttributes>, B<setXMLAttributes>, B<getXMLAttribute>, B<setXMLAttribute>, B<addXMLAttribute>, B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<toXMLFileHandle>, B<toXMLString>, B<toXMLFile>.
 
 =back
 
@@ -675,14 +632,14 @@ B<getXMLAttributes>, B<setXMLAttributes>, B<setXMLAttribute>, B<addXMLAttribute>
 
 =over 4
 
-L< XDF::Axis>, L< XDF::Parameter>, L< XDF::ValueListDelimitedList>, L<XDF::BaseObject>, L<XDF::Value>
+L< XDF::Axis>, L< XDF::Parameter>, L< XDF::ValueListDelimitedList>, L<XDF::BaseObject>, L<XDF::Log>, L<XDF::Value>
 
 =back
 
 =head1 AUTHOR
 
-    Brian Thomas  (thomas@adc.gsfc.nasa.gov)
-    Astronomical Data Center <http://adc.gsfc.nasa.gov>
+    Brian Thomas  (brian.thomas@gsfc.nasa.gov)
+    XML Group <http://xml.gsfc.nasa.gov>
     NASA/Goddard Space Flight Center
  
 

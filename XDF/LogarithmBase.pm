@@ -14,7 +14,7 @@
 #    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
 # */
 
-# /** AUTHOR 
+# /** AUTHOR
 #    Brian Thomas  (brian.thomas@gsfc.nasa.gov)
 #    XML Group <http://xml.gsfc.nasa.gov>
 #    NASA/Goddard Space Flight Center
@@ -172,3 +172,123 @@ sub AUTOLOAD {
 
 1;
 
+
+__END__
+
+=head1 NAME
+
+XDF::LogarithmBase - Perl Class for LogarithmBase
+
+=head1 SYNOPSIS
+
+...
+
+=head1 DESCRIPTION
+
+ An XDF::LogarithmBase is a class that defines an logarithm with arbritrary base  component for an XDF::Conversion object. 
+
+XDF::LogarithmBase inherits class and attribute methods of L<XDF::GenericObject>, L<XDF::ConversionComponent>, L<XDF::BaseObject>.
+
+
+=head1 METHODS
+
+=over 4
+
+=head2 CLASS Methods
+
+The following methods are defined for the class XDF::LogarithmBase.
+
+=over 4
+
+=item classXMLNodeName (EMPTY)
+
+This method takes no arguments may not be changed. This method returns the class node name of XDF::LogarithmBase.  
+
+=item getClassAttributes (EMPTY)
+
+This method returns a list reference containing the namesof the class attributes for this class. This method takes no arguments may not be changed.  
+
+=item getClassXMLAttributes (EMPTY)
+
+This method returns the XMLAttributes of this class.  
+
+=item new ($attribHashOrValue)
+
+ 
+
+=back
+
+=head2 INSTANCE (Object) Methods
+
+The following instance (object) methods are defined for XDF::LogarithmBase.
+
+=over 4
+
+=item getValue (EMPTY)
+
+ 
+
+=item setValue ($value)
+
+Set the value attribute.  
+
+=item evaluate ($value)
+
+Evaluate a value using this conversion object. Returns the convertedvalue.  
+
+=back
+
+
+
+=head2 INHERITED Class Methods
+
+=over 4
+
+=back
+
+
+
+=head2 INHERITED INSTANCE Methods
+
+=over 4
+
+
+
+=over 4
+
+XDF::LogarithmBase inherits the following instance (object) methods of L<XDF::GenericObject>:
+B<clone>, B<update>.
+
+=back
+
+
+
+=over 4
+
+XDF::LogarithmBase inherits the following instance (object) methods of L<XDF::BaseObject>:
+B<getXMLAttributes>, B<setXMLAttributes>, B<getXMLAttribute>, B<setXMLAttribute>, B<addXMLAttribute>, B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<toXMLFileHandle>, B<toXMLString>, B<toXMLFile>.
+
+=back
+
+=back
+
+=back
+
+=head1 SEE ALSO
+
+
+
+=over 4
+
+L< XDF::Conversion>, L<XDF::ConversionComponent; >
+
+=back
+
+=head1 AUTHOR
+
+    Brian Thomas  (brian.thomas@gsfc.nasa.gov)
+    XML Group <http://xml.gsfc.nasa.gov>
+    NASA/Goddard Space Flight Center
+ 
+
+=cut

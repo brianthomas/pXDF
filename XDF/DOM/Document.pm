@@ -14,9 +14,9 @@
 #    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
 # */
 
-# /** AUTHOR 
-#    Brian Thomas  (thomas@adc.gsfc.nasa.gov)
-#    Astronomical Data Center <http://adc.gsfc.nasa.gov>
+# /** AUTHOR
+#    Brian Thomas  (brian.thomas@gsfc.nasa.gov)
+#    XML Group <http://xml.gsfc.nasa.gov>
 #    NASA/Goddard Space Flight Center
 # */
 
@@ -223,6 +223,10 @@ Creates an XDF element node. Returns an XDF::DOM::Element whichmay be inserted w
 
  
 
+=item toString (EMPTY)
+
+ 
+
 =item toXMLString (EMPTY)
 
  
@@ -259,8 +263,8 @@ L< XDF::DOM::Parser>, L< XDF::DOM::Element>, L< XDF::XDF>, L<XDF::DOM>, L<XDF::D
 
 =head1 AUTHOR
 
-    Brian Thomas  (thomas@adc.gsfc.nasa.gov)
-    Astronomical Data Center <http://adc.gsfc.nasa.gov>
+    Brian Thomas  (brian.thomas@gsfc.nasa.gov)
+    XML Group <http://xml.gsfc.nasa.gov>
     NASA/Goddard Space Flight Center
  
 

@@ -315,6 +315,10 @@ The following methods are defined for the class XDF::DelimitedXMLDataIOStyle.
 
 This method returns the XMLAttributes of this class.  
 
+=item new ($parentArray, $attribHash)
+
+ 
+
 =back
 
 =head2 INSTANCE (Object) Methods
@@ -360,7 +364,7 @@ Set the recordTerminator attribute.
 =over 4
 
 XDF::DelimitedXMLDataIOStyle inherits the following instance (object) methods of L<XDF::GenericObject>:
-B<new>, B<clone>, B<update>.
+B<clone>, B<update>.
 
 =back
 
@@ -369,7 +373,7 @@ B<new>, B<clone>, B<update>.
 =over 4
 
 XDF::DelimitedXMLDataIOStyle inherits the following instance (object) methods of L<XDF::BaseObject>:
-B<getXMLAttributes>, B<setXMLAttributes>, B<setXMLAttribute>, B<addXMLAttribute>, B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<toXMLFileHandle>, B<toXMLString>, B<toXMLFile>.
+B<getXMLAttributes>, B<setXMLAttributes>, B<getXMLAttribute>, B<setXMLAttribute>, B<addXMLAttribute>, B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<toXMLString>, B<toXMLFile>.
 
 =back
 
@@ -378,7 +382,7 @@ B<getXMLAttributes>, B<setXMLAttributes>, B<setXMLAttribute>, B<addXMLAttribute>
 =over 4
 
 XDF::DelimitedXMLDataIOStyle inherits the following instance (object) methods of L<XDF::XMLDataIOStyle>:
-B<untaggedInstructionNodeName>, B<getDataStyleId{>, B<setDataStyleId>, B<getDataStyleIdRef>, B<setDataStyleIdRef>, B<getEncoding{>, B<setEncoding>, B<getEndian{>, B<setEndian>, B<getWriteAxisOrderList>, B<setWriteAxisOrderList>.
+B<untaggedInstructionNodeName>, B<getDataStyleId{>, B<setDataStyleId>, B<getDataStyleIdRef>, B<setDataStyleIdRef>, B<getEncoding>, B<setEncoding>, B<getEndian{>, B<setEndian>, B<getWriteAxisOrderList>, B<setWriteAxisOrderList>, B<setParentArray>, B<toXMLFileHandle>.
 
 =back
 
@@ -392,7 +396,7 @@ B<untaggedInstructionNodeName>, B<getDataStyleId{>, B<setDataStyleId>, B<getData
 
 =over 4
 
-L<XDF::XMLDataIOStyle>
+L<XDF::XMLDataIOStyle>, L<XDF::RecordTerminator>, L<XDF::Delimiter>
 
 =back
 

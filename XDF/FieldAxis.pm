@@ -16,9 +16,9 @@ package XDF::FieldAxis;
 #    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
 # */
 
-# /** AUTHOR 
-#    Brian Thomas  (thomas@adc.gsfc.nasa.gov)
-#    Astronomical Data Center <http://adc.gsfc.nasa.gov>
+# /** AUTHOR
+#    Brian Thomas  (brian.thomas@gsfc.nasa.gov)
+#    XML Group <http://xml.gsfc.nasa.gov>
 #    NASA/Goddard Space Flight Center
 # */
 
@@ -598,7 +598,7 @@ This method returns the XMLAttributes of this class.
 
 =item new ($attribHashOrSize, $fieldWidth)
 
- 
+Create a new field axis. Optionally, if you specify the size attribute,the axis will be created with that many fields, each having a StringDataFormatof $fieldWidth size.  
 
 =back
 
@@ -662,7 +662,11 @@ Set the align attribute.
 
 =item getLength (EMPTY)
 
-return the length of this field axis (eg number of field objects)  
+return the length of this field axis (eg the number of fields held by this field axis)  
+
+=item getSize (EMPTY)
+
+Return the size (length) of this field axis (eg the number of fields held by this field axis)  
 
 =item addField ($fieldObj)
 
@@ -722,7 +726,7 @@ B<clone>, B<update>.
 =over 4
 
 XDF::FieldAxis inherits the following instance (object) methods of L<XDF::BaseObject>:
-B<getXMLAttributes>, B<setXMLAttributes>, B<setXMLAttribute>, B<addXMLAttribute>, B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<toXMLFileHandle>, B<toXMLString>, B<toXMLFile>.
+B<getXMLAttributes>, B<setXMLAttributes>, B<getXMLAttribute>, B<setXMLAttribute>, B<addXMLAttribute>, B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<toXMLFileHandle>, B<toXMLString>, B<toXMLFile>.
 
 =back
 
@@ -736,14 +740,14 @@ B<getXMLAttributes>, B<setXMLAttributes>, B<setXMLAttribute>, B<addXMLAttribute>
 
 =over 4
 
-L< XDF::Array>, L< XDF::Axis>, L<XDF::BaseObject>, L<XDF::Field>, L<XDF::StringDataFormat>, L<XDF::FieldGroup>
+L< XDF::Array>, L< XDF::Axis>, L<XDF::BaseObject>, L<XDF::Field>, L<XDF::Log>, L<XDF::StringDataFormat>, L<XDF::FieldGroup>
 
 =back
 
 =head1 AUTHOR
 
-    Brian Thomas  (thomas@adc.gsfc.nasa.gov)
-    Astronomical Data Center <http://adc.gsfc.nasa.gov>
+    Brian Thomas  (brian.thomas@gsfc.nasa.gov)
+    XML Group <http://xml.gsfc.nasa.gov>
     NASA/Goddard Space Flight Center
  
 

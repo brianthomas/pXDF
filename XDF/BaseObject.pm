@@ -39,9 +39,9 @@ package XDF::BaseObject;
 # XDF::FieldAxis
 # */
 
-# /** AUTHOR 
-#    Brian Thomas  (thomas@adc.gsfc.nasa.gov)
-#    Astronomical Data Center <http://adc.gsfc.nasa.gov>
+# /** AUTHOR
+#    Brian Thomas  (brian.thomas@gsfc.nasa.gov)
+#    XML Group <http://xml.gsfc.nasa.gov>
 #    NASA/Goddard Space Flight Center
 # */
 
@@ -667,6 +667,10 @@ This method returns a list reference containing the namesof the class attributes
 
 Return a list ref of the XML attributes for this class.  
 
+=item getXMLAttribute (EMPTY)
+
+Return the value of an XML attribute.  
+
 =back
 
 =head2 INSTANCE (Object) Methods
@@ -685,7 +689,7 @@ Set the XML attributes of this object using a passed Hashtable ref.
 
 =item setXMLAttribute ($attrib, $value)
 
- 
+Set the value of an XML Attribute.  
 
 =item addXMLAttribute ($attrib, $value)
 
@@ -750,14 +754,14 @@ B<new>, B<clone>, B<update>.
 
 =over 4
 
-L< XDF::Array>, L< XDF::Axis>, L< XDF::DataCube>, L< XDF::FieldAxis>, L<XDF::GenericObject>, L<XDF::Specification>
+L< XDF::Array>, L< XDF::Axis>, L< XDF::DataCube>, L< XDF::FieldAxis>, L<XDF::GenericObject>, L<XDF::Specification>, L<XDF::Log>
 
 =back
 
 =head1 AUTHOR
 
-    Brian Thomas  (thomas@adc.gsfc.nasa.gov)
-    Astronomical Data Center <http://adc.gsfc.nasa.gov>
+    Brian Thomas  (brian.thomas@gsfc.nasa.gov)
+    XML Group <http://xml.gsfc.nasa.gov>
     NASA/Goddard Space Flight Center
  
 

@@ -17,9 +17,9 @@ package XDF::XDF;
 # */
 
 
-# /** AUTHOR 
-#    Brian Thomas  (thomas@adc.gsfc.nasa.gov)
-#    Astronomical Data Center <http://adc.gsfc.nasa.gov>
+# /** AUTHOR
+#    Brian Thomas  (brian.thomas@gsfc.nasa.gov)
+#    XML Group <http://xml.gsfc.nasa.gov>
 #    NASA/Goddard Space Flight Center
 # */
 
@@ -337,7 +337,7 @@ XDF::XDF - Perl Class for XDF
     
  XDF::XDF inherits from XDF::Structure, and is itself the top level structure in any XDF object. 
 
-XDF::XDF inherits class and attribute methods of L<XDF::GenericObject>, L<XDF::BaseObject>, L<XDF::BaseObjectWithXMLElements>, L<XDF::Structure>.
+XDF::XDF inherits class and attribute methods of L<XDF::BaseObjectWithXMLElements>, L<XDF::GenericObject>, L<XDF::BaseObject>, L<XDF::Structure>.
 
 
 =head1 METHODS
@@ -418,6 +418,15 @@ Read in an XML file into this XDF object. The current XDF object, if it has any 
 
 =over 4
 
+XDF::XDF inherits the following instance (object) methods of L<XDF::BaseObjectWithXMLElements>:
+B<addXMLElement>, B<removeXMLElement>, B<getXMLElementList>, B<setXMLElementList>.
+
+=back
+
+
+
+=over 4
+
 XDF::XDF inherits the following instance (object) methods of L<XDF::GenericObject>:
 B<new>, B<clone>, B<update>.
 
@@ -428,16 +437,7 @@ B<new>, B<clone>, B<update>.
 =over 4
 
 XDF::XDF inherits the following instance (object) methods of L<XDF::BaseObject>:
-B<getXMLAttributes>, B<setXMLAttributes>, B<setXMLAttribute>, B<addXMLAttribute>, B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<toXMLFileHandle>, B<toXMLString>, B<toXMLFile>.
-
-=back
-
-
-
-=over 4
-
-XDF::XDF inherits the following instance (object) methods of L<XDF::BaseObjectWithXMLElements>:
-B<addXMLElement>, B<removeXMLElement>, B<getXMLElementList>, B<setXMLElementList>.
+B<getXMLAttributes>, B<setXMLAttributes>, B<getXMLAttribute>, B<setXMLAttribute>, B<addXMLAttribute>, B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<toXMLFileHandle>, B<toXMLString>, B<toXMLFile>.
 
 =back
 
@@ -460,14 +460,14 @@ B<getName>, B<setName>, B<getDescription>, B<setDescription>, B<getArrayList>, B
 
 =over 4
 
-L<XDF::Structure>, L<XDF::Reader>
+L<XDF::Structure>, L<XDF::Log>, L<XDF::Reader>
 
 =back
 
 =head1 AUTHOR
 
-    Brian Thomas  (thomas@adc.gsfc.nasa.gov)
-    Astronomical Data Center <http://adc.gsfc.nasa.gov>
+    Brian Thomas  (brian.thomas@gsfc.nasa.gov)
+    XML Group <http://xml.gsfc.nasa.gov>
     NASA/Goddard Space Flight Center
  
 

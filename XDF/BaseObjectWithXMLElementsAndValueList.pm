@@ -13,9 +13,9 @@
 #    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
 # */
 
-# /** AUTHOR 
-#    Brian Thomas  (thomas@adc.gsfc.nasa.gov)
-#    Astronomical Data Center <http://adc.gsfc.nasa.gov>
+# /** AUTHOR
+#    Brian Thomas  (brian.thomas@gsfc.nasa.gov)
+#    XML Group <http://xml.gsfc.nasa.gov>
 #    NASA/Goddard Space Flight Center
 # */
 
@@ -295,14 +295,14 @@ This method returns a list reference containing the namesof the class attributes
 
 =over 4
 
-L< XDF::Array>, L< XDF::Structure>, L<XDF::BaseObjectWithXMLElements>, L<XDF::BaseObjectWithValueList>
+L< XDF::Array>, L< XDF::Structure>, L<XDF::BaseObjectWithXMLElements>, L<XDF::BaseObjectWithValueList>, L<XDF::Log>
 
 =back
 
 =head1 AUTHOR
 
-    Brian Thomas  (thomas@adc.gsfc.nasa.gov)
-    Astronomical Data Center <http://adc.gsfc.nasa.gov>
+    Brian Thomas  (brian.thomas@gsfc.nasa.gov)
+    XML Group <http://xml.gsfc.nasa.gov>
     NASA/Goddard Space Flight Center
  
 

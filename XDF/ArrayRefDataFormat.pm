@@ -16,9 +16,9 @@ package XDF::ArrayRefDataFormat;
 #    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
 # */
 
-# /** AUTHOR 
-#    Brian Thomas  (thomas@adc.gsfc.nasa.gov)
-#    Astronomical Data Center <http://adc.gsfc.nasa.gov>
+# /** AUTHOR
+#    Brian Thomas  (brian.thomas@gsfc.nasa.gov)
+#    XML Group <http://xml.gsfc.nasa.gov>
 #    NASA/Goddard Space Flight Center
 # */
 
@@ -120,3 +120,119 @@ sub _init {
 1;
 
 
+__END__
+
+=head1 NAME
+
+XDF::ArrayRefDataFormat - Perl Class for ArrayRefDataFormat
+
+=head1 SYNOPSIS
+
+  
+
+
+...
+
+=head1 DESCRIPTION
+
+ XDF::ArrayRefDataFormat is the class that describes array within cell data by using an arrayId to locate N-dimensional representation of the data of that cell. 
+
+XDF::ArrayRefDataFormat inherits class and attribute methods of L<XDF::GenericObject>, L<XDF::BaseObject>, L<XDF::StringDataFormat>, L<XDF::DataFormat>.
+
+
+=head1 METHODS
+
+=over 4
+
+=head2 CLASS Methods
+
+The following methods are defined for the class XDF::ArrayRefDataFormat.
+
+=over 4
+
+=item classXMLNodeName (EMPTY)
+
+This method returns the class node name of XDF::BinaryFloatField. This method takes no arguments may not be changed.  
+
+=item getClassAttributes (EMPTY)
+
+This method returns a list reference containing the namesof the class attributes of XDF::ArrayRefDataFormat. This method takes no arguments may not be changed.  
+
+=item getClassXMLAttributes (EMPTY)
+
+This method returns the XMLAttributes of this class.  
+
+=back
+
+
+
+=head2 INHERITED Class Methods
+
+=over 4
+
+=back
+
+
+
+=head2 INHERITED INSTANCE Methods
+
+=over 4
+
+
+
+=over 4
+
+XDF::ArrayRefDataFormat inherits the following instance (object) methods of L<XDF::GenericObject>:
+B<new>, B<clone>, B<update>.
+
+=back
+
+
+
+=over 4
+
+XDF::ArrayRefDataFormat inherits the following instance (object) methods of L<XDF::BaseObject>:
+B<getXMLAttributes>, B<setXMLAttributes>, B<getXMLAttribute>, B<setXMLAttribute>, B<addXMLAttribute>, B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<toXMLFileHandle>, B<toXMLString>, B<toXMLFile>.
+
+=back
+
+
+
+=over 4
+
+XDF::ArrayRefDataFormat inherits the following instance (object) methods of L<XDF::StringDataFormat>:
+B<getLength>, B<setLength>, B<getWidth>, B<setWidth>, B<numOfBytes>, B<fortranNotation>.
+
+=back
+
+
+
+=over 4
+
+XDF::ArrayRefDataFormat inherits the following instance (object) methods of L<XDF::DataFormat>:
+B<getInfiniteValue>, B<setInfiniteValue>, B<getInfiniteNegativeValue>, B<setInfiniteNegativeValue>, B<getNoDataValue>, B<setNoDataValue>, B<getNotANumberValue>, B<setNotANumberValue>, B<getOverFlowValue>, B<setOverFlowValue>, B<getUnderFlowValue>, B<setUnderFlowValue>, B<getDisabledValue>, B<setDisabledValue>.
+
+=back
+
+=back
+
+=back
+
+=head1 SEE ALSO
+
+
+
+=over 4
+
+L<XDF::StringDataFormat>, L<XDF::Log>
+
+=back
+
+=head1 AUTHOR
+
+    Brian Thomas  (brian.thomas@gsfc.nasa.gov)
+    XML Group <http://xml.gsfc.nasa.gov>
+    NASA/Goddard Space Flight Center
+ 
+
+=cut

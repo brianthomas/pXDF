@@ -17,9 +17,9 @@ package XDF::Axis;
 #    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
 # */
 
-# /** AUTHOR 
-#    Brian Thomas  (thomas@adc.gsfc.nasa.gov)
-#    Astronomical Data Center <http://adc.gsfc.nasa.gov>
+# /** AUTHOR
+#    Brian Thomas  (brian.thomas@gsfc.nasa.gov)
+#    XML Group <http://xml.gsfc.nasa.gov>
 #    NASA/Goddard Space Flight Center
 # */
 
@@ -900,7 +900,7 @@ XDF::Axis - Perl Class for Axis
 
  There must be one axis (or fieldAxis) for every dimension in the datacube. There are n indices for every axis (n>= 1).  Each axis declaration defines the values of ALL the indices  along that dimension. Values of the indices in that axis need  not follow any algorthm for progression BUT each must be unique within the axis. A unit may be assocated with the axis.  Note that the unit specified for the axis indices is not the  same as the unit of the data held within the data cube. 
 
-XDF::Axis inherits class and attribute methods of L< = (>, L<XDF::BaseObjectWithXMLElementsAndValueList>.
+XDF::Axis inherits class and attribute methods of L<XDF::BaseObjectWithXMLElementsAndValueList>, L< = (>.
 
 
 =head1 METHODS
@@ -953,13 +953,29 @@ Set the name attribute.
 
  
 
-=item getAxisDatatype (EMPTY)
+=item getConversion (EMPTY)
 
  
 
+=item setConversion ($value)
+
+Set how to convert values of the data in this array.  
+
+=item getAxisDatatype (EMPTY)
+
+Deprecated in this version.  
+
 =item setAxisDatatype ($value)
 
-Set the axisDatatype attribute.  
+ 
+
+=item getLabelDataFormat (EMPTY)
+
+Get the description of the format of the axis labeling.  
+
+=item setLabelDataFormat ($value)
+
+Set the description of the format of the axis labeling. Thus, if an axis has labeled indices of "0", "1", "2", "3"it is appropriate to describe them as either "integerDataFormat"or "stringDataFormat" (integer is probably better).  
 
 =item getSize (EMPTY)
 
@@ -967,7 +983,7 @@ Set the axisDatatype attribute.
 
 =item setSize ($value)
 
-Set the size (number of indices) of this axis. This attribute must be a non-zero whole number. Changing the size of the axis removes all the axisValuesfrom the axis if the new size is smaller than the old one(So, if you shrink the size of the axis, you have to add the values of the indices back in).  
+Set the size (number of indices) of this axis. This attribute must be a non-zero whole number. Reducing the size of the axis will remove all the current axisValues from the axis.  
 
 =item getUnits (EMPTY)
 
@@ -1093,8 +1109,8 @@ L<XDF::BaseObjectWithXMLElementsAndValueList>, L<XDF::UnitDirection>, L<XDF::Val
 
 =head1 AUTHOR
 
-    Brian Thomas  (thomas@adc.gsfc.nasa.gov)
-    Astronomical Data Center <http://adc.gsfc.nasa.gov>
+    Brian Thomas  (brian.thomas@gsfc.nasa.gov)
+    XML Group <http://xml.gsfc.nasa.gov>
     NASA/Goddard Space Flight Center
  
 

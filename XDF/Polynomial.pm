@@ -16,9 +16,9 @@ package XDF::Polynomial;
 #    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
 # */
 
-# /** AUTHOR 
-#    Brian Thomas  (thomas@adc.gsfc.nasa.gov)
-#    Astronomical Data Center <http://adc.gsfc.nasa.gov>
+# /** AUTHOR
+#    Brian Thomas  (brian.thomas@gsfc.nasa.gov)
+#    XML Group <http://xml.gsfc.nasa.gov>
 #    NASA/Goddard Space Flight Center
 # */
 
@@ -278,3 +278,150 @@ sub AUTOLOAD {
 
 1;
 
+
+__END__
+
+=head1 NAME
+
+XDF::Polynomial - Perl Class for Polynomial
+
+=head1 SYNOPSIS
+
+  
+
+
+...
+
+=head1 DESCRIPTION
+
+ An XDF::Polynomial describes a type of algorithm. It is used in other XDF objects to describe/generate numerical values. 
+
+XDF::Polynomial inherits class and attribute methods of L<XDF::GenericObject>, L<XDF::BaseObject>.
+
+
+=head1 METHODS
+
+=over 4
+
+=head2 CLASS Methods
+
+The following methods are defined for the class XDF::Polynomial.
+
+=over 4
+
+=item classXMLNodeName (EMPTY)
+
+This method returns the class node name of XDF::Polynomial. This method takes no arguments may not be changed.  
+
+=item getClassAttributes (EMPTY)
+
+This method returns a list reference containing the namesof the class attributes for this class. This method takes no arguments may not be changed.  
+
+=item getClassXMLAttributes (EMPTY)
+
+This method returns the XMLAttributes of this class.  
+
+=back
+
+=head2 INSTANCE (Object) Methods
+
+The following instance (object) methods are defined for XDF::Polynomial.
+
+=over 4
+
+=item getSize (EMPTY)
+
+Get the number of values to calculate.  
+
+=item setSize ($value)
+
+Set the number of values to calculate.  
+
+=item getReverse (EMPTY)
+
+Determine whether or not the numerical sequence is reversed.  
+
+=item setReverse ($value)
+
+Set whether or not the numerical sequence is reversed.  
+
+=item getLogarithm (EMPTY)
+
+Determine whether or not output values are logrithmic or not.  
+
+=item setLogarithm ($value)
+
+Set the logarithm attribute. Values may be "10", "natural" or undef (e.g. not logarithmic) 
+
+=item getOwner (EMPTY)
+
+Return the owner (parent) object of this polynomial.  
+
+=item setCoefficients ($coefficientListRef)
+
+Set the list of coefficients on this polynomial. Calling this will re-generate numbers in the parent object (if any).  
+
+=item getCoefficients (EMPTY)
+
+Return the list of coefficients used to generate the list of values.  
+
+=item getValues (EMPTY)
+
+return a list of numerical values as described by the attributes of this polynomial.  
+
+=back
+
+
+
+=head2 INHERITED Class Methods
+
+=over 4
+
+=back
+
+
+
+=head2 INHERITED INSTANCE Methods
+
+=over 4
+
+
+
+=over 4
+
+XDF::Polynomial inherits the following instance (object) methods of L<XDF::GenericObject>:
+B<new>, B<clone>, B<update>.
+
+=back
+
+
+
+=over 4
+
+XDF::Polynomial inherits the following instance (object) methods of L<XDF::BaseObject>:
+B<getXMLAttributes>, B<setXMLAttributes>, B<getXMLAttribute>, B<setXMLAttribute>, B<addXMLAttribute>, B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<toXMLFileHandle>, B<toXMLString>, B<toXMLFile>.
+
+=back
+
+=back
+
+=back
+
+=head1 SEE ALSO
+
+
+
+=over 4
+
+L< XDF::ValueListAlgorithm>, L<XDF::BaseObject>, L<XDF::Constants>, L<XDF::Utility>, L<XDF::Log>
+
+=back
+
+=head1 AUTHOR
+
+    Brian Thomas  (brian.thomas@gsfc.nasa.gov)
+    XML Group <http://xml.gsfc.nasa.gov>
+    NASA/Goddard Space Flight Center
+ 
+
+=cut

@@ -31,9 +31,9 @@ package XDF::Reader;
 # and formatted XDF data styles are supported.
 # */
 
-# /** AUTHOR 
-#    Brian Thomas  (thomas@adc.gsfc.nasa.gov)
-#    Astronomical Data Center <http://adc.gsfc.nasa.gov>
+# /** AUTHOR
+#    Brian Thomas  (brian.thomas@gsfc.nasa.gov)
+#    XML Group <http://xml.gsfc.nasa.gov>
 #    NASA/Goddard Space Flight Center
 # */
 
@@ -3772,14 +3772,14 @@ This sets the subroutine which will handle all nodes which DONT match  an entry 
 
 =over 4
 
-L<XDF::Array>, L<XDF::BinaryFloatDataFormat>, L<XDF::BinaryIntegerDataFormat>, L<XDF::Constants>, L<XDF::DelimitedXMLDataIOStyle>, L<XDF::Delimiter>, L<XDF::DocumentType>, L<XDF::Entity>, L<XDF::Field>, L<XDF::FloatDataFormat>, L<XDF::FormattedXMLDataIOStyle>, L<XDF::TaggedXMLDataIOStyle>, L<XDF::Log>, L<XDF::NewLine>, L<XDF::NotationNode>, L<XDF::IntegerDataFormat>, L<XDF::Parameter>, L<XDF::Polynomial>, L<XDF::Reader::ValueList>, L<XDF::RecordTerminator>, L<XDF::RepeatFormattedIOCmd>, L<XDF::ReadCellFormattedIOCmd>, L<XDF::SkipCharFormattedIOCmd>, L<XDF::StringDataFormat>, L<XDF::Structure>, L<XDF::ValueListAlgorithm>, L<XDF::ValueListDelimitedList>, L<XDF::XMLDataIOStyle>, L<XDF::XMLElementNode>, L<XDF::XMLDeclaration>, L<XDF::XDF>
+L<XDF::Add>, L<XDF::Array>, L<XDF::ArrayRefDataFormat>, L<XDF::BinaryFloatDataFormat>, L<XDF::BinaryIntegerDataFormat>, L<XDF::ColAxis>, L<XDF::Conversion>, L<XDF::Constants>, L<XDF::DelimitedXMLDataIOStyle>, L<XDF::Delimiter>, L<XDF::DocumentType>, L<XDF::Entity>, L<XDF::Exponent>, L<XDF::ExponentOn>, L<XDF::Field>, L<XDF::FloatDataFormat>, L<XDF::FormattedXMLDataIOStyle>, L<XDF::TaggedXMLDataIOStyle>, L<XDF::LogarithmBase>, L<XDF::Log>, L<XDF::Multiply>, L<XDF::NaturalLogarithm>, L<XDF::NewLine>, L<XDF::NotationNode>, L<XDF::IntegerDataFormat>, L<XDF::Parameter>, L<XDF::Polynomial>, L<XDF::Reader::ValueList>, L<XDF::RecordTerminator>, L<XDF::Relation>, L<XDF::RepeatFormattedIOCmd>, L<XDF::ReadCellFormattedIOCmd>, L<XDF::RowAxis>, L<XDF::SkipCharFormattedIOCmd>, L<XDF::StringDataFormat>, L<XDF::Structure>, L<XDF::ValueListAlgorithm>, L<XDF::ValueListDelimitedList>, L<XDF::XMLDataIOStyle>, L<XDF::XMLElementNode>, L<XDF::XMLDeclaration>, L<XDF::XDF>
 
 =back
 
 =head1 AUTHOR
 
-    Brian Thomas  (thomas@adc.gsfc.nasa.gov)
-    Astronomical Data Center <http://adc.gsfc.nasa.gov>
+    Brian Thomas  (brian.thomas@gsfc.nasa.gov)
+    XML Group <http://xml.gsfc.nasa.gov>
     NASA/Goddard Space Flight Center
  
 

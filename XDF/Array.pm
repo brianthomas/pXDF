@@ -16,9 +16,9 @@ package XDF::Array;
 #    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
 # */
 
-# /** AUTHOR 
-#    Brian Thomas  (thomas@adc.gsfc.nasa.gov)
-#    Astronomical Data Center <http://adc.gsfc.nasa.gov>
+# /** AUTHOR
+#    Brian Thomas  (brian.thomas@gsfc.nasa.gov)
+#    XML Group <http://xml.gsfc.nasa.gov>
 #    NASA/Goddard Space Flight Center
 # */
 
@@ -1102,7 +1102,7 @@ XDF::Array - Perl Class for Array
   
 
 
-XDF::Array inherits class and attribute methods of L<XDF::GenericObject>, L<XDF::BaseObject>, L<XDF::BaseObjectWithXMLElements>.
+XDF::Array inherits class and attribute methods of L<XDF::BaseObjectWithXMLElements>, L<XDF::GenericObject>, L<XDF::BaseObject>.
 
 
 =head1 METHODS
@@ -1175,97 +1175,13 @@ Set the arrayId attribute.
 
 Set the appendTo attribute.    
 
-=item getLessThanValue (EMPTY)
+=item getConversion (EMPTY)
 
  
 
-=item setLessThanValue ($value)
+=item setConversion ($value)
 
-Set the lessThanValue attribute.  
-
-=item getLessThanOrEqualValue (EMPTY)
-
- 
-
-=item setLessThanOrEqualValue ($value)
-
-Set the lessThanOrEqualValue attribute.  
-
-=item getGreaterThanValue (EMPTY)
-
- 
-
-=item setGreaterThanValue ($value)
-
-Set the greaterThanValue attribute.  
-
-=item getGreaterThanOrEqualValue (EMPTY)
-
- 
-
-=item setGreaterThanOrEqualValue ($value)
-
-Set the greaterThanOrEqualValue attribute.  
-
-=item getInfiniteValue (EMPTY)
-
- 
-
-=item setInfiniteValue ($value)
-
-Set the infiniteValue attribute.  
-
-=item getInfiniteNegativeValue (EMPTY)
-
- 
-
-=item setInfiniteNegativeValue ($value)
-
-Set the infiniteNegativeValue attribute.  
-
-=item getNoDataValue (EMPTY)
-
- 
-
-=item setNoDataValue ($value)
-
-Set the noDataValue attribute.  
-
-=item getNotANumberValue (EMPTY)
-
- 
-
-=item setNotANumberValue ($value)
-
-Set the notANumberValue attribute.  
-
-=item getOverFlowValue (EMPTY)
-
- 
-
-=item setOverFlowValue ($value)
-
-Set the overFlowValue attribute.  
-
-=item getUnderFlowValue (EMPTY)
-
- 
-
-=item setUnderFlowValue ($value)
-
-Set the underFlowValue attribute.  
-
-=item getDisabledValue (EMPTY)
-
- 
-
-=item setDisabledValue ($value)
-
-Set the disabledValue attribute.  
-
-=item getDataCube (EMPTY)
-
- 
+Set how to convert values of the data in this array. Should NOT be set IF there is a field axis in the array.  
 
 =item getAxisList (EMPTY)
 
@@ -1319,9 +1235,25 @@ Returns the notes object held by this object.
 
  
 
+=item getRowAxis (EMPTY)
+
+ 
+
+=item getColAxis (EMPTY)
+
+ 
+
 =item setXMLDataIOStyle ($val)
 
 Set the XMLDataIOStyle object for this array.  
+
+=item getRelation (EMPTY)
+
+ 
+
+=item setRelation ($value)
+
+Set the relation attribute.  
 
 =item getXMLDataIOStyle (EMPTY)
 
@@ -1334,6 +1266,14 @@ Get/set the dimension of the L<XDF::DataCube> held within this Array.
 =item getDataFormatList (EMPTY)
 
 Get the dataFormatList for this array. Returns an ARRAY of dataFormat objects.  
+
+=item getCacheDataToDisk (EMPTY)
+
+Determine if the data is being stored in system memory or ina (disk) file (e.g. simple database treatment). This is needed for large datasets which *wont* fit into memoryon a given machine -or- may be helpfull to improve IO speed on a medium size dataset which *will* fit in memory but requires the machine to swap. The user must decide when its appropriateand your mileage may vary.  
+
+=item setCacheDataToDisk ($cacheData)
+
+This *may* work on populated Array but its much more safeto only alter this attribute *before* loading the data into the array.  
 
 =item createLocator (EMPTY)
 
@@ -1356,6 +1296,14 @@ Insert an XDF::Axis object into this object. This method takes a reference to an
 Remove an XDF::Axis object from the list of XDF::Axesheld within this object. This method takes either the list index number or an object reference as its argument. RETURNS : 1 on success, 0 on failure.  
 
 =item hasFieldAxis (EMPTY)
+
+ 
+
+=item hasRowAxis (EMPTY)
+
+ 
+
+=item hasColAxis (EMPTY)
 
  
 
@@ -1403,9 +1351,21 @@ Set the Field Axis of this Array. If an undef value is passed,then the field Axi
 
 Removes the L<XDF::FieldAxis> object in this Array. Returns 1 on success, 0 on failure.  
 
-=item hasFieldAxis (EMPTY)
+=item parseAndLoadDataString ($locator, $dataBlock, $startByte, $endByte, $delayLoad)
 
- 
+Cause the given dataString to be read in as directed by the various settings in this array (e.g. XMLDataIOStyle, DataFormat, etc). The data String may be either in the Formatted or Delimited DataIOStyles. If delayLoad is true, then the data will be cached for later parsing/loading when it is actually demaned by the user. Using this setting speeds loading(and then accessing) meta-data in Arrays with large amounts of data.  
+
+=item reloadAllExternalData (EMPTY)
+
+This method will cause the array to (re)-load all of the External href resource data into itself (again).  
+
+=item hasSpecialIntegers (EMPTY)
+
+Returns true if one or more fields in this array contain non-decimalASCII integer data (binary data are excepted).  
+
+=item hasBinaryData (EMPTY)
+
+Returns true if one or more fields in this array contain binary data.  
 
 =back
 
@@ -1427,6 +1387,15 @@ Removes the L<XDF::FieldAxis> object in this Array. Returns 1 on success, 0 on f
 
 =over 4
 
+XDF::Array inherits the following instance (object) methods of L<XDF::BaseObjectWithXMLElements>:
+B<addXMLElement>, B<removeXMLElement>, B<getXMLElementList>, B<setXMLElementList>.
+
+=back
+
+
+
+=over 4
+
 XDF::Array inherits the following instance (object) methods of L<XDF::GenericObject>:
 B<new>, B<clone>, B<update>.
 
@@ -1437,16 +1406,7 @@ B<new>, B<clone>, B<update>.
 =over 4
 
 XDF::Array inherits the following instance (object) methods of L<XDF::BaseObject>:
-B<getXMLAttributes>, B<setXMLAttributes>, B<setXMLAttribute>, B<addXMLAttribute>, B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<toXMLFileHandle>, B<toXMLString>, B<toXMLFile>.
-
-=back
-
-
-
-=over 4
-
-XDF::Array inherits the following instance (object) methods of L<XDF::BaseObjectWithXMLElements>:
-B<addXMLElement>, B<removeXMLElement>, B<getXMLElementList>, B<setXMLElementList>.
+B<getXMLAttributes>, B<setXMLAttributes>, B<getXMLAttribute>, B<setXMLAttribute>, B<addXMLAttribute>, B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<toXMLFileHandle>, B<toXMLString>, B<toXMLFile>.
 
 =back
 
@@ -1460,14 +1420,14 @@ B<addXMLElement>, B<removeXMLElement>, B<getXMLElementList>, B<setXMLElementList
 
 =over 4
 
-L<XDF::BaseObjectWithXMLElements>, L<XDF::Axis>, L<XDF::DataCube>, L<XDF::DataFormat>, L<XDF::FieldAxis>, L<XDF::Locator>, L<XDF::Notes>, L<XDF::Parameter>, L<XDF::ParameterGroup>, L<XDF::DelimitedXMLDataIOStyle>, L<XDF::Units>
+L< XDF::Relationship;>, L<XDF::BaseObjectWithXMLElements>, L<XDF::Axis>, L<XDF::DataCube>, L<XDF::DataFormat>, L<XDF::FieldAxis>, L<XDF::Locator>, L<XDF::Log>, L<XDF::Notes>, L<XDF::Parameter>, L<XDF::ParameterGroup>, L<XDF::DelimitedXMLDataIOStyle>, L<XDF::Units>
 
 =back
 
 =head1 AUTHOR
 
-    Brian Thomas  (thomas@adc.gsfc.nasa.gov)
-    Astronomical Data Center <http://adc.gsfc.nasa.gov>
+    Brian Thomas  (brian.thomas@gsfc.nasa.gov)
+    XML Group <http://xml.gsfc.nasa.gov>
     NASA/Goddard Space Flight Center
  
 

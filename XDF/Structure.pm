@@ -17,9 +17,9 @@ package XDF::Structure;
 # */
 
 
-# /** AUTHOR 
-#    Brian Thomas  (thomas@adc.gsfc.nasa.gov)
-#    Astronomical Data Center <http://adc.gsfc.nasa.gov>
+# /** AUTHOR
+#    Brian Thomas  (brian.thomas@gsfc.nasa.gov)
+#    XML Group <http://xml.gsfc.nasa.gov>
 #    NASA/Goddard Space Flight Center
 # */
 
@@ -564,7 +564,7 @@ XDF::Structure - Perl Class for Structure
     
  XDF::Structure is a means of grouping/associating XDF::Parameter objects, which hold  scientific content of the data, and XDF::Array objects which hold the mathematical content  of the data. If an XDF::Structure holds a parameter with several XDF::Array objects then the  parameter is assumed to be applicable to all of the array child nodes. Sub-structure (e.g. other  XDF::Structure objects) may be held within a structure to create more fine-grained associations between parameters and arrays. 
 
-XDF::Structure inherits class and attribute methods of L<XDF::GenericObject>, L<XDF::BaseObject>, L<XDF::BaseObjectWithXMLElements>.
+XDF::Structure inherits class and attribute methods of L<XDF::BaseObjectWithXMLElements>, L<XDF::GenericObject>, L<XDF::BaseObject>.
 
 
 =head1 METHODS
@@ -705,6 +705,15 @@ Remove an XDF::ParameterGroup object from the hash table of XDF::ParameterGroups
 
 =over 4
 
+XDF::Structure inherits the following instance (object) methods of L<XDF::BaseObjectWithXMLElements>:
+B<addXMLElement>, B<removeXMLElement>, B<getXMLElementList>, B<setXMLElementList>.
+
+=back
+
+
+
+=over 4
+
 XDF::Structure inherits the following instance (object) methods of L<XDF::GenericObject>:
 B<new>, B<clone>, B<update>.
 
@@ -715,16 +724,7 @@ B<new>, B<clone>, B<update>.
 =over 4
 
 XDF::Structure inherits the following instance (object) methods of L<XDF::BaseObject>:
-B<getXMLAttributes>, B<setXMLAttributes>, B<setXMLAttribute>, B<addXMLAttribute>, B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<toXMLFileHandle>, B<toXMLString>, B<toXMLFile>.
-
-=back
-
-
-
-=over 4
-
-XDF::Structure inherits the following instance (object) methods of L<XDF::BaseObjectWithXMLElements>:
-B<addXMLElement>, B<removeXMLElement>, B<getXMLElementList>, B<setXMLElementList>.
+B<getXMLAttributes>, B<setXMLAttributes>, B<getXMLAttribute>, B<setXMLAttribute>, B<addXMLAttribute>, B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<toXMLFileHandle>, B<toXMLString>, B<toXMLFile>.
 
 =back
 
@@ -738,14 +738,14 @@ B<addXMLElement>, B<removeXMLElement>, B<getXMLElementList>, B<setXMLElementList
 
 =over 4
 
-L<XDF::BaseObjectWithXMLElements>, L<XDF::Array>, L<XDF::Parameter>, L<XDF::ParameterGroup>
+L<XDF::BaseObjectWithXMLElements>, L<XDF::Array>, L<XDF::Parameter>, L<XDF::ParameterGroup>, L<XDF::Log>
 
 =back
 
 =head1 AUTHOR
 
-    Brian Thomas  (thomas@adc.gsfc.nasa.gov)
-    Astronomical Data Center <http://adc.gsfc.nasa.gov>
+    Brian Thomas  (brian.thomas@gsfc.nasa.gov)
+    XML Group <http://xml.gsfc.nasa.gov>
     NASA/Goddard Space Flight Center
  
 

@@ -16,9 +16,9 @@ package XDF::StringDataFormat;
 #    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
 # */
 
-# /** AUTHOR 
-#    Brian Thomas  (thomas@adc.gsfc.nasa.gov)
-#    Astronomical Data Center <http://adc.gsfc.nasa.gov>
+# /** AUTHOR
+#    Brian Thomas  (brian.thomas@gsfc.nasa.gov)
+#    XML Group <http://xml.gsfc.nasa.gov>
 #    NASA/Goddard Space Flight Center
 # */
 
@@ -253,7 +253,7 @@ XDF::StringDataFormat - Perl Class for StringDataFormat
 
  XDF::StringDataFormat is the class that describes string data. 
 
-XDF::StringDataFormat inherits class and attribute methods of L<XDF::GenericObject>, L<XDF::DataFormat>, L<XDF::BaseObject>.
+XDF::StringDataFormat inherits class and attribute methods of L<XDF::GenericObject>, L<XDF::BaseObject>, L<XDF::DataFormat>.
 
 
 =head1 METHODS
@@ -286,13 +286,29 @@ The following instance (object) methods are defined for XDF::StringDataFormat.
 
 =over 4
 
+=item getLength (EMPTY)
+
+Get the width of this string field in characters. Normally this translates to the number of bytes the object holds,however, note that the encoding of the data is important. Whenthe encoding is UTF-16, then the number of bytes effectively is twicethe value of $obj->getLength().  
+
+=item setLength ($value)
+
+Set the (character) length attribute.  
+
+=item getWidth (EMPTY)
+
+Returns the length of this string in bytes. -- currently not working properly (unless you choose 8-bit encoding :) 
+
+=item setWidth ($value)
+
+A convenience method, same as setLength();  
+
 =item numOfBytes (EMPTY)
 
 A convenience method. Return the number of bytes this XDF::StringDataFormat holds.  
 
 =item fortranNotation (EMPTY)
 
-The fortran style notation for this object.  
+A convenience method to generate the FORTRAN notation for this dataformat. Returns the FORTRAN DataFormat notation.  
 
 =back
 
@@ -324,7 +340,16 @@ B<new>, B<clone>, B<update>.
 =over 4
 
 XDF::StringDataFormat inherits the following instance (object) methods of L<XDF::BaseObject>:
-B<getXMLAttributes>, B<setXMLAttributes>, B<setXMLAttribute>, B<addXMLAttribute>, B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<toXMLFileHandle>, B<toXMLString>, B<toXMLFile>.
+B<getXMLAttributes>, B<setXMLAttributes>, B<getXMLAttribute>, B<setXMLAttribute>, B<addXMLAttribute>, B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<toXMLFileHandle>, B<toXMLString>, B<toXMLFile>.
+
+=back
+
+
+
+=over 4
+
+XDF::StringDataFormat inherits the following instance (object) methods of L<XDF::DataFormat>:
+B<getInfiniteValue>, B<setInfiniteValue>, B<getInfiniteNegativeValue>, B<setInfiniteNegativeValue>, B<getNoDataValue>, B<setNoDataValue>, B<getNotANumberValue>, B<setNotANumberValue>, B<getOverFlowValue>, B<setOverFlowValue>, B<getUnderFlowValue>, B<setUnderFlowValue>, B<getDisabledValue>, B<setDisabledValue>.
 
 =back
 
@@ -338,14 +363,14 @@ B<getXMLAttributes>, B<setXMLAttributes>, B<setXMLAttribute>, B<addXMLAttribute>
 
 =over 4
 
-L<XDF::DataFormat>
+L<XDF::DataFormat>, L<XDF::Log>
 
 =back
 
 =head1 AUTHOR
 
-    Brian Thomas  (thomas@adc.gsfc.nasa.gov)
-    Astronomical Data Center <http://adc.gsfc.nasa.gov>
+    Brian Thomas  (brian.thomas@gsfc.nasa.gov)
+    XML Group <http://xml.gsfc.nasa.gov>
     NASA/Goddard Space Flight Center
  
 

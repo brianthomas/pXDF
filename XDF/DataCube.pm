@@ -16,9 +16,9 @@ package XDF::DataCube;
 #    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
 # */
 
-# /** AUTHOR 
-#    Brian Thomas  (thomas@adc.gsfc.nasa.gov)
-#    Astronomical Data Center <http://adc.gsfc.nasa.gov>
+# /** AUTHOR
+#    Brian Thomas  (brian.thomas@gsfc.nasa.gov)
+#    XML Group <http://xml.gsfc.nasa.gov>
 #    NASA/Goddard Space Flight Center
 # */
 
@@ -1707,10 +1707,6 @@ This method returns a list reference containing the namesof the class attributes
 
 This method returns the XMLAttributes of this class.  
 
-=item toXMLFileHandle (EMPTY)
-
-We overwrite the toXMLFileHandle method supplied by L<XDF::BaseObject> to have some special handling for the XDF::DataCube. The interface for thismethod remains the same however.  
-
 =back
 
 =head2 INSTANCE (Object) Methods
@@ -1734,6 +1730,10 @@ Set the checksum attribute.
 =item setEndByte ($endByte)
 
 Set the endByte attribute.  
+
+=item getHrefList (EMPTY)
+
+ 
 
 =item getHref (EMPTY)
 
@@ -1765,17 +1765,15 @@ Set the encoding attribute.
 
 =item getStartByte (EMPTY)
 
-=item addHref ($hrefObjectRef)
-
-add an Href Object to the dataCube 
-
-=item writeDataToFileHandle ($fileHandle, $indent, $compression_type)
-
-Writes out just the data to the proscribed filehandle.  
+ 
 
 =item setStartByte ($startByte)
 
 Set the startByte attribute.  
+
+=item addHref ($entityObjectRef)
+
+add an Entity Object to the dataCube 
 
 =item writeDataToFileHandle ($fileHandle, $indent, $compression_type)
 
@@ -1811,7 +1809,7 @@ B<new>, B<clone>, B<update>.
 =over 4
 
 XDF::DataCube inherits the following instance (object) methods of L<XDF::BaseObject>:
-B<getXMLAttributes>, B<setXMLAttributes>, B<setXMLAttribute>, B<addXMLAttribute>, B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<toXMLFileHandle>, B<toXMLString>, B<toXMLFile>.
+B<getXMLAttributes>, B<setXMLAttributes>, B<getXMLAttribute>, B<setXMLAttribute>, B<addXMLAttribute>, B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<toXMLFileHandle>, B<toXMLString>, B<toXMLFile>.
 
 =back
 
@@ -1825,14 +1823,14 @@ B<getXMLAttributes>, B<setXMLAttributes>, B<setXMLAttribute>, B<addXMLAttribute>
 
 =over 4
 
-L< XDF::Array>, L<XDF::Utility>, L<XDF::BaseObject>
+L< XDF::Array>, L<XDF::Log>, L<XDF::Utility>, L<XDF::BaseObject>
 
 =back
 
 =head1 AUTHOR
 
-    Brian Thomas  (thomas@adc.gsfc.nasa.gov)
-    Astronomical Data Center <http://adc.gsfc.nasa.gov>
+    Brian Thomas  (brian.thomas@gsfc.nasa.gov)
+    XML Group <http://xml.gsfc.nasa.gov>
     NASA/Goddard Space Flight Center
  
 

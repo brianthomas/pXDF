@@ -16,9 +16,9 @@ package XDF::DataFormat;
 #    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
 # */
 
-# /** AUTHOR 
-#    Brian Thomas  (thomas@adc.gsfc.nasa.gov)
-#    Astronomical Data Center <http://adc.gsfc.nasa.gov>
+# /** AUTHOR
+#    Brian Thomas  (brian.thomas@gsfc.nasa.gov)
+#    XML Group <http://xml.gsfc.nasa.gov>
 #    NASA/Goddard Space Flight Center
 # */
 
@@ -422,6 +422,62 @@ The following instance (object) methods are defined for XDF::DataFormat.
 
 =over 4
 
+=item getInfiniteValue (EMPTY)
+
+ 
+
+=item setInfiniteValue ($value)
+
+Set the infiniteValue attribute.  
+
+=item getInfiniteNegativeValue (EMPTY)
+
+ 
+
+=item setInfiniteNegativeValue ($value)
+
+Set the infiniteNegativeValue attribute.  
+
+=item getNoDataValue (EMPTY)
+
+ 
+
+=item setNoDataValue ($value)
+
+Set the noDataValue attribute.  
+
+=item getNotANumberValue (EMPTY)
+
+ 
+
+=item setNotANumberValue ($value)
+
+Set the notANumberValue attribute.  
+
+=item getOverFlowValue (EMPTY)
+
+ 
+
+=item setOverFlowValue ($value)
+
+Set the overFlowValue attribute.  
+
+=item getUnderFlowValue (EMPTY)
+
+ 
+
+=item setUnderFlowValue ($value)
+
+Set the underFlowValue attribute.  
+
+=item getDisabledValue (EMPTY)
+
+ 
+
+=item setDisabledValue ($value)
+
+Set the disabledValue attribute.  
+
 =item numOfBytes (EMPTY)
 
 This returns the number of bytes this object describes. Undef is returned if not successfull.  
@@ -456,7 +512,7 @@ B<new>, B<clone>, B<update>.
 =over 4
 
 XDF::DataFormat inherits the following instance (object) methods of L<XDF::BaseObject>:
-B<getXMLAttributes>, B<setXMLAttributes>, B<setXMLAttribute>, B<addXMLAttribute>, B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<toXMLFileHandle>, B<toXMLString>, B<toXMLFile>.
+B<getXMLAttributes>, B<setXMLAttributes>, B<getXMLAttribute>, B<setXMLAttribute>, B<addXMLAttribute>, B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<toXMLFileHandle>, B<toXMLString>, B<toXMLFile>.
 
 =back
 
@@ -476,8 +532,8 @@ L< XDF::Array>, L< XDF::Field>, L< XDF::BinaryFloatDataFormat>, L< XDF::BinaryIn
 
 =head1 AUTHOR
 
-    Brian Thomas  (thomas@adc.gsfc.nasa.gov)
-    Astronomical Data Center <http://adc.gsfc.nasa.gov>
+    Brian Thomas  (brian.thomas@gsfc.nasa.gov)
+    XML Group <http://xml.gsfc.nasa.gov>
     NASA/Goddard Space Flight Center
  
 

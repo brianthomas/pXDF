@@ -16,9 +16,9 @@ package XDF::FloatDataFormat;
 #    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
 # */
 
-# /** AUTHOR 
-#    Brian Thomas  (thomas@adc.gsfc.nasa.gov)
-#    Astronomical Data Center <http://adc.gsfc.nasa.gov>
+# /** AUTHOR
+#    Brian Thomas  (brian.thomas@gsfc.nasa.gov)
+#    XML Group <http://xml.gsfc.nasa.gov>
 #    NASA/Goddard Space Flight Center
 # */
 
@@ -353,7 +353,7 @@ XDF::FloatDataFormat - Perl Class for FloatDataFormat
   where 'W' indicates the width of the 'width' attribute.   'P' indicates the width of the 'precision' attribute.   'X' indicates the width of the 'exponent' attribute.  
  The 'E' only exists when there are a positive non-zero   number of 'X'. For example, a FloatDataFormat with the  attributes width=8, precision=5 and exponent=0 would describe  the following number: "11.00014" 
 
-XDF::FloatDataFormat inherits class and attribute methods of L<XDF::GenericObject>, L<XDF::DataFormat>, L<XDF::BaseObject>.
+XDF::FloatDataFormat inherits class and attribute methods of L<XDF::GenericObject>, L<XDF::BaseObject>, L<XDF::DataFormat>.
 
 
 =head1 METHODS
@@ -414,6 +414,10 @@ Set the exponent attribute. This specifies the widthof the field to the *right* 
 
 Return the number of bytes this XDF::FloatDataFormat holds.  
 
+=item fortranNotation (EMPTY)
+
+A convenience method to generate the FORTRAN notation for this dataformat. Returns the FORTRAN DataFormat notation.  
+
 =back
 
 
@@ -444,7 +448,16 @@ B<new>, B<clone>, B<update>.
 =over 4
 
 XDF::FloatDataFormat inherits the following instance (object) methods of L<XDF::BaseObject>:
-B<getXMLAttributes>, B<setXMLAttributes>, B<setXMLAttribute>, B<addXMLAttribute>, B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<toXMLFileHandle>, B<toXMLString>, B<toXMLFile>.
+B<getXMLAttributes>, B<setXMLAttributes>, B<getXMLAttribute>, B<setXMLAttribute>, B<addXMLAttribute>, B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<toXMLFileHandle>, B<toXMLString>, B<toXMLFile>.
+
+=back
+
+
+
+=over 4
+
+XDF::FloatDataFormat inherits the following instance (object) methods of L<XDF::DataFormat>:
+B<getInfiniteValue>, B<setInfiniteValue>, B<getInfiniteNegativeValue>, B<setInfiniteNegativeValue>, B<getNoDataValue>, B<setNoDataValue>, B<getNotANumberValue>, B<setNotANumberValue>, B<getOverFlowValue>, B<setOverFlowValue>, B<getUnderFlowValue>, B<setUnderFlowValue>, B<getDisabledValue>, B<setDisabledValue>.
 
 =back
 
@@ -464,8 +477,8 @@ L<XDF::DataFormat>
 
 =head1 AUTHOR
 
-    Brian Thomas  (thomas@adc.gsfc.nasa.gov)
-    Astronomical Data Center <http://adc.gsfc.nasa.gov>
+    Brian Thomas  (brian.thomas@gsfc.nasa.gov)
+    XML Group <http://xml.gsfc.nasa.gov>
     NASA/Goddard Space Flight Center
  
 

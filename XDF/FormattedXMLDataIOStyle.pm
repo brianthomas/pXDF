@@ -1,9 +1,9 @@
 
 # $Id$
 
-# /** AUTHOR 
-#    Brian Thomas  (thomas@adc.gsfc.nasa.gov)
-#    Astronomical Data Center <http://adc.gsfc.nasa.gov>
+# /** AUTHOR
+#    Brian Thomas  (brian.thomas@gsfc.nasa.gov)
+#    XML Group <http://xml.gsfc.nasa.gov>
 #    NASA/Goddard Space Flight Center
 # */
 
@@ -493,6 +493,10 @@ This method returns a list reference containing the namesof the class attributes
 
 This method returns the XMLAttributes of this class.  
 
+=item new ($parentArray, $attribHash)
+
+ 
+
 =back
 
 =head2 INSTANCE (Object) Methods
@@ -542,7 +546,7 @@ Add a FormattedIOCmd object to the list in this object. These child objects are 
 =over 4
 
 XDF::FormattedXMLDataIOStyle inherits the following instance (object) methods of L<XDF::GenericObject>:
-B<new>, B<clone>, B<update>.
+B<clone>, B<update>.
 
 =back
 
@@ -551,7 +555,7 @@ B<new>, B<clone>, B<update>.
 =over 4
 
 XDF::FormattedXMLDataIOStyle inherits the following instance (object) methods of L<XDF::BaseObject>:
-B<getXMLAttributes>, B<setXMLAttributes>, B<setXMLAttribute>, B<addXMLAttribute>, B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<toXMLFileHandle>, B<toXMLString>, B<toXMLFile>.
+B<getXMLAttributes>, B<setXMLAttributes>, B<getXMLAttribute>, B<setXMLAttribute>, B<addXMLAttribute>, B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<toXMLString>, B<toXMLFile>.
 
 =back
 
@@ -560,7 +564,7 @@ B<getXMLAttributes>, B<setXMLAttributes>, B<setXMLAttribute>, B<addXMLAttribute>
 =over 4
 
 XDF::FormattedXMLDataIOStyle inherits the following instance (object) methods of L<XDF::XMLDataIOStyle>:
-B<untaggedInstructionNodeName>, B<getDataStyleId{>, B<setDataStyleId>, B<getDataStyleIdRef>, B<setDataStyleIdRef>, B<getEncoding{>, B<setEncoding>, B<getEndian{>, B<setEndian>, B<getWriteAxisOrderList>, B<setWriteAxisOrderList>.
+B<untaggedInstructionNodeName>, B<getDataStyleId{>, B<setDataStyleId>, B<getDataStyleIdRef>, B<setDataStyleIdRef>, B<getEncoding>, B<setEncoding>, B<getEndian{>, B<setEndian>, B<getWriteAxisOrderList>, B<setWriteAxisOrderList>, B<setParentArray>, B<toXMLFileHandle>.
 
 =back
 
@@ -574,14 +578,14 @@ B<untaggedInstructionNodeName>, B<getDataStyleId{>, B<setDataStyleId>, B<getData
 
 =over 4
 
-L< XDF::XMLDataIOStyle>, L<XDF::BaseObject>, L<XDF::Constants>
+L< XDF::XMLDataIOStyle>, L<XDF::XMLDataIOStyle>, L<XDF::Constants>, L<XDF::Log>
 
 =back
 
 =head1 AUTHOR
 
-    Brian Thomas  (thomas@adc.gsfc.nasa.gov)
-    Astronomical Data Center <http://adc.gsfc.nasa.gov>
+    Brian Thomas  (brian.thomas@gsfc.nasa.gov)
+    XML Group <http://xml.gsfc.nasa.gov>
     NASA/Goddard Space Flight Center
  
 
