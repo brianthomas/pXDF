@@ -159,6 +159,18 @@ sub numOfBytes {
   $self->getWidth();
 }
 
+# /** fortranNotation 
+# A convenience method to generate the FORTRAN notation for this dataformat.
+# Returns the FORTRAN DataFormat notation.
+# */
+sub fortranNotation {
+  my ($self) = @_;
+  my $notation = 'I';
+  $notation .= $self->getWidth();
+  return $notation;
+}
+
+
 #
 # Private Methods 
 #

@@ -218,6 +218,23 @@ sub numOfBytes {
   return $self->{width};
 }
 
+# /** fortranNotation 
+# A convenience method to generate the FORTRAN notation for this dataformat.
+# Returns the FORTRAN DataFormat notation.
+# */
+sub fortranNotation {
+  my ($self) = @_;
+  my $notation;
+
+  if ($self->{exponent}) {
+    $notation = 'E';
+  } else {
+    $notation = 'F';
+  }
+  $notation .= $self->getWidth() . '.' . $self->getPrecision();
+  return $notation;
+}
+
 # /** getXMLAttributes
 #    This method returns the XMLAttributes of this class. 
 #  */
