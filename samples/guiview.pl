@@ -40,7 +40,7 @@ BEGIN {
                      Tk::NoteBook
                      Tk::DialogBox
                      Tk::FileSelect
-                     XDF::Reader
+                     XDF::DOM::Parser
                    );
   for(@modlist) {
     die "Could'nt load $_ module, please correct Perl path or install.\n" unless (eval "require $_" );
@@ -59,7 +59,8 @@ my $TOOLNAME = "XDF Viewer Tool";
 
 # GLOBAL Variables
 my $XDF;    # reference to the XDF object of interest
-my $XDF_FILE; 
+my $XML_FILE; 
+my  $XDF_DOM; # the parent document holding the XDF object
 my $DISPLAY_SIZE = 'normal';
 my %WIDGET; # hash table of GUI widget references
 my %FRAME;  # hash table of GUI frame references
@@ -183,7 +184,7 @@ my %BoldFont  = ( 'tiny'   => '-adobe-helvetica-bold-r-normal--12-*-*-*-*-*-*-*'
   &init_mouse_bindings();
   &init_key_bindings();
 
-  &load_xdf_file($XDF_FILE);
+  &load_xml_file($XML_FILE);
 
   &debug("running gui\n");
 
@@ -214,7 +215,7 @@ sub argv_loop {
     } elsif(/-q/) { $QUIET = 1; 
     } elsif(/-v/) { $DEBUG = 1; 
     } else {
-      $XDF_FILE = $_;
+      $XML_FILE = $_;
     }
   }
 
@@ -1153,7 +1154,7 @@ sub create_file_menu {
                                                  font => $Font{$DISPLAY_SIZE},
                                                  bg => $BaseColor,
                                                  command => sub {  
-                                                                   &load_xdf_file(&select_file("Load which file?","*.xml")); 
+                                                                   &load_xml_file(&select_file("Load which file?","*.xml")); 
                                                                 }
                                                );
 
@@ -1276,7 +1277,7 @@ sub create_help_menu {
 }
 
 
-sub load_xdf_file {
+sub load_xml_file {
    my ($file) = @_;
 
    return unless defined $file && -e $file;
@@ -1284,12 +1285,18 @@ sub load_xdf_file {
    &debug("loading $file\n");
 
    my %options = ('quiet' => $QUIET, 'debug' => $DEBUG, );
-   # set the new XDF object
-   my $reader = new XDF::Reader();
-   $XDF = $reader->parseFile($file, \%options);
 
-  # not used anymore
-  # $XDF = &XDF::Reader::createXDFObjectFromFile($file, \%options);
+   # set the new XDF object
+   #my $reader = new XDF::Reader();
+#   $XDF = $reader->parseFile($file, \%options);
+
+   my $parser = new XDF::DOM::Parser();
+   $XDF_DOM = $parser->parsefile($file);
+
+   my @xdfNodes = @{$XDF_DOM->getXDFElements};
+
+   # just pick off the first object for now
+   $XDF = $xdfNodes[0]->getXDFObject;
 
    # update the widgets
    $WIDGET{'file_label'}->configure(text => "File Name: $file");
@@ -1307,21 +1314,21 @@ sub load_xdf_file {
 sub save_xdf_file {
   my ($file) = @_;
 
-  &debug("save $XDF_FILE\n");
+  &debug("save $XML_FILE\n");
 
   return unless defined $file;
 
 #   &pop_warning_of_overwritting_file() if (-e $file);
 
-  $XDF_FILE = $file;
+  $XML_FILE = $file;
 
   # update the widgets
   $WIDGET{'file_label'}->configure(text => "File Name: $file");
 
   open(FILE, ">$file");
-  $XDF->Pretty_XDF_Output($PRETTY_XDF_OUTPUT);  # whether to use pretty print 
- # $XDF->Pretty_XDF_Output_Indentation($PRETTY_XDF_INDENTATION);  # use 3 spaces for indentation
-  $XDF->toXMLFileHandle(\*FILE);
+  print FILE $XDF_DOM->toString;
+#  $XDF->Pretty_XDF_Output($PRETTY_XDF_OUTPUT);  # whether to use pretty print 
+#  $XDF->toXMLFileHandle(\*FILE);
   close FILE;
 
 }
@@ -1416,7 +1423,7 @@ sub update_plaintable_view {
    # 
 
    # this next line will fail when more than 2 axes exist in the array.
-   my @axisOrder = ($CURRENT_VERT_AXIS, $CURRENT_HORZ_AXIS); 
+   my @axisOrder = ($CURRENT_VERT_AXIS, $CURRENT_HORZ_AXIS); # will fail if array has more than 2 axes 
    #my @axisOrder = reverse @{$arrayObj->getAxisList()};
    $LOCATOR->setIterationOrder(\@axisOrder);
    foreach my $col (0 ... ($CURRENT_HORZ_AXIS->getLength()-1)) {
