@@ -2,7 +2,7 @@
 <!DOCTYPE XDF SYSTEM "XDF_018.dtd">
 <XDF name="A sample XDF document" description="This shows how to put any data into XDF format" >
    <parameter name="obsdate">
-      <units><unitless/></units>
+      <unitless/>
       <value>01-12-99</value>
    </parameter>
    <array name="Raw Data">
@@ -14,12 +14,12 @@
          <unit power="-1">seconds</unit>
       </units>
       <dataFormat><float width="5" precision="2"/></dataFormat>
-      <axis name="x" axisId="x-axis" axisDatatype="integer" >
-         <axisUnits><unit>pixel</unit></axisUnits>
+      <axis name="x" axisId="x-axis" axisDatatype="integer" size="10">
+         <units><unit>pixel</unit></units>
          <valueList size="10" step="1" start="0" />
       </axis>
-      <axis name="y" axisId="y-axis" axisDatatype="integer" >
-         <axisUnits><unit>pixel</unit></axisUnits>
+      <axis name="y" axisId="y-axis" axisDatatype="integer" size="10">
+         <units><unit>pixel</unit></units>
          <valueList delimiter=" " repeatable="yes">10  9 8 7 6 5 4 3 2 1</valueList>
       </axis>
       <dataStyle>
@@ -27,10 +27,10 @@
             <fixedWidthInstruction> 
                <repeat count="9">
                   <readCell/>
-                  <skip count="1"/> <!-- just outputs a space --> 
+                  <skip><chars/></skip> <!-- just outputs a space --> 
                </repeat>
                <readCell/>
-               <skip count="1"><newLine/></skip> <!-- will output logical newLine -->
+               <skip><newLine/></skip> <!-- will output logical newLine -->
             </fixedWidthInstruction> 
             <for axisIdRef="y-axis">
                <for axisIdRef="x-axis">
