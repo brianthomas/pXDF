@@ -45,6 +45,7 @@ package XDF::BaseObject;
 #    NASA/Goddard Space Flight Center
 # */
 
+use Tie::IxHash;
 use XDF::GenericObject;
 use XDF::Specification;
 use XDF::Log;
@@ -138,6 +139,28 @@ sub setXMLAttributes {
   }
 }
 
+#/** getXMLAttribute
+# Return the value of an XML attribute.
+#*/
+sub getXMLAttribute 
+{
+   my ($self, $attrib) = @_;
+
+   return unless (defined $attrib);
+
+   die "Cannot get private XML attribute (starts with underscore)\n"
+      if ($attrib =~ m/^_/);
+
+   if (exists $self->{_hasXMLAttribHash}{$attrib})
+   {
+      return $self->{$attrib};
+   }
+
+}
+
+#/** setXMLAttribute
+# Set the value of an XML Attribute.
+#*/
 sub setXMLAttribute {
    my ($self, $attrib, $value) = @_;
 
@@ -204,9 +227,11 @@ sub addToGroup {
   return 0 unless defined $groupObj && ref $groupObj;
 
   # make sure its not already a member!
-  unless (exists %{$self->{_groupMemberHash}}->{$groupObj}) {
+  #unless (exists %{$self->{_groupMemberHash}}->{$groupObj}) {
+  unless (exists $self->{_groupMemberHash}->{$groupObj}) {
     $groupObj->addMemberObject($self);
-    %{$self->{_groupMemberHash}}->{$groupObj} = $groupObj;
+    #%{$self->{_groupMemberHash}}->{$groupObj} = $groupObj;
+    $self->{_groupMemberHash}->{$groupObj} = $groupObj;
     return 1;
   } else {
      error("Can't add to group: $self already a member of $groupObj\n"); 
@@ -224,9 +249,9 @@ sub removeFromGroup {
   return unless defined $groupObj && ref $groupObj;
 
   # make sure its a member!
-  if (exists %{$self->{_groupMemberHash}}->{$groupObj}) {
+  if (exists $self->{_groupMemberHash}->{$groupObj}) {
     $groupObj->removeMemberObject($self);
-    delete %{$self->{_groupMemberHash}}->{$groupObj};
+    delete $self->{_groupMemberHash}->{$groupObj};
     return $groupObj;
   } else {
     error("Can't delete from group: $self not a member of $groupObj\n"); 
@@ -241,7 +266,8 @@ sub removeFromGroup {
 sub isGroupMember { 
   my ($self, $groupObj) = @_;
   return unless defined $groupObj && ref $groupObj;
-  return exists %{$self->{_groupMemberHash}}->{$groupObj} ? 1 : undef;
+  #return exists %{$self->{_groupMemberHash}}->{$groupObj} ? 1 : undef;
+  return exists $self->{_groupMemberHash}->{$groupObj} ? 1 : undef;
 }
 
 
@@ -442,16 +468,25 @@ sub _printAttributes {
     next if $attrib =~ /^_/;
     my $val = $self->{$attrib};
     next if ref($val);
-    if ($replaceNewlineWithEntityInOutputAttribute && $val) {
-       $val =~ s/\n/&#10;/g; # newline gets entity 
-       $val =~ s/\r/&#13;/g; # carriage return gets entity 
-    }
 
     if (defined $val) {
+
+       # xml Violation if we dont do this
+       $val =~ s/&/&amp;/g; # ampersand gets entity 
+       $val =~ s/</&lt;/g; # lessthan gets entity 
+       $val =~ s/"/&quot;/g; # quote gets entity 
+       $val =~ s/>/&gt;/g; # greaterthan gets entity 
+
+       if ($replaceNewlineWithEntityInOutputAttribute) {
+         $val =~ s/\n/&#10;/g; # newline gets entity 
+         $val =~ s/\r/&#13;/g; # carriage return gets entity 
+       }
+
        print $fileHandle " $attrib=\"";
        print $fileHandle $val;
        print $fileHandle "\"";
     }
+
   }
 }
 
@@ -469,6 +504,7 @@ sub _getXMLInfo {
     #next if $attrib =~ m/^_/;
     
 #if (ref ($self) eq 'XDF::FormattedXMLDataIOStyle') { print STDERR "got XML attribute: $attrib\n"; }
+#if (ref ($self) eq 'XDF::Axis') { print STDERR "got XML attribute: $attrib\n"; }
 
     my $val = $self->{$attrib}; # get attribute value 
     next unless defined $val;
@@ -506,11 +542,14 @@ sub _deal_with_opening_group_nodes {
   my ($self, $obj, $fileHandle, $indent, $Pretty_XDF_Output_Indentation ) = @_;
 
   foreach my $group (keys %{$obj->{_groupMemberHash}}) {
-    unless (exists %{$self->{_openGroupNodeHash}}->{$group}) {
-      my $groupObj = %{$obj->{_groupMemberHash}}->{$group};
+    #unless (exists %{$self->{_openGroupNodeHash}}->{$group}) {
+    unless (exists $self->{_openGroupNodeHash}->{$group}) {
+      #my $groupObj = %{$obj->{_groupMemberHash}}->{$group};
+      my $groupObj = $obj->{_groupMemberHash}->{$group};
       $indent .= $Pretty_XDF_Output_Indentation; # add some indent 
       $groupObj->toXMLFileHandle($fileHandle, $indent, 1); 
-      %{$self->{_openGroupNodeHash}}->{$group} = $groupObj;
+      #%{$self->{_openGroupNodeHash}}->{$group} = $groupObj;
+      $self->{_openGroupNodeHash}->{$group} = $groupObj;
     }
   }
 
@@ -522,14 +561,17 @@ sub _deal_with_closing_group_nodes {
   my ($self, $obj, $fileHandle, $indent, $Pretty_XDF_Output, $Pretty_XDF_Output_Indentation) = @_;
 
   foreach my $openGroup (keys %{$self->{_openGroupNodeHash}}) {
-    unless (exists %{$obj->{_groupMemberHash}}->{$openGroup}) {
-       my $groupNodeName = %{$self->{_openGroupNodeHash}}->{$openGroup}->classXMLNodeName;
+    #unless (exists %{$obj->{_groupMemberHash}}->{$openGroup}) {
+    unless (exists $obj->{_groupMemberHash}->{$openGroup}) {
+       #my $groupNodeName = %{$self->{_openGroupNodeHash}}->{$openGroup}->classXMLNodeName;
+       my $groupNodeName = $self->{_openGroupNodeHash}->{$openGroup}->classXMLNodeName;
        # close this node
        print $fileHandle $indent if $Pretty_XDF_Output;
        print $fileHandle "</" . $groupNodeName . ">";
        print $fileHandle "\n" if $Pretty_XDF_Output;
        # delete from list
-       delete %{$self->{_openGroupNodeHash}}->{$openGroup};
+       #delete %{$self->{_openGroupNodeHash}}->{$openGroup};
+       delete $self->{_openGroupNodeHash}->{$openGroup};
        $indent =~ s/$Pretty_XDF_Output_Indentation//; # peel off some of the indent 
     }
   }
@@ -543,6 +585,7 @@ sub _init {
 
   $self->{_openGroupNodeHash} = {}; # used only by toXMLFileHandle
   $self->{_groupMemberHash} = {}; # init of groupMember Hash (all objects have) 
+  tie %{$self->{_groupMemberHash}}, "Tie::IxHash";
   $self->{_hasXMLAttribHash} = {}; # init of xmlAttributes of this object
   $self->{_XMLAttribOrder} = []; # init of xmlAttribute order of this object
 
