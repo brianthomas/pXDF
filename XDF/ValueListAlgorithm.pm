@@ -57,24 +57,22 @@ use vars qw ($AUTOLOAD %field @ISA);
 @ISA = ("XDF::BaseObject");
 
 # CLASS DATA
-my $Class_XML_Node_Name = "valueList";
+my $Class_XML_Node_Name = "valueListAlgorithm";
 my @Local_Class_XML_Attributes = qw (
-                             valueListId
-                             valueListIdRef
-                             start
-                             step
-                             size
-                             noDataValue 
-                             infiniteValue 
-                             infiniteNegativeValue
-                             notANumberValue 
-                             overflowValue 
-                             underflowValue
+                              valueListId
+                              valueListIdRef
+                              algorithm
                            );
+                           #   noDataValue 
+                           #   infiniteValue 
+                           #   infiniteNegativeValue
+                           #   notANumberValue 
+                           #   overflowValue 
+                           #   underflowValue
 my @Local_Class_Attributes = qw ( 
                              values
-                             _definedSpecialsHash
                            );
+                             #_definedSpecialsHash
 my @Class_Attributes;
 my @Class_XML_Attributes;
 
@@ -122,21 +120,15 @@ sub getClassXMLAttributes {
 
 # /** new
 # We use default values for start, step, and size unless they are defined.
-# The other parameters are optional (e.g. noDataValue, infiniteValue, ...)
-# and will remain undefined unless specified by the user.
+# The other parameters are optional and will remain undefined unless specified by the user.
 # */
 sub new { 
-  my ($proto, $start, $step, $size, $noDataValue, $infiniteValue, $infiniteNegativeValue, $notANumberValue, $overflowValue, $underflowValue ) = @_;
-
-  unless ((!defined $size || $size != 0) && (!defined $step || $step != 0)) {
-    error("Error: $proto got 0 value for either step or size value.\n");
-    exit -1;
-  }
+  my ($proto, $attribHashRef) = @_;
 
   my $class = ref ($proto) || $proto;
   my $self = bless( { }, $class);
 
-  $self->_init($start, $step, $size, $noDataValue, $infiniteValue, $infiniteNegativeValue, $notANumberValue, $overflowValue, $underflowValue); # init of class specific stuff
+  $self->_init($attribHashRef);
 
   return $self;
 }
@@ -184,155 +176,206 @@ sub getValues {
    return $self->{values};
 }
 
-# /** getNoDataValue
-# Return the particular value in the list that indicates a 'noData' value.
+# /** getAlgorithm
+# Return the algorithm used to generate the values held in this object.
 # */
-sub getNoDataValue {
+sub getAlgorithm {
   my ($self) = @_;
-  return $self->{noDataValue};
+  return $self->{algorithm};
 }
 
 # /** setNoDataValue
+# Set the particular algorithm to be used in generating the 
+# values of this object.
+# */
+sub setAlgorithm {
+  my ($self, $algorithm) = @_;
+
+  if (&XDF::Utility::isValidAlgorithm($algorithm) ) 
+  { 
+
+     if ($self->{algorithm}) 
+     {
+        # unset parent in prior polynomial object
+        $self->{algorithm}->{_parent} = undef;
+     }
+
+     $self->{algorithm} = $algorithm; 
+     $self->{algorithm}->{_parent} = $self;
+
+  } else {
+     &error("Cant set algorithm to $algorithm, not allowed \n");
+  }
+
+}
+
+# /* getNoDataValue
+# Return the particular value in the list that indicates a 'noData' value.
+# */
+#sub getNoDataValue {
+#  my ($self) = @_;
+#  return $self->{noDataValue};
+#}
+
+# /* setNoDataValue
 # Set the particular value in the list that indicates a 'noData' value.
 # */
-sub setNoDataValue {
-  my ($self, $value) = @_;
+#sub setNoDataValue {
+#  my ($self, $value) = @_;
+#
+#  $self->{noDataValue} = $value;
 
-  $self->{noDataValue} = $value;
+#  if (defined $value) {
+    #%{$self->{_definedSpecialsHash}}->{'noData'} = $value;
+#    $self->{_definedSpecialsHash}->{'noData'} = $value;
+#  } else {
+#    #delete %{$self->{_definedSpecialsHash}}->{'noData'} 
+#    delete $self->{_definedSpecialsHash}->{'noData'} 
+#       #if exists %{$self->{_definedSpecialsHash}}->{'noData'};
+#       if exists $self->{_definedSpecialsHash}->{'noData'};
+#  }
+#
+#}
 
-  if (defined $value) {
-    %{$self->{_definedSpecialsHash}}->{'noData'} = $value;
-  } else {
-    delete %{$self->{_definedSpecialsHash}}->{'noData'} 
-       if exists %{$self->{_definedSpecialsHash}}->{'noData'};
-  }
-
-}
-
-# /** getInfiniteValue
+# /* getInfiniteValue
 # Return the particular value in the list that indicates an 'infinite' value.
 # */
-sub getInfiniteValue {
-  my ($self) = @_;
-  return $self->{infiniteValue}; 
-}
+#sub getInfiniteValue {
+#  my ($self) = @_;
+#  return $self->{infiniteValue}; 
+#}
 
-# /** setInfiniteValue
+# /* setInfiniteValue
 # Set the particular value in the list that indicates an 'infinite' value.
 # */
-sub setInfiniteValue {
-  my ($self, $value) = @_;
+#sub setInfiniteValue {
+#  my ($self, $value) = @_;
 
-  $self->{infiniteValue} = $value;
+#  $self->{infiniteValue} = $value;
 
-  if (defined $value) {
-    %{$self->{_definedSpecialsHash}}->{'infinite'} = $value;
-  } else {
-    delete %{$self->{_definedSpecialsHash}}->{'infinite'} 
-       if exists %{$self->{_definedSpecialsHash}}->{'infinite'};
-  }
+#  if (defined $value) {
+    #%{$self->{_definedSpecialsHash}}->{'infinite'} = $value;
+#    $self->{_definedSpecialsHash}->{'infinite'} = $value;
+#  } else {
+   # delete %{$self->{_definedSpecialsHash}}->{'infinite'} 
+#    delete $self->{_definedSpecialsHash}->{'infinite'} 
+      # if exists %{$self->{_definedSpecialsHash}}->{'infinite'};
+#       if exists $self->{_definedSpecialsHash}->{'infinite'};
+#  }
 
-}
+#}
 
-# /** getInfiniteNegativeValue
+# /* getInfiniteNegativeValue
 # Return the particular value in the list that indicates an 'infiniteNegative' value.
 # */
-sub getInfiniteNegativeValue {
-  my ($self) = @_;
-  return $self->{infiniteNegativeValue};
-}
+#sub getInfiniteNegativeValue {
+#  my ($self) = @_;
+#  return $self->{infiniteNegativeValue};
+#}
 
-# /** setInfiniteNegativeValue
+# /* setInfiniteNegativeValue
 # Set the particular value in the list that indicates an 'infiniteNegative' value.
 # */
-sub setInfiniteNegativeValue {
-  my ($self, $value) = @_;
+#sub setInfiniteNegativeValue {
+#  my ($self, $value) = @_;
 
-  $self->{infiniteNegativeValue} = $value;
+#  $self->{infiniteNegativeValue} = $value;
 
-  if (defined $value) {
-    %{$self->{_definedSpecialsHash}}->{'infiniteNegative'} = $value;
-  } else {
-    delete %{$self->{_definedSpecialsHash}}->{'infiniteNegative'} 
-       if exists %{$self->{_definedSpecialsHash}}->{'infiniteNegative'};
-  }
+#  if (defined $value) {
+    #%{$self->{_definedSpecialsHash}}->{'infiniteNegative'} = $value;
+#    $self->{_definedSpecialsHash}->{'infiniteNegative'} = $value;
+#  } else {
+    #delete %{$self->{_definedSpecialsHash}}->{'infiniteNegative'} 
+#    delete $self->{_definedSpecialsHash}->{'infiniteNegative'} 
+       #if exists %{$self->{_definedSpecialsHash}}->{'infiniteNegative'};
+#       if exists $self->{_definedSpecialsHash}->{'infiniteNegative'};
+#  }
 
-}
+#}
 
-# /** getNotANumberValue
+# /* getNotANumberValue
 # Return the particular value in the list that indicates an 'notANumber' value.
 # */
-sub getNotANumberValue {
-  my ($self) = @_;
-  return $self->{notANumberValue};
-}
+#sub getNotANumberValue {
+#  my ($self) = @_;
+#  return $self->{notANumberValue};
+#}
 
-# /** setNotANumberValue
+# /* setNotANumberValue
 # Set the particular value in the list that indicates an 'notANumber' value.
 # */
-sub setNotANumberValue {
-  my ($self, $value) = @_;
+#sub setNotANumberValue {
+#  my ($self, $value) = @_;
 
-  $self->{notANumberValue} = $value;
+#  $self->{notANumberValue} = $value;
 
-  if (defined $value) {
-    %{$self->{_definedSpecialsHash}}->{'notANumber'} = $value;
-  } else {
-    delete %{$self->{_definedSpecialsHash}}->{'notANumber'} 
-       if exists %{$self->{_definedSpecialsHash}}->{'notANumber'};
-  }
+#  if (defined $value) {
+    #%{$self->{_definedSpecialsHash}}->{'notANumber'} = $value;
+#    $self->{_definedSpecialsHash}->{'notANumber'} = $value;
+#  } else {
+    #delete %{$self->{_definedSpecialsHash}}->{'notANumber'} 
+#    delete $self->{_definedSpecialsHash}->{'notANumber'} 
+       #if exists %{$self->{_definedSpecialsHash}}->{'notANumber'};
+#       if exists $self->{_definedSpecialsHash}->{'notANumber'};
+#  }
+#
+#}
 
-}
-
-# /** getUnderflowValue
+# /* getUnderflowValue
 # Return the particular value in the list that indicates an 'underflow' value.
 # */
-sub getUnderflowValue {
-  my ($self) = @_;
-  return $self->{underflowValue};
-}
+#sub getUnderflowValue {
+#  my ($self) = @_;
+#  return $self->{underflowValue};
+#}
 
-# /** setUnderflowValue
+# /* setUnderflowValue
 # Set the particular value in the list that indicates an 'underflow' value.
 # */
-sub setUnderflowValue {
-  my ($self, $value) = @_;
+#sub setUnderflowValue {
+#  my ($self, $value) = @_;
 
-  $self->{underflowValue} = $value;
+#  $self->{underflowValue} = $value;
 
-  if (defined $value) {
-    %{$self->{_definedSpecialsHash}}->{'underflow'} = $value;
-  } else {
-    delete %{$self->{_definedSpecialsHash}}->{'underflow'} 
-       if exists %{$self->{_definedSpecialsHash}}->{'underflow'};
-  }
+#  if (defined $value) {
+    #%{$self->{_definedSpecialsHash}}->{'underflow'} = $value;
+#    $self->{_definedSpecialsHash}->{'underflow'} = $value;
+#  } else {
+    #delete %{$self->{_definedSpecialsHash}}->{'underflow'} 
+#    delete $self->{_definedSpecialsHash}->{'underflow'} 
+       #if exists %{$self->{_definedSpecialsHash}}->{'underflow'};
+#       if exists $self->{_definedSpecialsHash}->{'underflow'};
+#  }
 
-}
+#}
 
-# /** getOverflowValue
+# /* getOverflowValue
 # Return the particular value in the list that indicates an 'overflow' value.
 # */
-sub getOverflowValue {
-  my ($self) = @_;
-  return $self->{overflowValue};
-}
+#sub getOverflowValue {
+#  my ($self) = @_;
+#  return $self->{overflowValue};
+#}
 
-# /** setOverflowValue
+# /* setOverflowValue
 # Set the particular value in the list that indicates an 'overflow' value.
 # */
-sub setOverflowValue {
-  my ($self, $value) = @_;
+#sub setOverflowValue {
+#  my ($self, $value) = @_;
 
-  $self->{overflowValue} = $value;
+#  $self->{overflowValue} = $value;
 
-  if (defined $value) {
-    %{$self->{_definedSpecialsHash}}->{'overflow'} = $value;
-  } else {
-    delete %{$self->{_definedSpecialsHash}}->{'overflow'} 
-       if exists %{$self->{_definedSpecialsHash}}->{'overflow'};
-  }
+#  if (defined $value) {
+     #%{$self->{_definedSpecialsHash}}->{'overflow'} = $value;
+#    $self->{_definedSpecialsHash}->{'overflow'} = $value;
+#  } else {
+    #delete %{$self->{_definedSpecialsHash}}->{'overflow'} 
+    #   if exists %{$self->{_definedSpecialsHash}}->{'overflow'};
+#    delete $self->{_definedSpecialsHash}->{'overflow'} 
+#       if exists $self->{_definedSpecialsHash}->{'overflow'};
+#  }
 
-}
+#}
 
 #
 # Other Public Methods
@@ -343,47 +386,47 @@ sub setOverflowValue {
 #
 
 sub _init {
-   my ($self, $start, $step, $size, $noDataValue, $infiniteValue, $infiniteNegativeValue, $notANumberValue, $overflowValue, $underflowValue) = @_;
+   my ($self, $attribHashRef) = @_;
+
+   # adds to ordered list of XML attributes
+   $self->_appendAttribsToXMLAttribOrder(\@Local_Class_XML_Attributes);
+
+   $self->setXMLAttributes($attribHashRef) if defined $attribHashRef;
 
    # this should help speed up init of held value objects 
-   $self->{_definedSpecialsHash} = {};
+#   $self->{_definedSpecialsHash} = {};
 
-   $self->{start} = defined $start ? $start : &XDF::Constants::DEFAULT_VALUELIST_START;
-   $self->{step} = defined $step ? $step : &XDF::Constants::DEFAULT_VALUELIST_STEP;
-   $self->{size} = defined $size ? $size : &XDF::Constants::DEFAULT_VALUELIST_SIZE;
-
-   $self->setNoDataValue($noDataValue) if defined $noDataValue;
-   $self->setInfiniteValue($infiniteValue) if defined $infiniteValue;
-   $self->setInfiniteNegativeValue($infiniteNegativeValue) if defined $infiniteNegativeValue;
-   $self->setNotANumberValue($notANumberValue) if defined $notANumberValue;
-   $self->setOverflowValue($overflowValue) if defined $overflowValue;
-   $self->setUnderflowValue($underflowValue) if defined $underflowValue;
+#   $self->{step} = &XDF::Constants::DEFAULT_VALUELIST_STEP
+#      unless defined $self->{step};
+     
+   $self->{size} = &XDF::Constants::DEFAULT_VALUELIST_SIZE
+      unless defined $self->{size};
 
    $self->{values} = [];
   
    $self->_initValuesFromParams(); 
-
-   # adds to ordered list of XML attributes
-   $self->_appendAttribsToXMLAttribOrder(\@Local_Class_XML_Attributes);
 
 }
 
 sub _initValuesFromParams {
    my ($self) = @_;
 
-   # now populate values list
-   my $currentValue = $self->{start};
-   my $step = $self->{step};
-   my $size = $self->{size};
+   my @values;
 
-   my @definedSpecials = keys %{$self->{_definedSpecialsHash}};
-   my $checkSpecials = $#definedSpecials >= 0 ? 1 : 0;
+#   my @definedSpecials = keys %{$self->{_definedSpecialsHash}};
+#   my $checkSpecials = $#definedSpecials >= 0 ? 1 : 0;
 
-   for(my $i = 0; $i < $size; $i++) {
-      my $thisValue = $self->_create_value_object($currentValue, $checkSpecials);
-      $currentValue += $step;
-      push @{$self->{values}}, $thisValue;
+   my $algorithm = $self->getAlgorithm();
+   if ($algorithm) {
+      foreach my $number (@{$algorithm->getValues()}) 
+      {
+        #my $thisValue = $self->_create_value_object($number, $checkSpecials);
+        my $thisValue = $self->_create_value_object($number, 0);
+        push @values, $thisValue;
+      }
    }
+
+   $self->{values} = \@values;
 
 }
 
@@ -396,14 +439,14 @@ sub _create_value_object {
 
       if ($checkSpecials) {
 
-        while (my ($whatSpecial, $value) = each %{$self->{_definedSpecialsHash}}) 
-        {
-           if ($value eq $string_val)
-           {
-               $valueObj->setSpecial($whatSpecial);
-               last;
-           }
-        }  
+#        while (my ($whatSpecial, $value) = each %{$self->{_definedSpecialsHash}}) 
+#        {
+#           if ($value eq $string_val)
+#           {
+#               $valueObj->setSpecial($whatSpecial);
+#               last;
+#           }
+#        }  
 
         # if no special matches, then we use value string as the value
         $valueObj->setValue($string_val) unless $valueObj->getSpecial();
@@ -422,7 +465,7 @@ sub _create_value_object {
 # Protected/Private Methods
 #
 
-sub _basicXMLWriter {
+sub _basicXMLWriter_alt {
    my ($self, $fileHandle, $indent ) = @_;
 
    if(!defined $fileHandle) {
@@ -437,7 +480,8 @@ sub _basicXMLWriter {
 
    print $fileHandle $indent if $isPrettyXDFOutput;
 
-   print $fileHandle "<valueList start=\"".$self->{start}."\" step=\"".$self->{step}."\" size=\"".$self->{size}."\"";
+   print $fileHandle "<$Class_XML_Node_Name";
+   print $fileHandle " start=\"".$self->{start}."\" step=\"".$self->{step}."\" size=\"".$self->{size}."\"";
    print $fileHandle " valueListId=\"".$self->{valueListId}."\"" if (defined $self->{valueListId});
    print $fileHandle " valueListIdRef=\"".$self->{valueListIdRef}."\"" if (defined $self->{valueListIdRef});
    print $fileHandle " noDataValue=\"".$self->{noDataValue}."\"" if (defined $self->{noDataValue});
