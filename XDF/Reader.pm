@@ -67,6 +67,8 @@ package XDF::Reader;
 #
 # */
 
+use XML::DOM;
+
 use XDF::Array;
 use XDF::BinaryFloatDataFormat;
 use XDF::BinaryIntegerDataFormat;
@@ -705,7 +707,8 @@ sub _handle_final {
    &_printDebug("H_FINAL \n");
 
    # set the entity, notation and unparsed lists for the XDF structure
-   $self->{XDF}->setXMLNotationHash($self->{Notation});
+   my $spec= XDF::Specification->getInstance();
+   $spec->setXMLNotationHash($self->{Notation});
   # $self->{XDF}->setXMLInternalEntityHash(\%Entity);
   # $self->{XDF}->setXMLUnparsedEntityHash(\%UnParsedEntity);
    # pass the populated structure back to calling routine
@@ -1729,7 +1732,8 @@ sub _root_node_start {
   $self->{XDF}->setXMLAttributes(\%attrib_hash);
   $self->{currentStructure} = $self->{XDF};
 
-  $self->{XDF}->DefaultDataArraySize($self->{Options}->{axisSize}) 
+  my $spec= XDF::Specification->getInstance();
+  $spec->setDefaultDataArraySize($self->{Options}->{axisSize})
       if defined $self->{Options}->{axisSize};
 
   return $self->{currentStructure};
@@ -2593,13 +2597,13 @@ sub _default_start_handler {
 sub _create_new_XMLelement {
   my ($name, $attrib_hash_ref) = @_;
 
-   my $newelement = new XDF::XMLElement();
-   $newelement->setNodeName($name);
+   my $newelement = new XDF::XMLElement($name);
+#   $newelement->setTagName($name);
    while ( my ($key, $value) = each %{$attrib_hash_ref}) {
-        my $attribObj = new XDF::XMLAttribute();
-        $attribObj->setKey($key);
-        $attribObj->setValue($value);
-        $newelement->addAttribute($attribObj);
+#        my $attribObj = new XDF::XMLAttribute($key);
+#        $attribObj->setName($key);
+#        $attribObj->setValue($value);
+        $newelement->setAttribute($key, $value);
    }
    return $newelement;
 }
@@ -2614,7 +2618,7 @@ sub _default_cdata_handler {
       my $lastObj = $self->_lastObj();
       if (defined $lastObj) {
          if (ref($lastObj) eq 'XDF::XMLElement') {
-           $lastObj->setCData($string);
+           $lastObj->appendCData($string);
          } else {
             $self->_printWarning("Warning: cant do anything with CDATA:[$string] for ".ref($lastObj).". Ignoring.\n"); 
          }
@@ -2876,6 +2880,10 @@ sub _appendArrayToArray {
 # Modification History
 #
 # $Log$
+# Revision 1.26  2001/04/17 19:01:26  thomas
+# Using Specification class now. Made
+# changes to accomodate new XMLElement class.
+#
 # Revision 1.25  2001/04/10 22:08:33  thomas
 # removed handle_attlist for time being; put unparsed enties
 # into the entity list, and default handler no longer sends
