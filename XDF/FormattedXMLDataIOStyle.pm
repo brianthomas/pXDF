@@ -108,6 +108,29 @@ sub getFormatCommand {
 
 }
 
+# /** Convenience method that returns the command list. Repeat
+#    commands are expanded into their component parts.  
+# */
+sub getCommands () {
+  my ($self) = @_;
+     
+  my @commandList = ();
+
+  foreach my $obj (@{$self->formatCmdList}) {
+     if (ref($obj) eq 'XDF::RepeatFormattedIOCmd') {
+       my $count = $obj->count();
+       while ($count-- > 0) {
+          push @commandList, $obj->getCommands();
+       }
+     } else {
+        push @commandList, $obj;
+     }
+   }
+
+   return @commandList;
+}
+
+
 # VERY Sloppy and hasty algorithm. Needs to be redone. In fact, the
 # idea of separate skipChar, Text and Repeat format command objects is bad. 
 sub _do_search_for_Text_Format_Cmd { 
@@ -183,15 +206,15 @@ sub bytes {
     return;
   }
 
-  foreach my $obj (@{$self->formatCmdList}) {
+  foreach my $obj ($self->getCommands()) {
     if(ref($obj) eq 'XDF::ReadCellFormattedIOCmd') {
       my $readObj = shift @dataFormatList;
       push (@dataFormatList, $readObj); # its a circular list
       $bytes += $readObj->bytes;
-    } elsif (ref($obj) eq 'XDF::RepeatFormattedIOCmd') {
-      my ($repeat_byte_size, $dataListRef) = $obj->bytes(\@dataFormatList);
-      @dataFormatList = @{$dataListRef};
-      $bytes += $repeat_byte_size;
+#    } elsif (ref($obj) eq 'XDF::RepeatFormattedIOCmd') {
+#      my ($repeat_byte_size, $dataListRef) = $obj->bytes(\@dataFormatList);
+#      @dataFormatList = @{$dataListRef};
+#      $bytes += $repeat_byte_size;
     } elsif (ref($obj) eq 'XDF::SkipCharFormattedIOCmd') {
       $bytes += $obj->bytes;
     } else {
@@ -250,7 +273,7 @@ sub _outputSkipCharArray {
   return @outArray;
 }
 
-sub _templateNotation {
+sub _OldtemplateNotation {
   my ($self, $input) = @_;
  
   my $notation;
@@ -282,6 +305,42 @@ sub _templateNotation {
   }
 
   return $notation;
+
+}
+
+sub _templateNotation {
+  my ($self, $input) = @_;
+
+  my $notation;
+  my $endian = $self->endian;
+  my $encoding = $self->encoding;
+
+  my @dataFormatList = $self->_parentArray->dataFormatList;
+
+  if (!defined @dataFormatList or $#dataFormatList < 0) {
+    carp "Error: cant read Formatted ReadStyle w/o defined dataFormat\n";
+    return;
+  }
+
+  foreach my $obj ($self->getCommands()) {
+    if(ref($obj) eq 'XDF::ReadCellFormattedIOCmd') {
+      my $readObj = shift @dataFormatList;
+      push (@dataFormatList, $readObj); # its a circular list
+      $notation .= $readObj->_templateNotation($endian,$encoding,$input);
+    } elsif (ref($obj) eq 'XDF::RepeatFormattedIOCmd') {
+      my ($repeat_notation, $dataListRef) = $obj->_templateNotation(\@dataFormatList,$endian,$encoding, $input);
+      @dataFormatList = @{$dataListRef};
+      $notation .= $repeat_notation;
+    } elsif (ref($obj) eq 'XDF::SkipCharFormattedIOCmd') {
+      $notation .= $obj->_templateNotation($endian,$encoding,$input);
+    } else { 
+      # everything else, which nothing right now, so throw an error
+      warn "Got weird formattedIOCmd in $self : $obj , ignoring it.\n";
+    }
+  }
+
+  return $notation;
+
 
 }
 
@@ -319,6 +378,10 @@ sub _sprintfNotation {
 # Modification History
 #
 # $Log$
+# Revision 1.3  2000/11/28 19:39:10  thomas
+# Fix to formatted  reads. Implemented getCommands
+# method. -b.t.
+#
 # Revision 1.2  2000/10/16 17:37:20  thomas
 # Changed over to BaseObject Class from Object Class.
 # Added in History Modification section.

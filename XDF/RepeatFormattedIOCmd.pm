@@ -76,6 +76,28 @@ sub addFormatCommand {
   return $obj;
 }
 
+# /** Convenience method that returns the command list. Repeat
+#    commands are expanded into their component parts. 
+# */
+sub getCommands () {
+  my ($self) = @_;
+
+  my @commandList = ();
+
+  foreach my $obj (@{$self->formatCmdList}) {
+     if (ref($obj) eq 'XDF::RepeatFormattedIOCmd') {
+       my $count = $obj->count();
+       while ($count-- > 0) {
+          push @commandList, $obj->getCommands();
+       }
+     } else {
+        push @commandList, $obj;
+     }
+   }
+
+   return @commandList;
+}
+
 sub bytes {
   my ($self, $dataFormatListRef ) = @_;
 
@@ -88,15 +110,11 @@ sub bytes {
     return;
   }
 
-  foreach my $obj (@{$self->formatCmdList}) {
+  foreach my $obj ($self->getCommands()) {
     if(ref($obj) eq 'XDF::ReadCellFormattedIOCmd') {
       my $readObj = shift @dataFormatList;
       push (@dataFormatList, $readObj); # its a circular list
       $bytes += $readObj->bytes;
-    } elsif (ref($obj) eq 'XDF::RepeatFormattedIOCmd') {
-      my ($repeat_byte_size, $dataListRef) = $obj->bytes(\@dataFormatList);
-      @dataFormatList = @{$dataListRef};
-      $bytes += $repeat_byte_size;
     } elsif (ref($obj) eq 'XDF::SkipCharFormattedIOCmd') {
       $bytes += $obj->bytes;
     } else {
@@ -104,9 +122,6 @@ sub bytes {
       warn "Got weird formattedIOCmd in $self : $obj , ignoring it.\n";
     }
   }
-
-  my $repeat_bytes = $bytes;
-  for (1 .. ($self->count - 1)) { $bytes += $repeat_bytes; }
 
   return ($bytes, \@dataFormatList);
 }
@@ -165,6 +180,7 @@ sub _templateNotation {
     if(ref($obj) eq 'XDF::ReadCellFormattedIOCmd') {
       my $readObj = shift @dataFormatList;
       push (@dataFormatList, $readObj); # its a circular list
+print STDERR "Repeat add notation:[".$readObj->_templateNotation($endian,$encoding,$input)."]\n"; 
       $notation .= $readObj->_templateNotation($endian,$encoding,$input); 
     } elsif (ref($obj) eq 'XDF::RepeatFormattedIOCmd') {
       my ($repeat_notation, $dataListRef) = $obj->_templateNotation(\@dataFormatList, $endian, $encoding, $input);
@@ -180,6 +196,7 @@ sub _templateNotation {
   my $repeat_notation = $notation;
   for (1 .. ($self->count - 1)) { $notation .= $repeat_notation; }
 
+print STDERR "Repeat gets notation:[".$notation."]\n"; 
   return ($notation, \@dataFormatList);
 }
 
@@ -254,6 +271,10 @@ sub _sprintfNotation {
 # Modification History
 #
 # $Log$
+# Revision 1.3  2000/11/28 19:39:10  thomas
+# Fix to formatted  reads. Implemented getCommands
+# method. -b.t.
+#
 # Revision 1.2  2000/10/16 17:37:21  thomas
 # Changed over to BaseObject Class from Object Class.
 # Added in History Modification section.
