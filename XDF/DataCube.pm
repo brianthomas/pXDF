@@ -310,7 +310,11 @@ sub writeDataToFileHandle {
 
   croak "XDF::DataCube has no valid data filehandle" unless defined $dataFileHandle;
 
-  my $fastestAxis = $parentArray->getAxisList()->[0];
+  #my $fastestAxis = $parentArray->getAxisList()->[0];
+
+  # fastest axis is the first in the array, always 
+  my $fastestAxis = $readObj->getWriteAxisOrderList()->[0];
+
   # stores the NoDataValues for the parentArray,
   # used in writing out when NoDataException is caught
   my @NoDataValues;
@@ -494,7 +498,8 @@ sub _write_tagged_data {
   # now we populate the data , if there are any dimensions 
   if ($self->{Dimension} > 0) {
 
-    my @axisList = @{$self->{_parentArray}->getAxisList()};
+#    my @axisList = @{$self->{_parentArray}->getAxisList()};
+    my @axisList = @{$readObj->getWriteAxisOrderList()};
 
     # gather info. Find out what tags go w/ which axii
     my @AXIS_TAG = reverse $readObj->getAxisTags(); 
@@ -832,6 +837,10 @@ sub _build_locator_string {
 # Modification History
 #
 # $Log$
+# Revision 1.18  2001/03/26 18:09:21  thomas
+# bug fix: use writeAxisOrderList to find the fastest
+# axis in toXMLFileHandle.
+#
 # Revision 1.17  2001/03/23 20:38:40  thomas
 # broke up printing of attributes in toXMLFileHandle
 # so that toXMLString will work properly.
