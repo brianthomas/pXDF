@@ -2054,7 +2054,7 @@ sub _valueList_node_charData {
       # adding values to the last axis in the array
       my $axisObj = $self->_lastAxisObj();
       foreach my $val (@values) { 
-         my $valueObj = new XDF::Value($val);
+         my $valueObj = _create_valueList_value_object($val, %{$self->{currentValueList}->{'attrib_hash'}});
          die "cant add value to axis" unless $axisObj->addAxisValue($valueObj); 
          push @valueObjList, $valueObj;
       }
@@ -2118,7 +2118,7 @@ sub _valueList_node_start {
 
         my $axisObj = $self->_lastAxisObj();
         foreach my $val (@values) { 
-           my $valueObj = new XDF::Value($val);
+           my $valueObj = _create_valueList_value_object($val, %attrib_hash);
            die "cant add value" unless $axisObj->addAxisValue($valueObj); 
            push @valueObjList, $valueObj;
         }
@@ -2161,11 +2161,13 @@ sub _valueList_node_start {
 
    } else {
 
+         # cache info for chardata style.
          $self->{currentValueList}->{'parent_node'} = $parent_node;
          $self->{currentValueList}->{'delimiter'} = defined $attrib_hash{'delimiter'} ?
                $attrib_hash{'delimiter'} : $Def_ValueList_Delimiter;
          $self->{currentValueList}->{'repeatable'} = defined $attrib_hash{'repeatable'} ?
                $attrib_hash{'repeatable'} : $Def_ValueList_Repeatable;
+         $self->{currentValueList}->{'attrib_hash'} = \%attrib_hash;
 
    }
 
@@ -2288,6 +2290,45 @@ sub _getUniqueIdName {
 #
 
 sub _null_cmd { }
+
+sub _create_valueList_value_object {
+   my ($string_val, %attrib) = @_;
+
+   my $valueObj = new XDF::Value(); 
+
+   if ($string_val) {
+      if (exists $attrib{'infiniteValue'} && $attrib{'infiniteValue'} eq $string_val)
+      {
+         $valueObj->setSpecial('infinite');
+      }
+      elsif (exists $attrib{'infiniteNegativeValue'} && $attrib{'infiniteNegativeValue'} eq $string_val)
+      {
+         $valueObj->setSpecial('infiniteNegative');
+      }
+      elsif (exists $attrib{'noDataValue'} && $attrib{'noDataValue'} eq $string_val)
+      {
+         $valueObj->setSpecial('noData');
+      }
+      elsif (exists $attrib{'notANumberValue'} && $attrib{'notANumberValue'} eq $string_val)
+      {
+         $valueObj->setSpecial('notANumber');
+      }
+      elsif (exists $attrib{'underflowValue'} && $attrib{'underflowValue'} eq $string_val)
+      {
+         $valueObj->setSpecial('underflow');
+      }
+      elsif (exists $attrib{'overflowValue'} && $attrib{'overflowValue'} eq $string_val)
+      {
+         $valueObj->setSpecial('overflow');
+      }
+      else 
+      {
+         $valueObj->setValue($string_val);
+      }
+   }
+
+   return $valueObj;
+}
 
 sub _getCurrentDataDeCompression {
   my ($self)= @_;
@@ -2993,6 +3034,10 @@ sub _appendArrayToArray {
 # Modification History
 #
 # $Log$
+# Revision 1.32  2001/07/02 17:27:00  thomas
+# added support for valueList creation of values with
+# 'special' attribute flag set: e.g. noData, infinite, etc.
+#
 # Revision 1.31  2001/06/29 21:07:12  thomas
 # changed public add (and remove) methods to
 # conform to Java API standard: e.g. return boolean
