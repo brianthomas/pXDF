@@ -328,9 +328,17 @@ sub addAxisValue {
   # ah the pain of it all. It would seem wiser to just
   # NOT have reference objects at all.
 
-  # add this axis value to the list
-  push @{$self->{ValueList}}, $obj;
+  my $index = $self->{_length};
 
+  if (defined @{$self->{ValueList}}->[$index]) {
+     # increase the size of the array by pushing
+     push @{$self->{ValueList}}, $obj;
+  } else {
+     # use a pre-alocated spot that is undefined
+     @{$self->{ValueList}}->[$index] = $obj;
+  }
+
+  # bump up the size of this axis
   $self->{_length} = $self->{_length} + 1;
 
   return $obj;
@@ -342,16 +350,32 @@ sub addAxisValue {
 sub setAxisValue {
   my ($self, $index, $valueOrValueObjRef ) = @_;
 
-  return unless defined $index && defined $valueOrValueObjRef;
+  return unless defined $index && $index >= 0;
 
+  unless (defined $valueOrValueObjRef) {
+     if (defined @{$self->{ValueList}}->[$index]) {
+        # if the axisValue is presently defined, we lower
+        # the length of the axis by 1
+        $self->{_length} = $self->{_length} - 1;
+        @{$self->{ValueList}}->[$index] = undef;
+     }
+     return;
+  }
+    
   my $valueObj = $valueOrValueObjRef;
 
   unless (ref($valueObj) eq 'XDF::Value' or 
           ref($valueObj) eq 'XDF::UnitDirection' )
   {
-    $valueObj  = @{$self->{ValueList}}->[$index];
-    $valueObj->value($valueOrValueObjRef);
+    $valueObj  = new XDF::Value(); #@{$self->{ValueList}}->[$index];
+    $valueObj->setValue($valueOrValueObjRef);
   } 
+
+  # if the axisValue is not presently defined, we raise
+  # the length of the axis by 1
+  if (!defined @{$self->{ValueList}}->[$index]) {
+     $self->{_length} = $self->{_length} + 1;
+  }
 
   @{$self->{ValueList}}->[$index] = $valueObj;
 
@@ -365,7 +389,15 @@ sub addAxisUnitDirection {
   my ($self, $attribHashRef) = @_; 
 
   my $obj = XDF::UnitDirection->new($attribHashRef);
-  push @{$self->{ValueList}}, $obj;
+
+  my $index = $self->{_length};
+  if (defined @{$self->{ValueList}}->[$index]) {
+     # increase the size of the array by pushing
+     push @{$self->{ValueList}}, $obj;
+  } else {
+     # use a pre-alocated spot that is undefined
+     @{$self->{ValueList}}->[$index] = $obj;
+  }
 
   return $obj;
 }
@@ -387,7 +419,7 @@ sub removeAxisValue {
 sub getAxisValue {
   my ($self, $index) = @_;
   return unless (defined $index && $index >= 0);
-  return @{$self->{ValueList}}->[$index];
+  return $self->getAxisValues->[$index];
 }
 
 # /** getAxisValues 
@@ -402,7 +434,7 @@ sub getAxisValues {
       push @values, $axisVal->getValue();
    }
 
-   return \@values;
+   return @values;
 }
 
 # /** addUnit 
@@ -450,27 +482,31 @@ sub removeValueGroup {
   delete %{$self->{_valueGroupOwnedHash}}->{$hashKey}; 
 }
 
-# /** getIndexFromValue
+# /** getIndexFromAxisValue
 # Return the axis index for the given (scalar) value. 
 # Does not currently work for unitDirection objects that reside
 # on an axis.
-# Returns undef if it cant find an index for the given value.
+# Returns -1 if it cant find an index for the given value.
 # */
 # Note: there is a smarter way to do this. We could keep a private
 # hash table of index/value pairs OR use some sort of (Perl) psuedo
 # hash table that allows reverse lookups.
 sub getIndexFromAxisValue {
-  my ($self, $value) = @_; 
+  my ($self, $valueOrValueObj) = @_; 
 
-  return unless defined $value;
+  return unless defined $valueOrValueObj;
+
+  my $value = $valueOrValueObj;
+  $value = $value->getValue() if ref($valueOrValueObj);
 
   my $index;
   foreach $index (0 .. $#{$self->{ValueList}}) {
-    if ($value eq @{$self->{ValueList}}->[$index]->value) {
+    my $axisValue = @{$self->{ValueList}}->[$index];
+    if (defined $axisValue && $value eq $axisValue->getValue) {
       return $index;
     }
   } 
-  return;
+  return -1;
 }
 
 #
@@ -509,6 +545,17 @@ sub _init {
 # Modification History
 #
 # $Log$
+# Revision 1.7  2001/03/14 16:09:37  thomas
+# getIndexFromAxisValue method now returns -1 if it cant find
+# the corresponding index (as per Java method). Also, will take
+# a valueObject as well as string value.
+# addAxisValue and setAxisValue fixed. Previously these where just
+# pushing values onto the end of the valueList. The problem is that
+# that array is pre-allocated, so the operation resulted in tacking on
+# more values to the end of the array. Now we set the value at a
+# free index, or if there are no free indices, we add a new one. We
+# will probably have to re-visit this issue again in the future.
+#
 # Revision 1.6  2001/03/09 21:52:11  thomas
 # Added utility check on datatype attribute setting.
 #
