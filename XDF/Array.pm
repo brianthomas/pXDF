@@ -63,6 +63,10 @@ package XDF::Array;
 #
 # */
 
+#/** SEE ALSO
+# XDF::Relationship;
+#*/
+
 # use Carp;
 
 use XDF::BaseObjectWithXMLElements;
@@ -76,7 +80,7 @@ use XDF::Log;
 use XDF::Notes;
 use XDF::Parameter;
 use XDF::ParameterGroup;
-use XDF::TaggedXMLDataIOStyle;
+use XDF::DelimitedXMLDataIOStyle;
 use XDF::Units;
 
 use strict;
@@ -88,6 +92,8 @@ use vars qw ($AUTOLOAD %field @ISA);
 @ISA = ("XDF::BaseObjectWithXMLElements");
 
 # CLASS DATA
+my $Flag_Decimal = &XDF::Constants::INTEGER_TYPE_DECIMAL;
+
 my $Class_Node_Name = "array";
 # order is important, put array node attributes
 # first, then fieldAxis, axisList, dataCube, then notes
@@ -97,22 +103,13 @@ my @Local_Class_XML_Attributes = qw (
                                 description
                                 arrayId
                                 appendTo
-                                lessThanValue
-                                lessThanOrEqualValue
-                                greaterThanValue
-                                greaterThanOrEqualValue
-                                infiniteValue
-                                infiniteNegativeValue
-                                noDataValue
-                                notANumberValue
-                                overFlowValue
-                                underFlowValue
-                                disabledValue
+                                conversion
                                 paramList
                                 units
                                 dataFormat
                                 axisList
                                 XMLDataIOStyle 
+                                relation
                                 dataCube
                                 notes
                               );
@@ -172,6 +169,8 @@ push @Class_Attributes, @Local_Class_Attributes;
 # Initalization
 # set up object attributes.
 for my $attr ( @Class_Attributes ) { $field{$attr}++; }
+
+# CLASS Methods
 
 # /** classXMLNodeName
 # This method returns the class node name of XDF::Array; 
@@ -257,187 +256,32 @@ sub setAppendTo {
    $self->{appendTo} = $value;   
 }
 
-
-# /** getLessThanValue
+# /** getConversion
 #   
-# */
-sub getLessThanValue {
+#  */
+sub getConversion {
    my ($self) = @_;
-   return $self->{lessThanValue};
+   return $self->{conversion};
 }
 
-# /** setLessThanValue
-#     Set the lessThanValue attribute. 
-# */
-sub setLessThanValue {
+# /** setConversion
+#     Set how to convert values of the data in this array. 
+#     Should NOT be set IF there is a field axis in the array.
+#  */
+sub setConversion {
    my ($self, $value) = @_;
-   $self->{lessThanValue} = $value;
-}
 
-# /** getLessThanOrEqualValue
-#   
-# */
-sub getLessThanOrEqualValue {
-   my ($self) = @_;
-   return $self->{lessThanOrEqualValue};
+   if ($self->hasFieldAxis && defined $value) {
+      error("Cant set conversion in array, has a field axis, ignoring request");
+      return;
+   }
+   $self->{conversion} = $value;
 }
-
-# /** setLessThanOrEqualValue
-#     Set the lessThanOrEqualValue attribute. 
-# */
-sub setLessThanOrEqualValue {
-   my ($self, $value) = @_;
-   $self->{lessThanOrEqualValue} = $value;
-}
-
-# /** getGreaterThanValue
-#  
-# */
-sub getGreaterThanValue {
-   my ($self) = @_;
-   return $self->{greaterThanValue};
-}
-
-# /** setGreaterThanValue
-#     Set the greaterThanValue attribute. 
-# */
-sub setGreaterThanValue {
-   my ($self, $value) = @_;
-   $self->{greaterThanValue} = $value;
-}
-
-# /** getGreaterThanOrEqualValue
-# 
-# */
-sub getGreaterThanOrEqualValue {
-   my ($self) = @_;
-   return $self->{greaterThanOrEqualValue};
-}
-
-# /** setGreaterThanOrEqualValue
-#     Set the greaterThanOrEqualValue attribute. 
-# */
-sub setGreaterThanOrEqualValue {
-   my ($self, $value) = @_;
-   $self->{greaterThanOrEqualValue} = $value;
-}
-
-# /** getInfiniteValue
-# 
-# */
-sub getInfiniteValue {
-   my ($self) = @_;
-   return $self->{infiniteValue};
-}
-
-# /** setInfiniteValue
-#     Set the infiniteValue attribute. 
-# */
-sub setInfiniteValue {
-   my ($self, $value) = @_;
-   $self->{infiniteValue} = $value;
-}
-
-# /** getInfiniteNegativeValue
-# 
-# */
-sub getInfiniteNegativeValue {
-   my ($self) = @_;
-   return $self->{infiniteNegativeValue};
-}
-
-# /** setInfiniteNegativeValue
-#     Set the infiniteNegativeValue attribute. 
-# */
-sub setInfiniteNegativeValue {
-   my ($self, $value) = @_;
-   $self->{infiniteNegativeValue} = $value;
-}
-
-# /** getNoDataValue
-# 
-# */
-sub getNoDataValue {
-   my ($self) = @_;
-   return $self->{noDataValue};
-}
-
-# /** setNoDataValue
-#     Set the noDataValue attribute. 
-# */
-sub setNoDataValue {
-   my ($self, $value) = @_;
-   $self->{noDataValue} = $value;
-}
-
-# /** getNotANumberValue
-# 
-# */
-sub getNotANumberValue {
-   my ($self) = @_;
-   return $self->{notANumberValue};
-}
-                                
-# /** setNotANumberValue            
-#     Set the notANumberValue attribute. 
-# */                            
-sub setNotANumberValue {            
-   my ($self, $value) = @_;     
-   $self->{notANumberValue} = $value;
-} 
-
-# /** getOverFlowValue
-# 
-# */
-sub getOverFlowValue {
-   my ($self) = @_;
-   return $self->{overFlowValue};
-}
-                                
-# /** setOverFlowValue            
-#     Set the overFlowValue attribute. 
-# */                            
-sub setOverFlowValue {            
-   my ($self, $value) = @_;     
-   $self->{overFlowValue} = $value;
-}
-
-# /** getUnderFlowValue
-# 
-# */
-sub getUnderFlowValue {
-   my ($self) = @_;
-   return $self->{underFlowValue};
-}
-                                
-# /** setUnderFlowValue            
-#     Set the underFlowValue attribute. 
-# */                            
-sub setUnderFlowValue {            
-   my ($self, $value) = @_;     
-   $self->{underFlowValue} = $value;
-} 
-
-# /** getDisabledValue
-# 
-# */
-sub getDisabledValue {
-   my ($self) = @_;
-   return $self->{disabledValue};
-}
-                                
-# /** setDisabledValue            
-#     Set the disabledValue attribute. 
-# */                            
-sub setDisabledValue {            
-   my ($self, $value) = @_;     
-   $self->{disabledValue} = $value;
-} 
 
 # /** getDataCube
 # 
 #  */
-sub getDataCube {
+sub getDataCube { # PRIVATE
    my ($self) = @_;
    return $self->{dataCube};
 }
@@ -512,6 +356,12 @@ sub getDataFormat {
 # */
 sub setDataFormat {
    my ($self, $value) = @_;
+
+   unless (&XDF::Utility::isValidDataFormat(ref $value)) {
+     error("Cant set array DataFormat to $value, not allowed, ignoring \n");
+     return;
+   }
+
    $self->{dataFormat} = $value;
 }
 
@@ -568,15 +418,58 @@ sub getFieldAxis {
   return ref($axisObj) eq 'XDF::FieldAxis' ? $axisObj : undef;
 }
 
+# /** getRowAxis
+# 
+# */
+sub getRowAxis {
+  my ($self) = @_;
+  foreach my $axisObj ( @{$self->{axisList}}) 
+  {
+     return $axisObj if (ref($axisObj) eq "XDF::RowAxis");
+  }
+  return undef;
+}
+
+# /** getColAxis
+# 
+# */
+sub getColAxis {
+  my ($self) = @_;
+  foreach my $axisObj ( @{$self->{axisList}}) 
+  {
+     return $axisObj if (ref($axisObj) eq "XDF::ColAxis"); 
+  }
+  return undef;
+}
+
 # /** setXMLDataIOStyle
 # Set the XMLDataIOStyle object for this array.
 # */
 sub setXMLDataIOStyle {
   my ($self, $val) = @_;
 
-  $self->{XMLDataIOStyle} = $val;
-  # set the parent array to this object
-  $self->{XMLDataIOStyle}->{_parentArray} = $self;
+  if (ref $val) {
+    $self->{XMLDataIOStyle} = $val;
+
+    # set the parent array to this object
+    $self->{XMLDataIOStyle}->setParentArray($self);
+  }
+
+}
+
+# /** getRelation
+# */
+sub getRelation {
+   my ($self) = @_;
+   return $self->{relation};
+}
+
+# /** setRelation
+#     Set the relation attribute. 
+# */
+sub setRelation {
+   my ($self, $value) = @_;
+   $self->{relation} = $value;
 }
 
 # /** getXMLDataIOStyle
@@ -621,6 +514,29 @@ sub getDataFormatList {
   return (); # opps, nothing defined!! 
 }
 
+# /** getCacheDataToDisk
+# Determine if the data is being stored in system memory or in
+# a (disk) file (e.g. simple database treatment).
+# This is needed for large datasets which *wont* fit into memory
+# on a given machine -or- may be helpfull to improve IO speed 
+# on a medium size dataset which *will* fit in memory but requires 
+# the machine to swap. The user must decide when its appropriate
+# and your mileage may vary. 
+# */
+sub getCacheDataToDisk {
+  my ($self) = @_;
+  return $self->{dataCube}->_getCacheDataToDisk();
+}
+
+# /** setCacheDataToDisk
+# This *may* work on populated Array but its much more safe
+# to only alter this attribute *before* loading the data into the array.
+# */
+sub setCacheDataToDisk {
+  my ($self, $cacheData) = @_;
+  $self->{dataCube}->_setCacheDataToDisk($cacheData);
+}
+
 #
 # Other public methods
 #
@@ -632,6 +548,7 @@ sub createLocator {
   my ($self) = @_;
 
   my $locatorObj = new XDF::Locator($self);
+
   # add to list of locators we are keeping track of
   push @{$self->{_locatorList}}, $locatorObj;
   return $locatorObj;
@@ -653,7 +570,8 @@ sub addParamGroup {
   return 0 unless defined $objectRef && ref $objectRef;
 
   # add the group to the groupOwnedHash
-  %{$self->_paramGroupOwnedHash}->{$objectRef} = $objectRef;
+  #%{$self->_paramGroupOwnedHash}->{$objectRef} = $objectRef;
+  $self->_paramGroupOwnedHash->{$objectRef} = $objectRef;
 
   return 1;
 
@@ -667,8 +585,10 @@ sub addParamGroup {
 # */
 sub removeParamGroup {
    my ($self, $hashKey) = @_;
-   return 0 unless (exists %{$self->_paramGroupOwnedHash}->{$hashKey});
-   delete %{$self->_paramGroupOwnedHash}->{$hashKey};
+   #return 0 unless (exists %{$self->_paramGroupOwnedHash}->{$hashKey});
+   return 0 unless (exists $self->_paramGroupOwnedHash->{$hashKey});
+   #delete %{$self->_paramGroupOwnedHash}->{$hashKey};
+   delete $self->_paramGroupOwnedHash->{$hashKey};
    return 1;
 }
 
@@ -685,7 +605,12 @@ sub removeParamGroup {
 sub addAxis {
   my ($self, $axisObj ) = @_;
 
-  return 0 unless &_can_add_axisObj_to_array($axisObj);
+  return 0 unless $self->_can_add_axisObj_to_array($axisObj);
+
+  # safety
+  if (ref $axisObj eq 'XDF::FieldAxis') {
+     return $self->setFieldAxis($axisObj);
+  }
 
   # add this axis to the list 
   push @{$self->{axisList}}, $axisObj; 
@@ -693,28 +618,91 @@ sub addAxis {
   # bump up the number of dimensions
   $self->{dataCube}->{dimension} = $self->{dataCube}->{dimension} + 1;
 
-  $self->_updateInternalLookupIndices();
+  $self->getDataCube->_resetDataCube();
 
   $axisObj->setParentArray($self);
 
   return 1;
 }
 
-sub _updateInternalLookupIndices {
+sub _isSimpleDataIOStyle {
   my ($self) = @_;
-  $self->{dataCube}->_updateInternalLookupIndices();
+
+  return 1 if ($self->hasColAxis || $self->hasRowAxis);
+  return 0;
 }
 
 # Can we add this axisObject to the array?
 # 1- check to see that it has an id
 # 2- we SHOULD also check that the id is unique but DONT currently.
 sub _can_add_axisObj_to_array {
-  my ($axisObj) = @_;
+  my ($self, $axisObj) = @_;
 
-  unless (defined $axisObj and defined $axisObj->getAxisId() ) {
-     error("Can't add Axis object wi/o axisId attribute defined.\n");
+  unless (defined $axisObj) {
+     error("Can't add undefined Axis object.\n");
      return 0;
   }
+
+  unless (defined $axisObj->getAxisId() ) {
+     if (ref $axisObj eq 'XDF::ColAxis' or ref $axisObj eq 'XDF::RowAxis') {
+        error("Array needs to assign an axisId to the row/colAxis, as the current axis object doesnt have one defined.\n");
+        return 0;
+     } else {
+        error("Can't add Axis object wi/o axisId attribute defined.\n");
+        return 0;
+     }
+  }
+
+  if (ref $axisObj eq 'XDF::FieldAxis') {
+
+     if($self->hasFieldAxis()) {
+        error("Can't add second field axis to array. Remove old FieldAxis object first.\n");
+        return 0;
+     }
+
+  } elsif (ref $axisObj eq 'XDF::RowAxis') {
+
+     if($self->hasRowAxis()) {
+        error("Can't add second row Axis to array. Remove old RowAxis object first.\n");
+        return 0;
+     }
+
+  #   if(!$self->hasColAxis() && !$self->hasFieldAxis()) {
+  #      error("Can't add row Axis to array without a column/field Axis. Please add either a FieldAxis or ColAxis object first.\n");
+  #      return 0;
+  #   }
+
+     if($self->getDimension() > 1 and !$self->hasColAxis() and !$self->hasRowAxis() and !$self->hasFieldAxis()) {
+        error("Can't add row axis to array with regular axes defined. Please remove the other Axis object(s) first.\n");
+        return 0;
+     }
+
+  } elsif (ref $axisObj eq 'XDF::ColAxis') {
+
+     if($self->hasFieldAxis()) {
+        error("Can't add column axis to array, already has FieldAxis. Remove FieldAxis object first.\n");
+        return 0;
+     }
+
+     if($self->hasColAxis()) {
+        error("Can't add second column axis to array. Remove old ColAxis object first.\n");
+        return 0;
+     }
+
+     if($self->getDimension() > 1 and !$self->hasColAxis() and !$self->hasRowAxis() and !$self->hasFieldAxis()) {
+        error("Can't add column axis to array with regular axes defined. Please remove the other Axis object(s) first.\n");
+        return 0;
+     }
+
+  } elsif (ref $axisObj eq 'XDF::Axis') {
+
+     if ($self->hasColAxis() || $self->hasRowAxis()) {
+        error("Can't add plain axis to array which has row/col axes. Remove old ColAxis/RowAxis object(s) first.\n");
+        return 0;
+     }
+
+  }
+
   return 1;
 }
 
@@ -728,6 +716,8 @@ sub removeAxis {
    my ($self, $axisObj) = @_;
    if (defined $axisObj && $self->_remove_from_list($axisObj, $self->{axisList}, 'axisList')) {
      $axisObj->setParentArray(undef);
+     $self->{dataCube}->{dimension} = $self->{dataCube}->getDimension() - 1;
+     $self->getDataCube->_resetDataCube();
      return 1;
    } else {
      return 0;
@@ -740,6 +730,22 @@ sub removeAxis {
 sub hasFieldAxis {
   my ($self) = @_;
   return defined $self->getFieldAxis() ? 1 : 0;
+}
+
+# /** hasRowAxis
+# 
+# */
+sub hasRowAxis {
+  my ($self) = @_;
+  return defined $self->getRowAxis() ? 1 : 0;
+}
+
+# /** hasColAxis 
+# 
+# */
+sub hasColAxis {
+  my ($self) = @_;
+  return defined $self->getColAxis() ? 1 : 0;
 }
 
 # /** addUnit
@@ -878,7 +884,7 @@ sub setFieldAxis {
 
   if (defined $fieldAxisObj) {
  
-     return 0 unless &_can_add_axisObj_to_array($fieldAxisObj);
+     return 0 unless $self->_can_add_axisObj_to_array($fieldAxisObj);
 
      # By convention, the fieldAxis is always first axis in the axis list.
      # Make sure that we *replace* the existing fieldAxis, if it exists.
@@ -887,16 +893,19 @@ sub setFieldAxis {
 
      # bump up the number of dimensions
      $self->{dataCube}->{dimension} = $self->{dataCube}->getDimension() + 1;
-     $self->_updateInternalLookupIndices();
+
+     $self->getDataCube->_resetDataCube();
 
      $fieldAxisObj->setParentArray($self);
 
      # undef the units
      # no units in case of a field Axis
      if (!$self->{units}->isUnitless()) {
-        warn ("Now that array ($self) has a fieldAxis, setting array units to unitless.\n");
+        info ("Now that array ($self) has a fieldAxis, setting array units to unitless.\n");
      }
      $self->{units}->makeUnitless();
+
+     $self->{conversion} = undef; # cant have this set IF there is a field axis 
 
      return 1;
 
@@ -921,13 +930,72 @@ sub removeFieldAxis {
    my $fieldAxis;
    if (ref(@{$self->{axisList}}[0]) eq 'XDF::FieldAxis') {
       $fieldAxis = shift @{$self->{axisList}};
-      $self->dimension( $self->dimension() - 1 );
+      $self->{dataCube}->{dimension} = $self->{dataCube}->{dimension} - 1;
       $fieldAxis->setParentArray(undef);
+      $self->getDataCube->_resetDataCube();
       return 1;
    }
 
    return 0;
 }
+
+# /** parseAndLoadDataString
+# Cause the given dataString to be read in as directed by 
+# the various settings in this array (e.g. XMLDataIOStyle, DataFormat, etc).
+# The data String may be either in the Formatted or Delimited DataIOStyles.
+# If delayLoad is true, then the data will be cached for later parsing/loading 
+# when it is actually demaned by the user. Using this setting speeds loading
+# (and then accessing) meta-data in Arrays with large amounts of data.
+# */
+sub parseAndLoadDataString {
+  my ($self, $locator, $dataBlock, $startByte, $endByte, $delayLoad) = @_;
+  my $formatObj = $self->getXMLDataIOStyle();
+  $self->{dataCube}->_parseAndLoadDataString($dataBlock, $locator, $formatObj, $startByte, $endByte, $delayLoad);
+}
+
+# /** reloadAllExternalData
+# This method will cause the array to (re)-load all of 
+# the External href resource data into itself (again).
+# */
+sub reloadAllExternalData {
+  my ($self) = @_;
+  $self->{dataCube}->_load_external_data();
+}
+
+# /** hasSpecialIntegers
+# Returns true if one or more fields in this array contain non-decimal
+# ASCII integer data (binary data are excepted).
+# */
+sub hasSpecialIntegers {
+  my ($self) = @_;
+
+  my @dataFormatList = $self->getDataFormatList();
+  return 0 if (!@dataFormatList);
+
+  foreach my $dataType (@dataFormatList) {
+    if (ref($dataType) eq 'XDF::IntegerDataFormat') {
+      return 1 if $dataType->getType() ne $Flag_Decimal;
+    }
+  }
+  return 0;
+}
+
+# /** hasBinaryData
+# Returns true if one or more fields in this array contain binary data.
+# */
+sub hasBinaryData {
+  my ($self) = @_;
+
+  my @dataFormatList = $self->getDataFormatList();
+  return 0 if (!@dataFormatList);
+
+  foreach my $dataType (@dataFormatList) {
+    return 1 if ref($dataType) =~ m/XDF::Binary/;
+  }
+
+  return 0;
+}
+
 
 #
 # Private Methods
@@ -950,9 +1018,10 @@ sub _init {
   # initalize objects we always have
   $self->{dataCube} = new XDF::DataCube();
   $self->{dataCube}->{_parentArray} = $self; # cross reference w/ dataCube 
+  $self->{dataFormat} = new XDF::StringDataFormat();
   $self->{units} = new XDF::Units();
   $self->{notes} = new XDF::Notes();
-  $self->setXMLDataIOStyle(new XDF::TaggedXMLDataIOStyle()); # set the default IO style to Tagged.
+  $self->setXMLDataIOStyle(new XDF::DelimitedXMLDataIOStyle($self)); # set the default IO style to Delimited
 
   # initialize lists/hashes 
   $self->{axisList} = [];
@@ -964,6 +1033,26 @@ sub _init {
   $self->_appendAttribsToXMLAttribOrder(\@Local_Class_XML_Attributes);
 
 }
+
+# happens when a new axisValue or Field is added to an axis.
+# Could REALLY SLOW down the code if you had big operations 
+# to do and had one or more locators open. Ugh.
+sub _updateAllLocatorInternalLookupIndices {
+  my ($self) = @_;
+
+  foreach my $locator (@{$self->{_locatorList}})
+  {
+     $locator->_updateInternalLookupIndices();
+  }
+}
+
+# remove a locator from the internal list
+# *should* happen when the locator destroys itself
+sub _removeLocator {
+   my ($self,$locator) = @_;
+#   return $self->_remove_from_list($locator, $self->{_locatorList}, 'locatorList');
+}
+
 
 1;
 
@@ -1371,7 +1460,7 @@ B<addXMLElement>, B<removeXMLElement>, B<getXMLElementList>, B<setXMLElementList
 
 =over 4
 
-L<XDF::BaseObjectWithXMLElements>, L<XDF::Axis>, L<XDF::DataCube>, L<XDF::DataFormat>, L<XDF::FieldAxis>, L<XDF::Locator>, L<XDF::Notes>, L<XDF::Parameter>, L<XDF::ParameterGroup>, L<XDF::TaggedXMLDataIOStyle>, L<XDF::Units>
+L<XDF::BaseObjectWithXMLElements>, L<XDF::Axis>, L<XDF::DataCube>, L<XDF::DataFormat>, L<XDF::FieldAxis>, L<XDF::Locator>, L<XDF::Notes>, L<XDF::Parameter>, L<XDF::ParameterGroup>, L<XDF::DelimitedXMLDataIOStyle>, L<XDF::Units>
 
 =back
 
