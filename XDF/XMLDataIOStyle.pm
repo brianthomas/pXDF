@@ -82,6 +82,7 @@ my @Class_XML_Attributes = qw (
                              endian
                           );
 my @Class_Attributes = qw (
+                             writeAxisOrderList
                              _parentArray
                           );
 
@@ -188,6 +189,33 @@ sub setEndian {
    $self->{Endian} = $value;
 }
 
+#/** getWriteAxisOrderList 
+# This method sets the ordering of the fastest to slowest axis for
+# writing out data. The default is to use the parent array
+# axisList ordering (field axis first, if it exists, followed by all
+# other axes in the order in which they were declared).
+# */
+sub getWriteAxisOrderList {
+  my ($self) =@_;
+
+  my $list_ref = $self->{WriteAxisOrderList};
+  $list_ref = $self->{_parentArray}->getAxisList() unless
+      defined $list_ref || !defined $self->{_parentArray};
+  return $list_ref;
+}
+
+#/** setWriteAxisOrderList 
+# This method sets the ordering of the fastest to slowest axis for
+# writing out formatted data. The fastest axis is the last in
+# the array.
+# */
+sub setWriteAxisOrderList {
+  my ($self, $arrayRefValue) = @_;
+  # you must do it this way, or when the arrayRef changes it changes us here!
+  my @list = @{$arrayRefValue};
+  $self->{WriteAxisOrderList} = \@list;
+}
+
 
 # /** getXMLAttributes
 #      This method returns the XMLAttributes of this class. 
@@ -221,6 +249,10 @@ sub _init {
 # Modification History
 #
 # $Log$
+# Revision 1.10  2001/03/26 18:12:57  thomas
+# moved setWriteAxisORder list and getWriteAxisOrderList
+# up to here from FormattedXMLDataIOStyle and DelimitedXMLDataIOStyle.
+#
 # Revision 1.9  2001/03/16 19:54:57  thomas
 # Documentation updated and improved, re-ran makeDoc on file.
 #
