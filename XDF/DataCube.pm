@@ -60,19 +60,34 @@ use vars qw ($AUTOLOAD %field @ISA);
 
 # CLASS DATA
 my $Class_XML_Node_Name = "data";
-my @Class_XML_Attributes = qw (
+my @Local_Class_XML_Attributes = qw (
                              href
                              encoding
                              checksum
                              compression
                           );
                              #_currentLocator
-my @Class_Attributes = qw (
+my @Local_Class_Attributes = qw (
                              dimension
                              _parentArray
                              _data
                              _axisLookupIndexArray
                           );
+
+my @Class_Attributes;
+my @Class_XML_Attributes;
+
+# add in local class XML attributes
+push @Local_Class_Attributes, @Local_Class_XML_Attributes;
+
+# get super class attributes
+push @Class_XML_Attributes, @{&XDF::BaseObject::getClassXMLAttributes};
+push @Class_Attributes, @{&XDF::BaseObject::getClassAttributes};
+
+# add in local to overall class
+push @Class_XML_Attributes, @Local_Class_XML_Attributes;
+push @Class_Attributes, @Local_Class_Attributes;
+
 
 # /** dimension
 # The number of dimensions within this dataCube.
@@ -87,12 +102,6 @@ my @Class_Attributes = qw (
 # The STRING value which stores the type of compression algoritm used
 # to compress the data.
 # */
-
-# add in class XML attributes
-push @Class_Attributes, @Class_XML_Attributes;
-
-# add in super class attributes
-push @Class_Attributes, @{&XDF::BaseObject::getClassAttributes};
 
 # Initalization
 # set up object attributes.
@@ -294,7 +303,8 @@ sub writeDataToFileHandle {
       # BIG assumption: href is a file we want to read/write
       # Better Handling in future is needed
       if (defined $href->getSysId()) {
-        my $href_program = ""; #&_dataCompressionProgram($compression_type);
+        my $href_program;
+        $href_program .= &_dataCompressionProgram($compression_type);
         $dataFileName = $href->getBase() if defined $href->getBase();
         $dataFileName .= $href->getSysId();
         $href_program .= ">$dataFileName";
@@ -319,14 +329,13 @@ sub writeDataToFileHandle {
   #my $fastestAxis = $parentArray->getAxisList()->[0];
 
   # fastest axis is the first in the array, always 
-  my $fastestAxis = $readObj->getWriteAxisOrderList()->[0];
+  #my $fastestAxis = $readObj->getWriteAxisOrderList()->[0];
 
   # stores the NoDataValues for the parentArray,
   # used in writing out when NoDataException is caught
   my @NoDataValues;
 
   if (defined $parentArray->getFieldAxis()) {
-     # NoDataValues = new String[fastestAxis.getLength()];
      my @dataFormatList = $parentArray->getDataFormatList();
      for (my $i = 0; $i <= $#NoDataValues; $i++) {
         my $d =  $dataFormatList[$i];
@@ -357,12 +366,13 @@ sub writeDataToFileHandle {
 
      if (ref($readObj) eq 'XDF::DelimitedXMLDataIOStyle')
      {
+        my $fastestAxis = $readObj->getWriteAxisOrderList()->[0];
         &_write_untagged_data($self, $dataFileHandle, $readObj, $indent, $niceOutput, $fastestAxis);
      } 
       elsif (ref($readObj) eq 'XDF::FormattedXMLDataIOStyle' )
      {
-   #     &_write_untagged_data($self, $dataFileHandle, $readObj, $indent, $niceOutput, $fastestAxis);
-        $self->_writeFormattedData($dataFileHandle, $parentArray, $readObj, $fastestAxis, \@NoDataValues );
+        my $iterationOrderRef = $readObj->getWriteAxisOrderList();
+        $self->_writeFormattedData($dataFileHandle, $parentArray, $readObj, $iterationOrderRef, \@NoDataValues );
 
      } 
      else 
@@ -459,9 +469,6 @@ sub _getLongArrayIndex {
       my $axis = $axisList[0];
       $longIndex = $locator->getAxisIndex($axis);
 
-      # we skip over axis at index 1, that is the "short axis"
-      # each of the higher axes contribute 2**(i-1) * index
-      # to the overall long axis value.
       my $array_ref = $self->{_axisLookupIndexArray};
       my @mult = @{$array_ref};
       for (my $i = 1; $i < $numOfAxes; $i++) {
@@ -516,6 +523,8 @@ sub getData {
 
    my $value = $self->{_data}->[$longIndex];
 
+#print STDERR "getData($value) [$longIndex]\n";
+
    return $value;
 
 }
@@ -568,15 +577,19 @@ sub _dataCompressionProgram {
 
   return "" unless defined $compression_type;
 
-  my $compression_program;
+  my $compression_program = "| ";
   if ($compression_type eq &XDF::Constants::DATA_COMPRESSION_GZIP() ) {
-     $compression_program = &XDF::Constants::DATA_COMPRESSION_GZIP_PATH();
+     $compression_program .= &XDF::Constants::DATA_COMPRESSION_GZIP_PATH();
+     $compression_program .= ' -c ';
   } elsif ($compression_type eq &XDF::Constants::DATA_COMPRESSION_BZIP2() ) {
-     $compression_program = &XDF::Constants::DATA_COMPRESSION_BZIP2_PATH();
+     $compression_program .= &XDF::Constants::DATA_COMPRESSION_BZIP2_PATH();
+     $compression_program .= ' -c ';
   } elsif ($compression_type eq &XDF::Constants::DATA_COMPRESSION_COMPRESS() ) {
-     $compression_program = &XDF::Constants::DATA_COMPRESSION_COMPRESS_PATH();
+     $compression_program .= &XDF::Constants::DATA_COMPRESSION_COMPRESS_PATH();
+     $compression_program .= ' -c ';
   } elsif ($compression_type eq &XDF::Constants::DATA_COMPRESSION_ZIP() ) {
-     $compression_program = &XDF::Constants::DATA_COMPRESSION_UNZIP_PATH();
+     $compression_program .= &XDF::Constants::DATA_COMPRESSION_ZIP_PATH();
+     $compression_program .= ' -pq ';
   } else {
      croak "Data compression for type: $compression_type NOT Implemented. Aborting write.\n";
   }
@@ -602,7 +615,7 @@ sub _init {
   $#{$self->{_data}} = $spec->getDefaultDataArraySize();
 
   # adds to ordered list of XML attributes
-  $self->_appendAttribsToXMLAttribOrder(\@Class_XML_Attributes);
+  $self->_appendAttribsToXMLAttribOrder(\@Local_Class_XML_Attributes);
 
 }
 
@@ -753,9 +766,12 @@ sub _write_untagged_data {
 
 sub _writeFormattedData {
    my ($self, $fileHandle, $parentArray, $readObj, 
-       $fastAxisObj, $noDataValRef ) = @_;
+       $iterationOrderRef, $noDataValRef ) = @_;
  
+   my $fastAxisObj = @{$iterationOrderRef}[0]; # first axis is the fast one
+
    my $locator = $parentArray->createLocator();
+   $locator->setIterationOrder($iterationOrderRef);
 
    my @noDataValues = @{$noDataValRef};
    my $nrofNoDataValues = $#noDataValues;
@@ -1014,6 +1030,10 @@ sub _build_locator_string {
 # Modification History
 #
 # $Log$
+# Revision 1.30  2001/08/13 19:57:13  thomas
+# fixed compressed file writing.
+# bug fix: use only local XML attributes for appendAttribs in _init
+#
 # Revision 1.29  2001/07/23 15:58:07  thomas
 # added ability to add arbitary XML attribute to class.
 # getXMLattributes now an instance method, we
