@@ -110,9 +110,9 @@ sub new {
 # Get/Set Methods
 #
 
-#/** setAxisLocation
+#/** setAxisIndex
 # */
-sub setAxisLocation {
+sub setAxisIndex {
   my ($self, $axisObjOrAxisId, $index) = @_;
 
   return unless defined $axisObjOrAxisId and defined $index;
@@ -126,9 +126,9 @@ sub setAxisLocation {
   return undef;
 }
 
-# /** getAxisLocation
+# /** getAxisIndex
 # */
-sub getAxisLocation {
+sub getAxisIndex {
   my ($self, $axisObj ) = @_;
 
   return unless defined $axisObj;
@@ -141,9 +141,11 @@ sub getAxisLocation {
   return undef;
 }
 
-# note that the ordering is *still* that of 
-# the axisList in Array
-sub getAxisLocations {
+#/** getAxisIndices
+# Returns a list of the current indices (present locator position in the 
+# dataCube) arranged in the axis iteration order.
+#*/
+sub getAxisIndices {
   my ($self) = @_;
 
   my @list = ();
@@ -151,7 +153,6 @@ sub getAxisLocations {
     push @list, %{$_}->{'index'};
   }
   return \@list;
-
 }
 
 #/** getIterationOrder
@@ -233,7 +234,8 @@ sub next {
 
   my $outOfDataCells = 1;
 
-  for (reverse @{$self->{_locationList}}) {
+  #for (reverse @{$self->{_locationList}}) {
+  for (@{$self->{_locationList}}) {
     if (%{$_}->{'index'} < (%{$_}->{'axis'}->getLength()-1) ) {
       %{$_}->{'index'} += 1;
       $outOfDataCells = 0;
@@ -255,7 +257,8 @@ sub prev {
 
   my $outOfDataCells = 1;
 
-  for (reverse @{$self->{_locationList}}) {
+  #for (reverse @{$self->{_locationList}}) {
+  for (@{$self->{_locationList}}) {
     %{$_}->{'index'} -= 1;
     if (%{$_}->{'index'} < 0) {
       %{$_}->{'index'} = %{$_}->{'axis'}->getLength();
@@ -310,6 +313,11 @@ sub _init {
 # Modification History
 #
 # $Log$
+# Revision 1.6  2001/02/22 19:39:10  thomas
+# changed *AxisLocation method names to *AxisIndex methods.
+# un-reversed axis traversal in next, prev methods. I cant imagine
+# how that ever worked.
+#
 # Revision 1.5  2000/12/14 22:11:26  thomas
 # Big changes to the API. get/set methods, added Href/Entity stuff, deep cloning,
 # added Href, Notes, NotesLocationOrder nodes/classes. Ripped out _enlarge_array
@@ -368,15 +376,15 @@ XDF::Locator inherits class and attribute methods of L<XDF::GenericObject>.
 
 
 
-=item setAxisLocation ($index, $axisObjOrAxisId)
+=item setAxisIndex ($index, $axisObjOrAxisId)
 
 
 
-=item getAxisLocation ($axisObj)
+=item getAxisIndex ($axisObj)
 
 
 
-=item getAxisLocations (EMPTY)
+=item getAxisIndices (EMPTY)
 
 
 
