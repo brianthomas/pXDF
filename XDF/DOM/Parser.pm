@@ -77,6 +77,8 @@ use vars qw( @ISA @SupportedHandlers );
 @SupportedHandlers = qw( Init Final Char Start End Default Doctype
                          CdataStart CdataEnd XMLDecl Entity Notation Proc 
                          Default Comment Attlist Element Unparsed );
+my $QUIET = 1;
+my $VALIDATE = 0;
 
 sub new {
     my ($proto, %args) = @_;
@@ -88,6 +90,9 @@ sub new {
         $handlers{$_} = \&$domHandler;
     }
     $args{Handlers} = \%handlers;
+    if ( exists $args{'quiet'}) { $QUIET = $args{'quiet'}; }
+    if ( exists $args{'validate'}) { $VALIDATE = $args{'validate'}; }
+
     my $self = $proto->SUPER::new (%args);
 
     return $self;
@@ -160,7 +165,7 @@ sub _parseNodeIntoXDFObject {
    $newnode->setOwnerDocument($miniDOM);
    $miniDOM->appendChild($newnode);
 
-   my $reader = new XDF::Reader(('validate' => 0, 'quiet' => 0,));
+   my $reader = new XDF::Reader(('validate' => $VALIDATE, 'quiet' => $QUIET,));
    my $XDFObject = $reader->parseString($miniDOM->toString());
 
    return $XDFObject;
@@ -169,6 +174,9 @@ sub _parseNodeIntoXDFObject {
 # Modification History
 #
 # $Log$
+# Revision 1.3  2001/05/29 21:10:36  thomas
+# capture XDF specific args from new method.
+#
 # Revision 1.2  2001/04/10 22:09:16  thomas
 # minor change to invoked reader parameters.
 #
