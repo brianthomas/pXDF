@@ -1,7 +1,7 @@
 
 Revision history for Perl extension XDF.
 
-0.18-alpha2 May 31 2003
+0.18-alpha2 May 28 2003
         - code cleanup of references that throw warnings in perl 5.8+
         - kludge fix for sync'ing up XDF::DOM entities and XDF entities upon 
           printout of XDF::DOM document.
