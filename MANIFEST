@@ -12,6 +12,7 @@ XDF/Axis.pm
 XDF/BaseObject.pm
 XDF/BinaryFloatDataFormat.pm
 XDF/BinaryIntegerDataFormat.pm
+XDF/Constants.pm
 XDF/DataCube.pm
 XDF/DataFormat.pm
 XDF/DelimitedXMLDataIOStyle.pm
@@ -43,6 +44,7 @@ XDF/TaggedXMLDataIOStyle.pm
 XDF/Unit.pm
 XDF/UnitDirection.pm
 XDF/Units.pm
+XDF/Utility.pm
 XDF/Value.pm
 XDF/ValueGroup.pm
 XDF/XMLDataIOStyle.pm

@@ -78,6 +78,7 @@ WriteMakefile(
             'XDF/BaseObject.pm'     => "\$(INST_LIBDIR)/$install_dir/BaseObject.pm",
             'XDF/BinaryFloatDataFormat.pm'      => "\$(INST_LIBDIR)/$install_dir/BinaryFloatDataFormat.pm",
             'XDF/BinaryIntegerDataFormat.pm'      => "\$(INST_LIBDIR)/$install_dir/BinaryIntegerDataFormat.pm",
+            'XDF/Constants.pm'      => "\$(INST_LIBDIR)/$install_dir/Constants.pm",
             'XDF/DataCube.pm'   => "\$(INST_LIBDIR)/$install_dir/DataCube.pm",
             'XDF/DataFormat.pm'       => "\$(INST_LIBDIR)/$install_dir/DataFormat.pm",
             'XDF/DelimitedXMLDataIOStyle.pm'       => "\$(INST_LIBDIR)/$install_dir/DelimitedXMLDataIOStyle.pm",
@@ -109,6 +110,7 @@ WriteMakefile(
             'XDF/Unit.pm'       => "\$(INST_LIBDIR)/$install_dir/Unit.pm",
             'XDF/UnitDirection.pm'   => "\$(INST_LIBDIR)/$install_dir/UnitDirection.pm",
             'XDF/Units.pm'      => "\$(INST_LIBDIR)/$install_dir/Units.pm",
+            'XDF/Utility.pm'      => "\$(INST_LIBDIR)/$install_dir/Utility.pm",
             'XDF/Value.pm'      => "\$(INST_LIBDIR)/$install_dir/Value.pm",
             'XDF/ValueGroup.pm'      => "\$(INST_LIBDIR)/$install_dir/ValueGroup.pm",
             'XDF/XMLDataIOStyle.pm'      => "\$(INST_LIBDIR)/$install_dir/XMLDataIOStyle.pm",
@@ -120,6 +122,9 @@ WriteMakefile(
 # Modification History
 #
 # $Log$
+# Revision 1.6  2001/03/09 21:56:35  thomas
+# Added Utility and Constants classes.
+#
 # Revision 1.5  2001/02/15 17:48:27  thomas
 # Added FloatDataFormat, removed ExponentialDataFormat and
 # FixedDataFormat. -b.t.
