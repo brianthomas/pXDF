@@ -36,7 +36,7 @@
           <field name="galaxy name" fieldId="gname">
             <unitless/>
             <dataFormat>
-              <string width="8"/>
+              <string length="8"/>
             </dataFormat>
           </field>
           <fieldGroup name="position">
@@ -89,7 +89,7 @@
           <field name="Reference" noDataValue="          ">
             <unitless/>
             <dataFormat>
-              <string width="10"/>
+              <string length="10"/>
             </dataFormat>
             <relation fieldIdRefs="gname" role="reference"/>
           </field>
