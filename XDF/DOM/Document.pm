@@ -84,6 +84,12 @@ sub getXDFElements {
   return \@list;
 }
 
+# just an alias
+sub toXMLString {
+  my ($self) = @_;
+  return $self->toString();
+}
+
 1;
 
 
