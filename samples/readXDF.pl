@@ -30,6 +30,10 @@ my $QUIET = 1;
 
   die "Usage: $0 <XDF FILE>\n" unless defined $ARGV[0];
 
+  my $spec = XDF::Specification->getInstance;
+  $spec->setLogMessageLevel(0);
+  open (LOG, ">logfile");
+  $spec->setLogFileHandle(\*LOG);
   my $data_separator = "\t";
   my $file = $ARGV[0];
 
@@ -41,7 +45,6 @@ my $QUIET = 1;
   $XDF->loadFromXDFFile($file, \%options);
 
   # configure the output style
-  my $spec = XDF::Specification->getInstance;
   $spec->setPrettyXDFOutput(1);  # use pretty print 
   $spec->setPrettyXDFOutputIndentation("   ");  # use 3 spaces for indentation 
 
@@ -57,6 +60,7 @@ my $QUIET = 1;
 
   print STDOUT $XDF->toXMLString();
 
+close LOG;
   exit 0;
 
 
