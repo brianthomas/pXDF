@@ -33,8 +33,8 @@ package XDF::Structure;
 # a wrapper around many kinds of legacy data.
 #@   
 #@   
-# XDF::Structure is a means of grouping/associating L<XDF::Parameter> objects, which hold 
-# scientific content of the data, and L<XDF::Array> objects which hold the mathematical content 
+# XDF::Structure is a means of grouping/associating XDF::Parameter objects, which hold 
+# scientific content of the data, and XDF::Array objects which hold the mathematical content 
 # of the data. If an XDF::Structure holds a parameter with several XDF::Array objects then the 
 # parameter is assumed to be applicable to all of the array child nodes. Sub-structure (e.g. other 
 # XDF::Structure objects) may be held within a structure to create more fine-grained associations
@@ -55,25 +55,25 @@ package XDF::Structure;
 #    my $structObj = XDF::Structure->new(%attributes);
 #
 #    # overwrite the name attribute w/ new value, set the description 
-#    $structObj->name("My Structure");
-#    $structObj->name("This data was found under under a cabinet. It looks important.");
+#    $structObj->setName("My Structure");
+#    $structObj->setDescription("This data was found under under a cabinet. It looks important.");
 #
 #    # add an XDF::Array object to the structure
-#    push $structObj->arrayList, $arrayObj;
+#    $structObj->addArray($arrayObj);
 #
 #    ...
 #
 #    # for another filled in structure..
 #
 #    # print out all it parameters names 
-#    foreach my $paramObj (@{$structObj2->paramList()}) {
-#       print STDOUT "parameter name: ",$paramObj->name(),"\n"; 
+#    foreach my $paramObj (@{$structObj2->getParamList()}) {
+#       print STDOUT "parameter name: ",$paramObj->getName(),"\n"; 
 #    }
 #    
 #    # replace the list of arrays owned by this structure with
 #    # a new one.
 #
-#    $structObj2->arrayList(@newArrayRefList);
+#    $structObj2->setArrayList(\@newArrayRefList);
 #
 #   ...
 #
@@ -85,7 +85,12 @@ package XDF::Structure;
 #    # has same meaning here as for createXDFObjectfromFile 
 #    # method in XDF::Reader.
 #
-#    $XDFStructObj = $XDFStructObj->read($file, \%options);
+#    $XDFStructObj = $XDFStructObj->loadFromXDFFile($file, \%options);
+#
+#    # create a structure from a file (alternative method) 
+#
+#    my $reader = new XDF::Reader();
+#    my $XDFStructObj2 = $reader->parseFile($file, \%options);
 #
 # */
 
@@ -107,6 +112,8 @@ use vars qw ($AUTOLOAD @ISA %field);
 
 # CLASS DATA
 my $Class_XML_Node_Name = "structure";
+# NOTE: if you ADD/Change an attribute here, make sure it is
+# properly re-inited in the _init method or you will be sorry!!!
 my @Class_XML_Attributes = qw (
                                  name
                                  description
@@ -447,13 +454,17 @@ sub removeParamGroup {
   delete %{$self->{_paramGroupOwnedHash}}->{$hashKey}; 
 }
 
-# /** read
-# Read in an XML file using XDF::Reader. 
-# Returns the structure read in on success, undef on failure.
+# /** loadFromXDFFile
+# Read in an XML file into this structure. The current structure, 
+# if it has any components, is overrided and lost. 
 # */
-sub read {
+sub loadFromXDFFile {
   my ($self, $file, $optionsHashRef) = @_;
-  &XDF::Reader::createXDFObjectFromFile($file, $optionsHashRef);
+
+  my $reader = new XDF::Reader($optionsHashRef);
+  $self->_init(); # clear out old structure
+  $reader->setReaderStructureObject($self);
+  $self = $reader->parseFile($file);
 }
 
 #
@@ -471,6 +482,12 @@ sub AUTOLOAD {
 sub _init {
   my ($self) = @_;
   
+  # re-initialize attribs
+  # this is only needed for Structure and not other XDF objects because
+  # of the needs of its loadXDFFromFile method 
+  $self->{Name} = undef; 
+  $self->{Description} = undef; 
+
   # initialize lists
   $self->{StructList} = [];
   $self->{ParamList} = [];
@@ -484,6 +501,13 @@ sub _init {
 # Modification History
 #
 # $Log$
+# Revision 1.8  2001/03/16 19:52:25  thomas
+# changes to read method now Java name:
+# loadFromXDFFile. Changes to that method
+# to accomodate new Reader code. Now can
+# load a file and it overwrites existing structure.
+# Improved documentation.
+#
 # Revision 1.7  2001/03/14 21:32:35  thomas
 # Updated perldoc section using new version of
 # makeDoc.pl.
@@ -536,25 +560,25 @@ XDF::Structure - Perl Class for Structure
     my $structObj = XDF::Structure->new(%attributes);
 
     # overwrite the name attribute w/ new value, set the description 
-    $structObj->name("My Structure");
-    $structObj->name("This data was found under under a cabinet. It looks important.");
+    $structObj->setName("My Structure");
+    $structObj->setDescription("This data was found under under a cabinet. It looks important.");
 
     # add an XDF::Array object to the structure
-    push $structObj->arrayList, $arrayObj;
+    $structObj->addArray($arrayObj);
 
     ...
 
     # for another filled in structure..
 
     # print out all it parameters names 
-    foreach my $paramObj (@{$structObj2->paramList()}) {
-       print STDOUT "parameter name: ",$paramObj->name(),"\n"; 
+    foreach my $paramObj (@{$structObj2->getParamList()}) {
+       print STDOUT "parameter name: ",$paramObj->getName(),"\n"; 
     }
     
     # replace the list of arrays owned by this structure with
     # a new one.
 
-    $structObj2->arrayList(@newArrayRefList);
+    $structObj2->setArrayList(\@newArrayRefList);
 
    ...
 
@@ -566,7 +590,12 @@ XDF::Structure - Perl Class for Structure
     # has same meaning here as for createXDFObjectfromFile 
     # method in XDF::Reader.
 
-    $XDFStructObj = $XDFStructObj->read($file, \%options);
+    $XDFStructObj = $XDFStructObj->loadFromXDFFile($file, \%options);
+
+    # create a structure from a file (alternative method) 
+
+    my $reader = new XDF::Reader();
+    my $XDFStructObj2 = $reader->parseFile($file, \%options);
 
 
 
@@ -578,7 +607,7 @@ XDF::Structure - Perl Class for Structure
     
  The XDF can hold both tagged and untagged data and may serve as a wrapper around many kinds of legacy data.     
     
- XDF::Structure is a means of grouping/associating L<XDF::Parameter> objects, which hold  scientific content of the data, and L<XDF::Array> objects which hold the mathematical content  of the data. If an XDF::Structure holds a parameter with several XDF::Array objects then the  parameter is assumed to be applicable to all of the array child nodes. Sub-structure (e.g. other  XDF::Structure objects) may be held within a structure to create more fine-grained associations between parameters and arrays. 
+ XDF::Structure is a means of grouping/associating XDF::Parameter objects, which hold  scientific content of the data, and XDF::Array objects which hold the mathematical content  of the data. If an XDF::Structure holds a parameter with several XDF::Array objects then the  parameter is assumed to be applicable to all of the array child nodes. Sub-structure (e.g. other  XDF::Structure objects) may be held within a structure to create more fine-grained associations between parameters and arrays. 
 
 XDF::Structure inherits class and attribute methods of L<XDF::GenericObject>, L<XDF::BaseObject>.
 
@@ -589,7 +618,7 @@ XDF::Structure inherits class and attribute methods of L<XDF::GenericObject>, L<
 
 =head2 CLASS Methods
 
-A change in the value of these class attributes will change the value for ALL instances of XDF::Structure.
+The following methods are defined for the class XDF::Structure.
 
 =over 4
 
@@ -601,11 +630,16 @@ This method takes no arguments may not be changed. This method returns the class
 
 This method takes no arguments may not be changed. This method returns a list reference containing the namesof the class attributes for XDF::Structure;  
 
+=item getXMLAttributes (EMPTY)
+
+This method returns the XMLAttributes of this class.  
+
 =back
 
-=head2 INSTANCE Methods
+=head2 INSTANCE (Object) Methods
 
-The following instance methods are defined for XDF::Structure.
+The following instance (object) methods are defined for XDF::Structure.
+
 =over 4
 
 =item getName (EMPTY)
@@ -656,10 +690,6 @@ Set the name attribute.
 
  
 
-=item getXMLAttributes (EMPTY)
-
-This method returns the XMLAttributes of this class.  
-
 =item addNote ($info)
 
 Insert an XDF::Note object into the XDF::Notes object held by this object. This method may optionally take a reference to an attribute hash asits argument. Attributes in the attribute hash shouldcorrespond to attributes of the L<XDF::Note> object. The attribute/value pairs in the attribute hash reference areused to initialize the new XDF::Note object. RETURNS : an XDF::Note object reference on success, undef on failure.  
@@ -700,38 +730,41 @@ Insert an XDF::ParameterGroup object into this object. This method takes either 
 
 Remove an XDF::ParameterGroup object from the hash table of XDF::ParameterGroups held within this object. This method takes the hash key its argument. RETURNS : 1 on success, undef on failure.  
 
-=item read ($optionsHashRef, $file)
+=item loadFromXDFFile ($optionsHashRef, $file)
 
-Read in an XML file using XDF::Reader. Returns the structure read in on success, undef on failure.  
+Read in an XML file into this structure. The current structure, if it has any components, is overrided and lost.  
 
 =back
 
-=over 4
+
 
 =head2 INHERITED Class Methods
 
-A change in the value of these attributes will change the functioning of ALL instances of these objects that inherit from the indicated super class.
+=over 4
+
 
 
 =over 4
 
-The following class attribute methods are inherited from L<XDF::BaseObject>:
+The following class methods are inherited from L<XDF::BaseObject>:
 B<Pretty_XDF_Output>, B<Pretty_XDF_Output_Indentation>, B<DefaultDataArraySize>. 
 
 =back
 
 =back
 
-=over 4
+
 
 =head2 INHERITED INSTANCE Methods
 
+=over 4
+
 
 
 =over 4
 
-XDF::Structure inherits the following instance methods of L<XDF::GenericObject>:
-B<new>, B<clone>, B<update>. 
+XDF::Structure inherits the following instance (object) methods of L<XDF::GenericObject>:
+B<new>, B<clone>, B<update>.
 
 =back
 
@@ -739,14 +772,22 @@ B<new>, B<clone>, B<update>.
 
 =over 4
 
-XDF::Structure inherits the following instance methods of L<XDF::BaseObject>:
-B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLAttributes>, B<setXMLNotationHash>, B<toXMLFileHandle>, B<toXMLFile>. 
+XDF::Structure inherits the following instance (object) methods of L<XDF::BaseObject>:
+B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLAttributes>, B<setXMLNotationHash>, B<toXMLFileHandle>, B<toXMLFile>.
+
+=back
+
+=back
 
 =back
 
 =head1 SEE ALSO
 
-L<XDF::BaseObject>, L<XDF::Array>, L<XDF::Reader>, L<XDF::Parameter>, L<XDF::ParameterGroup> 
+
+
+=over 4
+
+L<XDF::BaseObject>, L<XDF::Array>, L<XDF::Reader>, L<XDF::Parameter>, L<XDF::ParameterGroup>
 
 =back
 
