@@ -29,7 +29,10 @@ my $QUIET = 1;
 
   my %options = ('quiet' => $QUIET, 'debug' => $DEBUG, );
 
-  my $XDF = &XDF::Reader::createXDFObjectFromFile($file, \%options);
+  my $reader = new XDF::Reader();
+  my $XDF = $reader->parseFile($file, \%options);
+# not used anymore
+#  my $XDF = &XDF::Reader::createXDFObjectFromFile($file, \%options);
 
   # configure the output style
   $XDF->Pretty_XDF_Output(1);  # use pretty print 

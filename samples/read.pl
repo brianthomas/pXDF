@@ -33,7 +33,10 @@ my $QUIET = 1;
 
   my %options = ('quiet' => $QUIET, 'debug' => $DEBUG, );
 
-  my $XDF = &XDF::Reader::createXDFObjectFromFile($file, \%options);
+  my $XDF = new XDF::Structure();
+  $XDF->loadFromXDFFile($file, \%options);
+# not used anymore
+#  my $XDF = &XDF::Reader::createXDFObjectFromFile($file, \%options);
 
   foreach my $arrayObj (@{$XDF->getArrayList()}) {
     my $name = $arrayObj->getName;

@@ -1285,7 +1285,11 @@ sub load_xdf_file {
 
    my %options = ('quiet' => $QUIET, 'debug' => $DEBUG, );
    # set the new XDF object
-   $XDF = &XDF::Reader::createXDFObjectFromFile($file, \%options);
+   my $reader = new XDF::Reader();
+   $XDF = $reader->parseFile($file, \%options);
+
+  # not used anymore
+  # $XDF = &XDF::Reader::createXDFObjectFromFile($file, \%options);
 
    # update the widgets
    $WIDGET{'file_label'}->configure(text => "File Name: $file");
