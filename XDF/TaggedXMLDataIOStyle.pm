@@ -52,8 +52,9 @@ my $Tag_To_Axis_Node_Name = $XDF_node_name{'tagToAxis'};
 
 # CLASS DATA
 my $Class_XML_Node_Name = "tagged";
-my @Local_Class_XML_Attributes = ();
+my @Local_Class_XML_Attributes = ( );
 my @Local_Class_Attributes = qw (
+                             outputStyle
                              _tagHash
                              _parentArray
                              _HAS_INIT_AXIS_TAGS
@@ -100,6 +101,29 @@ sub getClassXMLAttributes {
 # Get/Set Methods
 #
 
+#/** getOutputStyle
+#   Get the type of tagged output which is desired
+#*/
+sub getOutputStyle {
+  my ($self) = @_;
+  return $self->{outputStyle};
+}
+
+# /** setOutputType
+#   Get the type of tagged output which is desired. Certain options are
+#   only posssible in correct combination with certain axes types. 
+# */
+sub setOutputStyle {
+  my ($self, $value) = @_;
+
+   unless (&XDF::Utility::isValidTaggedOutputStyle($value, $self->{_parentArray})) {
+     error("Cant set tagged datastyle to $value, not allowed as object and parent array are currently configured, ignoring \n");
+     return;
+   }
+
+   $self->{outputStyle} = $value;
+}
+
 # /** setAxisTag
 # Set an association between an XDF data tag and axis reference.
 # One day we will hopefully be able to support user defined tags, but for the 
@@ -118,18 +142,35 @@ sub setAxisTag {
 
   $self->_initAxisTags();
 
-  # insert in hash table, return tag value
-  return %{$self->{_tagHash}}->{$axisId} = $tag;
+  # insert in hash table
+ # %{$self->{_tagHash}}->{$axisId} = $tag;
+  $self->{_tagHash}->{$axisId} = $tag;
+
+   foreach my $axisObj (@{$self->{_parentArray}->getAxisList()}) {
+     my $axisId = $axisObj->getAxisId();
+    # my $value = %{$self->{_tagHash}}->{$axisId};
+     my $value = $self->{_tagHash}->{$axisId};
+   }
+
+
+  my $axisObj = &_find_axis_in_array($self->{_parentArray}, $axisId);
+  #%{$self->{_axisHash}}->{$tag} = $axisObj;
+  $self->{_axisHash}->{$tag} = $axisObj;
+
+  # update writeAxis Order List;
+  $self->_updateWriteAxisOrder();
 
 }
 
 sub getAxisTag {
   my ($self, $axisId ) = @_;
   $self->_initAxisTags();
-  return %{$self->{_tagHash}}->{$axisId};
+  #return %{$self->{_tagHash}}->{$axisId};
+  return $self->{_tagHash}->{$axisId};
+
 }
 
-# /** getXMLDataIOStyleTags
+# /** getAxisTags
 # Return an axis ordered list (ARRAY REF) of tags to be used to write tagged data.
 # */
 sub getAxisTags {
@@ -137,12 +178,16 @@ sub getAxisTags {
 
   $self->_initAxisTags();
 
+  $self->_updateWriteAxisOrder();
+
   my @tags;
-  foreach my $axisObj (@{$self->{_parentArray}->getAxisList()}) {
+ # foreach my $axisObj (@{$self->{_parentArray}->getAxisList()}) {
+  foreach my $axisObj (@{$self->{writeAxisOrderList}}) {
     my $axisId = $axisObj->getAxisId();
-    push @tags, %{$self->{_tagHash}}->{$axisId};
+    #push @tags, %{$self->{_tagHash}}->{$axisId};
+    push @tags, $self->{_tagHash}->{$axisId};
   }
-  return @tags;
+  return \@tags;
 
 }
 
@@ -150,9 +195,30 @@ sub getAxisTags {
 # Private/Protected Methods
 #
 
+sub _updateWriteAxisOrder 
+{
+  my ($self) = @_;
+
+  my @axesOrder;
+  my %tagHash = %{$self->{_axisHash}}; 
+  foreach my $tag (reverse sort keys %tagHash) 
+  {
+     push @axesOrder, $tagHash{$tag};
+  }
+
+  $self->{writeAxisOrderList} = \@axesOrder;
+
+}
+
 # Write this object out to a filehandle in XDF formatted XML.
 sub _basicXMLWriter {
   my ($self, $fileHandle, $indent) = @_;
+
+  # first order of business: is this the simple style? -- then dont print node! 
+  my $parentArray =$self->{_parentArray};
+  if (ref $parentArray) {
+     return if ($parentArray->_isSimpleDataIOStyle);
+  }
 
   my $spec = XDF::Specification->getInstance();
   my $niceOutput = $spec->isPrettyXDFOutput;
@@ -178,11 +244,10 @@ sub _basicXMLWriter {
   print $fileHandle "<" . $self->classXMLNodeName . ">";
   print $fileHandle "\n" if $niceOutput;
 
-  my @tags = $self->getAxisTags;
   #foreach my $axisObj ( @{$self->{_parentArray}->getAxisList()} ) {
   foreach my $axisObj ( @{$self->getWriteAxisOrderList()} ) {
     my $axisId = $axisObj->getAxisId();
-    my $tag = shift @tags;
+    my $tag = $self->getAxisTag($axisId);
     print $fileHandle $next_indent2 if $niceOutput;
     # next 5 lines: have to break up printing of '"' or toXMLString will behave badly
     print $fileHandle "<$Tag_To_Axis_Node_Name axisIdRef=\"";
@@ -211,12 +276,24 @@ sub AUTOLOAD {
   &XDF::GenericObject::AUTOLOAD($self, $val, $AUTOLOAD, \%field );
 }
 
+sub _find_axis_in_array { # STATIC
+  my ($arrayObj, $axisId) = @_;
+  foreach my $axisObj (@{$arrayObj->getAxisList()}) 
+  {
+     if ($axisObj->getAxisId eq $axisId) {
+         return $axisObj;
+     }
+  }
+}
+
 sub _init {
   my ($self) = @_;
 
   $self->SUPER::_init();
 
+  $self->{outputStyle} = &XDF::Constants::TAGGED_DEFAULT_OUTPUTSTYLE;
   $self->{_tagHash} = {};
+  $self->{_axisHash} = {};
 
   # adds to ordered list of XML attributes
   $self->_appendAttribsToXMLAttribOrder(\@Local_Class_XML_Attributes);
@@ -235,7 +312,10 @@ sub _initAxisTags {
    foreach my $axisObj (@{$self->{_parentArray}->getAxisList()}) {
      my $axisId = $axisObj->getAxisId();
      my $tag = 'd' . $counter--; # the default 
-     %{$self->{_tagHash}}->{$axisId} = $tag;
+     #%{$self->{_tagHash}}->{$axisId} = $tag;
+     #%{$self->{_axisHash}}->{$tag} = $axisObj;
+     $self->{_tagHash}->{$axisId} = $tag;
+     $self->{_axisHash}->{$tag} = $axisObj;
    }
 
    $self->{_HAS_INIT_AXIS_TAGS} = 1;
@@ -247,7 +327,8 @@ sub _initAxisTags {
 # */
 sub _removeAxisTag {
   my ($self, $axisId) = @_;
-  delete %{$self->{_tagHash}}->{"$axisId"};
+  #delete %{$self->{_tagHash}}->{"$axisId"};
+  delete $self->{_tagHash}->{"$axisId"};
 }
 
 
