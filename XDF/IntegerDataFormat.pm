@@ -180,10 +180,10 @@ sub _templateNotation {
   return "A" . $self->{Width};
 }
 
-sub _outputTemplateNotation {
-  my ($self, $endian, $encoding) = @_;
-  return "%" . $self->{Width} . "d";
-}
+#sub _outputTemplateNotation {
+#  my ($self, $endian, $encoding) = @_;
+#  return "%" . $self->{Width} . "d";
+#}
 
 sub _regexNotation {
   my ($self) = @_;
@@ -205,7 +205,8 @@ sub _regexNotation {
 }
 
 # returns sprintf field notation
-sub _sprintfNotation {
+#sub _sprintfNotation {
+sub _outputTemplateNotation {
   my ($self) = @_;
 
   my $notation = '%';
@@ -223,6 +224,9 @@ sub _sprintfNotation {
 # Modification History
 #
 # $Log$
+# Revision 1.15  2001/05/29 21:09:27  thomas
+# fixed outputTemplate method to encompass hex and octal data.
+#
 # Revision 1.14  2001/05/23 17:24:14  thomas
 # change to allow right-justification of ASCII
 # numbers.
