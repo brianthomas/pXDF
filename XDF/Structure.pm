@@ -96,7 +96,7 @@ package XDF::Structure;
 
 use Carp;
 
-use XDF::BaseObject;
+use XDF::BaseObjectWithXMLElements;
 use XDF::Array;
 use XDF::Reader;
 use XDF::Parameter;
@@ -107,8 +107,8 @@ use integer;
 
 use vars qw ($AUTOLOAD @ISA %field);
 
-# inherits from XDF::BaseObject
-@ISA = ("XDF::BaseObject");
+# inherits from XDF::BaseObjectWithXMLElements 
+@ISA = ("XDF::BaseObjectWithXMLElements");
 
 # CLASS DATA
 my $Class_XML_Node_Name = "structure";
@@ -147,10 +147,10 @@ my @Class_Attributes = qw (
 push @Class_Attributes, @Class_XML_Attributes;
 
 # add in super class attributes
-push @Class_Attributes, @{&XDF::BaseObject::classAttributes};
+push @Class_Attributes, @{&XDF::BaseObjectWithXMLElements::classAttributes};
 
 # add in super class XML attributes to our list 
-push @Class_XML_Attributes, @{&XDF::BaseObject::getXMLAttributes};
+push @Class_XML_Attributes, @{&XDF::BaseObjectWithXMLElements::getXMLAttributes};
 
 # Initalization
 # set up object attributes.
@@ -482,6 +482,8 @@ sub AUTOLOAD {
 sub _init {
   my ($self) = @_;
   
+  $self->SUPER::_init(); 
+
   # re-initialize attribs
   # this is only needed for Structure and not other XDF objects because
   # of the needs of its loadXDFFromFile method 
@@ -501,6 +503,11 @@ sub _init {
 # Modification History
 #
 # $Log$
+# Revision 1.10  2001/04/17 19:00:41  thomas
+# Using Specification class now.
+# Properly calling superclass init now.
+# Now using BaseObjectWithXMLElements as base class.
+#
 # Revision 1.9  2001/03/21 20:19:23  thomas
 # Fixed documentation to show addXMLElement, etc. methods in perldoc
 #
@@ -612,7 +619,7 @@ XDF::Structure - Perl Class for Structure
     
  XDF::Structure is a means of grouping/associating XDF::Parameter objects, which hold  scientific content of the data, and XDF::Array objects which hold the mathematical content  of the data. If an XDF::Structure holds a parameter with several XDF::Array objects then the  parameter is assumed to be applicable to all of the array child nodes. Sub-structure (e.g. other  XDF::Structure objects) may be held within a structure to create more fine-grained associations between parameters and arrays. 
 
-XDF::Structure inherits class and attribute methods of L<XDF::GenericObject>, L<XDF::BaseObject>.
+XDF::Structure inherits class and attribute methods of L<XDF::GenericObject>, L<XDF::BaseObject>, L<XDF::BaseObjectWithXMLElements>.
 
 
 =head1 METHODS
@@ -733,7 +740,7 @@ Insert an XDF::ParameterGroup object into this object. This method takes either 
 
 Remove an XDF::ParameterGroup object from the hash table of XDF::ParameterGroups held within this object. This method takes the hash key its argument. RETURNS : 1 on success, undef on failure.  
 
-=item loadFromXDFFile ($optionsHashRef, $file)
+=item loadFromXDFFile ($file, $optionsHashRef)
 
 Read in an XML file into this structure. The current structure, if it has any components, is overrided and lost.  
 
@@ -744,15 +751,6 @@ Read in an XML file into this structure. The current structure, if it has any co
 =head2 INHERITED Class Methods
 
 =over 4
-
-
-
-=over 4
-
-The following class methods are inherited from L<XDF::BaseObject>:
-B<Pretty_XDF_Output>, B<Pretty_XDF_Output_Indentation>, B<DefaultDataArraySize>. 
-
-=back
 
 =back
 
@@ -776,7 +774,16 @@ B<new>, B<clone>, B<update>.
 =over 4
 
 XDF::Structure inherits the following instance (object) methods of L<XDF::BaseObject>:
-B<addXMLElement>, B<removeXMLElement>, B<getXMLElementList>, B<setXMLElementList>, B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLAttributes>, B<setXMLNotationHash>, B<toXMLFileHandle>, B<toXMLFile>.
+B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLAttributes>, B<toXMLFileHandle>, B<toXMLString>, B<toXMLFile>.
+
+=back
+
+
+
+=over 4
+
+XDF::Structure inherits the following instance (object) methods of L<XDF::BaseObjectWithXMLElements>:
+B<addXMLElement>, B<removeXMLElement>, B<getXMLElementList>, B<setXMLElementList>.
 
 =back
 
@@ -790,7 +797,7 @@ B<addXMLElement>, B<removeXMLElement>, B<getXMLElementList>, B<setXMLElementList
 
 =over 4
 
-L<XDF::BaseObject>, L<XDF::Array>, L<XDF::Reader>, L<XDF::Parameter>, L<XDF::ParameterGroup>
+L<XDF::BaseObjectWithXMLElements>, L<XDF::Array>, L<XDF::Reader>, L<XDF::Parameter>, L<XDF::ParameterGroup>
 
 =back
 
