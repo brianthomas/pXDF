@@ -1883,8 +1883,33 @@ sub _unit_node_start {
 
 sub _units_node_start { 
    my ($self, %attrib_hash) = @_;
-  # do nothing
-  return undef;
+
+   my $unitsObj = XDF::Units->new(\%attrib_hash);
+
+   my $_parentNodeName = $self->_parentNodeName();
+
+  if ($_parentNodeName eq $XDF_node_name{'field'} ) {
+
+      my $fieldObj = $self->_lastFieldObj();
+      $unitsObj = $fieldObj->setUnits($unitsObj);
+
+  } elsif ($_parentNodeName eq $XDF_node_name{'array'} ) {
+
+      $unitsObj = $self->{currentArray}->setUnits($unitsObj);
+  
+  } elsif ($_parentNodeName eq $XDF_node_name{'parameter'} ) {
+
+      my $paramObj = $self->{lastParamObject};
+      $unitsObj = $paramObj->setUnits($unitsObj);
+  
+  } else {
+
+      $self->_printWarning( "Got Weird parent node ($_parentNodeName) for units. \n");
+  
+  }
+
+
+  return $unitsObj;
 }
 
 sub _unitless_node_start {
@@ -2933,6 +2958,9 @@ sub _appendArrayToArray {
 # Modification History
 #
 # $Log$
+# Revision 1.30  2001/06/21 21:25:57  thomas
+# Added Units handling(!) wasnt picking up attributes correctly. fixed.
+#
 # Revision 1.29  2001/06/21 15:44:48  thomas
 # commented out addData dbug statement
 # in vain attempt to improve read performance.
