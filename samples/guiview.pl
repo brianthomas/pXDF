@@ -2148,13 +2148,15 @@ sub load_xml_file {
 
    &debug("loading $file\n");
 
-   my %options = ('quiet' => $QUIET, 'debug' => $DEBUG, );
+   my $QUIET = $DEBUG ? 0 : 1;
+#   my %options = ('quiet' => $QUIET, );
 
    # set the new XDF object
    #my $reader = new XDF::Reader();
 #   $XDF = $reader->parseFile($file, \%options);
 
    my $parser = new XDF::DOM::Parser(
+                                       quiet => $QUIET,
                                        NoExpand => $XDF_PARSER_NO_EXPAND,
                                        ParseParamEnt => $XDF_PARSER_PARSE_PARAM_ENT,
                                        ExpandParamEnt => $XDF_PARSER_EXPAND_PARAM_ENT,
