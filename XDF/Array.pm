@@ -94,6 +94,8 @@ my $Class_Node_Name = "array";
 my @Class_XML_Attributes = qw (
                                 name
                                 description
+                                arrayId
+                                appendTo
                      lessThanValue
                      lessThanOrEqualValue
                      greaterThanValue
@@ -207,6 +209,37 @@ sub setDescription {
    my ($self, $value) = @_;
    $self->{Description} = $value;
 }
+
+# /** getArrayId
+# */                 
+sub getArrayId {                   
+   my ($self) = @_;
+   return $self->{ArrayId};        
+}                               
+                                
+# /** setArrayId
+#     Set the arrayId attribute.   
+# */                          
+sub setArrayId {
+   my ($self, $value) = @_;  
+   $self->{ArrayId} = $value;   
+}
+
+# /** getAppendTo
+# */                 
+sub getAppendTo {                   
+   my ($self) = @_;
+   return $self->{AppendTo};        
+}                               
+                                
+# /** setAppendTo                   
+#     Set the appendTo attribute.   
+# */                          
+sub setAppendTo {
+   my ($self, $value) = @_;  
+   $self->{AppendTo} = $value;   
+}
+
 
 # /** getLessThanValue
 # */
@@ -877,6 +910,78 @@ Set the name attribute.
 =item setDescription ($value)
 
 
+
+=item getArrayId (EMPTY)
+
+
+
+=item setArrayId ($value)
+
+Set the arrayId attribute.   
+
+=item getAppendTo (EMPTY)
+
+
+
+=item setAppendTo ($value)
+
+Set the appendTo attribute.   
+
+=item getLessThanValue (EMPTY)
+
+
+
+=item setLessThanValue ($value)
+
+Set the lessThanValue attribute. 
+
+=item getLessThanOrEqualValue (EMPTY)
+
+
+
+=item setLessThanOrEqualValue ($value)
+
+Set the lessThanOrEqualValue attribute. 
+
+=item getGreaterThanValue (EMPTY)
+
+
+
+=item setGreaterThanValue ($value)
+
+Set the greaterThanValue attribute. 
+
+=item getGreaterThanOrEqualValue (EMPTY)
+
+
+
+=item setGreaterThanOrEqualValue ($value)
+
+Set the greaterThanOrEqualValue attribute. 
+
+=item getInfiniteValue (EMPTY)
+
+
+
+=item setInfiniteValue ($value)
+
+Set the infiniteValue attribute. 
+
+=item getInfiniteNegativeValue (EMPTY)
+
+
+
+=item setInfiniteNegativeValue ($value)
+
+Set the infiniteNegativeValue attribute. 
+
+=item getNoDataValue (EMPTY)
+
+
+
+=item setNoDataValue ($value)
+
+Set the noDataValue attribute. 
 
 =item getDataCube (EMPTY)
 
