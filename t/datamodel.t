@@ -1,15 +1,15 @@
 
-BEGIN {print "1..4\n";}
+BEGIN {print "1..3\n";}
 END {print "not ok 1\n" unless $loaded;}
-use XDF::DataModel;
+use XDF::Structure;
 $loaded = 1;
 print "ok 1\n";
 
 my $test = 1;
 
-# another test to check if can add/remove tickmarks, and notes 
+# another test to check if can add/remove parameters, axisValues, and notes 
 
-  my $XDF = new XDF::DataModel();
+  my $XDF = new XDF::Structure();
 
   my @axis = qw ( axis1 axis2 );
   my @param_name = qw ( param1 param2 param3 );
@@ -22,18 +22,20 @@ my $test = 1;
 
   # Test 1. add/get some parameters in the XDF structure
   foreach my $param (0 ... $#param_name) {
-    $XDF->addParameter({'name' => $param_name[$param], 
-                         'value' => $param_value[$param]}
-                       ); 
+    my $paramObj = $XDF->addParameter({ 'name' => $param_name[$param] });
+    my $valueObj = new XDF::Value(); #$param_value[$param]);
+    $paramObj->addValue($valueObj);
   }
+
   foreach my $obj (@{$XDF->paramList()}) {
     push @ret_param_name, $obj->name();
     push @ret_param_value, $obj->value();
   }
-  &datamodel_ok ($ret_param_name[1] eq $param_name[1]);
+
+  &datamodel_ok($ret_param_name[1] eq $param_name[1]);
 
 
-  # Test2. Add an axis, add some tickmarks, then remove one tickmark 
+  # Test 2. Add an axis, add some tickmarks, then remove one tickmark 
   my $axisObj = $XDF->addAxis({ 'name' => $axis[0], 
                                  'description' => 'the first axis'}
                               );
