@@ -1,106 +1,123 @@
 <?xml version="1.0" standalone="no"?>
-<!DOCTYPE XDF SYSTEM "XDF_018.dtd" [ 
-   <!ENTITY table1 SYSTEM "XDF_sample10.dat.bz2">
-   <!NOTATION xdf PUBLIC "application/xdf">
-   <!ENTITY newLine "&#10;"> 
-]> 
-<XDF name="A sample XDF document" 
-     description="This shows how to put any data into XDF using formatted data IO Style."
->
-   <!-- A little table about 3 nearby galaxies -->
-   <parameterGroup name="Structure Properties">
-     <parameter name="date" datatype="string">
-       <units><unitless/></units>
-       <value>01-12-99</value>
-       <note>This parameter is not accurate.</note>
-     </parameter>
-     <parameter name="date2">
-       <units><unitless/></units>
-       <value>10-22-00</value>
-     </parameter>
-   </parameterGroup>
-
-   <array name="Galaxy Data">
-
-      <fieldAxis axisId="fields">
-         <field fieldId="gname" name="galaxy name">
-             <units><unitless/></units>
-             <dataFormat><string width="8"/></dataFormat>
-         </field>
-         <fieldGroup name="position" >
-             <field name="right ascension">
-                <units><unit>degrees</unit></units>
-                <dataFormat><float width="11" precision="7" /></dataFormat>
-            </field>
-            <field name="declination" >
-                <units><unit>degrees</unit></units>
-                <dataFormat><float width="11" precision="7" /></dataFormat>
-            </field>
-         </fieldGroup>
-         <field fieldId="vmag" name="V-band Flux">
-            <units><unit>magnitude</unit></units>
-            <dataFormat><float width="4" precision="1" /></dataFormat>
-         </field>
-         <field name="V-band Error" >
-            <units><unit>magnitude</unit></units>
-            <dataFormat><float width="4" precision="1" /></dataFormat>
-            <relation fieldIdRefs="vmag" role="error" />
-         </field>
-         <field fieldId="ccdNumber" name="CCD ID Number">
-            <units><unitless/></units>
-            <dataFormat><integer width="1"/></dataFormat>
-         </field>
-         <field fieldId="enumber" name="A Sci. Number">
-            <units><unitless/></units>
-            <dataFormat><float width="9" precision="3" exponent="2"/></dataFormat>
-         </field>
-         <field name="Reference" >
-            <units><unitless/></units>
-            <dataFormat><string width="10" /></dataFormat>
-            <relation fieldIdRefs="gname" role="reference" />
-         </field>
-      </fieldAxis>
-
-      <axis axisId="rows" axisDatatype="integer">
-         <axisUnits><unitless/></axisUnits>
-         <valueGroup name="rows"> 
-           <valueList delimiter=" ">0 1 2</valueList> 
-         </valueGroup> 
-      </axis>
-
-     <!-- declare the ordering of how to read this in, assoc. of axis to data -->
-      <dataStyle encoding="UTF-8">
-         <fixedWidth>
-           <fixedWidthInstruction>
-             <repeat count="7">
-                <readCell/>
-                <skip/>
-             </repeat>
-             <readCell/>
-             <skip><newLine/></skip>
-           </fixedWidthInstruction>
-           <for axisIdRef="rows">
-              <for axisIdRef="fields"> <!-- the "fast" axis --> 
-                <doInstruction/>
-              </for>
-           </for>
-         </fixedWidth>
-      </dataStyle>
-
-      <data href="table1" compression="bzip2"/>
-
-      <notes>
-        <locationOrder>
-          <index axisIdRef="fields"/>
-          <index axisIdRef="rows"/>
-        </locationOrder>
-        <note location="1 1">This is table 3 from the Zezajck article. Newline:[&newLine;].</note>
-        <note location="0 2">This is table 3 from the Zezajck article.</note>
-        <note noteId="note1" location="0 1" >No data because of a cosmic ray hit</note>
-        <note noteIdRef="note1" location="0 2" />
+<!DOCTYPE XDF SYSTEM "XDF_018.dtd" [
+<!ENTITY table1 SYSTEM "XDF_sample10.dat.bz2" NDATA xdf>
+<!ENTITY newLine "&#10;">
+]>
+<XDF name="A sample XDF document" description="This shows how to put any data into XDF using formatted data IO Style.">
+<!-- A little table about 3 nearby galaxies -->
+  <parameterGroup name="Structure Properties">
+    <parameter name="date" datatype="string">
+      <unitless/>
+      <value>01-12-99</value>
+      <note>This parameter is not accurate.</note>
+    </parameter>
+    <parameter name="date2">
+      <unitless/>
+      <value>10-22-00</value>
+    </parameter>
+  </parameterGroup>
+  <array name="Galaxy Data">
+    <fieldAxis axisId="fields" size="8">
+      <field fieldId="gname" name="galaxy name">
+        <unitless/>
+        <dataFormat>
+          <string width="8"/>
+        </dataFormat>
+      </field>
+      <fieldGroup name="position">
+        <field name="right ascension">
+          <units>
+            <unit>degrees</unit>
+          </units>
+          <dataFormat>
+            <float width="11" precision="7"/>
+          </dataFormat>
+        </field>
+        <field name="declination">
+          <units>
+            <unit>degrees</unit>
+          </units>
+          <dataFormat>
+            <float width="11" precision="7"/>
+          </dataFormat>
+        </field>
+      </fieldGroup>
+      <field fieldId="vmag" name="V-band Flux">
+        <units>
+          <unit>magnitude</unit>
+        </units>
+        <dataFormat>
+          <float width="4" precision="1"/>
+        </dataFormat>
+      </field>
+      <field name="V-band Error">
+        <units>
+          <unit>magnitude</unit>
+        </units>
+        <dataFormat>
+          <float width="4" precision="1"/>
+        </dataFormat>
+        <relation fieldIdRefs="vmag" role="error"/>
+      </field>
+      <field fieldId="ccdNumber" name="CCD ID Number">
+        <unitless/>
+        <dataFormat>
+          <integer width="1"/>
+        </dataFormat>
+      </field>
+      <field fieldId="enumber" name="A Sci. Number">
+        <unitless/>
+        <dataFormat>
+          <float width="9" precision="3" exponent="2"/>
+        </dataFormat>
+      </field>
+      <field name="Reference">
+        <unitless/>
+        <dataFormat>
+          <string width="10"/>
+        </dataFormat>
+        <relation fieldIdRefs="gname" role="reference"/>
+      </field>
+    </fieldAxis>
+    <axis axisId="rows" axisDatatype="integer" size="3">
+      <unitless/>
+      <valueGroup name="rows">
+        <valueList delimiter=" ">0 1 2</valueList>
+      </valueGroup>
+    </axis>
+<!-- declare the ordering of how to read this in, assoc. of axis to data -->
+    <dataStyle encoding="UTF-8">
+      <fixedWidth>
+        <fixedWidthInstruction>
+          <repeat count="7">
+            <readCell/>
+            <skip>
+              <chars/>
+            </skip>
+          </repeat>
+          <readCell/>
+          <skip>
+            <newLine/>
+          </skip>
+        </fixedWidthInstruction>
+        <for axisIdRef="rows">
+          <for axisIdRef="fields">
+<!-- the "fast" axis -->
+            <doInstruction/>
+          </for>
+        </for>
+      </fixedWidth>
+    </dataStyle>
+    <data href="table1" compression="bzip2"/>
+    <notes>
+      <locationOrder>
+        <index axisIdRef="fields"/>
+        <index axisIdRef="rows"/>
+      </locationOrder>
+      <note location="1 1">This is table 3 from the Zezajck article. Newline:[&newLine;].</note>
+      <note location="0 2">This is table 3 from the Zezajck article.</note>
+      <note noteId="note1" location="0 1">No data because of a cosmic ray hit</note>
+      <note noteIdRef="note1" location="0 2"/>
     </notes>
-
   </array>
-
 </XDF>
-
