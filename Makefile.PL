@@ -22,7 +22,7 @@ my $install_dir = 'XDF';
 my @extras = ();
 
 push(@extras,
-     ABSTRACT_FROM => 'Object.pm',
+     ABSTRACT_FROM => 'BaseObject.pm',
      AUTHOR        => 'Brian Thomas (thomas@adc.gsfc.nasa.gov)')
     if ($ExtUtils::MakeMaker::Version >= 5.4301);
 
@@ -69,12 +69,13 @@ if ($@) {
 # the contents of the Makefile that is written.
 WriteMakefile(
     'NAME'	=> 'XDF',
-    'VERSION_FROM' => 'XDF/Object.pm', # finds $VERSION
+    'VERSION_FROM' => 'XDF/BaseObject.pm', # finds $VERSION
     dist      => { COMPRESS => 'gzip', SUFFIX => '.gz'},
     PREREQ_PM => { 'XML::Parser' => '2.27' },
     PM => { 
             'XDF/Array.pm'  => "\$(INST_LIBDIR)/$install_dir/Array.pm",
             'XDF/Axis.pm'       => "\$(INST_LIBDIR)/$install_dir/Axis.pm",
+            'XDF/BaseObject.pm'     => "\$(INST_LIBDIR)/$install_dir/BaseObject.pm",
             'XDF/BinaryFloatDataFormat.pm'      => "\$(INST_LIBDIR)/$install_dir/BinaryFloatDataFormat.pm",
             'XDF/BinaryFloatStyle.pm'      => "\$(INST_LIBDIR)/$install_dir/BinaryFloatStyle.pm",
             'XDF/BinaryIntegerDataFormat.pm'      => "\$(INST_LIBDIR)/$install_dir/BinaryIntegerDataFormat.pm",
@@ -99,7 +100,6 @@ WriteMakefile(
             'XDF/IntegerStyle.pm'      => "\$(INST_LIBDIR)/$install_dir/IntegerStyle.pm",
             'XDF/Locator.pm'       => "\$(INST_LIBDIR)/$install_dir/Locator.pm",
             'XDF/Note.pm'       => "\$(INST_LIBDIR)/$install_dir/Note.pm",
-            'XDF/Object.pm'     => "\$(INST_LIBDIR)/$install_dir/Object.pm",
             'XDF/Parameter.pm'  => "\$(INST_LIBDIR)/$install_dir/Parameter.pm",
             'XDF/ParameterGroup.pm'  => "\$(INST_LIBDIR)/$install_dir/ParameterGroup.pm",
             'XDF/ReadCellFormattedIOCmd.pm'     => "\$(INST_LIBDIR)/$install_dir/ReadCellFormattedIOCmd.pm",
@@ -120,4 +120,13 @@ WriteMakefile(
     @extras
 
 );
+
+# Modification History
+#
+# $Log$
+# Revision 1.2  2000/10/16 17:41:14  thomas
+# Changes to make consistent with BaseObject.pm
+#
+#
+#
 
