@@ -65,7 +65,7 @@ package XDF::Array;
 
 use Carp;
 
-use XDF::BaseObject;
+use XDF::BaseObjectWithXMLElements;
 
 use XDF::Axis;
 use XDF::DataCube;
@@ -83,8 +83,8 @@ use integer;
 
 use vars qw ($AUTOLOAD %field @ISA);
 
-# inherits from XDF::BaseObject
-@ISA = ("XDF::BaseObject");
+# inherits from XDF::BaseObjectWithXMLElements
+@ISA = ("XDF::BaseObjectWithXMLElements");
 
 # CLASS DATA
 my $Class_Node_Name = "array";
@@ -154,7 +154,7 @@ my @Class_Attributes = qw (
 push @Class_Attributes, @Class_XML_Attributes;
 
 # add in super class attributes
-push @Class_Attributes, @{&XDF::BaseObject::classAttributes};
+push @Class_Attributes, @{&XDF::BaseObjectWithXMLElements::classAttributes};
 
 # Initalization
 # set up object attributes.
@@ -829,6 +829,8 @@ sub AUTOLOAD {
 sub _init {
   my ($self) = @_;
 
+  $self->SUPER::_init(); 
+
   # initalize objects we always have
   $self->{DataCube} = new XDF::DataCube();
   $self->{DataCube}->{_parentArray} = $self; # cross reference w/ dataCube 
@@ -895,7 +897,7 @@ XDF::Array - Perl Class for Array
   
 
 
-XDF::Array inherits class and attribute methods of L<XDF::GenericObject>, L<XDF::BaseObject>.
+XDF::Array inherits class and attribute methods of L<XDF::GenericObject>, L<XDF::BaseObject>, L<XDF::BaseObjectWithXMLElements>.
 
 
 =head1 METHODS
@@ -1136,15 +1138,15 @@ Insert an XDF::Note object into the XDF::Notes object held by this object. This 
 
 Removes an XDF::Note object from the list of XDF::Note objectsheld within the XDF::Notes object of this object. This method takes either the list index number or an object reference as its argument. RETURNS : 1 on success, undef on failure.  
 
-=item addData ($dataValue, $locator)
+=item addData ($locator, $dataValue)
 
 Append the SCALAR value onto the requested datacell (via L<XDF::DataCube> LOCATOR REF).  
 
-=item setData ($dataValue, $locator)
+=item setData ($locator, $dataValue)
 
 Set the SCALAR value of the requested datacell (via L<XDF::DataCube> LOCATOR REF). Overwrites existing datacell value if any.  
 
-=item removeData ($data, $locator)
+=item removeData ($locator, $data)
 
 Remove the requested data from the indicated datacell (via L<XDF::DataCube> LOCATOR REF) in the XDF::DataCube held in this Array. B<NOT CURRENTLY IMPLEMENTED>.  
 
@@ -1168,15 +1170,6 @@ Removes the L<XDF::FieldAxis> object in this Array.
 
 =over 4
 
-
-
-=over 4
-
-The following class methods are inherited from L<XDF::BaseObject>:
-B<Pretty_XDF_Output>, B<Pretty_XDF_Output_Indentation>, B<DefaultDataArraySize>. 
-
-=back
-
 =back
 
 
@@ -1199,7 +1192,16 @@ B<new>, B<clone>, B<update>.
 =over 4
 
 XDF::Array inherits the following instance (object) methods of L<XDF::BaseObject>:
-B<addXMLElement>, B<removeXMLElement>, B<getXMLElementList>, B<setXMLElementList>, B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLAttributes>, B<setXMLNotationHash>, B<toXMLFileHandle>, B<toXMLFile>.
+B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLAttributes>, B<toXMLFileHandle>, B<toXMLString>, B<toXMLFile>.
+
+=back
+
+
+
+=over 4
+
+XDF::Array inherits the following instance (object) methods of L<XDF::BaseObjectWithXMLElements>:
+B<addXMLElement>, B<removeXMLElement>, B<getXMLElementList>, B<setXMLElementList>.
 
 =back
 
@@ -1213,7 +1215,7 @@ B<addXMLElement>, B<removeXMLElement>, B<getXMLElementList>, B<setXMLElementList
 
 =over 4
 
-L<XDF::BaseObject>, L<XDF::Axis>, L<XDF::DataCube>, L<XDF::DataFormat>, L<XDF::FieldAxis>, L<XDF::Locator>, L<XDF::Notes>, L<XDF::Parameter>, L<XDF::ParameterGroup>, L<XDF::TaggedXMLDataIOStyle>, L<XDF::Units>
+L<XDF::BaseObjectWithXMLElements>, L<XDF::Axis>, L<XDF::DataCube>, L<XDF::DataFormat>, L<XDF::FieldAxis>, L<XDF::Locator>, L<XDF::Notes>, L<XDF::Parameter>, L<XDF::ParameterGroup>, L<XDF::TaggedXMLDataIOStyle>, L<XDF::Units>
 
 =back
 
