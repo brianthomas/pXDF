@@ -143,7 +143,7 @@ sub setValue {
 # */
 sub evaluate { # PROTECTED
    my ($self, $value) = @_;
-   return ($value + $self->{value});
+   return (log($value)/log($self->{value}));
 }
 
 #
@@ -155,7 +155,7 @@ sub _init {
   
   $self->SUPER::_init();
 
-  $self->{value} = 0;
+  $self->{value} = 1;
 
   # adds to ordered list of XML attributes
   $self->_appendAttribsToXMLAttribOrder(\@Local_Class_XML_Attributes);

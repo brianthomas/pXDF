@@ -137,7 +137,7 @@ sub setValue { # PRIVATE
 # */
 sub evaluate { # PROTECTED
    my ($self, $value) = @_;
-   return ($value + $self->{value});
+   return (log $value);
 }
 
 #

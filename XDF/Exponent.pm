@@ -142,7 +142,7 @@ sub setValue {
 # */
 sub evaluate { # PROTECTED
    my ($self, $value) = @_;
-   return ($value + $self->{value});
+   return (($value)**$self->{value});
 }
 
 #

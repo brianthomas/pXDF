@@ -184,8 +184,10 @@ sub removeComponent {
 sub evaluate {
   my ($self, $value) = @_;
 
-  print STDERR "NOT SUPORTED YET\n";
-
+  # step thru all the components and evaluate with each in turn
+  foreach my $component (@{$self->{componentList}}) {
+     $value = $component->evaluate($value);
+  }
   return $value;
 }
 
