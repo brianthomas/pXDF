@@ -38,6 +38,9 @@ my $QUIET = 1;
                                        NoExpand => 0,
                                        ParseParamEnt => 0,
                                        ExpandParamEnt => 1,
+                                       'debug' => $DEBUG,
+                                       'quiet' => $QUIET,
+                                       'loadDataOnDemand' => 0,
                                    );
 
   my $XDF_DOM = $parser->parsefile($file);
