@@ -39,6 +39,7 @@ XDF/GenericObject.pm
 XDF/Group.pm
 XDF/IntegerDataFormat.pm
 XDF/Locator.pm
+XDF/Log.pm
 XDF/NewLine.pm
 XDF/NotationNode.pm
 XDF/Note.pm
@@ -97,6 +98,7 @@ samples/XDF_sample11.xml
 samples/XDF_sample11.dat.zip
 samples/XDF_sample12.xml
 samples/XDF_sample13.xml
+samples/XDF_sample18.xml
 samples/document.xml
 samples/binarytable0
 samples/ApJ_464_79_table1.xml

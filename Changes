@@ -1,7 +1,20 @@
 
 Revision history for Perl extension XDF.
 
-0.18-alpha1 Jan 24 2001
+0.18-alpha2 ?? ?? 2002
+        - kludge fix for sync'ing up XDF::DOM entities and XDF entities upon 
+          printout of XDF::DOM document.
+        - merge in efficiency changes from stable version.
+        - merge in bug fixes from stable version:
+           * bug fix for new method for XDF::DOM::Element not checking passed XDFobject correctly.
+           * bug fix for setRecords, one case needed locator->forward call
+           * bug fix: allow multiple hrefs in a single array
+           * bug fix: added missing accessor methods for valueListAlgorithm,
+             ValueListDelimited Class attributes (noData, underflow, overflow, etc).
+           * allow reading of multiple href's (on child data nodes) for a single array.
+        - Finally got around to adding in Java-like Log class.
+
+0.18-alpha1 Jan 24 2002
         - update nodenames, attribute information to 018 standard.
         - added start/endByte reading for data nodes.
         - Update API to java standard, incl:
