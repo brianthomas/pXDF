@@ -9,7 +9,7 @@
 +     # no value on things with sysId
 +     if (defined $_[2] && defined $_[1])
 +     {
-+        print STDERR "XML::DOM Warning $_[0] had both value($_[1]) And SYSId ($_[2]), removing value.\n";
++        # print STDERR "XML::DOM Warning $_[0] had both value($_[1]) And SYSId ($_[2]), removing value.\n";
 +        $_[1] = undef;
 +     }
 + 
