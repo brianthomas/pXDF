@@ -1027,6 +1027,7 @@ sub data_node_end {
     }
 
     my $locator = $CURRENT_ARRAY->createLocator();
+    @READAXISORDER = reverse @READAXISORDER;
     $locator->setIterationOrder(\@READAXISORDER);
     $formatObj->setWriteAxisOrderList(\@READAXISORDER);
 
@@ -2169,6 +2170,10 @@ sub my_fail {
 # Modification History
 #
 # $Log$
+# Revision 1.12  2001/03/01 21:12:24  thomas
+# small fix: reversed readAxisOrder. This solved a bug in the
+# locator having to (un)reverse the order back. -b.t.
+#
 # Revision 1.11  2001/02/22 19:39:42  thomas
 # changed locator getAxisLocation call to new name getAxisIndex
 #
