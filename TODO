@@ -74,6 +74,9 @@
    Future Development Goals?
    -------------------------
 
+   - Use of the XML::UM package. We need to handle non-UTF strings. XML::UM will
+     convert UTF-8 strings to any encoding supported by XML::Encoding. 
+
    - Move up to the XDF 0.20 DTD standard. A major change in this DTD is the 
      MathML/units treatment.
 

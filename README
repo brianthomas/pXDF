@@ -8,30 +8,36 @@ Center (ADC) at NASA/Goddard Space Flight Center.
 XDF is the 'eXtensible Data Format' and is an attempt to make
 XML behave nicely with scientific/mathematical data. This package
 provides the classes for easy manipulation and IO of XDF objects. 
-See our website: http://xml.gsfc.nasa.gov and linkage within for 
-more information.
+See our website: http://xml.gsfc.nasa.gov/XDF/XDF_home.html and 
+the linkage within for more information on XDF and XML activities
+in general at the ADC.
 
 This package is "beta", meaning we have all of the forseen functionality
-incorportated in the code. "beta" also means that many bugs remain.
-Please refer to the TODO list for an idea of what remains to
-be done to bring this package to full stable reality. One important goal: 
-Im interested in using the Xerces parser that I hear the
-Apache group is developing for Perl (http://xml.apache.org).
-More work on that is to come soon I hope.
+incorportated in the code. "Beta" also means that many bugs remain 
+and that the API may undergo minor changes. Please refer to the TODO 
+list for an idea of what remains to be done to bring this package to 
+full stable reality. One important goal worth mentioning here is 
+attempting to bring in support for other XML parsers for XDF. Currently
+only the XML-DOM/XML-Parser combination is supported, however, Im 
+interested in using the Xerces parser that I hear the Apache group is 
+developing for Perl (http://xml.apache.org).  Also, I have recently 
+heard good things about libXML for Perl, and plan to investigate 
+implementing that in XDF too. 
 
-A (slightly incomplete) diagram of the XDF object model appears
+A (slightly out of date) diagram of the XDF object model appears
 in the UML-XDF.gif image. There is addtional information in
 the file-by-file docs. Build the HTML docs using the utility
 contained in utils. 
 
-Refer to the "samples" directory for working code and example XDF files.
+Refer to the "samples" directory for working code and example XDF 
+files.
 
 
 LICENCE 
 -------
 
-This package is released under the GNU Public Licence. Please refer LICENCE file
-for the details.
+This package is released under the GNU Public Licence. Please refer 
+LICENCE file for the details.
 
 
 INSTALL
@@ -45,29 +51,34 @@ I will look into creatation of a PPD file for this distribution.
 
 You will need to install the following packages:
 
-   XML-Parser-2.27
-   libxml-enno-1.04pre4 
+   XML-Parser-2.30
+   XML-DOM-1.31
  
-You may get XML-Parser from CPAN. Unfortuneately, libxml-enno-1.04
-is not available there (yet). You can get the libxml-enno from
-the maintainers website at: http://tjmather.com/CPAN.  As a side note,
-I have also used XML-Parser-2.30 to good effect. Other versions,
-notably XML-Parser 2.28 dont work as well for me. You mileage may
-vary and you may have to experiment with various versions of the 
-XML-Parser package to find the stablest one that works for you.
+You may get both packages from CPAN. I have also used XML-DOM-2.30 
+to good effect, but its probably best to upgrade, your mileage may
+vary :). 
 
 Now, untar both files. You will need to APPLY A PATCH (in the file
-"DOM.patch") to the libxml-enno distribution if you want Href entities 
-to work properly (Note: this patch may not apply to versions of 
-libxml-enno later than 1.04pre4, check the source to know :):
+"DOM.patch") to the XML-DOM distribution if you want Href entities 
+to work properly; I have included it here for your convience.
 
-> cd libxml-enno-1.04pre4
+> cd XML-DOM-1.31
 > patch -p0 < <XDFdirectory>/DOM.patch
 
-Now, after having met the above requirements, make the packages 
-(XML-Parser, libxml-enno, then XDF) via the standard Perl drill:
+Now, change directory into each XML-Parser and then XML-DOM and
+ make the packages via the standard Perl drill:
 
+> cd XML-Parser-2.30
 > perl Makefile.PL; make ; make test ; make install
+
+(and similar for XML-DOM package)
+
+Finally, you are ready to install perl XDF. Just do:
+
+> cd <XDFdirector>
+> perl Makefile.PL; make ; make test ; make install
+
+as for any standard perl package. 
 
 Additional HTML documentation may be made by running the script
 util/makeHTMLDoc.pl AFTER you have built the distribution.
@@ -83,15 +94,16 @@ problem seems to be the LWP handler, but Im not 100% sure. Hopefully
 the maintainers can resolve this issue before too long. 
 
 Also, in order to use compression, you will have to edit the path
-to the compress executables in Constants.pm. Do this BEFORE install
-to save yourself a headache. I hope to integrate this into the 
-make proceedure in the future.
+to the compress executables in Constants.pm. If you have already
+installed the package, no problem, just hammer it over with a quick
+"make install" from the <XDFdirectory>. I hope to integrate this into 
+the make proceedure in the future.
 
 
 FTP & CVS Repository Access
-----======-----------------
+---------------------------
 
-Read only access to the nightly snapshot is allowed for people who
+Read-only access to the nightly snapshot is allowed for people who
 have downloaded this code once from the main site. The CVS account
 is "guest" which has a password "gu3stacc3ss". The XDF Perl package
 directory is "xml/XDF/Perl_Package" and the CVSROOT directory is
@@ -110,10 +122,15 @@ only need to "update" to obtain the latest copy from CVS, e.g:
 
 > cvs update xml/XDF/Perl_Package
 
-Access to the nightly snapshot via FTP is via the "guest" account is also
-available from xdf.gsfc.nasa.gov. Use your email address as a password to
-log in.
+Access to the nightly snapshot via FTP is via the "guest" account is
+also available from xdf.gsfc.nasa.gov. Use your email address as a 
+password to log in.
 
+
+Mailing List
+------------
+
+Mailing lists for XDF are available from http://xdf.gsfc.nasa.gov.
 
 
 ---
