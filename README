@@ -88,8 +88,8 @@ to save yourself a headache. I hope to integrate this into the
 make proceedure in the future.
 
 
-CVS Repository Access
----------------------
+FTP & CVS Repository Access
+----======-----------------
 
 Read only access to the nightly snapshot is allowed for people who
 have downloaded this code once from the main site. The CVS account
@@ -109,6 +109,11 @@ Note that you only have to use "cvs login" step ONCE. Thereafter, you
 only need to "update" to obtain the latest copy from CVS, e.g:
 
 > cvs update xml/XDF/Perl_Package
+
+Access to the nightly snapshot via FTP is via the "guest" account is also
+available from xdf.gsfc.nasa.gov. Use your email address as a password to
+log in.
+
 
 
 ---
