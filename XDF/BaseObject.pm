@@ -270,6 +270,8 @@ sub toXMLFileHandle {
     return;
   }
 
+  $indent = "" unless defined $indent;
+
   if (defined $XMLDeclAttribs) {
      $indent = ""; #$Pretty_XDF_Output_Indentation;
      # write the XML && DOCTYPE decl
@@ -587,6 +589,11 @@ sub _find_All_child_Href_Objects {
 # Modification History
 #
 # $Log$
+# Revision 1.5  2001/01/02 02:39:31  thomas
+# Minor fix to prevent spurious messages from
+# toXMLFileHandle when only filehandle is passed
+# (but not the indent, etc). -b.t.
+#
 # Revision 1.4  2000/12/15 22:12:53  thomas
 # Added <!ENTITY> and <!NOTATION> output to the DOCTYPE
 # declaration line at the header of a file when XMLDecl are
