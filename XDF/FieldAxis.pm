@@ -341,19 +341,21 @@ sub addField {
 
   my $index = $self->{size};
 
-  if (defined @{$self->{fieldList}}->[$index]) {
+  #if (defined @{$self->{fieldList}}->[$index]) {
+  if (defined $self->{fieldList}->[$index]) {
      # increase the size of the array by pushing
      push @{$self->{fieldList}}, $fieldObj;
   } else {
      # use a pre-alocated spot that is undefined
-     @{$self->{fieldList}}->[$index] = $fieldObj;
+     #@{$self->{fieldList}}->[$index] = $fieldObj;
+     $self->{fieldList}->[$index] = $fieldObj;
   }
 
   # bump up the size of this axis
   $self->{size}++;
 
   if (defined $self->{_parentArray}) {
-     $self->{_parentArray}->_updateInternalLookupIndices();
+     $self->{_parentArray}->_updateAllLocatorInternalLookupIndices();
   }
 
   # add the parameter to the list
@@ -369,7 +371,8 @@ sub addField {
 sub getField {
   my ($self, $index) = @_;
   return unless defined $index && $index >= 0;
-  return @{$self->{fieldList}}->[$index];
+  #return @{$self->{fieldList}}->[$index];
+  return $self->{fieldList}->[$index];
 }
 
 # /** getFields
@@ -400,29 +403,33 @@ sub setField {
 
   # removing a value (setting to 'undef')
   unless (defined $fieldObjectRef) {
-     if (defined @{$self->{fieldList}}->[$index]) {
+     #if (defined @{$self->{fieldList}}->[$index]) {
+     if (defined $self->{fieldList}->[$index]) {
         # if the field at that location is presently defined, we lower
         # the length of the field axis by 1
         $self->{size}--;
-        @{$self->{fieldList}}->[$index] = undef;
+        #@{$self->{fieldList}}->[$index] = undef;
+        $self->{fieldList}->[$index] = undef;
      }
      return;
   }
 
   # if a field is not presently defined at the indicated location
   # we raise the length of the axis by 1
-  if (!defined @{$self->{fieldList}}->[$index]) {
+  #if (!defined @{$self->{fieldList}}->[$index]) {
+  if (!defined $self->{fieldList}->[$index]) {
      $self->{size}++;
     
      # also means that length changed, so we need to update this too
      if (defined $self->{_parentArray}) {
-        $self->{_parentArray}->_updateInternalLookupIndices();
+        $self->{_parentArray}->_updateAllLocatorInternalLookupIndices();
      }
 
   }
 
   # add the field
-  @{$self->{fieldList}}->[$index] = $fieldObjectRef;
+  #@{$self->{fieldList}}->[$index] = $fieldObjectRef;
+  $self->{fieldList}->[$index] = $fieldObjectRef;
 
 #  splice @{$self->{fieldList}}, $index, 1, $fieldObjectRef; 
   return $fieldObjectRef;
@@ -442,7 +449,7 @@ sub removeField {
      $self->{size}--;
 
      if (defined $self->{_parentArray}) {
-        $self->{_parentArray}->_updateInternalLookupIndices();
+        $self->{_parentArray}->_updateAllLocatorInternalLookupIndices();
      }
      return 1;
   }
@@ -462,7 +469,8 @@ sub addFieldGroup {
   return 0 unless defined $fieldGroupObj && ref $fieldGroupObj;
 
   # add the group to the groupOwnedHash
-  %{$self->{_fieldGroupOwnedHash}}->{$fieldGroupObj} = $fieldGroupObj;
+  #%{$self->{_fieldGroupOwnedHash}}->{$fieldGroupObj} = $fieldGroupObj;
+  $self->{_fieldGroupOwnedHash}->{$fieldGroupObj} = $fieldGroupObj;
 
   return 1;
 }
@@ -473,8 +481,12 @@ sub addFieldGroup {
 # */
 sub removeFieldGroup {
    my ($self, $hashKey) = @_;
-   if (exists %{$self->{_fieldGroupOwnedHash}}->{$hashKey}) {
-      delete %{$self->{_fieldGroupOwnedHash}}->{$hashKey};
+#   if (exists %{$self->{_fieldGroupOwnedHash}}->{$hashKey}) {
+#      delete %{$self->{_fieldGroupOwnedHash}}->{$hashKey};
+#      return 1;
+#   }
+   if (exists $self->{_fieldGroupOwnedHash}->{$hashKey}) {
+      delete $self->{_fieldGroupOwnedHash}->{$hashKey};
       return 1;
    }
    return 0;
