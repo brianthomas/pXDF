@@ -19,23 +19,23 @@
              <axisUnits><unit>pixel</unit></axisUnits>
              <valueList delimiter=" " repeatable="yes">10  9 8 7</valueList>
           </axis>
-          <read readId="readid1" >
-             <fixedWidthStyle>
-               <fixedWidthReadInstructions>
+          <dataStyle dataStyleId="readid1" >
+             <fixedWidth>
+               <fixedWidthInstruction>
                  <repeat count="9">
                    <readCell />
                    <skip/>
                  </repeat>
                  <readCell />
                  <skip><newLine/></skip>
-               </fixedWidthReadInstructions>
+               </fixedWidthInstruction>
                <for axisIdRef="y">
                   <for axisIdRef="x">
-                    <doReadInstructions/>
+                    <doInstruction/>
                  </for>
                </for>
-             </fixedWidthStyle>
-          </read>
+             </fixedWidth>
+          </dataStyle>
           <!-- note the recursive data node use -->
           <data>
                 <data><![CDATA[76.53 78.75 67.78 32.59  5.97 68.77 25.39 51.86 30.69 29.03
@@ -61,23 +61,23 @@
              <axisUnits><unit>pixel</unit></axisUnits>
              <valueList delimiter=" ">6 5 4 3 2 1</valueList>
           </axis>
-        <read readId="readid2" >
-             <fixedWidthStyle>
-               <fixedWidthReadInstructions>
+        <dataStyle dataStyleId="readid2" >
+             <fixedWidth>
+               <fixedWidthInstruction>
                  <repeat count="9">
                    <readCell />
                    <skip/>
                  </repeat>
                  <readCell />
                  <skip><newLine/></skip>
-               </fixedWidthReadInstructions>
+               </fixedWidthInstruction>
                <for axisIdRef="y-axis2">
                   <for axisIdRef="my-x-axis">
-                    <doReadInstructions/>
+                    <doInstruction/>
                  </for>
                </for>
-             </fixedWidthStyle>
-          </read>
+             </fixedWidth>
+          </dataStyle>
           <data><![CDATA[84.50 95.73 25.15 66.81 13.58 51.03 30.98  6.22 98.91 31.51
 91.27  6.39 76.60 94.42 15.01 96.86  1.69 39.20 68.95 62.38
  8.98 44.38 97.61 57.51 87.60 16.42 12.01 99.59 60.63 33.38

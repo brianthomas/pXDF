@@ -16,20 +16,20 @@
              <axisUnits><unit>pixel</unit></axisUnits>
              <valueList delimiter=" " repeatable="yes">10  9 8 7 6 5 4 3 2 1</valueList>
           </axis>
-          <read encoding="ISO-8859-1">
-             <delimitedStyle>
-                <delimitedReadInstructions>
+          <dataStyle encoding="ISO-8859-1">
+             <delimited>
+                <delimitedInstruction>
                    <!-- next line sez: use any number of space characters as the delimiter -->
                    <delimiter repeatable="yes"><chars value=" "/></delimiter> 
                    <recordTerminator><newLine/></recordTerminator>
-                </delimitedReadInstructions>
+                </delimitedInstruction>
                 <for axisIdRef="y-axis">
                    <for axisIdRef="x-axis">
-                      <doReadInstructions/>
+                      <doInstruction/>
                    </for>
                 </for>
-             </delimitedStyle>
-          </read>
+             </delimited>
+          </dataStyle>
 <!-- This data should throw an error, as repeatable is set to "no"  e.g. "  2.48"
      indicates 2 values, the first which is "null" and the second which is 2.48, 
      however, the 'arbitrary' newline within the first line is ok. -->

@@ -22,7 +22,7 @@
       <fieldAxis axisId="columns">
          <field fieldId="gname" name="galaxy name">
              <units><unitless/></units>
-             <dataFormat><string length="8"/></dataFormat>
+             <dataFormat><string width="8"/></dataFormat>
          </field>
          <fieldGroup name="position" >
              <field name="right ascension">
@@ -53,7 +53,7 @@
          </field>
          <field name="Reference" >
             <units><unitless/></units>
-            <dataFormat><string length="40" /></dataFormat>
+            <dataFormat><string width="40" /></dataFormat>
             <relation fieldIdRefs="gname" role="reference" />
          </field>
       </fieldAxis>
@@ -66,12 +66,12 @@
       </axis>
 
      <!-- declare the ordering of how to read this in, assoc. of axis to data -->
-      <read encoding="UTF-8" >
-        <taggedStyle>
+      <dataStyle encoding="UTF-8" >
+        <tagged>
           <tagToAxis tag="d0" axisIdRef="columns" />
           <tagToAxis tag="d1" axisIdRef="rows" />
-        </taggedStyle>
-      </read>
+        </tagged>
+      </dataStyle>
 
       <data>
          <d0> <!-- column 1 -->
