@@ -630,24 +630,60 @@ sub show_XMLNode_CDATA {
 
    my $elementCDataFrame = $FRAME{'xmlNode_CDATA'}->Frame->pack(side => 'top', fill => 'both', expand => 0);
    push @XMLNODE_EDITFRAMES, $elementCDataFrame;
-   #$WIDGET{'xmlNode_cdata_label'} = $elementCDataLabelFrame->Label( -text => 'CData',
-   #                                                                 -font => $Font{$DISPLAY_SIZE},
-   #                                                                 -bg => $BaseColor, -fg => $Black,
-   #                                                                )->pack(side => 'top');
-   my $labelname = "xmlElementCdata_label";
+   my $setname = "xmlElementCdata_set_button";
+   my $clearname = "xmlElementCdata_clear_button";
    my $entryname = "xmlElementCdata_val_label";
-   my $getMethodRef = sub { &null_cmd(); };
-   my $setMethodRef = sub { &null_cmd(); };
-   my $cdataButtonName = 'xmlElementCdataDel_button';
-   $WIDGET{$cdataButtonName} = $elementCDataFrame->Button( -text => 'Delete CDATA',
-                                                  -bg => $Red, -fg => $Black,
-                                                  -font => $Font{$DISPLAY_SIZE},
-                                                  -command => sub { &null_cmd; },
-                                                )->pack(side => 'left');
-   &make_label_click_widget( 'CDATA', $elementCDataFrame, $labelname, $entryname, $getMethodRef, $setMethodRef);
+   my $getMethodRef = sub { &getTextData($CURRENT_ITEM); };
+   my $setMethodRef = sub { &setTextData($CURRENT_ITEM, @_); };
+
+   &make_textArea_click_widget( 'CDATA', $elementCDataFrame, $setname, $clearname, $entryname, $getMethodRef, $setMethodRef);
 
 }
 
+# some text nodes are just formating info,
+# not terribly interesting for most of us.
+# the default is to ignore formatting text
+sub getTextData {
+  my ($node, $ignore_format_text) = @_;
+
+  $ignore_format_text = 0 unless defined $ignore_format_text;
+
+  my $text = "";
+  foreach my $child ($node->getChildNodes) {
+    if ($child->getNodeTypeName eq 'TEXT_NODE') {
+      my $child_text = $child->getNodeValue;
+      $text .= $child->getNodeValue unless ($ignore_format_text && $child_text =~ m/^\s*$/);
+    }
+  }
+
+  return $text;
+}
+
+sub setTextData {
+  my ($node, $new_data) = @_;
+
+
+  my $child = $node->getFirstChild();
+
+  print STDERR "SET TEXT DATA ON NODE: $node (",$node->getNodeTypeName,") $child\n";
+
+  # setting data by node type is not really needed, 
+  # but we use our API this way and perhaps its cleaner implemntation (??).
+  if (ref($node) eq 'XDF::XMLElement') { 
+       $node->setCData($new_data);
+  } else { 
+     # its a regular XML::DOM Element or Text node
+     if(defined $new_data) {
+       if (ref($child) eq 'XML::DOM::Text') {
+          $child->setData($new_data);
+       } elsif (ref($child) eq 'XML::DOM::Element') {
+          $child->addText($new_data);
+       } else {
+          print STDERR "ERROR: Program confused, and can't setTextData for node: ", ref($child), "\n";
+       }
+    }
+  }
+}
 
 sub show_xmlnode_frames_old {
    my ($path) = @_;
@@ -726,9 +762,11 @@ sub show_xmlnode_frames_old {
    push @XMLNODE_EDITFRAMES, $buttonFrame;
 
    $WIDGET{'add_XMLAttrib_button'} = $buttonFrame->Button( -text => 'Add Attribute',
-                                                           -command => sub { &null_cmd; },
                                                            -bg => $AddButtonBgColor, -fg => $Black,
                                                            -font => $Font{$DISPLAY_SIZE},
+                                                           -command => sub { 
+                                                                     #         $CURRENT_ITEM->setAttribute('new',""); 
+                                                                           },
                                                          )->pack(side => 'left');
 
 
@@ -771,7 +809,7 @@ print STDERR "add structure: $CURRENT_ITEM \n";
 
    $CURRENT_ITEM->addStructure(new XDF::Structure());
    &update_hlist_from_xdf($WIDGET{'xml_hlist'});
-   update_view();
+   &update_view();
 }
 
 sub delete_selected_structure {
@@ -863,9 +901,11 @@ sub init_xmlNodeAttrib_gui {
 
    my $addbuttonname = $what . '_add' . $name . '_button';
    $WIDGET{$addbuttonname} = $subFrame2->Button (
-                                            -text => "Add Attribute",
+                                            -text => "Add Attribute 1",
                                             -font => $Font{$DISPLAY_SIZE},
-                                            -command => sub { &null_cmd; },
+                                            -command => sub { 
+                                                               # $CURRENT_ITEM->setAttribute('new',""); 
+                                                            },
                                             -bg => $AddButtonBgColor, -fg => $Black,
                                            )->pack( side => 'left');
 
@@ -876,20 +916,9 @@ sub init_xmlNodeCDATA_gui {
 
    my $name = 'XMLNode_CDATA';
    my $subFrame1 = $frame->Frame->pack(side => 'top', expand => 1, fill => 'both');
-   my $subFrame2 = $frame->Frame->pack(side => 'top');
 
    $FRAME{'xmlNode_CDATA'} = $subFrame1;
-
-   my $addbuttonname = $what . '_add' . $name . '_button';
-   $WIDGET{$addbuttonname} = $subFrame2->Button (
-                                                    -text => "Clear CDATA",
-                                                    -font => $Font{$DISPLAY_SIZE},
-                                                    -command => sub { &null_cmd; },
-                                                    -bg => $ClearButtonBgColor, -fg => $Black,
-                                                )->pack( side => 'left');
-
-
-    &show_XMLNode_CDATA(); # populate 
+   &show_XMLNode_CDATA(); # populate 
 }
 
 sub init_notelist_gui {
@@ -1181,6 +1210,83 @@ sub update_ostyle_view {
                         )->pack(side => 'top', expand => 0, fill => 'both');
 
    }
+
+
+}
+
+sub make_textArea_click_widget {
+   my ($text, $frame, $clearname, $setname, $entryname, $getRef, $setRef) = @_;
+
+   my $topframe = $frame->Frame->pack(side => 'top', expand => 1, fill => 'x');
+   my $textframe = $frame->Frame->pack(side => 'top', expand => 1, fill => 'both');
+
+   my $val = "";
+   if (defined $getRef) {
+      $val = &{$getRef};
+      $val = "" unless defined $val;
+   }
+
+   $WIDGET{$clearname} = $topframe->Button (
+                                                    -text => "Clear CDATA",
+                                                    -font => $Font{$DISPLAY_SIZE},
+                                                    -command => sub {
+                                                                       &setTextData($CURRENT_ITEM, "");
+                                             #                          &update_view();
+                                                                       $WIDGET{$entryname}->configure('-state' => 'normal');
+                                                                       $WIDGET{$entryname}->delete('0.0', 'end'); # hope this exists!! 
+                                                                       $WIDGET{$entryname}->configure('-state' => 'disabled');
+                                                                       $WIDGET{$setname}->configure(-state => 'disabled');
+                                                                    },
+                                                    -bg => $ClearButtonBgColor, -fg => $Black,
+                                                )->pack( side => 'left');
+   
+   $WIDGET{$setname} = $topframe->Button (
+                                                    -text => "Set CDATA",
+                                                    -font => $Font{$DISPLAY_SIZE},
+                                                    -state => 'disabled',
+                                                    -command => sub { 
+                                                                       my $data = $WIDGET{$entryname}->get('0.0', 'end');
+                                                                       &setTextData($CURRENT_ITEM, $data) if defined $data;
+                                                                       $WIDGET{$entryname}->configure('-state' => 'disabled');
+                                                                       $WIDGET{$setname}->configure(-state => 'disabled');
+                                                                    },
+                                                    -bg => $ClearButtonBgColor, -fg => $Black,
+                                                )->pack( side => 'left');
+   
+
+   $WIDGET{$entryname} = $textframe->Text(
+                            -bg => $BaseColor,
+                            -fg => $Black,
+                            -font => $Font{$DISPLAY_SIZE},
+                          )->pack(fill => 'both', expand => 1, side => 'left');
+
+   my $yscrollbar = $textframe->Scrollbar(-command => ['yview', $WIDGET{$entryname}])->pack(side => 'right', fill =>'y');
+   $WIDGET{$entryname}->configure(-yscrollcommand => ['set', $yscrollbar]);
+   $WIDGET{$entryname . 'y_scroll'} = $yscrollbar;
+
+   $WIDGET{$entryname}->insert('end', $val);
+   $WIDGET{$entryname}->configure('-state' => 'disabled');
+   
+
+   $WIDGET{$entryname}->bind('<Enter>' => sub {
+                                              if ($WIDGET{$entryname}->cget('-state') eq 'disabled') {
+                                                 $WIDGET{$entryname}->configure( -bg => $EventMouseOverColor);
+                                              }
+                                         });
+
+   $WIDGET{$entryname}->bind('<Leave>' => sub {
+                                             $WIDGET{$entryname}->configure( -bg => $BaseColor);
+#                                             $WIDGET{$entryname}->configure('-state' => 'disabled');
+                                         });
+
+   $WIDGET{$entryname}->bind('<Double-1>' => sub {
+                                             $WIDGET{$entryname}->configure( -bg => $BaseColor);
+                                             $WIDGET{$entryname}->configure('-state' => 'normal');
+                                             $WIDGET{$setname}->configure(-state => 'normal');
+                                             $WIDGET{$entryname}->focus;
+                                         });
+
+
 
 
 }
@@ -1790,16 +1896,6 @@ sub create_file_menu {
 
    $cc_file_output->entryconfigure($menu_file_output_pretty, -menu => $cc_file_output_pretty);
 
-   $WIDGET{'file_pretty_output_true_menu'} = $cc_file_output_pretty->radiobutton(-label => ' True ',
-                                                     -font => $Font{$DISPLAY_SIZE},
-                                                      bg => $BaseColor,
-                                                      -variable => \$PRETTY_XDF_OUTPUT,
-                                                      -value => 1,
-                                                      -command => sub {
-                                                               my $spec = XDF::Specification->getInstance();
-                                                               $spec->setPrettyXDFOutput($PRETTY_XDF_OUTPUT);
-                                                                      },
-                                                                     );
     $WIDGET{'file_pretty_output_false_menu'} = $cc_file_output_pretty->radiobutton(-label => ' False ',
                                                      -font => $Font{$DISPLAY_SIZE},
                                                       bg => $BaseColor,
@@ -1807,6 +1903,17 @@ sub create_file_menu {
                                                       -value => 0,
                                                      -command => sub {
                                                                my $spec = XDF::Specification->getInstance();                                        
+                                                               $spec->setPrettyXDFOutput($PRETTY_XDF_OUTPUT);
+                                                                      },
+                                                                     );
+
+   $WIDGET{'file_pretty_output_true_menu'} = $cc_file_output_pretty->radiobutton(-label => ' True ',
+                                                     -font => $Font{$DISPLAY_SIZE},
+                                                      bg => $BaseColor,
+                                                      -variable => \$PRETTY_XDF_OUTPUT,
+                                                      -value => 1,
+                                                      -command => sub {
+                                                               my $spec = XDF::Specification->getInstance();
                                                                $spec->setPrettyXDFOutput($PRETTY_XDF_OUTPUT);
                                                                       },
                                                                      );
