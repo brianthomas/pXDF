@@ -61,6 +61,7 @@ use vars qw ($AUTOLOAD %field @ISA);
 my $Class_XML_Node_Name = "data";
 my @Class_Attributes = qw (
                              href
+                             checksum
                              compression
                              dimension
                              maxDimensionIndex
@@ -571,6 +572,9 @@ sub getData {
 # Modification History
 #
 # $Log$
+# Revision 1.3  2000/10/16 18:32:22  thomas
+# Added in checksum attribute. (Opps!)
+#
 # Revision 1.2  2000/10/16 17:37:20  thomas
 # Changed over to BaseObject Class from Object Class.
 # Added in History Modification section.
