@@ -85,13 +85,13 @@
       <units>
         <unit>pixel</unit>
       </units>
-      <valueList size="10" step="1" start="0"/>
+      <valueListAlgorithm size="10" step="1" start="0"/>
     </axis>
     <axis name="y pixel number" axisId="y-axis" axisDatatype="integer" size="10">
       <units>
         <unit>pixel</unit>
       </units>
-      <valueList size="10" step="1" start="0"/>
+      <valueListAlgorithm size="10" step="1" start="0"/>
     </axis>
     <dataStyle dataStyleId="readstyle1">
       <fixedWidth>
@@ -149,7 +149,7 @@
       <units>
         <unit>pixel</unit>
       </units>
-      <valueList size="10" step="1" start="0"/>
+      <valueListAlgorithm size="10" step="1" start="0"/>
     </axis>
     <axis name="y" axisId="y-axis-bias" axisDatatype="integer" size="10">
       <units>
@@ -213,13 +213,13 @@
       <units>
         <unit>pixel</unit>
       </units>
-      <valueList start="0" step="1" size="10"/>
+      <valueListAlgorithm start="0" step="1" size="10"/>
     </axis>
     <axis name="y" axisId="y-axis-ff" axisDatatype="integer" size="10">
       <units>
         <unit>pixel</unit>
       </units>
-      <valueList start="0" step="1" size="10"/>
+      <valueListAlgorithm start="0" step="1" size="10"/>
     </axis>
     <dataStyle dataStyleId="readstyle3">
       <fixedWidth>

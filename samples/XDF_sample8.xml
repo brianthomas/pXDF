@@ -24,7 +24,7 @@
       <units>
         <unit>pixel</unit>
       </units>
-      <valueList size="10" step="1" start="0"/>
+      <valueListAlgorithm size="10" step="1" start="0"/>
     </axis>
     <axis name="y" axisId="y" align="y" axisDatatype="integer" size="4">
       <units>
@@ -80,7 +80,7 @@
       <units>
         <unit>pixel</unit>
       </units>
-      <valueList size="10" step="1" start="0"/>
+      <valueListAlgorithm size="10" step="1" start="0"/>
     </axis>
     <axis name="y" axisId="y-axis2" align="y" axisDatatype="integer" size="6">
       <units>

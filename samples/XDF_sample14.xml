@@ -27,7 +27,7 @@
       <units>
         <unit>pixel</unit>
       </units>
-      <valueList size="10" step="1" start="0"/>
+      <valueListAlgorithm size="10" step="1" start="0"/>
     </axis>
     <axis name="y" axisId="y-axis" size="10">
       <units>

@@ -17,7 +17,7 @@
   </parameterGroup>
   <array name="Galaxy Data">
     <fieldAxis axisId="columns" size="8">
-      <field fieldId="gname" name="galaxy name">
+      <field name="galaxy name" fieldId="gname">
         <unitless/>
         <dataFormat>
           <string length="8"/>
@@ -41,7 +41,7 @@
           </dataFormat>
         </field>
       </fieldGroup>
-      <field fieldId="vmag" name="V-band Flux">
+      <field name="V-band Flux" fieldId="vmag">
         <units>
           <unit>magnitude</unit>
         </units>
@@ -58,13 +58,13 @@
         </dataFormat>
         <relation fieldIdRefs="vmag" role="error"/>
       </field>
-      <field fieldId="idNumber" name="CDD ID">
+      <field name="CCD ID" fieldId="idNumber">
         <unitless/>
         <dataFormat>
           <integer width="1"/>
         </dataFormat>
       </field>
-      <field fieldId="enumber" name="A Sci. Number">
+      <field name="A Sci. Number" fieldId="enumber">
         <unitless/>
         <dataFormat>
           <float width="8" precision="3" exponent="2"/>
@@ -80,9 +80,7 @@
     </fieldAxis>
     <axis axisId="rows" axisDatatype="integer" size="3">
       <unitless/>
-      <valueGroup name="rows">
-        <valueList delimiter=" " repeatable="yes">0 1  2</valueList>
-      </valueGroup>
+      <valueList delimiter=" " repeatable="yes">0 1  2</valueList>
     </axis>
 <!-- declare the ordering of how to read this in, assoc. of axis to data -->
     <dataStyle encoding="UTF-8">

@@ -6,7 +6,7 @@
   <!NOTATION xdf PUBLIC "application/xdf">
 ]>
 <XDF name="A sample XDF document" description="This shows how to put any data into XDF using formatted data IO Style.">
-<!-- A little table about 3 nearby galaxies -->
+<!-- test of reading separate  data nodes from external files -->
   <parameterGroup name="Structure Properties">
     <parameter name="date" datatype="string">
       <unitless/>
@@ -104,7 +104,6 @@
         </fixedWidthInstruction>
         <for axisIdRef="rows">
           <for axisIdRef="fields">
-<!-- the "fast" axis -->
             <doInstruction/>
           </for>
         </for>

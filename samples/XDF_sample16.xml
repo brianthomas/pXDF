@@ -18,7 +18,7 @@
           <dataFormat><float width="5" precision="2"/></dataFormat>
           <colAxis name="x" size="10">
              <units><unit>pixel</unit></units>
-          <!--   <valueList size="10" step="1" start="0"/> -->
+          <!--   <valueListAlgorithm size="10" step="1" start="0"/> -->
           </colAxis>
           <rowAxis name="y" size="10">
              <units><unit>pixel</unit></units>
