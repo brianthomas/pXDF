@@ -197,6 +197,7 @@ sub setName {
 }
 
 # /** getDescription
+#   
 #  */
 sub getDescription {
    my ($self) = @_;
@@ -204,6 +205,7 @@ sub getDescription {
 }
 
 # /** setDescription
+#     Set the description attribute. 
 #  */
 sub setDescription {
    my ($self, $value) = @_;
@@ -211,6 +213,7 @@ sub setDescription {
 }
 
 # /** getArrayId
+#   
 # */                 
 sub getArrayId {                   
    my ($self) = @_;
@@ -226,13 +229,14 @@ sub setArrayId {
 }
 
 # /** getAppendTo
+#   
 # */                 
 sub getAppendTo {                   
    my ($self) = @_;
    return $self->{AppendTo};        
 }                               
                                 
-# /** setAppendTo                   
+# /** setAppendTo
 #     Set the appendTo attribute.   
 # */                          
 sub setAppendTo {
@@ -242,6 +246,7 @@ sub setAppendTo {
 
 
 # /** getLessThanValue
+#   
 # */
 sub getLessThanValue {
    my ($self) = @_;
@@ -257,6 +262,7 @@ sub setLessThanValue {
 }
 
 # /** getLessThanOrEqualValue
+#   
 # */
 sub getLessThanOrEqualValue {
    my ($self) = @_;
@@ -271,6 +277,9 @@ sub setLessThanOrEqualValue {
    $self->{LessThanOrEqualValue} = $value;
 }
 
+# /** getGreaterThanValue
+#  
+# */
 sub getGreaterThanValue {
    my ($self) = @_;
    return $self->{GreaterThanValue};
@@ -285,6 +294,7 @@ sub setGreaterThanValue {
 }
 
 # /** getGreaterThanOrEqualValue
+# 
 # */
 sub getGreaterThanOrEqualValue {
    my ($self) = @_;
@@ -300,6 +310,7 @@ sub setGreaterThanOrEqualValue {
 }
 
 # /** getInfiniteValue
+# 
 # */
 sub getInfiniteValue {
    my ($self) = @_;
@@ -315,6 +326,7 @@ sub setInfiniteValue {
 }
 
 # /** getInfiniteNegativeValue
+# 
 # */
 sub getInfiniteNegativeValue {
    my ($self) = @_;
@@ -330,6 +342,7 @@ sub setInfiniteNegativeValue {
 }
 
 # /** getNoDataValue
+# 
 # */
 sub getNoDataValue {
    my ($self) = @_;
@@ -345,6 +358,7 @@ sub setNoDataValue {
 }
 
 # /** getDataCube
+# 
 #  */
 sub getDataCube {
    my ($self) = @_;
@@ -352,6 +366,7 @@ sub getDataCube {
 }
 
 # /** getAxisList
+# 
 #  */
 sub getAxisList {
    my ($self) = @_;
@@ -359,6 +374,7 @@ sub getAxisList {
 }
 
 # /** setAxisList
+# 
 #  */
 sub setAxisList {
    my ($self, $arrayRefValue) = @_;
@@ -368,6 +384,7 @@ sub setAxisList {
 }
 
 # /** getParamList
+# 
 #  */
 sub getParamList {
    my ($self) = @_;
@@ -375,6 +392,7 @@ sub getParamList {
 }
 
 # /** setParamList
+# 
 #  */
 sub setParamList {
    my ($self, $arrayRefValue) = @_;
@@ -384,6 +402,7 @@ sub setParamList {
 }
 
 # /** getNoteList
+# 
 #  */
 sub getNoteList {
    my ($self) = @_;
@@ -391,6 +410,7 @@ sub getNoteList {
 }
 
 # /** setNoteList
+# 
 #  */
 sub setNoteList {
    my ($self, $arrayRefValue) = @_;
@@ -400,6 +420,7 @@ sub setNoteList {
 }
 
 # /** getDataFormat
+# 
 # */
 sub getDataFormat {
    my ($self) = @_;
@@ -426,6 +447,7 @@ sub getNotes {
 }
 
 # /** setNotes
+# 
 # */
 sub setNotes {
    my ($self, $value) = @_;
@@ -433,6 +455,7 @@ sub setNotes {
 }
 
 # /** getUnits
+# 
 # */
 sub getUnits {
    my ($self) = @_;
@@ -440,6 +463,7 @@ sub getUnits {
 }
 
 # /** setUnits
+# 
 # */
 sub setUnits {
    my ($self, $value) = @_;
@@ -463,6 +487,7 @@ sub setFieldAxis {
 }
 
 # /** getFieldAxis
+# 
 # */
 sub getFieldAxis {
   my ($self) = @_;
@@ -873,6 +898,8 @@ XDF::Array - Perl Class for Array
 XDF::Array inherits class and attribute methods of L<XDF::GenericObject>, L<XDF::BaseObject>.
 
 
+=head1 METHODS
+
 =over 4
 
 =head2 CLASS Methods
@@ -891,245 +918,246 @@ This method returns a list reference containing the namesof the class attributes
 
 =back
 
-=head2 OTHER Methods
+=head2 INSTANCE Methods
 
+The following instance methods are defined for XDF::Array.
 =over 4
 
 =item getName (EMPTY)
 
-
+ 
 
 =item setName ($value)
 
-Set the name attribute. 
+Set the name attribute.  
 
 =item getDescription (EMPTY)
 
-
+ 
 
 =item setDescription ($value)
 
-
+Set the description attribute.  
 
 =item getArrayId (EMPTY)
 
-
+ 
 
 =item setArrayId ($value)
 
-Set the arrayId attribute.   
+Set the arrayId attribute.    
 
 =item getAppendTo (EMPTY)
 
-
+ 
 
 =item setAppendTo ($value)
 
-Set the appendTo attribute.   
+Set the appendTo attribute.    
 
 =item getLessThanValue (EMPTY)
 
-
+ 
 
 =item setLessThanValue ($value)
 
-Set the lessThanValue attribute. 
+Set the lessThanValue attribute.  
 
 =item getLessThanOrEqualValue (EMPTY)
 
-
+ 
 
 =item setLessThanOrEqualValue ($value)
 
-Set the lessThanOrEqualValue attribute. 
+Set the lessThanOrEqualValue attribute.  
 
 =item getGreaterThanValue (EMPTY)
 
-
+ 
 
 =item setGreaterThanValue ($value)
 
-Set the greaterThanValue attribute. 
+Set the greaterThanValue attribute.  
 
 =item getGreaterThanOrEqualValue (EMPTY)
 
-
+ 
 
 =item setGreaterThanOrEqualValue ($value)
 
-Set the greaterThanOrEqualValue attribute. 
+Set the greaterThanOrEqualValue attribute.  
 
 =item getInfiniteValue (EMPTY)
 
-
+ 
 
 =item setInfiniteValue ($value)
 
-Set the infiniteValue attribute. 
+Set the infiniteValue attribute.  
 
 =item getInfiniteNegativeValue (EMPTY)
 
-
+ 
 
 =item setInfiniteNegativeValue ($value)
 
-Set the infiniteNegativeValue attribute. 
+Set the infiniteNegativeValue attribute.  
 
 =item getNoDataValue (EMPTY)
 
-
+ 
 
 =item setNoDataValue ($value)
 
-Set the noDataValue attribute. 
+Set the noDataValue attribute.  
 
 =item getDataCube (EMPTY)
 
-
+ 
 
 =item getAxisList (EMPTY)
 
-
+ 
 
 =item setAxisList ($arrayRefValue)
 
-
+ 
 
 =item getParamList (EMPTY)
 
-
+ 
 
 =item setParamList ($arrayRefValue)
 
-
+ 
 
 =item getNoteList (EMPTY)
 
-
+ 
 
 =item setNoteList ($arrayRefValue)
 
-
+ 
 
 =item getDataFormat (EMPTY)
 
-
+ 
 
 =item setDataFormat ($value)
 
-Sets the data format *type* for this array. Takes a SCALAR object referenceas its argument. Allowed objects to pass to this method include L<XDF::BinaryIntegerDataFormat>, L<XDF::BinaryFloatDataFormat>, L<XDF::FloatDataFormat>, L<XDF::IntegerDataFormat>, or L<XDF::StringDataFormat>. 
+Sets the data format *type* for this array. Takes a SCALAR object referenceas its argument. Allowed objects to pass to this method include L<XDF::BinaryIntegerDataFormat>, L<XDF::BinaryFloatDataFormat>, L<XDF::FloatDataFormat>, L<XDF::IntegerDataFormat>, or L<XDF::StringDataFormat>.  
 
 =item getNotes ($what)
 
-Returns the notes object held by this object. 
+Returns the notes object held by this object.  
 
 =item setNotes ($value)
 
-
+ 
 
 =item getUnits (EMPTY)
 
-
+ 
 
 =item setUnits ($value)
 
-
+ 
 
 =item setFieldAxis ($value)
 
-Set the fieldAxis in this array. This will remove an existing field axis if undef is passed. 
+Set the fieldAxis in this array. This will remove an existing field axis if undef is passed.  
 
 =item getFieldAxis (EMPTY)
 
-
+ 
 
 =item setXMLDataIOStyle ($val)
 
-Set the XMLDataIOStyle object for this array. 
+Set the XMLDataIOStyle object for this array.  
 
 =item getXMLDataIOStyle (EMPTY)
 
-Get the XMLDataIOStyle object for this array. Returns a SCALAR (OBJECT REF) holding an instance derived from the abstract class L<XDF::DataIOStyle>. 
+Get the XMLDataIOStyle object for this array. Returns a SCALAR (OBJECT REF) holding an instance derived from the abstract class L<XDF::DataIOStyle>.  
 
 =item getXMLAttributes (EMPTY)
 
-This method returns the XMLAttributes of this class. 
+This method returns the XMLAttributes of this class.  
 
 =item getDimension (EMPTY)
 
-Get/set the dimension of the L<XDF::DataCube> held within this Array. 
+Get/set the dimension of the L<XDF::DataCube> held within this Array.  
 
 =item getDataFormatList (EMPTY)
 
-Get the dataFormatList for this array. Returns an ARRAY of dataFormat objects. 
+Get the dataFormatList for this array. Returns an ARRAY of dataFormat objects.  
 
 =item createLocator (EMPTY)
 
-Create one instance of an L<XDF::Locator> object for this array. 
+Create one instance of an L<XDF::Locator> object for this array.  
 
 =item addParamGroup ($objectRefOrAttribHashRef)
 
-Insert an XDF::ParameterGroup object into this object. This method takes either a reference to an attribute hash ORobject reference to an existing XDF::ParameterGroup asits argument. Attributes in the attribute hash reference shouldcorrespond to attributes of the L<XDF::ParameterGroup> object. The attribute/value pairs in the attribute hash reference areused to initialize the new XDF::ParameterGroup object. RETURNS : an XDF::ParameterGroup object reference on success, undef on failure. 
+Insert an XDF::ParameterGroup object into this object. This method takes either a reference to an attribute hash ORobject reference to an existing XDF::ParameterGroup asits argument. Attributes in the attribute hash reference shouldcorrespond to attributes of the L<XDF::ParameterGroup> object. The attribute/value pairs in the attribute hash reference areused to initialize the new XDF::ParameterGroup object. RETURNS : an XDF::ParameterGroup object reference on success, undef on failure.  
 
 =item removeParamGroup ($hashKey)
 
-Remove an XDF::ParameterGroup object from the hash table of XDF::ParameterGroups held within this object. This method takes the hash key its argument. RETURNS : 1 on success, undef on failure. 
+Remove an XDF::ParameterGroup object from the hash table of XDF::ParameterGroups held within this object. This method takes the hash key its argument. RETURNS : 1 on success, undef on failure.  
 
 =item addAxis ($attribHashRefOrObjectRef)
 
-Insert an XDF::Axis object into this object. This method takes a reference to an attribute hash ORobject reference to an existing XDF::Axis asits argument. Attributes in the attribute hash reference shouldcorrespond to attributes of the L<XDF::Axis> object. The attribute/value pairs in the attribute hash reference areused to initialize the new XDF::Axis object. RETURNS : an XDF::Axis object reference on success, undef on failure. 
+Insert an XDF::Axis object into this object. This method takes a reference to an attribute hash ORobject reference to an existing XDF::Axis asits argument. Attributes in the attribute hash reference shouldcorrespond to attributes of the L<XDF::Axis> object. The attribute/value pairs in the attribute hash reference areused to initialize the new XDF::Axis object. RETURNS : an XDF::Axis object reference on success, undef on failure.  
 
 =item removeAxis ($indexOrObjectRef)
 
-Remove an XDF::Axis object from the list of XDF::Axesheld within this object. This method takes either the list index number or an object reference as its argument. RETURNS : 1 on success, undef on failure. 
+Remove an XDF::Axis object from the list of XDF::Axesheld within this object. This method takes either the list index number or an object reference as its argument. RETURNS : 1 on success, undef on failure.  
 
 =item addUnit (EMPTY)
 
-Insert an XDF::Unit object into the L<XDF::Units> object (e.g. $obj->units)held in this object. This method takes either a reference to an attribute hash ORobject reference to an existing XDF::Unit asits argument. Attributes in the attribute hash reference shouldcorrespond to attributes of the L<XDF::Unit> object. The attribute/value pairs in the attribute hash reference areused to initialize the new XDF::Unit object. RETURNS : an XDF::Unit object if successfull, undef if not. 
+Insert an XDF::Unit object into the L<XDF::Units> object (e.g. $obj->units)held in this object. This method takes either a reference to an attribute hash ORobject reference to an existing XDF::Unit asits argument. Attributes in the attribute hash reference shouldcorrespond to attributes of the L<XDF::Unit> object. The attribute/value pairs in the attribute hash reference areused to initialize the new XDF::Unit object. RETURNS : an XDF::Unit object if successfull, undef if not.  
 
 =item removeUnit ($indexOrObjectRef)
 
-Remove an XDF::Unit object from the list of XDF::Units held inthe array units reference object. This method takes either the list index number or an object reference as its argument. RETURNS : 1 on success, undef on failure. 
+Remove an XDF::Unit object from the list of XDF::Units held inthe array units reference object. This method takes either the list index number or an object reference as its argument. RETURNS : 1 on success, undef on failure.  
 
 =item addParameter ($attribHashReference)
 
-Insert an XDF::Parameter object into this object. This method may optionally take a reference to an attribute hash asits argument. Attributes in the attribute hash shouldcorrespond to attributes of the L<XDF::Parameter> object. The attribute/value pairs in the attribute hash reference areused to initialize the new XDF::Parameter object. RETURNS : an XDF::Parameter object reference on success, undef on failure. 
+Insert an XDF::Parameter object into this object. This method may optionally take a reference to an attribute hash asits argument. Attributes in the attribute hash shouldcorrespond to attributes of the L<XDF::Parameter> object. The attribute/value pairs in the attribute hash reference areused to initialize the new XDF::Parameter object. RETURNS : an XDF::Parameter object reference on success, undef on failure.  
 
 =item removeParameter ($indexOrObjectRef)
 
-Remove an XDF::Parameter object from the list of XDF::Parametersheld within this object. This method takes either the list index number or an object reference as its argument. RETURNS : 1 on success, undef on failure. 
+Remove an XDF::Parameter object from the list of XDF::Parametersheld within this object. This method takes either the list index number or an object reference as its argument. RETURNS : 1 on success, undef on failure.  
 
 =item addNote ($info)
 
-Insert an XDF::Note object into the XDF::Notes object held by this object. This method may optionally take a reference to an attribute hash asits argument. Attributes in the attribute hash shouldcorrespond to attributes of the L<XDF::Note> object. The attribute/value pairs in the attribute hash reference areused to initialize the new XDF::Note object. RETURNS : an XDF::Note object reference on success, undef on failure. 
+Insert an XDF::Note object into the XDF::Notes object held by this object. This method may optionally take a reference to an attribute hash asits argument. Attributes in the attribute hash shouldcorrespond to attributes of the L<XDF::Note> object. The attribute/value pairs in the attribute hash reference areused to initialize the new XDF::Note object. RETURNS : an XDF::Note object reference on success, undef on failure.  
 
 =item removeNote ($what)
 
-Removes an XDF::Note object from the list of XDF::Note objectsheld within the XDF::Notes object of this object. This method takes either the list index number or an object reference as its argument. RETURNS : 1 on success, undef on failure. 
+Removes an XDF::Note object from the list of XDF::Note objectsheld within the XDF::Notes object of this object. This method takes either the list index number or an object reference as its argument. RETURNS : 1 on success, undef on failure.  
 
 =item addData ($dataValue, $locator)
 
-Append the SCALAR value onto the requested datacell (via L<XDF::DataCube> LOCATOR REF). 
+Append the SCALAR value onto the requested datacell (via L<XDF::DataCube> LOCATOR REF).  
 
 =item setData ($dataValue, $locator)
 
-Set the SCALAR value of the requested datacell (via L<XDF::DataCube> LOCATOR REF). Overwrites existing datacell value if any. 
+Set the SCALAR value of the requested datacell (via L<XDF::DataCube> LOCATOR REF). Overwrites existing datacell value if any.  
 
 =item removeData ($data, $locator)
 
-Remove the requested data from the indicated datacell (via L<XDF::DataCube> LOCATOR REF) in the XDF::DataCube held in this Array. B<NOT CURRENTLY IMPLEMENTED>. 
+Remove the requested data from the indicated datacell (via L<XDF::DataCube> LOCATOR REF) in the XDF::DataCube held in this Array. B<NOT CURRENTLY IMPLEMENTED>.  
 
 =item getData ($locator)
 
-Retrieve the SCALAR value of the requested datacell (via L<XDF::DataCube> LOCATOR REF). 
+Retrieve the SCALAR value of the requested datacell (via L<XDF::DataCube> LOCATOR REF).  
 
 =item addFieldAxis ($attribHashRefOrObjectRef)
 
-A convenience method (same as $Array->setFieldAxis($fieldAxisObj)). Changes the L<XDF::FieldAxis> object in this Array to the indicated one. 
+A convenience method (same as $Array->setFieldAxis($fieldAxisObj)). Changes the L<XDF::FieldAxis> object in this Array to the indicated one.  
 
 =item removeFieldAxis (EMPTY)
 
-Removes the L<XDF::FieldAxis> object in this Array. 
+Removes the L<XDF::FieldAxis> object in this Array.  
 
 =back
 
@@ -1143,7 +1171,7 @@ A change in the value of these attributes will change the functioning of ALL ins
 =over 4
 
 The following class attribute methods are inherited from L<XDF::BaseObject>:
-B<Pretty_XDF_Output>, B<Pretty_XDF_Output_Indentation>, B<DefaultDataArraySize>.
+B<Pretty_XDF_Output>, B<Pretty_XDF_Output_Indentation>, B<DefaultDataArraySize>. 
 
 =back
 
@@ -1151,14 +1179,14 @@ B<Pretty_XDF_Output>, B<Pretty_XDF_Output_Indentation>, B<DefaultDataArraySize>.
 
 =over 4
 
-=head2 INHERITED Other Methods
+=head2 INHERITED INSTANCE Methods
 
 
 
 =over 4
 
 XDF::Array inherits the following instance methods of L<XDF::GenericObject>:
-B<new>, B<clone>, B<update>.
+B<new>, B<clone>, B<update>. 
 
 =back
 
@@ -1167,15 +1195,13 @@ B<new>, B<clone>, B<update>.
 =over 4
 
 XDF::Array inherits the following instance methods of L<XDF::BaseObject>:
-B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLAttributes>, B<setXMLNotationHash>, B<toXMLFileHandle>, B<toXMLFile>.
-
-=back
+B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLAttributes>, B<setXMLNotationHash>, B<toXMLFileHandle>, B<toXMLFile>. 
 
 =back
 
 =head1 SEE ALSO
 
-L<XDF::BaseObject>, L<XDF::Axis>, L<XDF::DataCube>, L<XDF::DataFormat>, L<XDF::FieldAxis>, L<XDF::Locator>, L<XDF::Notes>, L<XDF::Parameter>, L<XDF::ParameterGroup>, L<XDF::TaggedXMLDataIOStyle>, L<XDF::Units>
+L<XDF::BaseObject>, L<XDF::Axis>, L<XDF::DataCube>, L<XDF::DataFormat>, L<XDF::FieldAxis>, L<XDF::Locator>, L<XDF::Notes>, L<XDF::Parameter>, L<XDF::ParameterGroup>, L<XDF::TaggedXMLDataIOStyle>, L<XDF::Units> 
 
 =back
 
@@ -1184,6 +1210,6 @@ L<XDF::BaseObject>, L<XDF::Axis>, L<XDF::DataCube>, L<XDF::DataFormat>, L<XDF::F
     Brian Thomas  (thomas@adc.gsfc.nasa.gov)
     Astronomical Data Center <http://adc.gsfc.nasa.gov>
     NASA/Goddard Space Flight Center
-
+ 
 
 =cut
