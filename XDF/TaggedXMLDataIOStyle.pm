@@ -89,8 +89,13 @@ sub setAxisTag {
   }
 
   # insert in hash table, return tag value
-  return %{$self->{_tagHash}}->{"$axisId"} = $tag;
+  return %{$self->{_tagHash}}->{$axisId} = $tag;
 
+}
+
+sub getAxisTag {
+  my ($self, $axisId ) = @_;
+  return %{$self->{_tagHash}}->{$axisId};
 }
 
 # /** getXMLDataIOStyleTags
@@ -100,13 +105,13 @@ sub getAxisTags {
   my ($self) = @_;
 
   my @tags;
-  my $counter = $#{$self->{_parentArray}->getAxisList()};
+#  my $counter = $#{$self->{_parentArray}->getAxisList()};
   foreach my $axisObj (@{$self->{_parentArray}->getAxisList()}) {
     my $axisId = $axisObj->getAxisId();
-    my $tag = 'd' . $counter--; # the default 
+#    my $tag = 'd' . $counter--; # the default 
     # should it exist, we use whats in the tag hash.
     # otherwize we go w/ the default (as assigned above)
-    $tag = %{$self->{_tagHash}}->{$axisId} if exists %{$self->{_tagHash}}->{$axisId};
+    $tag = %{$self->{_tagHash}}->{$axisId}; # if exists %{$self->{_tagHash}}->{$axisId};
     push @tags, $tag;
   }
   return @tags;
@@ -182,6 +187,13 @@ sub _init {
   $self->SUPER::_init(@_);
   $self->{_tagHash} = {};
 
+  my $counter = $#{$self->{_parentArray}->getAxisList()};
+  foreach my $axisObj (@{$self->{_parentArray}->getAxisList()}) {
+    my $axisId = $axisObj->getAxisId();
+    my $tag = 'd' . $counter--; # the default 
+    %{$self->{_tagHash}}->{$axisId} = $tag;
+  }
+
   return $self;
 
 }
@@ -199,6 +211,10 @@ sub _removeAxisTag {
 # Modification History
 #
 # $Log$
+# Revision 1.6  2001/03/02 19:59:29  thomas
+# added getAxisTag method. fixed init. need to consider when axis is added
+# in the array.
+#
 # Revision 1.5  2000/12/15 22:11:59  thomas
 # Regenerated perlDoc section in files. -b.t.
 #
