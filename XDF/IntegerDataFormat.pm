@@ -188,7 +188,7 @@ sub _init {
 
   $self->SUPER::_init();
 
-  $self->{width} = 0;
+  $self->{width} = 1;
   $self->{type} = $Integer_Type_Decimal;
 
   # adds to ordered list of XML attributes
