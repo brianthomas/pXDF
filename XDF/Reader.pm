@@ -1141,11 +1141,21 @@ sub _data_node_end {
 
   # we stopped reading datanode, lower count by one
   $self->{dataNodeLevel}--;
-
+  
   # we might still be nested within a data node
   # if so, return now to accumulate more data within the DATABLOCK
   return unless $self->{dataNodeLevel} == 0;
+  
+  # now read in untagged data (both delimited/formmatted styles) 
+  # from the $self->{dataBlock}
 
+  # QUICK CHECK: this prevents us from re-reading Href data again 
+  # and re-setting the write/readIO order amonsgt other bad things 
+  # we could do.
+  # ALSO, it prevents us from reading in tagged data sections (already
+  # taken care of earlier)
+  return unless $self->{dataBlock};
+  
   # trim down the datablock, IF these are defined still
   my $startByte = $self->{currentArray}->getDataCube->getStartByte();
   my $endByte = $self->{currentArray}->getDataCube->getEndByte();
@@ -1165,116 +1175,46 @@ sub _data_node_end {
 
   }
 
-  # now read in untagged data (both delimited/formmatted styles) 
-  # from the $self->{dataBlock}
-
   # Note: unfortunately we are reduced to using regex style matching
   # instead of a buffer read in formatted reads. Come back and
   # improve this later if possible.
 
   my $formatObj = $self->{currentArray}->getXMLDataIOStyle();
 
-  if ( ref($formatObj) eq 'XDF::DelimitedXMLDataIOStyle' or
-       ref($formatObj) eq 'XDF::FormattedXMLDataIOStyle' ) {
+#  my $isDelimitedIOStyle = ref($formatObj) eq 'XDF::DelimitedXMLDataIOStyle' ? 1 : 0;
+  my $isFormattedIOStyle = ref($formatObj) eq 'XDF::FormattedXMLDataIOStyle' ? 1 : 0;
 
-    my $regex; my $template; my $recordSize;
-    my $data_has_special_integers = &_arrayHasSpecialIntegers($self->{currentArray});
-    my $data_has_binary_values = &_arrayHasBinaryData($self->{currentArray});
-    my $endian = $formatObj->getEndian();
+  # gather general information
+  my $data_has_special_integers = &_arrayHasSpecialIntegers($self->{currentArray});
+  my $data_has_binary_values = &_arrayHasBinaryData($self->{currentArray});
+  my $locator = $self->{currentArray}->createLocator();
 
-    # set up appropriate instructions for reading
-    if ( ref($formatObj) eq 'XDF::FormattedXMLDataIOStyle' ) {
-      $template  = $formatObj->_templateNotation(1);
-      $recordSize = $formatObj->numOfBytes();
-    } elsif(ref($formatObj) eq 'XDF::DelimitedXMLDataIOStyle') {
-      $regex = $formatObj->_regexNotation();
-      if ($data_has_binary_values) {
-         die "Cannot read binary data within a delimited array, aborting read.\n";
-      }
-    }
+  # this is done because we read these in the reverse order in which
+  # the API demands the axes, e.g. first axis is the 'fast' one, whereas
+  # reading the XDF node by node we get the fastest last in the array.
+  @{$self->{readAxisOrderList}} = reverse @{$self->{readAxisOrderList}};
 
-    my $locator = $self->{currentArray}->createLocator();
+  # need to store this information to make operate properly
+  # when we have read nodes w/ idRef stuff going on.
+  my @temparray = @{$self->{readAxisOrderList}};
+  $self->{readAxisOrderHash}->{$self->{currentArray}} = \@temparray;
+  $locator->setIterationOrder(\@{$self->{readAxisOrderList}});
+  $formatObj->setWriteAxisOrderList(\@{$self->{readAxisOrderList}});
 
-    # this is done because we read these in the reverse order in which
-    # the API demands the axes, e.g. first axis is the 'fast' one, whereas
-    # reading the XDF node by node we get the fastest last in the array.
-    @{$self->{readAxisOrderList}} = reverse @{$self->{readAxisOrderList}}; 
+  &_print_extreme_debug("locator[$locator] has axisOrder:[",join ',', @{$self->{readAxisOrderList}},"]\n");
 
-    # need to store this information to make operate properly
-    # when we have read nodes w/ idRef stuff going on.
-    my @temparray = @{$self->{readAxisOrderList}};
-    $self->{readAxisOrderHash}->{$self->{currentArray}} = \@temparray;
-
-    $locator->setIterationOrder(\@{$self->{readAxisOrderList}});
-    $formatObj->setWriteAxisOrderList(\@{$self->{readAxisOrderList}});
-
-    #foreach my $axisObj (@{$self->{readAxisOrderList}}) { print STDERR "axisObj: ",$axisObj->getAxisId,"\n"; }
-    my @dataFormat = $self->{currentArray}->getDataFormatList;
-
-    &_print_extreme_debug("locator[$locator] has axisOrder:[",join ',', @{$self->{readAxisOrderList}},"]\n");
-
-    while ( $self->{dataBlock} ) {
-
-      my @data;
-
-      if ( ref($formatObj) eq 'XDF::FormattedXMLDataIOStyle' ) {
-
-        $self->{dataBlock} =~ s/(.{$recordSize})//s; 
-        die "Read Error: short read on datablock, improper specified format? (expected size=$recordSize)\n" unless $1; 
-
-        @data = unpack($template, $1);
-
-       # In part because we are using a regex mechanism below,
-       # it doesnt make sense to store binary data in delimited manner,
-       # so we only see it as a fixed Formatted case.
-       # this may have to be re-evaluated in the future. -b.t.
-        @data = &_deal_with_binary_data(\@dataFormat, \@data, $endian)
-           if $data_has_binary_values;
-
-      } elsif(ref($formatObj) eq 'XDF::DelimitedXMLDataIOStyle') {
-
-        $_ = $self->{dataBlock}; 
-        @data = m/$regex/;
-
-#print STDERR "Got $#data data from regex:$regex data[0]:[",$data[0],"]\n";
-        # remove data from data 'resevoir' (yes, there is probably a one-liner
-        # for these two statements, but I cant think of it :P
-        $self->{dataBlock} =~ s/$regex//;
-
-      } else {
-        die "Unknown Untagged read format: ",ref($formatObj),", exiting.\n";
-      }
-
-      # if we got data, fire it into the array
-      if ($#data > -1) {
-
-        @data = &_deal_with_special_integer_data(\@dataFormat, \@data)
-           if $data_has_special_integers;
-
-        for (@data) {
-#          &_printDebug("ADDING DATA [$locator]($self->{currentArray}) : [".$_."]\n");
-#          &_printDebug("ADDING DATA : [".$_."]\n");
-          $self->{currentArray}->setData($locator, $_);
-          $locator->next();
-        }
-
-      } else {
-
-        my $line = join ' ', @data; 
-        $self->_printWarning( "Unable to get data! Regex:[$regex] failed on Line: [$line]\n");
-        print STDERR "BLOCK: ",$self->{dataBlock},"\n";
-
-      }
-
-      last unless $self->{dataBlock} !~ m/^\s*$/;
-
-    }
-
-  } else {
-
-    # Tagged case: do nothing
-
+  if ( $isFormattedIOStyle )
+  {
+    $self->_read_formatted_data_from_string($locator, $formatObj, $data_has_special_integers, $data_has_binary_values);
+  } 
+  else 
+  {
+    die "Cannot read binary data within a delimited array, aborting read.\n"
+        if ($data_has_binary_values);
+    $self->_read_delimitted_data($locator, $formatObj, $data_has_special_integers);
   }
+
+  return;
 
 }
 
@@ -1326,28 +1266,7 @@ sub _data_node_start {
        
      if (defined (my $href = $self->{currentArray}->getDataCube()->getHref())) {
         # add to the datablock
-        my $startByte = $self->{currentArray}->getDataCube->getStartByte();
-        my $endByte = $self->{currentArray}->getDataCube->getEndByte();
-        my $text = $self->_getHrefData($startByte, $endByte, $href);
-
-        if ($startByte || $endByte) {
-     
-          if ($endByte) {
-             my $length = $endByte - $startByte;
-             $text = substr $text, $startByte, $length;
-          } else {
-             $text = substr $text, $startByte;
-          }
-     
-          # only needed by the read part, we will only write relevant bytes on output
-          $self->{currentArray}->getDataCube->setStartByte(0);
-          $self->{currentArray}->getDataCube->setEndByte(undef);
-     
-        }
-
-        # now, append onto the datablock
-        $self->{dataBlock} .= $text;
-
+        $self->_getHrefData($href);
      }
 
      # this declares we are now reading data, 
@@ -3396,10 +3315,9 @@ sub _getForceSetXMLHeaderStuffOnXDFObject {
 # only deals with files right now. Bleah.
 # we need some form of entityResolving in Perl to do this right.
 sub _getHrefData {
-   my ($self, $startByte, $endByte, $href) = @_;
+   my ($self, $href) = @_;
 
    my $file;
-   my $text; 
 
    if (defined $href->getSystemId) {
        $file = $href->getBase() if $href->getBase();
@@ -3412,25 +3330,239 @@ sub _getHrefData {
           $openstatement = " $compression_prog $openstatement|";
        }
 
-       undef $/; #input rec separator, once newline, now nothing.
-                 # will cause whole file to be read in one whack 
-       #my $can_open = open(DATAFILE, $file);
        my $can_open = open(DATAFILE, $openstatement);
        if (!$can_open) {
           $self->_printError("Cant open $file, aborting read of this data file.\n");
-          return "";
+          return;
        }
+
+       my $startByte = $self->{currentArray}->getDataCube->getStartByte();
+       my $endByte = $self->{currentArray}->getDataCube->getEndByte();
+        
        # binmode(DATAFILE); # needed ?
-       $text = <DATAFILE>;
+       my $formatObj = $self->{currentArray}->getXMLDataIOStyle();
+       if (ref ($formatObj) eq 'XDF::FormattedXMLDataIOStyle') {
+          $self->_read_formatted_data_from_fileHandle(\*DATAFILE, $startByte, $endByte, $formatObj, $href->getName());
+       } else {
+
+          undef $/; #input rec separator, once newline, now nothing.
+                    # will cause whole file to be read in one whack 
+          my $text = <DATAFILE>;
+
+          if (defined $text) {
+            if ($startByte || $endByte) {
+              if ($endByte) {
+                 my $length = $endByte - $startByte;
+                 $text = substr $text, $startByte, $length;
+              } else {
+                 $text = substr $text, $startByte;
+              }
+            }
+  
+            # now, append onto the datablock
+            $self->{dataBlock} .= $text;
+          }
+       }
+
        close DATAFILE;
+
+       # only needed by the read part, we will only write relevant bytes on output
+       if ($startByte || $endByte) {
+          $self->{currentArray}->getDataCube->setStartByte(0);
+          $self->{currentArray}->getDataCube->setEndByte(undef);
+       }
+
 
    } else {
       die "XDF::Reader can't read Href data, SYSID is not defined!\n";
    }
 
-   return $text;
-} 
+}
 
+# a faster, more modern routine
+sub _read_formatted_data_from_fileHandle {
+  my ($self, $fileHandle, $startByte, $endByte, $formatObj, $externalName) = @_;
+
+  $endByte = -1 unless defined $endByte;
+
+  # gather general information
+  my $data_has_special_integers = &_arrayHasSpecialIntegers($self->{currentArray});
+  my $data_has_binary_values = &_arrayHasBinaryData($self->{currentArray});
+  my $locator = $self->{currentArray}->createLocator();
+
+  # this is done because we read these in the reverse order in which
+  # the API demands the axes, e.g. first axis is the 'fast' one, whereas
+  # reading the XDF node by node we get the fastest last in the array.
+  @{$self->{readAxisOrderList}} = reverse @{$self->{readAxisOrderList}};
+
+  # need to store this information to make operate properly
+  # when we have read nodes w/ idRef stuff going on.
+  my @temparray = @{$self->{readAxisOrderList}};
+  $self->{readAxisOrderHash}->{$self->{currentArray}} = \@temparray;
+  $locator->setIterationOrder(\@{$self->{readAxisOrderList}});
+  $formatObj->setWriteAxisOrderList(\@{$self->{readAxisOrderList}});
+
+  &_print_extreme_debug("locator[$locator] has axisOrder:[",join ',', @{$self->{readAxisOrderList}},"]\n");
+
+  my $endian = $formatObj->getEndian();
+  my $template  = $formatObj->_templateNotation(1);
+  my $recordSize = $formatObj->numOfBytes();
+  my @dataFormat = $self->{currentArray}->getDataFormatList;
+
+  my @data = ();
+  my @new_data = ();
+  my $offset = $startByte;
+  my $buf;
+  my $total_bytes_read = 0;
+
+  while ( 1 ) {
+
+      # pick off a record
+      seek ($fileHandle, $offset, 0);
+      my $nrof_bytes_read = read ($fileHandle, $buf, $recordSize);
+
+      last unless $nrof_bytes_read > 0;
+
+      $total_bytes_read += $nrof_bytes_read;
+      last if ($endByte > 0 && $total_bytes_read > $endByte);
+
+      # unpack it. We catch errors here and pass on to user what actually happened
+      if (!eval { @new_data = unpack($template, $buf); }) {
+         my $msg = "Fatal Error: bad formatted read from external resource:[".$externalName."] for array:[".$self->{currentArray}->getName()."]\n";
+         $msg .= "Perl Error:[$@]\n";
+         $msg .= "last data unpack template:[$template]\n";
+         $msg .= "last data buffer (actual bytes:".length ($buf).") (expected bytes:$recordSize) chars:[$buf]\n";
+         die $msg;
+      }
+
+      # In part because we are using a regex mechanism below,
+      # it doesnt make sense to store binary data in delimited manner,
+      # so we only see it as a fixed Formatted case.
+      # this may have to be re-evaluated in the future. -b.t.
+      @new_data = &_deal_with_binary_data(\@dataFormat, \@new_data, $endian)
+         if $data_has_binary_values;
+
+      push @data, @new_data;
+      $offset += $nrof_bytes_read;
+      @new_data = ();
+
+
+   }
+
+   # if we got data, fire it into the array
+   if ($#data > -1) {
+
+        @data = &_deal_with_special_integer_data(\@dataFormat, \@data)
+           if $data_has_special_integers;
+
+        $self->{currentArray}->setRecords($locator, \@data);
+
+#        for (@data) { $self->{currentArray}->setData($locator, $_); $locator->next(); }
+
+   } else {
+#        my $line = join ' ', @data;
+#        $self->_printWarning( "Unable to get data! Template:[$template] failed on Line: [$line]\n");
+   }
+
+}
+
+# a slow, outdated routine
+# we should use read/seek on string, if we could
+sub _read_formatted_data_from_string {
+  my ($self, $locator, $formatObj, $data_has_special_integers,
+      $data_has_binary_values) = @_;
+
+  my $endian = $formatObj->getEndian();
+  my $template  = $formatObj->_templateNotation(1);
+  my $recordSize = $formatObj->numOfBytes();
+  my @dataFormat = $self->{currentArray}->getDataFormatList;
+
+  while ( $self->{dataBlock} ) {
+
+      $self->{dataBlock} =~ s/(.{$recordSize})//s;
+
+      # pick off a record
+      die "Read Error: short read on datablock, improper specified format? (expected size=$recordSize)\n" unless $1;
+
+      my @data = unpack($template, $1);
+
+      # In part because we are using a regex mechanism below,
+      # it doesnt make sense to store binary data in delimited manner,
+      # so we only see it as a fixed Formatted case.
+      # this may have to be re-evaluated in the future. -b.t.
+      @data = &_deal_with_binary_data(\@dataFormat, \@data, $endian)
+         if $data_has_binary_values;
+
+      # if we got data, fire it into the array
+      if ($#data > -1) {
+
+        @data = &_deal_with_special_integer_data(\@dataFormat, \@data)
+           if $data_has_special_integers;
+
+        for (@data) {
+#          &_printDebug("ADDING DATA [$locator]($self->{currentArray}) : [".$_."]\n");
+    #      &_printDebug("ADDING DATA : [".$_."]\n");
+          $self->{currentArray}->setData($locator, $_);
+          $locator->next();
+        }
+
+      } else {
+
+        my $line = join ' ', @data;
+        $self->_printWarning( "Unable to get data! Template:[$template] failed on Line: [$line]\n");
+        print STDERR "BLOCK: ",$self->{dataBlock},"\n";
+
+      }
+
+      # slow?
+      last unless $self->{dataBlock} !~ m/^\s*$/;
+
+    }
+
+}
+
+# a slow, outdated routine
+sub _read_delimitted_data {
+  my ($self, $locator, $formatObj, $data_has_special_integers) = @_;
+
+  my $regex = $formatObj->_regexNotation();
+  my @dataFormat = $self->{currentArray}->getDataFormatList;
+  while ( $self->{dataBlock} ) {
+
+      $_ = $self->{dataBlock};
+      my @data = m/$regex/;
+
+      # remove data from data 'resevoir' (yes, there is probably a one-liner
+      # for these two statements, but I cant think of it :P
+      $self->{dataBlock} =~ s/$regex//;
+
+      # if we got data, fire it into the array
+      if ($#data > -1) {
+
+        @data = &_deal_with_special_integer_data(\@dataFormat, \@data)
+           if $data_has_special_integers;
+
+        for (@data) {
+#          &_printDebug("ADDING DATA [$locator]($self->{currentArray}) : [".$_."]\n");
+#          &_printDebug("ADDING DATA : [".$_."]\n");
+          $self->{currentArray}->setData($locator, $_);
+          $locator->next();
+        }
+
+      } else {
+
+        my $line = join ' ', @data;
+        $self->_printWarning( "Unable to get data! Regex:[$regex] failed on Line: [$line]\n");
+        print STDERR "BLOCK: ",$self->{dataBlock},"\n";
+
+      }
+
+      # slow?
+      last unless $self->{dataBlock} !~ m/^\s*$/;
+
+    }
+
+}
 
 # this code copied almost verbatim from the original Java
 sub _appendArrayToArray {
@@ -3587,6 +3719,7 @@ sub _appendArrayToArray {
   # return $arrayToAppendTo;
 }
 
+
 # /** ADDITIONAL SECTION Reader Options
 # The following options are currently supported:
 #@   
@@ -3684,10 +3817,6 @@ returns the XDF object that the reader parses into.
 =item setReaderXDFObject ($XDF)
 
 Sets the XDF object that the reader parses into.  
-
-=item setForceSetXMLHeaderStuffOnXDFObject ($value)
-
- 
 
 =item parseFile ($file, $optionsHashRef)
 
@@ -3789,7 +3918,7 @@ This sets the subroutine which will handle all nodes which DONT match  an entry 
 
 =over 4
 
-L<XDF::Array>, L<XDF::BinaryFloatDataFormat>, L<XDF::BinaryIntegerDataFormat>, L<XDF::Constants>, L<XDF::DelimitedXMLDataIOStyle>, L<XDF::Delimiter>, L<XDF::DocumentType>, L<XDF::Entity>, L<XDF::Field>, L<XDF::FieldRelation>, L<XDF::FloatDataFormat>, L<XDF::FormattedXMLDataIOStyle>, L<XDF::NewLine>, L<XDF::NotationNode>, L<XDF::IntegerDataFormat>, L<XDF::Parameter>, L<XDF::Reader::ValueList>, L<XDF::RecordTerminator>, L<XDF::RepeatFormattedIOCmd>, L<XDF::ReadCellFormattedIOCmd>, L<XDF::SkipCharFormattedIOCmd>, L<XDF::StringDataFormat>, L<XDF::Structure>, L<XDF::ValueListAlgorithm>, L<XDF::ValueListDelimitedList>, L<XDF::XMLDataIOStyle>, L<XDF::XMLElementNode>, L<XDF::XMLDeclaration>, L<XDF::XDF>
+L<XDF::Array>, L<XDF::BinaryFloatDataFormat>, L<XDF::BinaryIntegerDataFormat>, L<XDF::Constants>, L<XDF::DelimitedXMLDataIOStyle>, L<XDF::Field>, L<XDF::FieldRelation>, L<XDF::FloatDataFormat>, L<XDF::FormattedXMLDataIOStyle>, L<XDF::Href>, L<XDF::IntegerDataFormat>, L<XDF::Parameter>, L<XDF::Reader::ValueList>, L<XDF::RepeatFormattedIOCmd>, L<XDF::ReadCellFormattedIOCmd>, L<XDF::SkipCharFormattedIOCmd>, L<XDF::StringDataFormat>, L<XDF::Structure>, L<XDF::ValueListAlgorithm>, L<XDF::ValueListDelimitedList>, L<XDF::XMLDataIOStyle>, L<XDF::XMLElementNode>, L<XDF::XDF>
 
 =back
 
