@@ -6,6 +6,7 @@ LICENCE
 XDF_DOC
 MANIFEST
 UML-XDF.gif
+DOM.patch
 XDF/Array.pm
 XDF/Axis.pm
 XDF/BaseObject.pm
