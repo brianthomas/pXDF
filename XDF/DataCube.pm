@@ -65,6 +65,8 @@ my @Local_Class_XML_Attributes = qw (
                              encoding
                              checksum
                              compression
+                             startByte
+                             endByte
                           );
                              #_currentLocator
 my @Local_Class_Attributes = qw (
@@ -73,6 +75,8 @@ my @Local_Class_Attributes = qw (
                              _data
                              _axisLookupIndexArray
                           );
+
+my $DEFAULT_START_BYTE = 0;
 
 my @Class_Attributes;
 my @Class_XML_Attributes;
@@ -151,6 +155,21 @@ sub setChecksum {
    $self->{checksum} = $value;
 }
 
+# /** getEndByte
+# */
+sub getEndByte {
+   my ($self) = @_;
+   return $self->{endByte};
+}
+
+# /** setEndByte
+#     Set the endByte attribute. 
+# */
+sub setEndByte {
+   my ($self, $endByte) = @_;
+   $self->{endByte} = $endByte;
+}
+
 # /** getHref
 # */
 sub getHref {
@@ -163,9 +182,11 @@ sub getHref {
 # */
 sub setHref {
    my ($self, $hrefObjectRef) = @_;
-   if (ref($hrefObjectRef) eq 'XDF::Href') {
+   if (!defined $hrefObjectRef || ref($hrefObjectRef) eq 'XDF::Entity') {
      $self->{href} = $hrefObjectRef;
-   }
+   } else {
+     warn "Cant set $hrefObjectRef as value in setHref. Ignoring\n";
+   } 
 }
 
 # /** getCompression
@@ -213,6 +234,21 @@ sub getDimension {
    return $self->{dimension};
 }
 
+# /** getStartByte
+# */
+sub getStartByte {
+   my ($self) = @_;
+   return $self->{startByte};
+}
+
+# /** setStartByte
+#     Set the startByte attribute. 
+# */
+sub setStartByte {
+   my ($self, $startByte) = @_;
+   $self->{startByte} = $startByte;
+}
+
 #
 # Other Public methods 
 #
@@ -226,8 +262,7 @@ sub getDimension {
 #
 # This is PRIVATE, just too lazy to move down to right section.. -b.t.
 sub _basicXMLWriter {
-  my ($self, $fileHandle, $junk, 
-      $indent, $newNodeNameString, $noChildObjectNodeName ) = @_;
+  my ($self, $fileHandle, $indent, $newNodeNameString, $noChildObjectNodeName ) = @_;
 
   my $writeHrefAttribute = 0;
   my $spec = XDF::Specification->getInstance();
@@ -258,11 +293,13 @@ sub _basicXMLWriter {
      print $fileHandle $self->{encoding};
      print $fileHandle "\"";
   }
-  if (defined $self->{href}) {
+  my $hrefObj = $self->getHref();
+  if (defined $hrefObj) {
      print $fileHandle " href=\"";
-     print $fileHandle $self->{href}->getName();
+     print $fileHandle $hrefObj->getName();
      print $fileHandle "\"";
   }
+
   print $fileHandle ">";
 
   # write the data
@@ -270,8 +307,6 @@ sub _basicXMLWriter {
 
   # close the tagged data section
   print $fileHandle "</" . $nodeName . ">";
-  print $fileHandle "\n" if $niceOutput;
-
 
 }
 
@@ -288,7 +323,7 @@ sub writeDataToFileHandle {
 
   # a couple of shortcuts
   my $parentArray = $self->{_parentArray};
-  my $href = $self->{href};
+  my $href = $self->getHref();
 
   my $readObj = $parentArray->getXMLDataIOStyle();
 
@@ -303,12 +338,13 @@ sub writeDataToFileHandle {
 
       # BIG assumption: href is a file we want to read/write
       # Better Handling in future is needed
-      if (defined $href->getSysId()) {
+      if (defined $href->getSystemId()) {
         my $href_program;
         $href_program .= &_dataCompressionProgram($compression_type);
         $dataFileName = $href->getBase() if defined $href->getBase();
-        $dataFileName .= $href->getSysId();
+        $dataFileName .= $href->getSystemId();
         $href_program .= ">$dataFileName";
+
         open(DFH, $href_program); # we will write data to another file 
                                  # as specified by the entity
         $dataFileHandle = \*DFH;
@@ -609,6 +645,7 @@ sub _init {
   # dimensionality, but defaults to 0 at start. 
   $self->{dimension} = 0;
   $self->{_data} = [];
+  $self->{startByte} = $DEFAULT_START_BYTE;
   $self->{_axisLookupIndexArray} = [];
 
   # set the minimum array size (essentially the size of the axis)
@@ -705,7 +742,7 @@ sub _write_untagged_data {
     if (ref($formatObj) eq 'XDF::DelimitedXMLDataIOStyle') {
       # tis a shame that we dont use the outArray/template system here.
       $sprintfFormat = $formatObj->_sprintfNotation();
-      $terminator = $formatObj->getRecordTerminator();
+      $terminator = $formatObj->getRecordTerminator()->getStringValue();
       $fast_axis_length = @{$self->{_parentArray}->getAxisList()}->[0]->getLength(); 
     } elsif (ref($formatObj) eq 'XDF::FormattedXMLDataIOStyle') {
       $template = $formatObj->_templateNotation(0);
@@ -902,7 +939,7 @@ sub _writeFormattedData {
 sub _doSkipCharFormattedIOCmdOutput 
 {
    my ($fileHandle, $skipCharCommand) = @_;
-   print $fileHandle $skipCharCommand->getOutput();
+   print $fileHandle $skipCharCommand->getOutput()->getValue();
 }
 
 sub _doReadCellFormattedIOCmdOutput {
