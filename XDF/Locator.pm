@@ -323,11 +323,6 @@ sub reset {
   for(@{$self->{_locationList}}) { $_->{'index'} = 0; }
 }
 
-sub toXMLFileHandle {
-  my ($self) = @_;
-  warn "You made a silly error, this $self is not meant to be printed to XML.\n";
-}
-
 
 #
 # Private Methods 
@@ -354,6 +349,9 @@ sub _init {
 # Modification History
 #
 # $Log$
+# Revision 1.18  2001/12/11 20:28:43  thomas
+# removed toXMLFileHandle method, was confusing
+#
 # Revision 1.17  2001/08/13 20:56:37  thomas
 # updated documentation via utils/makeDoc.pl for the release.
 #
