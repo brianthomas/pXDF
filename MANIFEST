@@ -74,7 +74,7 @@ t/03ReadWriteDOM.t
 samples/README
 samples/XDF_018.dtd
 samples/guiview.pl
-samples/read2DArray.pl
+samples/dump2DArray.pl
 samples/readXDF.pl
 samples/readWriteXDF.pl
 samples/read_write_any_xml.pl
