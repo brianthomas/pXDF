@@ -22,6 +22,8 @@
 package XDF::DelimitedXMLDataIOStyle;
 
 use XDF::XMLDataIOStyle;
+use XDF::RecordTerminator;
+use XDF::Delimiter;
 #use XDF::Log;
 
 use strict;
@@ -84,6 +86,23 @@ sub getClassXMLAttributes {
 }
 
 # 
+# Constructor
+#
+sub new {
+  my ($proto, $parentArray, $attribHash) = @_;
+
+   unless (ref $parentArray eq 'XDF::Array') {
+     error("Cant create new $proto, illegal parentArray reference passed (or missing)\n");
+     exit -1;
+   }
+
+   my $self = $proto->SUPER::new($attribHash);
+   $self->_init($parentArray);
+
+   return $self;
+}
+
+# 
 # SET/GET Methods
 #
 
@@ -123,6 +142,12 @@ sub setRecordTerminator {
 
 sub _basicXMLWriter {
   my ($self, $fileHandle, $indent) = @_;
+
+   # first order of business: is this the simple style? -- then dont print node! 
+   my $parentArray =$self->{_parentArray};
+   if (ref $parentArray) {
+     return if ($parentArray->_isSimpleDataIOStyle);
+   }
 
   my $spec = XDF::Specification->getInstance();
   my $niceOutput = $spec->isPrettyXDFOutput;
@@ -211,14 +236,14 @@ sub AUTOLOAD {
 }
 
 sub _init { 
-  my ($self) = @_; 
+  my ($self, $parentArray) = @_; 
 
-  $self->SUPER::_init();
+  $self->SUPER::_init($parentArray);
 
   # set these defaults. 
-  $self->{delimiter} = $Def_Delimiter;
-  $self->{repeatable} = $Def_Repeatable;
-  $self->{recordTerminator} = $Def_Record_Terminator;
+  $self->{delimiter} = new XDF::Delimiter(); # $Def_Delimiter;
+  $self->{recordTerminator} = new XDF::RecordTerminator();
+ # $self->{repeatable} = $Def_Repeatable;
 
   # adds to ordered list of XML attributes
   $self->_appendAttribsToXMLAttribOrder(\@Local_Class_XML_Attributes);
