@@ -72,7 +72,7 @@ use XDF::Array;
 use XDF::BinaryFloatDataFormat;
 use XDF::BinaryIntegerDataFormat;
 use XDF::DelimitedXMLDataIOStyle;
-use XDF::ExponentDataFormat;
+use XDF::ExponentialDataFormat;
 use XDF::Field;
 use XDF::FieldRelation;
 use XDF::FixedDataFormat;
@@ -1002,7 +1002,7 @@ sub exponentField_node_start {
   
   if (ref($dataTypeObj) eq 'XDF::Field' or ref($dataTypeObj) eq 'XDF::Array' ) {
   
-     $dataTypeObj->dataFormat(new XDF::ExponentDataFormat(\%merged_hash));
+     $dataTypeObj->dataFormat(new XDF::ExponentialDataFormat(\%merged_hash));
   
   } else {
   
@@ -1976,6 +1976,10 @@ sub my_fail {
 # Modification History
 #
 # $Log$
+# Revision 1.5  2000/11/28 21:54:29  thomas
+# Changed ExponentDataFormat name to ExponentialDataFormat.
+# Reflected change in the reader. -b.t.
+#
 # Revision 1.4  2000/11/28 19:43:26  thomas
 # No change, just formatting of lines. -b.t.
 #
@@ -2084,7 +2088,7 @@ A change in the value of these attributes will change the functioning of ALL ins
 
 =head1 SEE ALSO
 
-L<XDF::Array>, L<XDF::BinaryFloatDataFormat>, L<XDF::BinaryIntegerDataFormat>, L<XDF::DelimitedXMLDataIOStyle>, L<XDF::ExponentDataFormat>, L<XDF::Field>, L<XDF::FieldRelation>, L<XDF::FixedDataFormat>, L<XDF::FormattedXMLDataIOStyle>, L<XDF::IntegerStyle>, L<XDF::IntegerDataFormat>, L<XDF::Parameter>, L<XDF::RepeatFormattedIOCmd>, L<XDF::ReadCellFormattedIOCmd>, L<XDF::SkipCharFormattedIOCmd>, L<XDF::StringDataFormat>, L<XDF::Structure>, L<XDF::XMLDataIOStyle>
+L<XDF::Array>, L<XDF::BinaryFloatDataFormat>, L<XDF::BinaryIntegerDataFormat>, L<XDF::DelimitedXMLDataIOStyle>, L<XDF::ExponentialDataFormat>, L<XDF::Field>, L<XDF::FieldRelation>, L<XDF::FixedDataFormat>, L<XDF::FormattedXMLDataIOStyle>, L<XDF::IntegerStyle>, L<XDF::IntegerDataFormat>, L<XDF::Parameter>, L<XDF::RepeatFormattedIOCmd>, L<XDF::ReadCellFormattedIOCmd>, L<XDF::SkipCharFormattedIOCmd>, L<XDF::StringDataFormat>, L<XDF::Structure>, L<XDF::XMLDataIOStyle>
 
 =back
 
