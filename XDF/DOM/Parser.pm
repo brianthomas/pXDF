@@ -113,13 +113,41 @@ sub new {
     return $self;
 } 
 
+# may parse filehandle or string
 sub parse {
-   my ($self, $file) = @_;
+   my ($self, $scalar) = @_;
+   
+   die "XDF::DOM::Parser can't parse with out a passed parameter!\n" unless defined $scalar; 
 
-   die "XDF::DOM can't parse with out a filename.\n" unless defined $file;
-   die "XDF::DOM can't parse $file into as it doesnt exist!!\n" unless (-e $file);
+   my $document = $self->SUPER::parse($scalar);
+   return $self->_do_document_parse($document);
 
-   my $document = $self->SUPER::parse($file);
+}
+
+# just an alias for backward compatablitiy 
+#sub parsestring {
+#   my ($self) = shift;
+#   return $self->parse(@_);
+#}
+
+# DONT implement this, it causes hideous problems right now
+#sub parsefile {
+#   my ($self, $file ) = @_;
+
+#   die "XDF::DOM::Parser can't parse with out a filename.\n" unless defined $file;
+#   die "XDF::DOM::Parser can't parse $file into as it doesnt exist!!\n" unless (-e $file);
+
+#   my $document = $self->SUPER::parse($file);
+
+#   return $self->_do_document_parse($document);
+#}
+
+#
+# Private Methods
+#
+
+sub _do_document_parse {
+   my ($self, $document) = @_;
 
    # ok, so now get the XDF nodes, remember their location within the
    # DOM and then clip them out.
@@ -146,20 +174,17 @@ sub parse {
       # itself) and remove the XDF child node from it (and the master DOM)
       # then add the new xdfnode in its place
       my $parentNode = $node->getParentNode();
-      $parentNode->removeChild($node);
+      #$parentNode->removeChild($node);
 
       # add the DOM node location and the XDF to a list
       my $xdfNode = new XDF::DOM::Element($document, $XDFObject);
-      $parentNode->appendChild($xdfNode);
+      $parentNode->replaceChild($xdfNode, $node);
+      $node->dispose;
 
    }
 
    return $document;
 }
-
-#
-# Private Methods
-#
 
 sub _parseNodeIntoXDFObject {
    my ($self,$node) = @_;
@@ -190,6 +215,11 @@ sub _parseNodeIntoXDFObject {
 # Modification History
 #
 # $Log$
+# Revision 1.5  2001/08/13 19:53:13  thomas
+# bug fix: parsefile alias method screwing up parser. removed,
+# it should still work out alright anyways. This method was
+# never needed.
+#
 # Revision 1.4  2001/06/19 21:23:19  thomas
 # bug fix to passing argv for quiet, debug.
 #
