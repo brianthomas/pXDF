@@ -30,7 +30,7 @@
       <units>
         <unit>pixel</unit>
       </units>
-<!-- <valueListAlgorithm size="10" step="1" start="0"/> -->
+      <valueListAlgorithm><polynomial size="10">0 1</polynomial></valueListAlgorithm>
     </colAxis>
     <data>
 <![CDATA[76.53 78.75 67.78 32.59 05.97

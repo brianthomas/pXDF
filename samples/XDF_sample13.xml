@@ -21,7 +21,7 @@
       <units>
         <unit>pixel</unit>
       </units>
-      <valueListAlgorithm size="3" step="1" start="0"/>
+      <valueListAlgorithm><polynomial size="3">0 1</polynomial></valueListAlgorithm>
     </axis>
     <axis name="y" axisId="y-axis" axisDatatype="integer" size="3">
       <units>

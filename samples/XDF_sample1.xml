@@ -24,7 +24,7 @@
         <unit>pixel</unit>
       </units>
       <valueGroup name="vertical pixels">
-         <valueListAlgorithm size="10" step="1" start="0"/>
+         <valueListAlgorithm><polynomial size="10">0 1</polynomial></valueListAlgorithm> 
       </valueGroup>
     </axis>
     <axis name="y" axisId="y-axis" axisDatatype="integer" size="10">
