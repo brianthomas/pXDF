@@ -812,8 +812,9 @@ sub removeNote {
 # RETURNS : 1 on success, 0 on failure.
 # */
 sub addData {
-  my ($self, $locator, $dataValue) = @_;
-  return $self->{dataCube}->addData($locator, $dataValue);
+  #my ($self, $locator, $dataValue) = @_;
+  my $self = shift;
+  return $self->{dataCube}->_addData(@_); #$self->{axisList}, @_);
 }
 
 # /** setData
@@ -821,8 +822,19 @@ sub addData {
 # Overwrites existing datacell value if any.
 # */
 sub setData {
-  my ($self, $locator, $dataValue ) = @_;
-  $self->{dataCube}->setData($locator, $dataValue);
+  #my ($self, $locator, $dataValue) = @_;
+  my $self = shift;
+  $self->{dataCube}->_setData(@_); #$self->{axisList}, @_);
+}
+
+sub setRecords {
+   my ($self, $locator, $data_array_ref ) = @_;
+   $self->{dataCube}->_setRecords($locator, $data_array_ref);
+}
+
+sub getRecords {
+   my ($self, $locator, $nrofRecords) = @_;
+   return $self->{dataCube}->_getRecords($locator, $nrofRecords);
 }
 
 # /* removeData
@@ -840,7 +852,7 @@ sub setData {
 # */
 sub getData {
   my ($self, $locator ) = @_;
-  return $self->{dataCube}->getData($locator);
+  return $self->{dataCube}->_getData($locator);
 }
 
 # /** setFieldAxis
@@ -1008,6 +1020,14 @@ This method returns the class node name of XDF::Array; This method takes no argu
 =item getClassXMLAttributes (EMPTY)
 
  
+
+=item addData (EMPTY)
+
+Append the SCALAR value onto the requested datacell (via L<XDF::DataCube> LOCATOR REF). RETURNS : 1 on success, 0 on failure.  
+
+=item setData (EMPTY)
+
+Set the SCALAR value of the requested datacell (via L<XDF::DataCube> LOCATOR REF). Overwrites existing datacell value if any.  
 
 =back
 
@@ -1257,13 +1277,13 @@ Insert an XDF::Note object into the XDF::Notes object held by this object. RETUR
 
 Removes an XDF::Note object from the list of XDF::Note objectsheld within the XDF::Notes object of this object. This method takes either the list index number or an object reference as its argument. RETURNS : 1 on success, 0 on failure.  
 
-=item addData ($locator, $dataValue)
+=item setRecords ($locator, $data_array_ref)
 
-Append the SCALAR value onto the requested datacell (via L<XDF::DataCube> LOCATOR REF). RETURNS : 1 on success, 0 on failure.  
+ 
 
-=item setData ($locator, $dataValue)
+=item getRecords ($locator, $nrofRecords)
 
-Set the SCALAR value of the requested datacell (via L<XDF::DataCube> LOCATOR REF). Overwrites existing datacell value if any.  
+ 
 
 =item getData ($locator)
 
@@ -1276,6 +1296,10 @@ Set the Field Axis of this Array. If an undef value is passed,then the field Axi
 =item removeFieldAxis (EMPTY)
 
 Removes the L<XDF::FieldAxis> object in this Array. Returns 1 on success, 0 on failure.  
+
+=item hasFieldAxis (EMPTY)
+
+ 
 
 =back
 
