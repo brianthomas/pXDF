@@ -128,6 +128,23 @@ sub getAxisIndex {
   return undef;
 }
 
+# /** getAxisValue
+# Returns the current axis value if successful, null if no such 
+# Axis exists in this locator.
+# */
+sub getAxisValue {
+  my ($self, $axisObj ) = @_;
+
+  return undef unless defined $axisObj;
+
+  for (@{$self->{_locationList}}) {
+     if (%{$_}->{'axis'} eq $axisObj) {
+       return $axisObj->getValueList->[%{$_}->{'index'}];
+     }
+  }
+  return undef;
+}
+
 #/** getAxisIndices
 # Returns a list of the current indices (present locator position in the 
 # dataCube) arranged in the axis iteration order.
@@ -176,17 +193,18 @@ sub setIterationOrder {
   }
 }
 
-# /** setAxisLocationByAxisValue
-#  
+# /** setAxisIndexByAxisValue
+# Set the index of an axis to the index of a value
+# along that axis
 # */ 
-#sub setAxisLocationByAxisValue {
-#  my ($self, $axisObj, $axisValueOrValueObj) = @_;
-#
-#  return unless defined $axisObj && ref($axisObj) eq 'XDF::Axis'
-#                 and defined $axisValueOrValueObj;
-#
-#  $self->setLocation($axisObj, $axisObj->getIndexFromAxisValue($axisValueOrValueObj));
-#}
+sub setAxisIndexByAxisValue {
+  my ($self, $axisObj, $axisValueOrValueObj) = @_;
+
+  return unless defined $axisObj && ref($axisObj) eq 'XDF::Axis'
+                 and defined $axisValueOrValueObj;
+
+  $self->setAxisIndex($axisObj, $axisObj->getIndexFromAxisValue($axisValueOrValueObj));
+}
 
 #
 # Other Public Methods
@@ -331,6 +349,10 @@ sub _init {
 # Modification History
 #
 # $Log$
+# Revision 1.9  2001/03/14 16:12:04  thomas
+# re-enabled setAxisIndexByAxisValue. added the java
+# method getAxisValue.
+#
 # Revision 1.8  2001/03/01 21:11:31  thomas
 # Fixed HasNext. Fixed next method.
 #
