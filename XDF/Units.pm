@@ -110,40 +110,6 @@ sub setFactor {
    $self->{factor} = $value;
 }
 
-# /** getSystem
-# */
-sub getSystem {
-   my ($self) = @_;
-   return $self->{system};
-}
-
-# /** setSystem
-#     Set the system attribute. 
-# */
-sub setSystem {
-   my ($self, $value) = @_;
-   $self->{system} = $value;
-}
-
-# /** getLogarithm
-# */
-sub getLogarithm {
-   my ($self) = @_;
-   return $self->{logarithm};
-}
-
-# /** setLogarithm
-#     Set the logarithm attribute. 
-# */
-sub setLogarithm {
-   my ($self, $value) = @_;
-   unless (&XDF::Utility::isValidLogarithm($value)) { 
-     error("Cant set units logarithm to $value, not allowed \n"); 
-     return;
-   }
-   $self->{logarithm} = $value;
-}
-
 # /** getUnitList
 # */
 sub getUnitList {
@@ -265,8 +231,6 @@ sub _basicXMLWriter {
      $self->SUPER::_basicXMLWriter($fileHandle, $indent, 
                                    $dontCloseNode, $Class_No_Unit_Child_Node_Name);
   }
-                                # $dontCloseNode, $self->{XMLNodeName}, 
-                                #$Class_No_Unit_Child_Node_Name);
 }
 
 # This is called when we cant find any defined method
