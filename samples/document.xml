@@ -74,7 +74,7 @@
             <dataFormat>
               <float width="4" precision="1"/>
             </dataFormat>
-            <relation fieldIdRefs="vmag" role="error"/>
+            <relation idRefs="vmag" role="error"/>
           </field>
           <field name="CCD ID Number" fieldId="ccdNumber">
             <unitless/>
@@ -88,12 +88,12 @@
               <float width="8" precision="3" exponent="2"/>
             </dataFormat>
           </field>
-          <field name="Reference" noDataValue="          ">
+          <field name="Reference">
             <unitless/>
             <dataFormat>
-              <string length="10"/>
+              <string length="10" noDataValue="          "/>
             </dataFormat>
-            <relation fieldIdRefs="gname" role="reference"/>
+            <relation idRefs="gname" role="reference"/>
           </field>
         </fieldAxis>
         <axis axisId="rows" size="3">

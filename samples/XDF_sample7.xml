@@ -57,7 +57,7 @@
         <dataFormat>
           <binaryFloat bits="32"/>
         </dataFormat>
-        <relation fieldIdRefs="vmag" role="error"/>
+        <relation idRefs="vmag" role="error"/>
       </field>
       <field name="CCD ID Number" fieldId="ccdNumber">
         <unitless/>
@@ -76,7 +76,7 @@
         <dataFormat>
           <string length="10"/>
         </dataFormat>
-        <relation fieldIdRefs="gname" role="reference"/>
+        <relation idRefs="gname" role="reference"/>
       </field>
     </fieldAxis>
     <axis axisId="rows" size="3">

@@ -60,12 +60,12 @@
           <float width="5" precision="2"/>
         </dataFormat>
       </field>
-      <field name="h" description="? Scale length" fieldId="field8" noDataValue="-9.99">
+      <field name="h" description="? Scale length" fieldId="field8">
         <units>
           <unit>kpc</unit>
         </units>
         <dataFormat>
-          <float width="5" precision="2"/>
+          <float width="5" precision="2" noDataValue="-9.99"/>
         </dataFormat>
       </field>
     </fieldAxis>

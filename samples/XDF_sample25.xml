@@ -10,8 +10,8 @@
       <unit>counts</unit>
       <unit power="-1">seconds</unit>
     </units>
-    <dataFormat noDataValue="-9.99" infiniteValue="-1.00">
-      <float width="5" precision="2"/>
+    <dataFormat>
+      <float width="5" precision="2" noDataValue="-9.99" infiniteValue="-1.00"/>
     </dataFormat>
     <!-- WITHOUT a dataStyle node, the Axis order describes "fastest" to "slowest" 
          axes and the data are assumed to be delimited. In terms of populating

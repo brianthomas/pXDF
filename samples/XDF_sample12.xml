@@ -57,7 +57,7 @@
         <dataFormat>
           <float width="4" precision="1"/>
         </dataFormat>
-        <relation fieldIdRefs="vmag" role="error"/>
+        <relation idRefs="vmag" role="error"/>
       </field>
       <field fieldId="idNumber" name="CDD ID">
         <unitless/>
@@ -76,7 +76,7 @@
         <dataFormat>
           <string length="40"/>
         </dataFormat>
-        <relation fieldIdRefs="gname" role="reference"/>
+        <relation idRefs="gname" role="reference"/>
       </field>
     </fieldAxis>
     <axis axisId="rows" size="3">

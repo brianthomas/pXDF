@@ -24,7 +24,7 @@
         <dataFormat>
           <float width="4" precision="1"/>
         </dataFormat>
-        <relation fieldIdRefs="vmag" role="error"/>
+        <relation idRefs="vmag" role="error"/>
       </field>
       <field name="Image" description="Associated image">
         <unitless/>

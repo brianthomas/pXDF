@@ -17,8 +17,8 @@
       <unit>counts</unit>
       <unit power="-1">seconds</unit>
     </units>
-    <dataFormat noDataValue="-9.99">
-      <float width="5" precision="2"/>
+    <dataFormat>
+      <float width="5" precision="2" noDataValue="-9.99"/>
     </dataFormat>
     <axis name="x" axisId="x" align="x" size="10">
       <units>
