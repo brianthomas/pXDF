@@ -1,57 +1,50 @@
+
 Revision history for Perl extension XDF.
 
-0.01  Fri Jun 16 10:50 2000
-	- original version; created by h2xs 1.19
+0.18-alpha1 Jan 24 2001
+        - update nodenames, attribute information to 018 standard.
+        - added start/endByte reading for data nodes.
+        - Update API to java standard, incl:
+            new classes: DocumentType, NotationNode, XMLDeclaration 
+            and changed name of 'Href' class to 'Entity'.
+            added hasFieldAxis method to Array class.
+          One major effect of this is that toXMLFileHandle, toXMLString methods
+          are invoked in slightly different manner (no longer passing the cryptic
+          XMLDeclAttrib hash).
+          Removed some silly methods from SPecification that really belong in Constants.
+          in string data Format length -> width.
+        - Minor layout changes to printing of data, dataStyle nodes. Extraneous closing
+          nodes and whitespace removed.
+        - fix bug notes location order appearing empty.
+        - added 3-D image test file (XDF_sample13.xml) to allow auto-test of 
+          higher dimension data.
 
-0.17l Mon Dec 16 02:51 2000
-        This one is a big leap forward. Many changes;
-	- Added correct href functionality for files.
-          Other URL types not currently enabled.
-          Added Href class.
-        - Added ability to carry along XML Notation nodes
-          in the base object and print back out wi/ toXMLFileHandle
-        - <!ENTITY> stuff now printing out for href nodes. 
-        - Changed method invocation to Java style, e.g.
-          get/set. There is compatability mode for older
-          attribute access (for now).
-        - Fixed deep cloning (finally!). Removed silly
-          setRef stuff from BaseObject class as a result.
-        - Notes node now will appear in output array w/ correct
-          layout, e.g. locationOrder + notes children. Added
-          Notes and NotesLocatorOrder classes.
-        - Delimited read section not printing correctly fixed. 
-        - Fixed ability to change order of read Axis (e.g. invert
-          an array) from the XML file. Does the right thing now
-          (see XDF_sample2 file). 
-        - Removed extraneous code (_enlarge_array, etc) from DataCube.
-        - Fixed numerous bugs in the Locator incl. its ability
-          to find the correct Axes from the parent and change its
-          iteration order and the order of traversal for next method.
-
-0.17-beta0 Fri Mar 14 05:31 2001
-        - changed getBytes() method name to numOfBytes to conform w/ Java API
-        - combined Fixed and Exponential dataFormat classes as FloatDataFormat.
-        - added in Utility and Constants classes, shifted class data as needed
-          into new Constants class.
-        - Binary IO now conforms to the XDF standard. Non-native writting of 
-          binary floats now supported.
-        - fixed a number of bugs in the Locator. Most importantly, hasNext 
-          method now works without forgetting about the last datum and is more
-          intellegently implemented.
-        - updated the guiview.pl program (in samples sub-directory). Much more
-          functionality added.
-        - changed makeDoc.pl to not print out object attributes, more closely 
-          conforms to Java HTML documentation. 
-        = fixed inital page and interlinkage bugs in makeHTMLDoc.pl. 
-        - reviewed methods, more closely aligned with the Java package. 
-        - added Append array functionality.
-        - fixed bug in ID/IDREF stuff. Was not getting unique name for more than
-          2 ref's nodes.
-        - upgraded the guiview program. Now has slicker interface, some editing 
-          functions and writing capability. This sub-program is NOT beta quality 
-          software however(!!). Much needed functionality missing/incomplete and
-          many bugs remain (!). 
-
+0.17-beta2 Aug 13 17:53 2001
+        - fixed bug wherein float, integer numbers were left- instead of right-justified.
+        - added setCData method to XMLElement class.
+        - fixed html doc generation utility to make pages IE can read.
+        - added compression for data in external files. Not great a implementation.
+        - added logarithm attribute to Units class.
+        - changed internal storage of data in DataCube. Got rid of nasty eval statements.
+          much faster now, but still not as fast as native (C) implementation (e.g. PDL).
+        - Units node not getting attributes parsed by the Reader (eep!). Fixed.
+        - More addjustment to bring API into argreement with Java: public add methods now
+          return boolean rather than an object.
+        - Support for notANumber, overflow, underflow and disabled attributes in Array and Field.
+        - Finally included support of infinite, infiniteNegative, noData Value object creation
+          from a valueList. Also support for notANumber, overflow, and underflow attribs too.
+        - Bug fix: output PCDATA now has angle brackets entified upon toXMLFileHandle call.
+        - Bug fix: attributes on ValueGroup not printing on toXMLFileHandle call.
+        - finally bit the bullet and added valueList stuff to Axis, Parameter. This should
+          save space for output.
+        - added XDF master structure class.
+        - small change to CDATA handling, now possible to read data from 'naked' data node
+          (e.g. w/o CDATA), however, because of the way in which the Perl parser works, whitespace
+          is separated out, and may be dropped causing a short block read error in some cases.
+        - Added ability to add an arbitary XML attribute (e.g. previously undeclared
+          attribute that isnt a part of the class in the DTD) to any class that
+          inherits from BaseObject.
+        - Added convience new methods for Axis, FieldAxis.
 
 0.17-beta1 Wed Apr 25 12:31 2001 
 	- allow user-defined start, end, charData handlers as per Java.
@@ -72,30 +65,56 @@ Revision history for Perl extension XDF.
         - fixed up XDF_DOC a bit. Still needs work.
 
 
-0.17-beta2 Aug 13 17:53 2001
-	- fixed bug wherein float, integer numbers were left- instead of right-justified.
-        - added setCData method to XMLElement class.
-        - fixed html doc generation utility to make pages IE can read.
-        - added compression for data in external files. Not great a implementation.
-	- added logarithm attribute to Units class.
-	- changed internal storage of data in DataCube. Got rid of nasty eval statements.
-	  much faster now, but still not as fast as native (C) implementation (e.g. PDL).
-	- Units node not getting attributes parsed by the Reader (eep!). Fixed.
-        - More addjustment to bring API into argreement with Java: public add methods now
-          return boolean rather than an object.
-        - Support for notANumber, overflow, underflow and disabled attributes in Array and Field.
-        - Finally included support of infinite, infiniteNegative, noData Value object creation
-	  from a valueList. Also support for notANumber, overflow, and underflow attribs too. 
-        - Bug fix: output PCDATA now has angle brackets entified upon toXMLFileHandle call. 
-        - Bug fix: attributes on ValueGroup not printing on toXMLFileHandle call.
-        - finally bit the bullet and added valueList stuff to Axis, Parameter. This should
-          save space for output. 
-        - added XDF master structure class.
-        - small change to CDATA handling, now possible to read data from 'naked' data node
-          (e.g. w/o CDATA), however, because of the way in which the Perl parser works, whitespace
-          is separated out, and may be dropped causing a short block read error in some cases. 
-        - Added ability to add an arbitary XML attribute (e.g. previously undeclared
-          attribute that isnt a part of the class in the DTD) to any class that 
-          inherits from BaseObject.
-        - Added convience new methods for Axis, FieldAxis.
+0.17-beta0 Fri Mar 14 05:31 2001
+        - changed getBytes() method name to numOfBytes to conform w/ Java API
+        - combined Fixed and Exponential dataFormat classes as FloatDataFormat.
+        - added in Utility and Constants classes, shifted class data as needed
+          into new Constants class.
+        - Binary IO now conforms to the XDF standard. Non-native writting of
+          binary floats now supported.
+        - fixed a number of bugs in the Locator. Most importantly, hasNext
+          method now works without forgetting about the last datum and is more
+          intellegently implemented.
+        - updated the guiview.pl program (in samples sub-directory). Much more
+          functionality added.
+        - changed makeDoc.pl to not print out object attributes, more closely
+          conforms to Java HTML documentation.
+        = fixed inital page and interlinkage bugs in makeHTMLDoc.pl.
+        - reviewed methods, more closely aligned with the Java package.
+        - added Append array functionality.
+        - fixed bug in ID/IDREF stuff. Was not getting unique name for more than
+          2 ref's nodes.
+        - upgraded the guiview program. Now has slicker interface, some editing
+          functions and writing capability. This sub-program is NOT beta quality
+          software however(!!). Much needed functionality missing/incomplete and
+          many bugs remain (!).
+
+0.17-alpha2 (version '17l') Mon Dec 16 2000
+        This one is a big leap forward. Many changes;
+        - Added correct href functionality for files.
+          Other URL types not currently enabled.
+          Added Href class.
+        - Added ability to carry along XML Notation nodes
+          in the base object and print back out wi/ toXMLFileHandle
+        - <!ENTITY> stuff now printing out for href nodes.
+        - Changed method invocation to Java style, e.g.
+          get/set. There is compatability mode for older
+          attribute access (for now).
+        - Fixed deep cloning (finally!). Removed silly
+          setRef stuff from BaseObject class as a result.
+        - Notes node now will appear in output array w/ correct
+          layout, e.g. locationOrder + notes children. Added
+          Notes and NotesLocatorOrder classes.
+        - Delimited read section not printing correctly fixed.
+        - Fixed ability to change order of read Axis (e.g. invert
+          an array) from the XML file. Does the right thing now
+          (see XDF_sample2 file).
+        - Removed extraneous code (_enlarge_array, etc) from DataCube.
+        - Fixed numerous bugs in the Locator incl. its ability
+          to find the correct Axes from the parent and change its
+          iteration order and the order of traversal for next method.
+
+0.17-alpha1 (version 0.01)  Fri Jun 16 2000
+        - original version; created by h2xs 1.19
+
 

@@ -19,6 +19,8 @@ require 5.005;
 use strict;
 
 my $install_dir = 'XDF';
+my $minimum_XML_Parser = 2.30;
+my $minimum_XML_DOM = 1.36;
 my @extras = ();
 
 push(@extras,
@@ -35,8 +37,8 @@ eval {
     require XML::Parser;
     my $ver = $XML::Parser::VERSION;
     $ver =~ s/_//;
-    die "XML::Parser version 2.27 needed, installed module is only $XML::Parser::VERSION\n"
-        unless $ver >= 2.27;
+    die "XML::Parser version $minimum_XML_Parser needed, installed module is only $XML::Parser::VERSION\n"
+        unless $ver >= $minimum_XML_Parser;
 };
 if ($@) {
     print " failed\n";
@@ -67,8 +69,8 @@ print "Checking for XML::DOM..............";
 eval {
     require XML::DOM;
     my $ver = $XML::DOM::VERSION;
-    die "XML::DOM version 1.30 needed, installed module is only $XML::DOM::VERSION\n"
-        unless $ver >= 1.30;
+    die "XML::DOM version $minimum_XML_DOM needed, installed module is only $XML::DOM::VERSION\n"
+        unless $ver >= $minimum_XML_DOM;
 };
 if ($@) {
     print " missing, XDF::DOM and decendent classes may not be used.\n";
@@ -94,14 +96,18 @@ WriteMakefile(
             'XDF/BaseObjectWithXMLElementsAndValueList.pm'     => "\$(INST_LIBDIR)/$install_dir/BaseObjectWithXMLElementsAndValueList.pm",
             'XDF/BinaryFloatDataFormat.pm'      => "\$(INST_LIBDIR)/$install_dir/BinaryFloatDataFormat.pm",
             'XDF/BinaryIntegerDataFormat.pm'      => "\$(INST_LIBDIR)/$install_dir/BinaryIntegerDataFormat.pm",
+            'XDF/Chars.pm'      => "\$(INST_LIBDIR)/$install_dir/Chars.pm",
             'XDF/Constants.pm'      => "\$(INST_LIBDIR)/$install_dir/Constants.pm",
             'XDF/DataCube.pm'   => "\$(INST_LIBDIR)/$install_dir/DataCube.pm",
             'XDF/DataFormat.pm'       => "\$(INST_LIBDIR)/$install_dir/DataFormat.pm",
+            'XDF/Delimiter.pm'      => "\$(INST_LIBDIR)/$install_dir/Delimiter.pm",
             'XDF/DelimitedXMLDataIOStyle.pm'       => "\$(INST_LIBDIR)/$install_dir/DelimitedXMLDataIOStyle.pm",
+            'XDF/DocumentType.pm'      => "\$(INST_LIBDIR)/$install_dir/DocumentType.pm",
             'XDF/DOM.pm'       => "\$(INST_LIBDIR)/$install_dir/DOM.pm",
             'XDF/DOM/Document.pm'       => "\$(INST_LIBDIR)/$install_dir/DOM/Document.pm",
             'XDF/DOM/Element.pm'       => "\$(INST_LIBDIR)/$install_dir/DOM/Element.pm",
             'XDF/DOM/Parser.pm'       => "\$(INST_LIBDIR)/$install_dir/DOM/Parser.pm",
+            'XDF/Entity.pm'      => "\$(INST_LIBDIR)/$install_dir/Entity.pm",
             'XDF/ErroredValue.pm'      => "\$(INST_LIBDIR)/$install_dir/ErroredValue.pm",
             'XDF/Field.pm'      => "\$(INST_LIBDIR)/$install_dir/Field.pm",
             'XDF/FieldAxis.pm'  => "\$(INST_LIBDIR)/$install_dir/FieldAxis.pm",
@@ -112,9 +118,10 @@ WriteMakefile(
             'XDF/FormattedXMLDataIOStyle.pm'      => "\$(INST_LIBDIR)/$install_dir/FormattedXMLDataIOStyle.pm",
             'XDF/GenericObject.pm'     => "\$(INST_LIBDIR)/$install_dir/GenericObject.pm",
             'XDF/Group.pm'      => "\$(INST_LIBDIR)/$install_dir/Group.pm",
-            'XDF/Href.pm'      => "\$(INST_LIBDIR)/$install_dir/Href.pm",
             'XDF/IntegerDataFormat.pm'      => "\$(INST_LIBDIR)/$install_dir/IntegerDataFormat.pm",
             'XDF/Locator.pm'       => "\$(INST_LIBDIR)/$install_dir/Locator.pm",
+            'XDF/NewLine.pm'      => "\$(INST_LIBDIR)/$install_dir/NewLine.pm",
+            'XDF/NotationNode.pm'      => "\$(INST_LIBDIR)/$install_dir/NotationNode.pm",
             'XDF/Note.pm'       => "\$(INST_LIBDIR)/$install_dir/Note.pm",
             'XDF/Notes.pm'       => "\$(INST_LIBDIR)/$install_dir/Notes.pm",
             'XDF/NotesLocationOrder.pm'       => "\$(INST_LIBDIR)/$install_dir/NotesLocationOrder.pm",
@@ -122,6 +129,7 @@ WriteMakefile(
             'XDF/ParameterGroup.pm'  => "\$(INST_LIBDIR)/$install_dir/ParameterGroup.pm",
             'XDF/ReadCellFormattedIOCmd.pm'     => "\$(INST_LIBDIR)/$install_dir/ReadCellFormattedIOCmd.pm",
             'XDF/Reader.pm'     => "\$(INST_LIBDIR)/$install_dir/Reader.pm",
+            'XDF/RecordTerminator.pm'      => "\$(INST_LIBDIR)/$install_dir/RecordTerminator.pm",
             'XDF/RepeatFormattedIOCmd.pm'     => "\$(INST_LIBDIR)/$install_dir/RepeatFormattedIOCmd.pm",
             'XDF/SkipCharFormattedIOCmd.pm'  => "\$(INST_LIBDIR)/$install_dir/SkipCharFormattedIOCmd.pm",
             'XDF/Specification.pm'      => "\$(INST_LIBDIR)/$install_dir/Specification.pm",
@@ -137,59 +145,11 @@ WriteMakefile(
             'XDF/ValueListAlgorithm.pm'      => "\$(INST_LIBDIR)/$install_dir/ValueListAlgorithm.pm",
             'XDF/ValueListDelimitedList.pm'      => "\$(INST_LIBDIR)/$install_dir/ValueListDelimitedList.pm",
             'XDF/XMLDataIOStyle.pm'      => "\$(INST_LIBDIR)/$install_dir/XMLDataIOStyle.pm",
+            'XDF/XMLDeclaration.pm'      => "\$(INST_LIBDIR)/$install_dir/XMLDeclaration.pm",
             'XDF/XMLElementNode.pm'      => "\$(INST_LIBDIR)/$install_dir/XMLElementNode.pm",
             'XDF/XDF.pm'      => "\$(INST_LIBDIR)/$install_dir/XDF.pm",
           },
     @extras
 
 );
-
-# Modification History
-#
-# $Log$
-# Revision 1.14  2001/08/13 21:53:53  thomas
-# *** empty log message ***
-#
-# Revision 1.13  2001/08/13 21:02:48  thomas
-# *** empty log message ***
-#
-# Revision 1.12  2001/08/13 20:55:24  thomas
-# *** empty log message ***
-#
-# Revision 1.11  2001/08/13 19:58:17  thomas
-# *** empty log message ***
-#
-# Revision 1.10  2001/07/09 16:50:10  thomas
-# *** empty log message ***
-#
-# Revision 1.9  2001/04/17 18:42:18  thomas
-# *** empty log message ***
-#
-# Revision 1.8  2001/03/23 22:21:32  thomas
-# *** empty log message ***
-#
-# Revision 1.7  2001/03/21 20:17:18  thomas
-# Added XMLElement and XMLAttribute classes
-#
-# Revision 1.6  2001/03/09 21:56:35  thomas
-# Added Utility and Constants classes.
-#
-# Revision 1.5  2001/02/15 17:48:27  thomas
-# Added FloatDataFormat, removed ExponentialDataFormat and
-# FixedDataFormat. -b.t.
-#
-# Revision 1.4  2000/12/14 22:11:25  thomas
-# Big changes to the API. get/set methods, added Href/Entity stuff, deep cloning,
-# added Href, Notes, NotesLocationOrder nodes/classes. Ripped out _enlarge_array
-# from DataCube (not needed) and fixed problems outputing delimited/formatted
-# read nodes. -b.t.
-#
-# Revision 1.3  2000/12/01 20:02:16  thomas
-# *** empty log message ***
-#
-# Revision 1.2  2000/10/16 17:41:14  thomas
-# Changes to make consistent with BaseObject.pm
-#
-#
-#
 

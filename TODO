@@ -11,18 +11,16 @@
    - Href stuff only supports files. Need Entity Resolver type behavior ala Java.
      This may be a bug in libxml-enno that we need to patch.
   
-   - XDF::DOM::Parser is expanding newLine entities and then converting to whitespace
-     on toString call which feeds the XDF::Reader. Upshot: a bad bug that keeps delimited
-     data (with newline record terms) from reading properly. Minor bug: formatted data is
-     printed on one long line (but still reads ok). Fixing this will be non-trivial as
-     its part of the XML spec to convert all newlines to space (It makes you wonder what
-     the #$#%%# the W3C was thinking..).
-     NOTE: The fix for this is to use XDF 0.18.
+   - incorporate compression executable configuration for the package into 
+     the make proceedure.
 
-   - incorporate compress exec. config into make proceedure.
+   - implement set/getRecord for dataCube.
 
-   - readId/readIdRef implemented, however problems will result if readIdRef
-     is specified AND the read node has child nodes. We probably need to 
+   - CDATA sections are needed to wrap data for proper reading. Shouldnt regular text
+     reading be supported too?
+
+   - dataStyleId/dataStyleIdRef implemented, however problems will result if dataStyleIdRef
+     is specified AND the dataStyle node has child nodes. We probably need to 
      prevent the user from doing this in the DTD (err. schema).
 
    - Programmer interface for manipulation of notes/notes location is yucky.
@@ -36,7 +34,7 @@
      Plus we should hide all this nasty-ness from the programmer to begin with.
 
    - Review the functionality to attributes on data node.
-     -- Href capability (Done for files only)
+     -- Href capability (Done for files only, what about other types of URLs?)
      -- compression (Only BZIP2, GZIP and compress implemented and it only works on UNIX systems)
 
    - Need a better treatment of relation node for multiple fields ids. 
