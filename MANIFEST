@@ -64,7 +64,9 @@ t/01ReadWriteXDF.t
 t/02ReadWriteDOM.t
 samples/XDF_017.dtd
 samples/guiview.pl
-samples/read.pl
+samples/read2DArray.pl
+samples/readXDF.pl
+samples/readWriteXDF.pl
 samples/read_write_any_xml.pl
 samples/manipulate.pl
 samples/XDF_sample1.xml
@@ -76,6 +78,12 @@ samples/XDF_sample6.dat
 samples/XDF_sample6.xml
 samples/XDF_sample7.xml
 samples/XDF_sample8.xml
+samples/XDF_sample9.xml
+samples/XDF_sample9.dat.gz
+samples/XDF_sample10.xml
+samples/XDF_sample10.dat.bz2
+samples/XDF_sample11.xml
+samples/XDF_sample11.dat.zip
 samples/document.xml
 samples/binarytable0
 samples/ApJ_464_79_table1.xml

@@ -63,20 +63,20 @@ if ($@) {
     print " ok\n";
 }
 
-#print "Checking for XML::DOM..............";
-#eval {
-#    require XML::DOM;
-#    my $ver = $XML::DOM::VERSION;
-#    die "XML::DOM version 1.28 needed, installed module is only $XML::DOM::VERSION\n"
-#        unless $ver >= 1.28;
-# };
-#if ($@) {
-#    print " missing, XDF::DOM and decendent classes may not be used.\n";
-#    $missing_modules++;
-#    sleep(1);  # Don't hurry too much
-#} else {
-#    print " ok\n";
-#}
+print "Checking for XML::DOM..............";
+eval {
+    require XML::DOM;
+    my $ver = $XML::DOM::VERSION;
+    die "XML::DOM version 1.30 needed, installed module is only $XML::DOM::VERSION\n"
+        unless $ver >= 1.30;
+};
+if ($@) {
+    print " missing, XDF::DOM and decendent classes may not be used.\n";
+    $missing_modules++;
+    sleep(1);  # Don't hurry too much
+} else {
+    print " ok\n";
+}
 
 # See lib/ExtUtils/MakeMaker.pm for details of how to influence
 # the contents of the Makefile that is written.
@@ -134,6 +134,8 @@ WriteMakefile(
             'XDF/Utility.pm'      => "\$(INST_LIBDIR)/$install_dir/Utility.pm",
             'XDF/Value.pm'      => "\$(INST_LIBDIR)/$install_dir/Value.pm",
             'XDF/ValueGroup.pm'      => "\$(INST_LIBDIR)/$install_dir/ValueGroup.pm",
+            'XDF/ValueListAlgorithm.pm'      => "\$(INST_LIBDIR)/$install_dir/ValueListAlgorithm.pm",
+            'XDF/ValueListDelimitedList.pm'      => "\$(INST_LIBDIR)/$install_dir/ValueListDelimitedList.pm",
             'XDF/XMLDataIOStyle.pm'      => "\$(INST_LIBDIR)/$install_dir/XMLDataIOStyle.pm",
             'XDF/XMLElementNode.pm'      => "\$(INST_LIBDIR)/$install_dir/XMLElementNode.pm",
           },
@@ -144,6 +146,9 @@ WriteMakefile(
 # Modification History
 #
 # $Log$
+# Revision 1.12  2001/08/13 20:55:24  thomas
+# *** empty log message ***
+#
 # Revision 1.11  2001/08/13 19:58:17  thomas
 # *** empty log message ***
 #

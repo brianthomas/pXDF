@@ -97,4 +97,5 @@ Revision history for Perl extension XDF.
         - Added ability to add an arbitary XML attribute (e.g. previously undeclared
           attribute that isnt a part of the class in the DTD) to any class that 
           inherits from BaseObject.
+        - Added convience new methods for Axis, FieldAxis.
 

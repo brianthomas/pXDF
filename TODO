@@ -4,8 +4,6 @@
       feature-complete release candidate.
    ---------------------------------------------------------------------------
 
-   - Axis values printed out as space delimited list to save space in output XML file.
-
    - binary IO not well tested (only on Linux so far). 
 
    - Href stuff only supports files. Need Entity Resolver type behavior ala Java.
@@ -17,18 +15,13 @@
      printed on one long line (but still reads ok). Fixing this will be non-trivial as
      its part of the XML spec to convert all newlines to space (It makes you wonder what
      the #$#%%# the W3C was thinking..).
+     NOTE: The fix for this is to use XDF 0.18.
 
    - incorporate compress exec. config into make proceedure.
 
    - readId/readIdRef implemented, however problems will result if readIdRef
      is specified AND the read node has child nodes. We probably need to 
      prevent the user from doing this in the DTD (err. schema).
-
-   - minor irritation: order of the attributes written (psuedo-)randomly in
-     output XML. Need attribOrder as in Java (and to fully adopt XMLAttribute
-     for holding attribute information).
-   
-   - add convience method for init of Axis /FieldAxis as per Java Package.
 
    - Programmer interface for manipulation of notes/notes location is yucky.
      We need to use locator objects in the notes, same as we need to do in Java Package.
@@ -38,34 +31,16 @@
      requirements for objects using the deep clone operation. Perhaps we
      need to create a half-way cloning? or store interally (via private field)
      the name of the object we idref'd. Hemm..
+     Plus we should hide all this nasty-ness from the programmer to begin with.
 
    - Review the functionality to attributes on data node.
      -- Href capability (Done for files only)
      -- compression (Only BZIP2, GZIP and compress implemented and it only works on UNIX systems)
-     -- checksum (just stores string, sufficient?)
-
-   - Effort still needed to bring classes/methods into alignment with the Java package.
 
    - Need a better treatment of relation node for multiple fields ids. 
 
-   - Although it works, grouping not consistently implemented??
-     (fix addParamGroup in Array.pm for example)
-
-   - consistent implementation of "addObject" methods. Some take object reference,
-     others take attribute_hash_ref, others take both. All add methods should return
-     the object they are adding. Needs review!!.
-
    - Identify addtional convience methods that need to be implemented. Any Chaff to be removed?  
      Probably the set/get "list" methods need to be removed. These may be quite dangerous.
-
-   - Problem wi/ External Entities. How to read in DTD to get the
-     defaults on the attributes (rather than define them in Objects) 
-     (This problem arises fundementally from the Perl XML parser, as parameter and
-     'external' entities arent implemented! We either need to make a bug fix to
-     the Perl code, or use a different Perl parser..apache has a DOM implementation
-     for example). 
-
-   - Reconstitute ValueList from values when writing to XML (using the 'delimited' style).
 
    - Improve the documentation (check spelling! improve descriptions of methods).
 
@@ -97,10 +72,6 @@
      dataFormat object but may *never* insert a number with *higher* precision than
      currently exists in the dataCube. Need a $array->getPrecision($locator) method
      to identify precision on each cell.
-
-   - Ability to supply application/xdf processing instruction to DOM parser. This should
-     allow DOM parser to produce XDF objects from the XDF nodes embedded in a parent
-     document (and also pass back a DOM of just the parent nodes).
 
    - Better control over Internal entities. Right now, XDF parser just replaces every
      thing. We should allow ability NOT to replace and to hang on to the entity list
