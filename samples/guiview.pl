@@ -65,7 +65,7 @@ my $TOOLNAME = "XDF Viewer Tool";
 # GLOBAL Variables
 #my $XDF;    # reference to the XDF object of interest
 my $XML_FILE; 
-my  $XDF_DOM; # the parent document holding the XDF object
+my $XDF_DOM; # the parent document holding the XDF object
 my $DISPLAY_SIZE = 'normal';
 my %WIDGET; # hash table of GUI widget references
 my %FRAME;  # hash table of GUI frame references
@@ -167,6 +167,7 @@ my $EventMouseOverColor = 'yellow';
 my $ButtonFgColor = $Black;
 my $ButtonBgColor = $White;
 my $AddButtonBgColor = $Green;
+my $ManButtonBgColor = $Lite_blue;
 my $ClearButtonBgColor = $Yellow;
 my $DeleteButtonBgColor = $Red;
 
@@ -286,6 +287,13 @@ sub init_key_bindings
     $WIDGET{'main'}->bind('<Control-Key-q>' => sub { &my_exit();} );
     $WIDGET{'main'}->bind('<Control-Key-Q>' => sub { &my_exit();} );
 
+    $WIDGET{'main'}->bind('<Up>' => sub { &select_Hlist_item($WIDGET{'xml_hlist'}->selectionGet()); }); 
+    $WIDGET{'main'}->bind('<Down>' => sub { &select_Hlist_item($WIDGET{'xml_hlist'}->selectionGet()); }); 
+
+#    $WIDGET{'main'}->bind('<Control-Key-c>' => sub { &copy_SelectedItem_cmd(); } );
+#    $WIDGET{'main'}->bind('<Control-Key-v>' => sub { &paste_SelectedItem_cmd(); } );
+    $WIDGET{'main'}->bind('<Control-Key-x>' => sub { &cut_SelectedItem_cmd(); } );
+
 }
 
 sub argv_loop { 
@@ -382,13 +390,20 @@ sub init_gui {
 
   $WIDGET{'xml_hlist'} = $listFrame->HList(
                                             -separator => '/', 
-                                            -width => 22,
+                                            -width => 30,
                                             -itemtype => 'imagetext', 
                                             -font => $Font{$DISPLAY_SIZE},
                                           )->pack(fill => 'both', side=> 'top', expand => 0);
 
   $WIDGET{'xml_hlist'}->configure( -command => sub { &select_Hlist_item($_[0]); });
   $WIDGET{'xml_hlist'}->bind('<Button-1>' => sub { &select_Hlist_item($WIDGET{'xml_hlist'}->selectionGet()); });
+  $WIDGET{'xml_hlist'}->bind('<Right>' => sub {
+#                                       &show_Hlist_item_children($WIDGET{'xml_hlist'}->selectionGet());
+                                           });
+  $WIDGET{'xml_hlist'}->bind('<Left>' => sub {
+#                                       &hide_Hlist_item_children($WIDGET{'xml_hlist'}->selectionGet());
+                                           });
+
 
   &add_horizontal_scrollbar_to_widget($WIDGET{'xml_hlist'},$listFrame,'left',$WIDGET{'ylist_scroll'});
   &add_vertical_scrollbar_to_widget($WIDGET{'xml_hlist'},$listFrame,'bottom',$WIDGET{'xlist_scroll'});
@@ -397,7 +412,7 @@ sub init_gui {
                                                          -text => 'Add Child XML Node',
                                                          -fg => $ButtonFgColor, -bg => $AddButtonBgColor,
                                                          -state => 'disabled',
-                                                         -command => sub { &null_cmd(); },
+                                                         -command => sub { &add_childXMLNode_toCurrentItem_cmd(); },
                                                          -font => $BoldFont{$DISPLAY_SIZE},
                                                       )->pack(side => 'top'); 
 
@@ -405,7 +420,7 @@ sub init_gui {
                                                          -text => 'Add Child Structure', 
                                                          -fg => $ButtonFgColor, -bg => $AddButtonBgColor,
                                                          -state => 'disabled', 
-                                                         -command => sub { &add_structure_to_selected(); },
+                                                         -command => sub { &add_Structure_toCurrentItem_cmd(); },
                                                          -font => $BoldFont{$DISPLAY_SIZE},
                                                       )->pack(side => 'top'); # expand => 1, fill => 'y');
   $WIDGET{'list_addArray_button'} = $listButtonFrame->Button(
@@ -413,13 +428,37 @@ sub init_gui {
                                                          -fg => $ButtonFgColor, -bg => $AddButtonBgColor,
                                                          -state => 'disabled', 
                                                          -font => $BoldFont{$DISPLAY_SIZE},
+                                                         -command => sub { &add_Array_toCurrentItem_cmd(); },
                                                       )->pack(side => 'top'); # expand => 1, fill => 'y');
-  $WIDGET{'list_deleteThis_button'} = $listButtonFrame->Button(
-                                                         -text => 'Delete Item', 
-                                                         -fg => $ButtonFgColor, -bg => $DeleteButtonBgColor,
-                                                         -state => 'disabled', 
+
+  $WIDGET{'list_separate_label'} = $listButtonFrame->Label( -text => ' ', -bg => $BaseColor,
+                                                      )->pack( side => 'top', -ipady => 2);
+
+  $WIDGET{'list_copySelect_button'} = $listButtonFrame->Button(
+                                                         -text => 'Copy Selection (<Cntl-C>)',
+                                                         -fg => $ButtonFgColor, -bg => $ManButtonBgColor,
+                                                         -state => 'disabled',
                                                          -font => $BoldFont{$DISPLAY_SIZE},
+                                                         -command => sub { &null_cmd(); },
                                                       )->pack(side => 'top'); # expand => 1, fill => 'y');
+
+  $WIDGET{'list_pasteSelect_button'} = $listButtonFrame->Button(
+                                                         -text => 'Paste (<Cntl-V>)',
+                                                         -fg => $ButtonFgColor, -bg => $ManButtonBgColor,
+                                                         -state => 'disabled',
+                                                         -font => $BoldFont{$DISPLAY_SIZE},
+                                                         -command => sub { &null_cmd(); },
+                                                      )->pack(side => 'top'); # expand => 1, fill => 'y');
+
+  $WIDGET{'list_cutSelect_button'} = $listButtonFrame->Button(
+                                                         -text => 'Cut Selection (<Cntl-X>)',
+                                                         -fg => $ButtonFgColor, -bg => $ManButtonBgColor,
+                                                         -state => 'disabled',
+                                                         -font => $BoldFont{$DISPLAY_SIZE},
+                                                         -command => sub { &cut_SelectedItem_cmd(); },
+                                                      )->pack(side => 'top'); # expand => 1, fill => 'y');
+
+
   $WIDGET{'tool_boldlabel'} = $toolLabelFrame->Label( text => $TOOLNAME,
                                               bg => $BaseColor, fg => $Black,
                                               font => $BoldFont{$DISPLAY_SIZE},
@@ -479,7 +518,7 @@ sub init_gui {
 
   &make_widget_highlight_on_mouseover($WIDGET{'array_attrib_edit_label'});
 
-  $WIDGET{'array_attrib_edit_label'}->bind('<Double-Button-1>' => 
+  $WIDGET{'array_attrib_edit_label'}->bind('<Double-1>' => 
                                                    sub { &edit_array_attribs($arrayHeaderFrame); });
 
   $WIDGET{'array_edit_label'} = $arrayDataFrame->Label ( -text => 'Array View/Edit Functions', 
@@ -601,21 +640,35 @@ sub edit_XMLNode_attribs {
 
    #populate attib tab
    my $attrib_numb = 0;
+   my $getMethodRef2;
+   my $setMethodRef2;
    foreach my $attrObj ($CURRENT_ITEM->getAttributes->getValues) {
       $subFrame = $masterFrame->Frame->pack(side => 'top', fill => 'both', expand => 0);
       push @XMLNODE_EDITFRAMES, $subFrame;
       $labelname = 'xmlElementAttr' . $attrib_numb . "_label";
       $entryname = 'xmlElementAttr' . $attrib_numb . "_val_label";
-      $getMethodRef = sub { $attrObj->getValue; };
-      $setMethodRef = sub { $attrObj->setValue(@_); };
-      #next if ref(&$getMethodRef);
+      $getMethodRef = sub { $attrObj->getName; };
+      $setMethodRef = sub {  my ($name) = @_;
+                             my $oldname = $attrObj->getName(); 
+                             my $value = $attrObj->getValue(); 
+                             $CURRENT_ITEM->removeAttribute($oldname);
+                             $CURRENT_ITEM->setAttribute($name, $value);
+       #                      &show_xmlnode_frames($path);
+                          };
+      $getMethodRef2 = sub { $attrObj->getValue; };
+      $setMethodRef2 = sub { $attrObj->setValue(@_); };
+
       my $buttonName = 'xmlElementAttr' . $attrib_numb . "_button";
       $WIDGET{$buttonName} = $subFrame->Button( -text => 'Delete Attrib',
                                                 -bg => $Red, -fg => $Black,
                                                 -font => $Font{$DISPLAY_SIZE},
                                                 -command => sub { &null_cmd; },
                                               )->pack(side => 'left');
-      &make_label_click_widget( $attrObj->getName, $subFrame, $labelname, $entryname, $getMethodRef, $setMethodRef);
+  #    &make_label_click_widget( $attrObj->getName, $subFrame, $labelname, $entryname, $getMethodRef, $setMethodRef);
+   #my ($text, $frame, $labelname, $entryname, $getRef, $setRef) = @_;
+
+      &make_clickable_entrylabel($subFrame, $labelname, $getMethodRef, $setMethodRef);
+      &make_clickable_entrylabel($subFrame, $entryname, $getMethodRef2, $setMethodRef2);
       $attrib_numb++;
    }
 
@@ -639,6 +692,103 @@ sub show_XMLNode_CDATA {
    &make_textArea_click_widget( 'CDATA', $elementCDataFrame, $setname, $clearname, $entryname, $getMethodRef, $setMethodRef);
 
 }
+
+sub add_Structure_toCurrentItem_cmd {
+
+   return unless $CURRENT_ITEM;
+
+   my $newNode;
+   if (ref($CURRENT_ITEM) =~ m/XDF::/) {
+
+      $newNode = $CURRENT_ITEM->addStructure(new XDF::Structure());
+
+   } elsif (ref($CURRENT_ITEM) =~ m/XML::/) {
+
+      my $newXDF = new XDF::Structure();
+      $newNode = $XDF_DOM->createXDFElement($newXDF);
+      $CURRENT_ITEM->appendChild($newNode);
+
+   }
+
+   if (defined $newNode) { 
+      &update_hlist_from_xdf($WIDGET{'xml_hlist'});
+   }
+
+}          
+
+# not ready for prime time. What kind of array do we add? what 
+# are its dimensions?? we should at least have a popup array 
+# dialog to as for axis info, etc. 
+sub add_Array_toCurrentItem_cmd {
+
+   return unless $CURRENT_ITEM;
+
+   my $newArray;
+   if (ref($CURRENT_ITEM) =~ m/XDF::/) {
+
+      $newArray= $CURRENT_ITEM->addArray(new XDF::Array());
+
+      # OTHER config steps..
+      # set output style to tagged
+      $newArray->setXMLDataIOStyle(new XDF::TaggedXMLDataIOStyle());
+        
+      # add two generic axes
+      $newArray->addAxis(new XDF::Axis({'axisId' => 'axis1'}));
+      $newArray->addAxis(new XDF::Axis({'axisId' => 'axis2'}));
+
+   }
+
+   if (defined $newArray) { 
+      &update_hlist_from_xdf($WIDGET{'xml_hlist'});
+   }
+
+}
+
+sub add_childXMLNode_toCurrentItem_cmd {
+
+   return unless defined $CURRENT_ITEM;
+
+   my $newNode;
+   if (ref($CURRENT_ITEM) =~ m/XDF::/) {
+     # add an XDF internal node
+
+      $newNode = new XDF::XMLElement('new_xml_node');
+      $CURRENT_ITEM->addXMLElement($newNode);
+
+   } elsif (ref($CURRENT_ITEM) =~ m/XML::/) {
+
+      $newNode = $XDF_DOM->createElement('new_xml_node');
+      $CURRENT_ITEM->appendChild($newNode);
+
+   }
+
+   if (defined $newNode) { 
+      &update_hlist_from_xdf($WIDGET{'xml_hlist'});
+   }
+}
+
+sub cut_SelectedItem_cmd {
+
+   my $path = $WIDGET{'xml_hlist'}->selectionGet();
+   return unless defined $path;
+
+   my $item = $WIDGET{'xml_hlist'}->info('data', $path);
+   my $parentPath = $WIDGET{'xml_hlist'}->info('parent', $path);
+   my $parentItem = $WIDGET{'xml_hlist'}->info('data', $parentPath);
+
+   return unless defined $item && defined $parentItem;
+   $CURRENT_ITEM = $parentItem;
+
+print STDERR "Delete item: $item Parent: $parentItem\n";
+
+   if (ref($item) =~ m/XDF::/) {
+
+   } elsif (ref($item) =~ m/XML::/) {
+
+   }
+
+   &update_view();
+};
 
 # some text nodes are just formating info,
 # not terribly interesting for most of us.
@@ -685,101 +835,6 @@ sub setTextData {
   }
 }
 
-sub show_xmlnode_frames_old {
-   my ($path) = @_;
-
-   &unshow_edit_frames();
-
-   &clear_xmlNode_attrib_edit();
- 
-   $FRAME{'xmlNodeHeader'}->pack(side => 'top', fill => 'both'); 
-
-   # tag name 
-   my $subFrame = $FRAME{'xmlNodeAttribEdit'}->Frame->pack(side => 'top', fill => 'both', expand => 0);
-   $subFrame ->configure ( relief => 'flat', bd => 2, bg => $XMLNodeColor);
-   my $subsubFrame = $subFrame->Frame->pack(side => 'top', fill => 'both', expand => 0);
-
-   my $labelname = 'xmlElementTag_label';
-   my $entryname = 'xmlElementTag_val_label';
-   my $getMethodRef = sub { $CURRENT_ITEM->getTagName; };
-   my $setMethodRef = sub { 
-                              $CURRENT_ITEM->setTagName(@_); 
-                              $WIDGET{'xml_hlist'}->entryconfigure($path, -text => $_[0] );
-                          };
-   &make_label_click_widget( 'TAGNAME', $subsubFrame, $labelname, $entryname, $getMethodRef, $setMethodRef);
-   push @XMLNODE_EDITFRAMES, $subFrame;
-
-  # CDATA
-   my $elementCDataFrame = $FRAME{'xmlNodeAttribEdit'}->Frame->pack(side => 'top', fill => 'both', expand => 0);
-   push @XMLNODE_EDITFRAMES, $elementCDataFrame;
-   #$WIDGET{'xmlNode_cdata_label'} = $elementCDataLabelFrame->Label( -text => 'CData',
-   #                                                                 -font => $Font{$DISPLAY_SIZE},
-   #                                                                 -bg => $BaseColor, -fg => $Black,
-   #                                                                )->pack(side => 'top');
-   $labelname = "xmlElementCdata_label";
-   $entryname = "xmlElementCdata_val_label";
-   $getMethodRef = sub { &null_cmd(); };
-   $setMethodRef = sub { &null_cmd(); };
-   my $cdataButtonName = 'xmlElementCdataDel_button';
-   $WIDGET{$cdataButtonName} = $elementCDataFrame->Button( -text => 'Delete CDATA',
-                                                  -bg => $Red, -fg => $Black,
-                                                  -font => $Font{$DISPLAY_SIZE},
-                                                  -command => sub { &null_cmd; },
-                                                )->pack(side => 'left');
-   &make_label_click_widget( 'CDATA', $elementCDataFrame, $labelname, $entryname, $getMethodRef, $setMethodRef);
-
-
-
-   #populate attib
-   my $attribLabelFrame = $FRAME{'xmlNodeAttribEdit'}->Frame->pack(side => 'top', fill => 'both', expand => 0);
-   push @XMLNODE_EDITFRAMES, $attribLabelFrame;
-   $WIDGET{'xmlNode_attrib_label'} = $attribLabelFrame->Label( -text => 'Attributes',
-                                                               -font => $Font{$DISPLAY_SIZE},
-                                                               -bg => $BaseColor, -fg => $Black,
-                                                  )->pack(side => 'top');
-
-   my $attrib_numb = 0; 
-   foreach my $attrObj ($CURRENT_ITEM->getAttributes->getValues) {
-      $subFrame = $FRAME{'xmlNodeAttribEdit'}->Frame->pack(side => 'top', fill => 'both', expand => 0);
-      push @XMLNODE_EDITFRAMES, $subFrame;
-      $labelname = 'xmlElementAttr' . $attrib_numb . "_label";
-      $entryname = 'xmlElementAttr' . $attrib_numb . "_val_label";
-      $getMethodRef = sub { $attrObj->getValue; };
-      $setMethodRef = sub { $attrObj->setValue(@_); };
-      #next if ref(&$getMethodRef);
-      my $buttonName = 'xmlElementAttr' . $attrib_numb . "_button";
-      $WIDGET{$buttonName} = $subFrame->Button( -text => 'Delete Attrib',
-                                                -bg => $Red, -fg => $Black,
-                                                -font => $Font{$DISPLAY_SIZE},
-                                                -command => sub { &null_cmd; },
-                                              )->pack(side => 'left');
-      &make_label_click_widget( $attrObj->getName, $subFrame, $labelname, $entryname, $getMethodRef, $setMethodRef);
-      $attrib_numb++;
-   }
-
-   # add edit buttons
-   my $buttonFrame = $FRAME{'xmlNodeAttribEdit'}->Frame->pack(side => 'top', fill => 'both', expand => 0);
-   push @XMLNODE_EDITFRAMES, $buttonFrame;
-
-   $WIDGET{'add_XMLAttrib_button'} = $buttonFrame->Button( -text => 'Add Attribute',
-                                                           -bg => $AddButtonBgColor, -fg => $Black,
-                                                           -font => $Font{$DISPLAY_SIZE},
-                                                           -command => sub { 
-                                                                     #         $CURRENT_ITEM->setAttribute('new',""); 
-                                                                           },
-                                                         )->pack(side => 'left');
-
-
-   # update value of widgets
-# should only be present if CDATA doesnt exist already
-   $WIDGET{'add_XMLAttrib_button'} = $buttonFrame->Button( -text => 'Add CDATA',
-                                                           -command => sub { &null_cmd; },
-                                                           -bg => $AddButtonBgColor, -fg => $Black,
-                                                           -font => $Font{$DISPLAY_SIZE},
-                                                         )->pack(side => 'left');
-
-}
-
 sub show_struct_frames {
    my ($pack) = @_;
 
@@ -800,16 +855,6 @@ sub show_array_frames {
 
    $FRAME{'arrayHeader'}->pack(side => 'top', fill => 'both'); 
    $FRAME{'arrayData'}->pack(expand => 1, fill => 'both', side => 'bottom'); 
-}
-
-sub add_structure_to_selected {
-
-print STDERR "add structure: $CURRENT_ITEM \n"; 
-   return unless $CURRENT_ITEM;
-
-   $CURRENT_ITEM->addStructure(new XDF::Structure());
-   &update_hlist_from_xdf($WIDGET{'xml_hlist'});
-   &update_view();
 }
 
 sub delete_selected_structure {
@@ -901,10 +946,11 @@ sub init_xmlNodeAttrib_gui {
 
    my $addbuttonname = $what . '_add' . $name . '_button';
    $WIDGET{$addbuttonname} = $subFrame2->Button (
-                                            -text => "Add Attribute 1",
+                                            -text => "Add Attribute",
                                             -font => $Font{$DISPLAY_SIZE},
                                             -command => sub { 
-                                                               # $CURRENT_ITEM->setAttribute('new',""); 
+                                                               $CURRENT_ITEM->setAttribute("new", " "); 
+                                                               &show_xmlnode_frames($WIDGET{'xml_hlist'}->selectionGet());
                                                             },
                                             -bg => $AddButtonBgColor, -fg => $Black,
                                            )->pack( side => 'left');
@@ -1455,12 +1501,13 @@ sub init_dataview_gui {
    $WIDGET{$vAxisLabel}->bind('<Double-1>' => sub { &edit_axis_attribs($vertAxisInfoFrame, 1, 'vert'); } );
 
   # the 'row' listbox
-  $FRAME{'row_listbox'}->configure ( relief => 'flat', bd => 2, bg => 'white'); 
+  $FRAME{'row_listbox'}->configure ( relief => 'flat', bd => 4, bg => 'white'); 
 
   # some filler for the top right frame
   $WIDGET{'filler1_boldlabel'} = $leftTopFrame->Label( -text => ' ', -font => $BoldFont{$DISPLAY_SIZE},
                         -bg => $BaseColor,
-                      )->pack(expand => 'no', side => 'top', fill => 'both');
+                      )->pack(expand => 'no', side => 'top', fill => 'both' );
+  $WIDGET{'filler1_boldlabel'}->configure ( relief => 'flat', bd => 4, ); 
 
   $WIDGET{'filler2_boldlabel'} = $leftTopFrame->Label( -text => ' ', -font => $BoldFont{$DISPLAY_SIZE},
                         -bg => $BaseColor,
@@ -1516,15 +1563,49 @@ sub get_vertAxisColor {
    return $color;
 }
 
+sub show_Hlist_item_children {
+   my ($path) = @_;
+
+   return unless defined $path;
+
+   my $item = $WIDGET{'xml_hlist'}->info('data', $path);
+   my $parentItem = $WIDGET{'xml_hlist'}->info('parent', $path);
+
+   $WIDGET{'xml_hlist'}->showEntry($path); 
+#print STDERR "Hide status: ",$WIDGET{'xml_hlist'}->entrycget($path, -hide), "\n"; 
+
+}
+
+sub hide_Hlist_item_children {
+   my ($path) = @_;
+
+   return unless defined $path;
+
+print STDERR "HIDE PATH: $path\n";
+#print STDERR "Hide status: ",$WIDGET{'xml_hlist'}->entrycget($path, -hide), "\n"; 
+
+   my @path = split '/', $path;
+   return if $#path < 1;
+
+   my $item = $WIDGET{'xml_hlist'}->info('data', $path); 
+   my $parentItem = $WIDGET{'xml_hlist'}->info('parent', $path);
+
+   $CURRENT_ITEM = $parentItem;
+
+   $WIDGET{'xml_hlist'}->selectionSet($parentItem); 
+   $WIDGET{'xml_hlist'}->hideEntry($path); 
+
+}
+
 sub select_Hlist_item { 
    my ($path) = @_;
 
    return unless defined $path;
 
-   # print STDERR "Double click path=$path, data=",$item,"\n";
-
    my $item = $WIDGET{'xml_hlist'}->info('data', $path);
-   $CURRENT_ITEM = $item;
+   $CURRENT_ITEM = $item; # make this the new current item 
+
+#   print STDERR "Single click path=$path, data=",$item,"\n";
 
    if (ref($item) eq 'XDF::Array') {
      # seek thru the path to get the parent structure
@@ -1589,25 +1670,37 @@ sub configure_gui_view {
 
    my @showArrayWidgets =  (
                                 $WIDGET{'list_addXMLNode_button'}, 
-                                $WIDGET{'list_deleteThis_button'}, 
+                               # $WIDGET{'list_deleteThis_button'}, 
+                                $WIDGET{'list_copySelect_button'}, 
+                                $WIDGET{'list_pasteSelect_button'}, 
+                                $WIDGET{'list_cutSelect_button'}, 
                            ); 
 
    my @showStructWidgets = (
                                 $WIDGET{'list_addStruct_button'}, 
                                 $WIDGET{'list_addArray_button'}, 
                                 $WIDGET{'list_addXMLNode_button'}, 
-                                $WIDGET{'list_deleteThis_button'}, 
+                              #  $WIDGET{'list_deleteThis_button'}, 
+                                $WIDGET{'list_copySelect_button'}, 
+                                $WIDGET{'list_pasteSelect_button'}, 
+                                $WIDGET{'list_cutSelect_button'}, 
                            ); 
 
    my @showExteriorXMLWidgets = (
                                 $WIDGET{'list_addStruct_button'},
                                 $WIDGET{'list_addXMLNode_button'}, 
-                                $WIDGET{'list_deleteThis_button'}, 
+                              #  $WIDGET{'list_deleteThis_button'}, 
+                                $WIDGET{'list_copySelect_button'}, 
+                                $WIDGET{'list_pasteSelect_button'}, 
+                                $WIDGET{'list_cutSelect_button'}, 
                            );
 
    my @showInteriorXMLWidgets = (
                                 $WIDGET{'list_addXMLNode_button'}, 
-                                $WIDGET{'list_deleteThis_button'}, 
+                              #  $WIDGET{'list_deleteThis_button'}, 
+                                $WIDGET{'list_copySelect_button'}, 
+                                $WIDGET{'list_pasteSelect_button'}, 
+                                $WIDGET{'list_cutSelect_button'}, 
                            ); 
 
    if (defined $type && ref($type)) {
@@ -1697,22 +1790,6 @@ sub show_XMLElement_in_Hlist {
 
 }
 
-sub show_otherXMLElement_in_Hlist {
-  my ($widget, $node, $path, $text) = @_;
-      
-      # its an ordinary XML Element node
-      $widget->add($path, -text => $text,
-                          -image => $XML_ELEMENT_NODE_IMAGE,
-                          -data => $node);
-      
-      # print out the children
-      #for (@{$node->getXMLElementList()}) {
-      #   show_otherXMLElement_in_Hlist($widget, $_, "$path/$_", $_->getNodeName);
-      #}
-
-}
-
-
 sub show_structure_in_Hlist {
   my ($widget, $structObj, $path, $text) = @_;
 
@@ -1733,7 +1810,6 @@ sub show_structure_in_Hlist {
      &show_structure_in_Hlist($widget, $sObj, "$path/$sObj", $name);
   }
 
-  #foreach my $arrayObj (@{$XDF->getArrayList()}) {
   foreach my $arrayObj (@{$structObj->getArrayList()}) {
      my $name = $arrayObj->getName();
      $name = '' unless defined $name;
@@ -1748,6 +1824,13 @@ sub show_structure_in_Hlist {
                      -text => $name, -image => $PLAIN_ARRAY_IMAGE,
                      -data => $arrayObj);
      }
+
+     foreach my $node (@{$arrayObj->getXMLElementList()}) {
+        next unless defined $node;
+        my $name = $node->getNodeName;
+        &show_XMLElement_in_Hlist($widget, $node, "$path/$arrayObj/$node", $name);
+     }
+
   }
 
 }
@@ -2148,14 +2231,8 @@ sub load_xml_file {
 
    &debug("loading $file\n");
 
-   my $QUIET = $DEBUG ? 0 : 1;
-#   my %options = ('quiet' => $QUIET, );
-
-   # set the new XDF object
-   #my $reader = new XDF::Reader();
-#   $XDF = $reader->parseFile($file, \%options);
-
    my $parser = new XDF::DOM::Parser(
+                                       debug => $DEBUG,
                                        quiet => $QUIET,
                                        NoExpand => $XDF_PARSER_NO_EXPAND,
                                        ParseParamEnt => $XDF_PARSER_PARSE_PARAM_ENT,
@@ -2305,7 +2382,8 @@ sub update_plaintable_view {
    &debug("update_plaintable_view()\n");
 
    my $column_color = $ListBoxBgColor{ref($arrayObj->getDataFormat())};
-   my $width = $arrayObj->getDataFormat()->numOfBytes();
+   my $dataFormat = $arrayObj->getDataFormat(); 
+   my $width = defined $dataFormat ? $dataFormat->numOfBytes() : 1;
 
    # horz axis
    my $axisInfo = &get_axis_title($CURRENT_HORZ_AXIS, 'horz');

@@ -4,6 +4,8 @@
       feature-complete release candidate.
    ---------------------------------------------------------------------------
 
+   - Axis values printed out as space delimited list to save space in output XML file.
+
    - binary IO not well tested (only on Linux so far). 
 
    - Href stuff only supports files. Need Entity Resolver type behavior ala Java.
@@ -28,7 +30,7 @@
 
    - Review the functionality to attributes on data node.
      -- Href capability (Done for files only)
-     -- compression (just stores string, sufficient?)
+     -- compression (Only BZIP2, GZIP and compress implemented and it only works on UNIX systems)
      -- checksum (just stores string, sufficient?)
 
    - Effort still needed to bring classes/methods into alignment with the Java package.
