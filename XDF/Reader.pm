@@ -2264,10 +2264,12 @@ sub _init {
   $self->{dataTagLevel} = 0;         # the level where the actual char data is
 
   # our options reference array
-  $self->{Options} = defined $optionsHashRef && ref($optionsHashRef) ? $optionsHashRef : {}; # hash 
+  $self->{Options} = defined $optionsHashRef && ref($optionsHashRef) ? %{$optionsHashRef} : {}; # hash 
   $self->{Options}->{msgThresh} = $PARSER_MSG_THRESHOLD unless defined $self->{Options}->{msgThresh};
   $self->{Options}->{maxWarnings} = $MAX_WARNINGS unless defined $self->{Options}->{maxWarnings};
   $self->{Options}->{quiet} = $QUIET unless defined $self->{Options}->{quiet};
+
+print STDERR "reader quiet is ",$self->{Options}->{quiet},"\n";
 
   # lookup hashes of handlers 
   $self->{startElementHandler} = \%Start_Handler;
@@ -2880,6 +2882,9 @@ sub _appendArrayToArray {
 # Modification History
 #
 # $Log$
+# Revision 1.27  2001/05/29 21:09:58  thomas
+# small fix in _init for optionshashref.
+#
 # Revision 1.26  2001/04/17 19:01:26  thomas
 # Using Specification class now. Made
 # changes to accomodate new XMLElement class.
