@@ -119,6 +119,23 @@ sub _init {
   $self->_locationList([]); 
 }
 
+# Are we at the end of the array ?
+# Note that this ISNT very performance oriented. I can
+# see this really slowing down a while loop that uses it.
+sub hasNext {
+  my ($self) = @_;
+
+  my $outOfDataCells = 1;
+
+  for (@{$self->_locationList}) {
+    if (%{$_}->{'index'} < (%{$_}->{'axis'}->length()-1) ) {
+      $outOfDataCells = 0;
+      last;
+    }
+  }
+  return $outOfDataCells ? 0 : 1;
+}
+
 sub setAxisLocation {
   my ($self, $axisObjOrAxisId, $index) = @_;
 
@@ -283,6 +300,10 @@ sub toXMLFileHandle {
 # Modification History
 #
 # $Log$
+# Revision 1.3  2000/11/28 19:54:19  thomas
+# Added hasNext method. Its not very performance
+# oriented. Need better implementation. -b.t.
+#
 # Revision 1.2  2000/10/16 17:37:21  thomas
 # Changed over to BaseObject Class from Object Class.
 # Added in History Modification section.
