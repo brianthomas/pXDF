@@ -272,19 +272,16 @@ sub toXMLFileHandle {
 
    print $fileHandle $indent if $isPrettyXDFOutput;
 
-   print $fileHandle "<valueList start=\"",$self->{start},
-                    "\" step=\"",$self->{step},
-                    "\" size=\"",$self->{size},"\"";
-
-   print $fileHandle " valueListId=\"",$self->{valueListId},"\"" if (defined $self->{valueListId});
-   print $fileHandle " valueListIdRef=\"",$self->{valueListIdRef},"\"" if (defined $self->{valueListIdRef});
-   print $fileHandle " noDataValue=\"",$self->{noDataValue},"\"" if (defined $self->{noDataValue});
-   print $fileHandle " infiniteValue=\"",$self->{infiniteValue},"\"" if (defined $self->{infiniteValue});
-   print $fileHandle " infiniteNegativeValue=\"",$self->{infiniteNegativeValue},"\"" 
+   print $fileHandle "<valueList start=\"".$self->{start}."\" step=\"".$self->{step}."\" size=\"".$self->{size}."\"";
+   print $fileHandle " valueListId=\"".$self->{valueListId}."\"" if (defined $self->{valueListId});
+   print $fileHandle " valueListIdRef=\"".$self->{valueListIdRef}."\"" if (defined $self->{valueListIdRef});
+   print $fileHandle " noDataValue=\"".$self->{noDataValue}."\"" if (defined $self->{noDataValue});
+   print $fileHandle " infiniteValue=\"".$self->{infiniteValue}."\"" if (defined $self->{infiniteValue});
+   print $fileHandle " infiniteNegativeValue=\"".$self->{infiniteNegativeValue}."\"" 
                        if (defined $self->{infiniteNegativeValue});
-   print $fileHandle " notANumberValue=\"",$self->{notANumberValue},"\"" if (defined $self->{notANumberValue});
-   print $fileHandle " overflowValue=\"",$self->{overflowValue},"\"" if (defined $self->{overflowValue});
-   print $fileHandle " underflowValue=\"",$self->{underflowValue},"\"" if (defined $self->{underflowValue});
+   print $fileHandle " notANumberValue=\"".$self->{notANumberValue}."\"" if (defined $self->{notANumberValue});
+   print $fileHandle " overflowValue=\"".$self->{overflowValue}."\"" if (defined $self->{overflowValue});
+   print $fileHandle " underflowValue=\"".$self->{underflowValue}."\"" if (defined $self->{underflowValue});
    print $fileHandle "/>";
 
    print $fileHandle "\n" if $isPrettyXDFOutput;
@@ -302,6 +299,9 @@ sub AUTOLOAD {
 # Modification History
 #
 # $Log$
+# Revision 1.3  2001/08/10 16:28:36  thomas
+# fixed toXMLFileHandle method to print properly.
+#
 # Revision 1.2  2001/07/23 15:58:07  thomas
 # added ability to add arbitary XML attribute to class.
 # getXMLattributes now an instance method, we
