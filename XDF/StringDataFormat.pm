@@ -1,3 +1,4 @@
+
 # $Id$
 
 package XDF::StringDataFormat;
@@ -15,7 +16,6 @@ package XDF::StringDataFormat;
 #    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
 # */
 
-
 # /** AUTHOR 
 #    Brian Thomas  (thomas@adc.gsfc.nasa.gov)
 #    Astronomical Data Center <http://adc.gsfc.nasa.gov>
@@ -23,8 +23,7 @@ package XDF::StringDataFormat;
 # */
 
 # /** DESCRIPTION
-# The XDF::StringDataFormat class describes the data format of objects which 
-# require such description (XDF::Field, XDF::Array).
+# XDF::StringDataFormat is the class that describes string data.
 # */
 
 # /** SYNOPSIS
@@ -32,40 +31,46 @@ package XDF::StringDataFormat;
 # */
 
 # /** SEE ALSO
-# XDF::Array
-# XDF::DataFormat
-# XDF::Field
-# XDF::StringStyle
 # */
 
-use XDF::StringStyle;
+
 use XDF::DataFormat;
+use Carp;
 
 use strict;
 use integer;
 
 use vars qw ($AUTOLOAD %field @ISA);
 
-# inherits from XDF::DataFormat and XDF::StringStyle
-# order in @ISA array is important 
-@ISA = ("XDF::StringStyle","XDF::DataFormat");
+# inherits from XDF::DataFormat
+@ISA = ("XDF::DataFormat");
 
 # CLASS DATA
-my $Class_XML_Node_Name = &XDF::DataFormat::classXMLNodeName . "||" .
-                          &XDF::StringStyle::classXMLNodeName;
-
+my $Class_XML_Node_Name = "string";
 my @Class_Attributes = qw (
+                             length
                           );
+
+# /** length
+# The width of this string field in characters.
+# Normally this translates to the number of bytes the object holds,
+# however, note that the encoding of the data is important. When
+# the encoding is UTF-16, then the number of bytes effectively is 2x $obj->length.
+# */
 
 # add in super class attributes
 push @Class_Attributes, @{&XDF::DataFormat::classAttributes};
-push @Class_Attributes, @{&XDF::StringStyle::classAttributes};
 
-# Initalization -- set up object attributes.
+# Something specific to Perl
+my $Perl_Sprintf_Field_String = 's';
+my $Perl_Regex_Field_String = '.';
+
+# Initalization
+# set up object attributes.
 for my $attr ( @Class_Attributes ) { $field{$attr}++; }
 
 # /** classXMLNodeName
-# This method returns the class node name for this class.
+# This method returns the class XML node name.
 # This method takes no arguments may not be changed. 
 # */
 sub classXMLNodeName {
@@ -74,7 +79,7 @@ sub classXMLNodeName {
 
 # /** classAttributes
 #  This method returns a list containing the names
-#  of the attributes for this class.
+#  of the attributes of this class.
 #  This method takes no arguments may not be changed. 
 # */
 sub classAttributes {
@@ -89,11 +94,73 @@ sub AUTOLOAD {
   &XDF::GenericObject::AUTOLOAD($self, $val, $AUTOLOAD, \%field );
 }
 
+sub _init {
+  my ($self)  = @_;
+  $self->length(0);
+
+}
+
+# /** bytes
+# A convenience method.
+# Return the number of bytes this XDF::StringDataFormat holds.
+# */
+sub bytes { 
+  my ($self) = @_; 
+  $self->length; 
+}
+
+sub _templateNotation {
+  my ($self) = @_;
+  return "A" . $self->bytes;
+}
+
+sub _regexNotation {
+  my ($self) = @_;
+
+  my $width = $self->length;
+  my $symbol = $Perl_Regex_Field_String;
+
+  my $notation = '(';
+
+  my $before_whitespace = $width - 1;
+  $notation .= '\s' . "{0,$before_whitespace}" if($before_whitespace > 0);
+  $notation .= $symbol . '{1,' . $width . '}';
+  $notation .= ')';
+
+  return $notation;
+}
+
+# returns sprintf field notation
+sub _sprintfNotation {
+  my ($self) = @_;
+
+  my $notation = '%';
+  $notation .= $self->length; 
+  $notation .= $Perl_Sprintf_Field_String;
+
+  return $notation;
+}
+
+# /** fortranNotation
+# The fortran style notation for this object.
+# */
+sub fortranNotation {
+  my ($self) = @_;
+
+  my $notation = "A";
+  $notation .= $self->length;
+  return $notation;
+}
+
 # Modification History
 #
 # $Log$
+# Revision 1.3  2000/11/29 21:50:07  thomas
+# Fix to shrink down inheritance of DataFormat classes.
+# No more *Style.pm class files. -b.t.
+#
 # Revision 1.2  2000/10/16 17:37:21  thomas
-# Changed over to BaseObject Class from Object Class.
+# Changed over to DataFormat Class from Object Class.
 # Added in History Modification section.
 #
 #
@@ -117,9 +184,9 @@ XDF::StringDataFormat - Perl Class for StringDataFormat
 
 =head1 DESCRIPTION
 
- The XDF::StringDataFormat class describes the data format of objects which  require such description (XDF::Field, XDF::Array). 
+ XDF::StringDataFormat is an abstract class that describes string data. 
 
-XDF::StringDataFormat inherits class and attribute methods of L<XDF::BaseObject>, L<XDF::GenericObject>, L<XDF::StringStyle>.
+XDF::StringDataFormat inherits class and attribute methods of L<XDF::DataFormat>, L<XDF::GenericObject>.
 
 
 =over 4
@@ -132,11 +199,37 @@ A change in the value of these class attributes will change the value for ALL in
 
 =item classXMLNodeName (EMPTY)
 
-This method returns the class node name for this class. This method takes no arguments may not be changed.  
+This method returns the class XML node name. This method takes no arguments may not be changed.  
 
 =item classAttributes (EMPTY)
 
-This method returns a list containing the namesof the attributes for this class. This method takes no arguments may not be changed.  
+This method returns a list containing the namesof the attributes of this class. This method takes no arguments may not be changed.  
+
+=back
+
+=head2 ATTRIBUTE Methods
+
+These methods set the requested attribute if an argument is supplied to the method. Whether or not an argument is supplied the current value of the attribute is always returned. Values of these methods are always SCALAR (may be number, string, or reference).
+
+=over 4
+
+=item length
+
+The width of this string field in characters. Normally this translates to the number of bytes the object holds,however, note that the encoding of the data is important. Whenthe encoding is UTF-16, then the number of bytes effectively is 2x $obj->length.  
+
+=back
+
+=head2 OTHER Methods
+
+=over 4
+
+=item bytes (EMPTY)
+
+A convenience method. Return the number of bytes this XDF::StringDataFormat holds. 
+
+=item fortranNotation (EMPTY)
+
+The fortran style notation for this object. 
 
 =back
 
@@ -149,7 +242,7 @@ A change in the value of these attributes will change the functioning of ALL ins
 
 =over 4
 
-The following class attribute methods are inherited from L<XDF::BaseObject>:
+The following class attribute methods are inherited from L<XDF::DataFormat>:
 B<Pretty_XDF_Output>, B<Pretty_XDF_Output_Indentation>, B<DefaultDataArraySize>.
 
 =back
@@ -164,7 +257,7 @@ B<Pretty_XDF_Output>, B<Pretty_XDF_Output_Indentation>, B<DefaultDataArraySize>.
 
 =over 4
 
-XDF::StringDataFormat inherits the following instance methods of L<XDF::BaseObject>:
+XDF::StringDataFormat inherits the following instance methods of L<XDF::DataFormat>:
 B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<toXMLFileHandle>, B<toXMLFile>.
 
 =back
@@ -178,20 +271,11 @@ B<new>, B<clone>, B<update>, B<setObjRef>.
 
 =back
 
-
-
-=over 4
-
-XDF::StringDataFormat inherits the following instance methods of L<XDF::StringStyle>:
-B<bytes>, B<fortranNotation>.
-
-=back
-
 =back
 
 =head1 SEE ALSO
 
-L< XDF::Array>, L< XDF::DataFormat>, L< XDF::Field>, L< XDF::StringStyle>, L<XDF::StringStyle>, L<XDF::DataFormat>
+L< XDF::StringDataFormat>, L< XDF::StringDataType>, L<XDF::DataFormat>
 
 =back
 

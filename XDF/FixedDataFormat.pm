@@ -1,3 +1,4 @@
+
 # $Id$
 
 package XDF::FixedDataFormat;
@@ -23,8 +24,8 @@ package XDF::FixedDataFormat;
 # */
 
 # /** DESCRIPTION
-# The XDF::FixedDataFormat class describes the data format of objects which 
-# require such description (XDF::Field, XDF::Array).
+# XDF::FixedDataFormat is the class that describes (ASCII) 
+# fixed (floating point) numbers.
 # */
 
 # /** SYNOPSIS
@@ -32,50 +33,59 @@ package XDF::FixedDataFormat;
 # */
 
 # /** SEE ALSO
-# XDF::Array
 # XDF::DataFormat
-# XDF::Field
-# XDF::FixedStyle
 # */
 
-use XDF::FixedStyle;
-use XDF::DataFormat;
+use XDF::BaseObject;
+use Carp;
 
 use strict;
 use integer;
 
 use vars qw ($AUTOLOAD %field @ISA);
 
-# inherits from XDF::DataFormat and XDF::FixedStyle
-# order in @ISA array is important (?)
-@ISA = ("XDF::FixedStyle","XDF::DataFormat");
+# inherits from XDF::DataFormat
+@ISA = ("XDF::DataFormat");
 
 # CLASS DATA
-my $Class_XML_Node_Name = &XDF::DataFormat::classXMLNodeName . "||" 
-                          . &XDF::FixedStyle::classXMLNodeName;
-
+my $Class_XML_Node_Name = "fixed";
 my @Class_Attributes = qw (
+                             width
+                             precision
                           );
 
 # add in super class attributes
 push @Class_Attributes, @{&XDF::DataFormat::classAttributes};
-push @Class_Attributes, @{&XDF::FixedStyle::classAttributes};
 
-# Initalization -- set up object attributes.
+# /** width
+# The entire width of this fixed field.
+# */
+
+# /** precision
+# The precision of this fixed field which is the number of digits
+# to the right of the '.'.
+# */
+
+# Something specific to Perl
+my $Perl_Sprintf_Field_Fixed = 'f';
+my $Perl_Regex_Field_Fixed = '\d';
+
+# Initalization
+# set up object attributes.
 for my $attr ( @Class_Attributes ) { $field{$attr}++; }
 
 # /** classXMLNodeName
-# This method returns the class node name for this class.
 # This method takes no arguments may not be changed. 
+# This method returns the class node name of XDF::FixedDataFormat.
 # */
 sub classXMLNodeName {
   $Class_XML_Node_Name;
 }
 
 # /** classAttributes
-#  This method returns a list containing the names
-#  of the attributes for this class.
 #  This method takes no arguments may not be changed. 
+#  This method returns a list reference containing the names
+#  of the class attributes of XDF::FixedDataFormat. 
 # */
 sub classAttributes {
   \@Class_Attributes;
@@ -89,10 +99,79 @@ sub AUTOLOAD {
   &XDF::GenericObject::AUTOLOAD($self, $val, $AUTOLOAD, \%field );
 }
 
+sub _init {
+   my ($self) = @_;
+   $self->width(0);
+   $self->precision(0);
+}
+
+# /** bytes
+# A convenience method.
+# Return the number of bytes this XDF::FixedDataFormat holds.
+# */
+sub bytes { 
+  my ($self) = @_; 
+  $self->width; 
+} 
+
+sub _templateNotation {
+  my ($self, $endian, $encoding) = @_;
+  return "A" . $self->bytes; 
+}
+
+sub _regexNotation {
+  my ($self) = @_;
+
+  my $width = $self->width;
+  my $precision = $self->precision;
+  my $symbol = $Perl_Regex_Field_Fixed;
+
+  my $notation = '(';
+
+  my $before_whitespace = $width - $precision - 1;
+  $notation .= '\s' . "{0,$before_whitespace}" if($before_whitespace > 0);
+  my $leading_length = $width - $precision;
+  $notation .= '[+-]?' . $symbol . '{1,' . $leading_length . '}\.';
+  $notation .= $symbol . '{1,' . $precision. '}';
+  $notation .= ')';
+
+  return $notation;
+}
+
+# returns sprintf field notation
+sub _sprintfNotation {
+  my ($self) = @_;
+
+  my $notation = '%';
+  my $field_symbol = $Perl_Sprintf_Field_Fixed;
+  my $precision = $self->precision;
+  $notation .= $self->width; 
+  $notation .= '.' . $precision;
+  $notation .= $field_symbol;
+
+  return $notation;
+}
+
+# /** fortranNotation
+# The fortran style notation for this object.
+# */
+sub fortranNotation {
+  my ($self) = @_;
+
+  my $notation = "F";
+  $notation .= $self->width;
+  $notation .= '.' . $self->precision;
+  return $notation;
+}
+
 
 # Modification History
 #
 # $Log$
+# Revision 1.3  2000/11/29 21:50:07  thomas
+# Fix to shrink down inheritance of DataFormat classes.
+# No more *Style.pm class files. -b.t.
+#
 # Revision 1.2  2000/10/16 17:37:20  thomas
 # Changed over to BaseObject Class from Object Class.
 # Added in History Modification section.
@@ -105,102 +184,3 @@ sub AUTOLOAD {
 
 __END__
 
-=head1 NAME
-
-XDF::FixedDataFormat - Perl Class for FixedDataFormat
-
-=head1 SYNOPSIS
-
-  
-
-
-...
-
-=head1 DESCRIPTION
-
- The XDF::FixedDataFormat class describes the data format of objects which  require such description (XDF::Field, XDF::Array). 
-
-XDF::FixedDataFormat inherits class and attribute methods of L<XDF::BaseObject>, L<XDF::GenericObject>, L<XDF::FixedStyle>.
-
-
-=over 4
-
-=head2 CLASS Methods
-
-A change in the value of these class attributes will change the value for ALL instances of XDF::FixedDataFormat.
-
-=over 4
-
-=item classXMLNodeName (EMPTY)
-
-This method returns the class node name for this class. This method takes no arguments may not be changed.  
-
-=item classAttributes (EMPTY)
-
-This method returns a list containing the namesof the attributes for this class. This method takes no arguments may not be changed.  
-
-=back
-
-=over 4
-
-=head2 INHERITED Class Methods
-
-A change in the value of these attributes will change the functioning of ALL instances of these objects that inherit from the indicated super class.
-
-
-=over 4
-
-The following class attribute methods are inherited from L<XDF::BaseObject>:
-B<Pretty_XDF_Output>, B<Pretty_XDF_Output_Indentation>, B<DefaultDataArraySize>.
-
-=back
-
-=back
-
-=over 4
-
-=head2 INHERITED Other Methods
-
-
-
-=over 4
-
-XDF::FixedDataFormat inherits the following instance methods of L<XDF::BaseObject>:
-B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<toXMLFileHandle>, B<toXMLFile>.
-
-=back
-
-
-
-=over 4
-
-XDF::FixedDataFormat inherits the following instance methods of L<XDF::GenericObject>:
-B<new>, B<clone>, B<update>, B<setObjRef>.
-
-=back
-
-
-
-=over 4
-
-XDF::FixedDataFormat inherits the following instance methods of L<XDF::FixedStyle>:
-B<bytes>, B<fortranNotation>.
-
-=back
-
-=back
-
-=head1 SEE ALSO
-
-L< XDF::Array>, L< XDF::DataFormat>, L< XDF::Field>, L< XDF::FixedStyle>, L<XDF::FixedStyle>, L<XDF::DataFormat>
-
-=back
-
-=head1 AUTHOR
-
-    Brian Thomas  (thomas@adc.gsfc.nasa.gov)
-    Astronomical Data Center <http://adc.gsfc.nasa.gov>
-    NASA/Goddard Space Flight Center
-
-
-=cut
