@@ -255,19 +255,29 @@ sub numOfBytes {
 #
 
 sub _basicXMLWriter {
-  my ($self, $fileHandle, $XMLDeclAttribs, $indent, $dontCloseNode,
+  my ($self, $fileHandle, $indent, $dontCloseNode,
       $newNodeNameString, $noChildObjectNodeName ) = @_;
 
+   # get XDF spec
    my $spec = XDF::Specification->getInstance();
+
+   # capture output setting
    my $output = $spec->isPrettyXDFOutput;
+
+   # start printing wrapper node
    print $fileHandle $indent if $output;
    print $fileHandle "<$DataFormat_Class_XML_Node_Name>";
+
+   # turn off pretty output to collapse node info to one line 
    $spec->setPrettyXDFOutput(0);
-   $self->SUPER::toXMLFileHandle($fileHandle, $XMLDeclAttribs, $indent, $dontCloseNode,
+
+   # now print core stuff
+   $self->SUPER::_basicXMLWriter($fileHandle, $indent, $dontCloseNode,
       $newNodeNameString, $noChildObjectNodeName);
+
+   # reset output setting
    $spec->setPrettyXDFOutput($output);
    print $fileHandle "</$DataFormat_Class_XML_Node_Name>";
-#   print $fileHandle "\n" if $output;
 
 }
 
