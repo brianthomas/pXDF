@@ -30,7 +30,7 @@ my $manpageDir = "../blib/man3";
 
     next unless $manfile =~ m/^XDF::/;
     my $outname = $manfile;  
-    $outname =~ s/3pm$/html/;
+    $outname =~ s/(.*)?\..*$/$1\.html/;
 
     push @htmlPages, $outname;
 
