@@ -235,13 +235,13 @@ either 10 or e.-->
 	 (parameter | parameterGroup)*, 	
 		(
 			( 
-				(fieldAxis,axis*,dataStyle) | (fieldAxis,(rowAxis|colAxis))
+				(fieldAxis,axis*,dataStyle?) | (fieldAxis,(rowAxis|colAxis))
 			)
 			 |
 			(
 				conversion?, (units|unitless), dataFormat,
 				 	(
-				 		(axis*,dataStyle)
+				 		(axis*,dataStyle?)
 				 		 |
 						(colAxis,rowAxis?) 
 						| 
@@ -259,13 +259,13 @@ either 10 or e.-->
 	array_children, (parameter | parameterGroup)*, 	
 		(
 			( 
-				(fieldAxis,axis*,dataStyle) | (fieldAxis,(rowAxis|colAxis))
+				(fieldAxis,axis*,dataStyle?) | (fieldAxis,(rowAxis|colAxis))
 			) 
 		|
 			(
 				conversion?, (units|unitless), dataFormat,
 				 	(
-				 		(axis*,dataStyle)
+				 		(axis*,dataStyle?)
 				 		 |
 						(colAxis,rowAxis?) 
 						| 
@@ -387,7 +387,7 @@ way to define n-tuples.
 >
 <!--  Each array can contain notes to individual datum.
 -->
-<!ELEMENT notes (locationOrder?, note+, inequality+)>
+<!ELEMENT notes (locationOrder?, note+, inequality*)>
 <!ELEMENT locationOrder (index+)>
 <!ELEMENT index EMPTY>
 <!ATTLIST index
@@ -501,7 +501,7 @@ real*16 are common but not everywhere).
 	dataStyleIdRef IDREF #IMPLIED
 >
 <!ELEMENT tagged (tagToAxis+)>
-<!ELEMENT delimited (delimitedInstruction, for)>
+<!ELEMENT delimited (delimitedInstruction?, for?)>
 <!ELEMENT delimitedInstruction (delimiter, recordTerminator)>
 <!ELEMENT delimiter ((chars | newLine)*)>
 <!ATTLIST delimiter
@@ -520,7 +520,7 @@ real*16 are common but not everywhere).
 	axisIdRef IDREF #REQUIRED
 >
 <!ELEMENT doInstruction EMPTY>
-<!ELEMENT fixedWidth (fixedWidthInstruction, for)>
+<!ELEMENT fixedWidth (fixedWidthInstruction?, for?)>
 <!ELEMENT fixedWidthInstruction (repeat | readCell | skip)+>
 <!-- repeatable attribute (above) means that one or more of the delimiter 
      may occur as a single delimiter. -->
