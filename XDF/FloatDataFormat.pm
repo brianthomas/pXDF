@@ -279,6 +279,9 @@ sub _sprintfNotation {
 # Modification History
 #
 # $Log$
+# Revision 1.4  2001/03/09 21:53:08  thomas
+# Had no documentation. added.
+#
 # Revision 1.3  2001/02/15 22:42:50  thomas
 # fix to regexNotation
 #
@@ -295,3 +298,166 @@ sub _sprintfNotation {
 1;
 
 
+__END__
+
+=head1 NAME
+
+XDF::FloatDataFormat - Perl Class for FloatDataFormat
+
+=head1 SYNOPSIS
+
+  
+
+
+...
+
+=head1 DESCRIPTION
+
+ XDF::FloatDataFormat is the class that describes   floating point numbers written as ASCII.   Two different output styles are supported. When the exponent attribute  is non-zero, numbers are read/written in FORTRAN 'E' format, in all other   cases an 'F' style read/write format is used.   Definitions of number fields are for example:  
+  130050.0000001E-034         |----|  |--|            P      X   |-----------------|         W 
+ 
+  where 'W' indicates the width of the 'width' attribute.   'P' indicates the width of the 'precision' attribute.   'X' indicates the width of the 'exponent' attribute.  
+ The 'E' only exists when there are a positive non-zero   number of 'X'. For example, a FloatDataFormat with the  attributes width=8, precision=5 and exponent=0 would describe  the following number: "11.00014" 
+
+XDF::FloatDataFormat inherits class and attribute methods of L<XDF::GenericObject>, L<XDF::DataFormat>, L<XDF::BaseObject>.
+
+
+=over 4
+
+=head2 CLASS Methods
+
+A change in the value of these class attributes will change the value for ALL instances of XDF::FloatDataFormat.
+
+=over 4
+
+=item classXMLNodeName (EMPTY)
+
+This method returns the class node name of XDF::FloatDataFormat. This method takes no arguments may not be changed.  
+
+=item classAttributes (EMPTY)
+
+This method returns a list reference containing the namesof the class attributes of XDF::FloatDataFormat. This method takes no arguments may not be changed.  
+
+=back
+
+=head2 ATTRIBUTE Methods
+
+These methods set the requested attribute if an argument is supplied to the method. Whether or not an argument is supplied the current value of the attribute is always returned. Values of these methods are always SCALAR (may be number, string, or reference).
+
+=over 4
+
+=item width
+
+The entire width of this float field, including the 'E'should the 'exponent' attribute be non-zero.  
+
+=item precision
+
+The precision of this float field from the portion to theright of the '.' to the exponent that follows the 'E'.  
+
+=item exponent
+
+ 
+
+=back
+
+=head2 OTHER Methods
+
+=over 4
+
+=item getWidth (EMPTY)
+
+Get the width attribute. Width specifies the widthof the entire float field (e.g. "1.003" has a width of '5'). If the 'exponent' attribute is non-zero then the fieldis to be written in sci. format so that the width includes the 'E' and any '.' (e.g. "10.333E-3" has a width of '9'). 
+
+=item setWidth ($value)
+
+Set the width attribute. Width specifies the widthof the entire float field (e.g. "1.003" has a width of '5'). If the 'exponent' attribute is non-zero then the fieldis to be written in sci. format so that the width includes the 'E' and any '.' (e.g. "10.333E-3" has a width of '9'). 
+
+=item getPrecision (EMPTY)
+
+Get the precision attribute. This specifies the widthof the field to the *right* of the '.' (e.g. "10.333E-3" has a precision of '3'; "1.004" has a precision of '3'). 
+
+=item setPrecision ($value)
+
+Set the precision attribute. This specifies the widthof the field to the *right* of the '.' (e.g. "10.333E-3" has a precision of '3'; "1.004" has a precision of '3'). 
+
+=item getExponent (EMPTY)
+
+Get the exponent attribute. This specifies the widthof the field to the *right* of the 'E', e.g. "10.333E-3" has an exponent (width) of "2". When the exponent is zero,then the number is to be written as in FORTRAN 'F' formatinstead (e.g. "10.004").  
+
+=item setExponent ($value)
+
+Set the exponent attribute. This specifies the widthof the field to the *right* of the 'E', e.g. "10.333E-3" has an exponent (width) of "2". When the exponent is zero,then the number is to be written as in FORTRAN 'F' formatinstead (e.g. "10.004").  
+
+=item numOfBytes (EMPTY)
+
+Return the number of bytes this XDF::FloatDataFormat holds. 
+
+=item getXMLAttributes (EMPTY)
+
+This method returns the XMLAttributes of this class. 
+
+=back
+
+=over 4
+
+=head2 INHERITED Class Methods
+
+A change in the value of these attributes will change the functioning of ALL instances of these objects that inherit from the indicated super class.
+
+
+=over 4
+
+The following class attribute methods are inherited from L<XDF::BaseObject>:
+B<Pretty_XDF_Output>, B<Pretty_XDF_Output_Indentation>, B<DefaultDataArraySize>.
+
+=back
+
+=back
+
+=over 4
+
+=head2 INHERITED Other Methods
+
+
+
+=over 4
+
+XDF::FloatDataFormat inherits the following instance methods of L<XDF::GenericObject>:
+B<new>, B<clone>, B<update>.
+
+=back
+
+
+
+=over 4
+
+XDF::FloatDataFormat inherits the following instance methods of L<XDF::DataFormat>:
+B<toXMLFileHandle>.
+
+=back
+
+
+
+=over 4
+
+XDF::FloatDataFormat inherits the following instance methods of L<XDF::BaseObject>:
+B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLAttributes>, B<setXMLNotationHash>, B<toXMLFile>.
+
+=back
+
+=back
+
+=head1 SEE ALSO
+
+L<XDF::DataFormat>
+
+=back
+
+=head1 AUTHOR
+
+    Brian Thomas  (thomas@adc.gsfc.nasa.gov)
+    Astronomical Data Center <http://adc.gsfc.nasa.gov>
+    NASA/Goddard Space Flight Center
+
+
+=cut
