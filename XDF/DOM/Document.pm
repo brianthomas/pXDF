@@ -28,8 +28,8 @@
 #
 #  # ($document is an XDF::Document object)
 #
-#  my $structureObj = new XDF::Structure();
-#  my $xdfNode = $document->createXDFElement($structureObj); 
+#  my $XDFObj = new XDF::XDF();
+#  my $xdfNode = $document->createXDFElement($XDFObj); 
 #
 #  $document->appendChild($xdfNode);
 #
@@ -38,7 +38,7 @@
 # /** SEE ALSO
 # XDF::DOM::Parser
 # XDF::DOM::Element
-# XDF::Structure
+# XDF::XDF
 # */
 
 package XDF::DOM::Document;
@@ -87,98 +87,3 @@ sub getXDFElements {
 1;
 
 
-__END__
-
-=head1 NAME
-
-XDF::DOM::Document - Perl Class for DOM::Document
-
-=head1 SYNOPSIS
-
-
-  # ($document is an XDF::Document object)
-
-  my $structureObj = new XDF::Structure();
-  my $xdfNode = $document->createXDFElement($structureObj); 
-
-  $document->appendChild($xdfNode);
-
-
-
-...
-
-=head1 DESCRIPTION
-
-
-
-XDF::DOM::Document inherits class and attribute methods of L<XML::DOM::Document>.
-
-
-=head1 METHODS
-
-=over 4
-
-=head2 CLASS Methods
-
-The following methods are defined for the class XDF::DOM::Document.
-
-=over 4
-
-=item new (%args)
-
- 
-
-=back
-
-=head2 INSTANCE (Object) Methods
-
-The following instance (object) methods are defined for XDF::DOM::Document.
-
-=over 4
-
-=item createXDFElement ($XDFObjectRef)
-
-Creates an XDF element node. Returns an XDF::DOM::Element whichmay be inserted within the document.  
-
-=item getXDFElements (EMPTY)
-
- 
-
-=back
-
-
-
-=head2 INHERITED Class Methods
-
-=over 4
-
-=back
-
-
-
-=head2 INHERITED INSTANCE Methods
-
-=over 4
-
-=back
-
-=back
-
-=head1 SEE ALSO
-
-
-
-=over 4
-
-L< XDF::DOM::Parser>, L< XDF::DOM::Element>, L< XDF::Structure>, L<XDF::DOM>
-
-=back
-
-=head1 AUTHOR
-
-    Brian Thomas  (thomas@adc.gsfc.nasa.gov)
-    Astronomical Data Center <http://adc.gsfc.nasa.gov>
-    NASA/Goddard Space Flight Center
- 
-
-=cut
