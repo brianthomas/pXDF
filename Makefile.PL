@@ -82,7 +82,7 @@ if ($@) {
 # the contents of the Makefile that is written.
 WriteMakefile(
     'NAME'	=> 'XDF',
-    'VERSION_FROM' => 'XDF/BaseObject.pm', # finds $VERSION
+    'VERSION_FROM' => 'XDF/Constants.pm', # finds $VERSION
     dist      => { COMPRESS => 'gzip', SUFFIX => '.gz'},
     PREREQ_PM => { 'XML::Parser' => '2.27', },
     PM => { 
@@ -146,6 +146,9 @@ WriteMakefile(
 # Modification History
 #
 # $Log$
+# Revision 1.13  2001/08/13 21:02:48  thomas
+# *** empty log message ***
+#
 # Revision 1.12  2001/08/13 20:55:24  thomas
 # *** empty log message ***
 #
