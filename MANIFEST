@@ -6,7 +6,6 @@ LICENCE
 XDF_DOC
 MANIFEST
 UML-XDF.gif
-XDF_0.17.dtd
 XDF/Array.pm
 XDF/Axis.pm
 XDF/BaseObject.pm
@@ -48,7 +47,8 @@ XDF/Utility.pm
 XDF/Value.pm
 XDF/ValueGroup.pm
 XDF/XMLDataIOStyle.pm
-t/datamodel.t
+t/runXDF.t
+samples/XDF_0.17.dtd
 samples/guiview.pl
 samples/read.pl
 samples/read_write.pl
@@ -62,4 +62,4 @@ samples/XDF_sample6.dat
 samples/XDF_sample6.xml
 samples/ApJ_464_79_table1.xml
 utils/makeDoc.pl
-utils/makeHtmlDoc.pl
+utils/makeHTMLDoc.pl
