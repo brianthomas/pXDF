@@ -40,7 +40,6 @@ package XDF::Locator;
 #
 # */
 
-
 use strict;
 use integer;
 
@@ -66,7 +65,6 @@ sub new {
 
   unless (caller eq 'XDF::Array') {
     error("Error: $proto is not meant to be instanciated standalone. Use XDF::Array method to create instance.\n");
-    return;
   }
 
   my $class = ref ($proto) || $proto;
@@ -86,12 +84,27 @@ sub new {
 sub setAxisIndex {
   my ($self, $axisObj, $index) = @_;
 
-  return unless defined $axisObj and defined $index;
+#my @parentAxisList = @{%{$self->{_parentArray}}->{axisList}};
+#print STDERR "setAxisIndex $axisObj, $index (parent:",$self->{_parentArray},"| ",join ' ',@parentAxisList,")called\n";
 
-  %{$self->{_locationHash}}->{$axisObj} = $index;
+  unless (ref $axisObj and defined $index) {
+    warn ("Cannot setAxisIndex missing information\n");
+    return; 
+  }
+
+  #unless (defined %{$self->{_locationHash}}->{$axisObj}) {
+  unless (defined $self->{_locationHash}->{$axisObj}) {
+    warn ("Cannot setAxisIndex...passed axis not valid\n");
+    return;
+  }
+
+  #%{$self->{_locationHash}}->{$axisObj} = $index;
+  $self->{_locationHash}->{$axisObj} = $index;
 
   # needs to be done
   $self->_calculateLongArrayIndex();
+
+#print STDERR "LONG INDEX IS NOW:",$self->{_longArrayIndex},"\n";
 
 }
 
@@ -100,7 +113,8 @@ sub setAxisIndex {
 sub getAxisIndex {
   my ($self, $axisObj ) = @_;
   return undef unless defined $axisObj;
-  return %{$self->{_locationHash}}->{$axisObj};
+  #return %{$self->{_locationHash}}->{$axisObj};
+  return $self->{_locationHash}->{$axisObj};
 }
 
 # /** getAxisValue
@@ -111,8 +125,9 @@ sub getAxisValue {
   my ($self, $axisObj ) = @_;
 
   return undef unless defined $axisObj;
-  my $index = %{$self->{_locationHash}}->{$axisObj};
-  return $axisObj->getValueList->[$index];
+  #my $index = %{$self->{_locationHash}}->{$axisObj};
+  my $index = $self->{_locationHash}->{$axisObj};
+  return $axisObj->getValueList()->[$index];
 
 }
 
@@ -125,7 +140,8 @@ sub getAxisIndices {
 
   my @list = ();
   foreach my $axisObj (@{$self->{_iterationOrderList}}) {
-    push @list, %{$self->{_locationHash}}->{$axisObj};
+    #push @list, %{$self->{_locationHash}}->{$axisObj};
+    push @list, $self->{_locationHash}->{$axisObj};
   }
 
   return \@list;
@@ -214,19 +230,22 @@ sub next {
   foreach my $axisObj (@{$self->{_iterationOrderList}}) {
 
       my $axisSize = $axisObj->getLength()-1;
-      my $index = %{$self->{_locationHash}}->{$axisObj}; 
+      #my $index = %{$self->{_locationHash}}->{$axisObj}; 
+      my $index = $self->{_locationHash}->{$axisObj}; 
 
       # are we still within the axis?
       if ($index < $axisSize)
       {
         $outOfDataCells = 0;
         # advance current index by one 
-        %{$self->{_locationHash}}->{$axisObj}++;
+        #%{$self->{_locationHash}}->{$axisObj}++;
+        $self->{_locationHash}->{$axisObj}++;
         last;  # get out of the for loop
       }
 
       # reset index back to the origin of this axis 
-      %{$self->{_locationHash}}->{$axisObj} = 0;
+      #%{$self->{_locationHash}}->{$axisObj} = 0;
+      $self->{_locationHash}->{$axisObj} = 0;
 
   }
 
@@ -257,12 +276,15 @@ sub prev {
 
   my $atOrigin = 1;
   foreach my $axisObj (reverse @{$self->{_iterationOrderList}}) {
-    %{$self->{_locationHash}}->{$axisObj} -= 1;
-    if (%{$self->{_locationHash}}->{$axisObj} < 0) {
-       # crap we went below 0 on that index, means we flipped to next
+    #%{$self->{_locationHash}}->{$axisObj} -= 1;
+    $self->{_locationHash}->{$axisObj} -= 1;
+   # if (%{$self->{_locationHash}}->{$axisObj} < 0) {
+    if ($self->{_locationHash}->{$axisObj} < 0) {
+       # Crap. We went below 0 on that index, means we flipped to next
        # axis. IF this is the last axis we are testing, then we went
        # out of axes and should set to the origin.
-       %{$self->{_locationHash}}->{$axisObj} = $axisObj->getLength()-1; # set to the max index then
+       #%{$self->{_locationHash}}->{$axisObj} = $axisObj->getLength()-1; # set to the max index then
+       $self->{_locationHash}->{$axisObj} = $axisObj->getLength()-1; # set to the max index then
     } else {
        $atOrigin = 0;
        last;
@@ -294,13 +316,15 @@ sub backward {
 
      # gather and record info
      my $maxIndex = $axisObj->getLength();
-     my $currentIndex = %{$self->{_locationHash}}->{$axisObj};
+     #my $currentIndex = %{$self->{_locationHash}}->{$axisObj};
+     my $currentIndex = $self->{_locationHash}->{$axisObj};
 
      # calc the value of nrofDataCells gained by changing index by 1
      my $worthCells = 1;
      for (@needAxis)
      {
-        $worthCells *= %{$_}->{maxIndex};
+        #$worthCells *= %{$_}->{maxIndex};
+        $worthCells *= $_->{maxIndex};
      }
 
      # the test
@@ -328,8 +352,10 @@ sub backward {
         next;
      }
 
-     my $worthCells = %{$axis}->{worthCells};
-     my $maxIndex = %{$axis}->{maxIndex};
+     #my $worthCells = %{$axis}->{worthCells};
+     #my $maxIndex = %{$axis}->{maxIndex};
+     my $worthCells = $axis->{worthCells};
+     my $maxIndex = $axis->{maxIndex};
      my $changeAxisIndex = int ($remainingCells/$worthCells);
 
      if ($changeAxisIndex > $maxIndex) {
@@ -398,13 +424,15 @@ sub forward {
 
      # gather and record info
      my $maxIndex = $axisObj->getLength();
-     my $currentIndex = %{$self->{_locationHash}}->{$axisObj};
+     #my $currentIndex = %{$self->{_locationHash}}->{$axisObj};
+     my $currentIndex = $self->{_locationHash}->{$axisObj};
 
      # calc the value of nrofDataCells gained by changing index by 1
      my $worthCells = 1;
      for (@needAxis) 
      {
-        $worthCells *= %{$_}->{maxIndex};
+        #$worthCells *= %{$_}->{maxIndex};
+        $worthCells *= $_->{maxIndex};
      }
 
      # the test
@@ -431,8 +459,10 @@ sub forward {
         next;
      }
 
-     my $worthCells = %{$axis}->{worthCells};
-     my $maxIndex = %{$axis}->{maxIndex};
+     #my $worthCells = %{$axis}->{worthCells};
+     #my $maxIndex = %{$axis}->{maxIndex};
+     my $worthCells = $axis->{worthCells};
+     my $maxIndex = $axis->{maxIndex};
      my $changeAxisIndex = int ($remainingCells/$worthCells);
 
      if ($changeAxisIndex > $maxIndex) {
@@ -465,7 +495,8 @@ sub forward {
      # oops! we have exceeded the maximum, set to max indices
      $outOfDataCells = 1; 
      for (@needAxis) {
-       $self->setAxisIndex(%{$_}->{'axis'}, (%{$_}->{'maxIndex'}-1));
+       #$self->setAxisIndex(%{$_}->{'axis'}, (%{$_}->{'maxIndex'}-1));
+       $self->setAxisIndex($_->{'axis'}, ($_->{'maxIndex'}-1));
      }
   }
 
@@ -484,7 +515,8 @@ sub reset {
   # Yo! this is crucial.. not to change this without considering
   # how it changes the initialization of the Locator..
   foreach my $axisObj (@{$self->{_iterationOrderList}}) { 
-     %{$self->{_locationHash}}->{$axisObj} = 0; 
+    # %{$self->{_locationHash}}->{$axisObj} = 0; 
+     $self->{_locationHash}->{$axisObj} = 0; 
   }
 
   $self->_calculateLongArrayIndex();
@@ -513,7 +545,9 @@ sub _init {
   # then this would have to be called again
   $self->_updateInternalLookupIndices();
 
-  $self->setIterationOrder($axesList_ref);
+  my $writeOrderList = $parentArray->getXMLDataIOStyle()->getWriteAxisOrderList();
+
+  $self->setIterationOrder($writeOrderList);
 
   # do this last
 #  $self->reset(); # inits _locationHash too
@@ -554,18 +588,21 @@ sub _calculateLongArrayIndex
    my ($self) = @_;
    
    my $longIndex = 0;
-   my @axisList = @{%{$self->{_parentArray}}->{axisList}};
+  # my @axisList = @{%{$self->{_parentArray}}->{axisList}};
+   my @axisList = @{$self->{_parentArray}->{axisList}};
    my $numOfAxes = $self->{_nrofAxes}+1;
 
    if ($numOfAxes > 0) {
 
       my $axisObj = $axisList[0];
-      $longIndex = %{$self->{_locationHash}}->{$axisObj};
+     # $longIndex = %{$self->{_locationHash}}->{$axisObj};
+      $longIndex = $self->{_locationHash}->{$axisObj};
 
       for (my $i = 1; $i < $numOfAxes; $i++) {
          $axisObj = $axisList[$i];
          my $coefficient = $self->{_axisLookupIndexArray}->[$i];
-         $longIndex += %{$self->{_locationHash}}->{$axisObj} * $coefficient;
+         #$longIndex += %{$self->{_locationHash}}->{$axisObj} * $coefficient;
+         $longIndex += $self->{_locationHash}->{$axisObj} * $coefficient;
       }
 
    }
@@ -573,15 +610,20 @@ sub _calculateLongArrayIndex
    $self->{_longArrayIndex} = $longIndex;
 }
 
+sub DESTROY 
+{
+   my $self = shift;
+   $self->{_parentArray}->_removeLocator($self) if $self->{_parentArray};
+}
+
 sub _dumpLocation {
    my ($self) = @_;
 
-   my $string;
+   my $string = "Present Location :"; 
    while (my ($axisObj, $index) = each %{$self->{_locationHash}}) {
        my $id = $axisObj; #->getAxisId();
-       $string .= "($id,$index)";
+       $string .= "($id,$index)"; 
    }
-   $string .= "\n";
 
    return $string;
 }
@@ -589,3 +631,138 @@ sub _dumpLocation {
 1;
 
 
+__END__
+
+=head1 NAME
+
+XDF::Locator - Perl Class for Locator
+
+=head1 SYNOPSIS
+
+
+
+
+...
+
+=head1 DESCRIPTION
+
+ The LOCATOR object is nothing more than an array of the indices for the requested datacell.  Indices are always non-negative integers, and ordering within the LOCATOR indicates axis.  For example, declaring: 
+  my @locator = (1,2,2);  
+  my $data = $dataCubeObject->getData(\@locator);
+ 
+ indicates that the user wishes to retrieve the data from datacell at axis1 index = 1,  axis2 index = 2, axis 3 index = 2. XDF::DataCubes use zero-indexing, so a request to  location (0,0) (for example) is valid. 
+
+
+
+=head1 METHODS
+
+=over 4
+
+=head2 CLASS Methods
+
+The following methods are defined for the class XDF::Locator.
+
+=over 4
+
+=item new ($parentArray)
+
+ 
+
+=back
+
+=head2 INSTANCE (Object) Methods
+
+The following instance (object) methods are defined for XDF::Locator.
+
+=over 4
+
+=item setAxisIndex ($axisObj, $index)
+
+ 
+
+=item getAxisIndex ($axisObj)
+
+ 
+
+=item getAxisValue ($axisObj)
+
+Returns the current axis value if successful, null if no such Axis exists in this locator.  
+
+=item getAxisIndices (EMPTY)
+
+Returns a list of the current indices (present locator position in the dataCube) arranged in the axis iteration order.  
+
+=item getIterationOrder (EMPTY)
+
+returns an array reference.  
+
+=item setIterationOrder ($axisOrderListRef)
+
+This will also result in a resetting the current (axis) indices to the originlocation. The first axis is considered the 'fastest' axis in the traversal.  
+
+=item setAxisIndexByAxisValue ($axisObj, $axisValueOrValueObj)
+
+Set the index of an axis to the index of a valuealong that axis 
+
+=item hasNext (EMPTY)
+
+ 
+
+=item next (EMPTY)
+
+Change the locator coordinates to the next datacell asdetermined from the locator iteration order. Returns '0' if it must cycle back to the first datacellto set a new 'next' location.  
+
+=item prev (EMPTY)
+
+Change the locator coordinates to the previous datacell asdetermined from the locator iteration order. If the requesttakes it past the origin (e.g. you *were* there to start), it cycles the locator back around to the last datacell. In this case the method returns false ('0'), otherwise it returnstrue.  
+
+=item backward ($nrofDataCells)
+
+Move the locator backward by $nrofDataCells data cells. Locator traverses the data cube in the iteration order. This method returns false if the request would take it pastthe origin of the data Cube (the location is still changed to the origin).  
+
+=item forward ($nrofDataCells)
+
+Move the locator forward by $nrofDataCells data cells. The Locator traverses the data cube in the iteration order. This method returns false if the request would take it pastthe number of allocated data cells (the location is set to the final dataCell however).  
+
+=item reset (EMPTY)
+
+Reset the locator to the origin.  
+
+=back
+
+
+
+=head2 INHERITED Class Methods
+
+=over 4
+
+=back
+
+
+
+=head2 INHERITED INSTANCE Methods
+
+=over 4
+
+=back
+
+=back
+
+=head1 SEE ALSO
+
+
+
+=over 4
+
+
+
+=back
+
+=head1 AUTHOR
+
+    Brian Thomas  (thomas@adc.gsfc.nasa.gov)
+    Astronomical Data Center <http://adc.gsfc.nasa.gov>
+    NASA/Goddard Space Flight Center
+ 
+
+=cut
