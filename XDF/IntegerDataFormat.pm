@@ -36,7 +36,7 @@ package XDF::IntegerDataFormat;
 
 use XDF::Utility;
 use XDF::DataFormat;
-use Carp;
+use XDF::Log;
 
 use strict;
 use integer;
@@ -145,7 +145,7 @@ sub getType {
 sub setType {
    my ($self, $value) = @_;
 
-   carp "Cant set type to $value, not allowed \n"
+   error("Cant set type to $value, not allowed \n") 
       unless (&XDF::Utility::isValidIntegerType($value));
    $self->{type} = $value;
 }

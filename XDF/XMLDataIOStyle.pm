@@ -42,7 +42,7 @@ package XDF::XMLDataIOStyle;
 # written out when we use toXML* methods on this class.
 
 use XDF::BaseObject;
-use Carp;
+use XDF::Log;
 
 use strict;
 use integer;
@@ -179,7 +179,7 @@ sub getEncoding{
 sub setEncoding {
    my ($self, $value) = @_;
 
-   carp "Cant set encoding to $value, not allowed \n"
+   error("Cant set encoding to $value, not allowed \n")
       unless (&XDF::Utility::isValidIOEncoding($value));
 
    $self->{encoding} = $value;
@@ -198,7 +198,7 @@ sub getEndian{
 sub setEndian {
    my ($self, $value) = @_;
 
-   carp "Cant set endian to $value, not allowed \n"
+   error("Cant set endian to $value, not allowed \n") 
       unless (&XDF::Utility::isValidEndian($value));
 
    $self->{endian} = $value;
@@ -231,7 +231,7 @@ sub setWriteAxisOrderList {
   my ($self, $arrayRefValue) = @_;
 
   if (ref($self) eq 'XDF::TaggedXMLDataIOStyle') {
-    warn "setWriteAxisOrderList has no effect currently for TaggedXMLDataIOStyle, Ignoring\n";
+    error("setWriteAxisOrderList has no effect currently for TaggedXMLDataIOStyle, Ignoring\n");
     return;
   }
 

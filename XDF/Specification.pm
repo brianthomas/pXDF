@@ -30,11 +30,12 @@
 # */
 
 # /** SEE ALSO
-# XDF::BaseObject
+# XDF::Log
 # */
 
 package XDF::Specification;
 
+use XDF::Utility;
 use XDF::Constants;
 
 use vars qw { $Singleton };
@@ -46,6 +47,8 @@ my $DefaultDataArraySize = 1000; # Number stuff for holding data. We want to
                                  # have a minimum array size for numbers (axis, dataCube, etc.)
                                  # This is what we declare as a default 
 
+my $DefaultLogMessageLevel = 3; # print only debug messages
+my $DefaultLogFileHandle = \*STDERR;
 my $DefaultPrettyXDFOutput = 0;
 my $DefaultPrettyXDFOutputIndentation = "   ";
 
@@ -135,50 +138,57 @@ sub setDefaultDataArraySize {
   $Singleton->{dataArraySize} = $value;
 }
 
-# getXMLNotationHash
-# Get the output XML NotationHash for all XDF objects. 
-# Returns a reference to a Hash object.
-#sub getXMLNotationHash {
-#  my ($self) = @_;
-#  return $Singleton->{xmlNotationHash};
-#}
-
-# setXMLNotationHash
-# Set the output XML NotationHash for all XDF objects. This will be 
-# printed out with other XMLDeclarations in a toXMLFileHandle call. 
+#/** setLogMessageLevel 
+#    Set the log chattyness of the XDF package.
+#    All log messages are sent to STDERR.
+#    There are four levels of priority, error > warn > debug > info
+#    which have numerical values:
+#@
+#    0: all levels are printed
+#    1: priority >= debug are printed
+#    2: priority >= warn are printed
+#    3: priority >= error are printed
+#@
 # */
-#sub setXMLNotationHash {
-#  my ($self, $attribHashRef) = @_;
-#
-#  return unless defined $attribHashRef;
-#
-#  # have to do it this way or we get ref to orig hash.
-#  my %newhash;
-#  while (my ($attrib, $value) = each (%{$attribHashRef}) ) {
-#     $newhash{$attrib} = $value;
-#  }
-#  $Singleton->{xmlNotationHash} = \%newhash; 
-#}
+sub setLogMessageLevel {
+  my ($self, $msgLevel) = @_;
+  unless ( &XDF::Utility::isValidLogMsgLevel($msgLevel)) {
+    # dont use the log here! lets always ensure this gets seen
+    print STDERR "ERROR: Cant change log level to $msgLevel, ignoring\n"; 
+  }
+  $Singleton->{logLevel} = $msgLevel;
+}
 
-#/** getXMLSpecVersion
-# Get the XML version of this package. This cooresponds to the XML spec version that this package
-# uses to write out XDF.
-# This method should probably be in XDF::Constants class instead as user shouldnt be able to change.
+#/** getLogMessageLevel 
+#    Get the log chattyness of the XDF package.
+#    There are four levels of priority, error > warn > debug > info
+#    which have numerical equivalents:
+#@
+#    0: all levels are printed
+#    1: priority >= debug are printed
+#    2: priority >= warn are printed
+#    3: priority >= error are printed
+#
+# */
+sub getLogMessageLevel {
+  my ($self) = @_;
+  return $Singleton->{logLevel};
+}
+
+#/** setLogFileHandle
+#    Set the fileHandle to which log messages will be sent.
+#    By default, messages are sent to STDERR.
+#    Usage: $Specification->getLogFileHandle(\*FILEHANDLE);
 #*/
-#sub getXMLSpecVersion {
-#  my ($self) = @_;
-#  return $Singleton->{xmlSpecVersion};
-#}
+sub setLogFileHandle {
+  my ($self, $fileHandle) = @_;
+  $Singleton->{logFileHandle} = $fileHandle;
+}
 
-#sub getXDFRootNodeName {
-#  my ($self) = @_;
-#  return $Singleton->{xdfRootNodeName};
-#}
-
-#sub getXDFDTDName {
-#  my ($self) = @_;
-#  return $Singleton->{xdfDTDName};
-#}
+sub _getLogFileHandle {
+  my ($self) = @_; 
+  return $Singleton->{logFileHandle};
+}
 
 #/**getPCDATAAttribute 
 # Used by toXMLFileHandle method. This says that
@@ -207,14 +217,11 @@ sub new { # PRIVATE
     $Singleton = bless ({}, $class);
 
     # init
+    $Singleton->{logLevel} = $DefaultLogMessageLevel;
     $Singleton->{prettyXDFOutput} = $DefaultPrettyXDFOutput;
     $Singleton->{prettyXDFOutputIndentation} = $DefaultPrettyXDFOutputIndentation; 
     $Singleton->{dataArraySize} = $DefaultDataArraySize;
-    #my %emptyHash; 
-    #$Singleton->{xmlNotationHash} = \%emptyHash;
-    #$Singleton->{xmlSpecVersion} = &XDF::Constants::XML_SPEC_VERSION;
-    #$Singleton->{xdfRootNodeName} = &XDF::Constants::XDF_ROOT_NODE_NAME;
-    #$Singleton->{xdfDTDName} = &XDF::Constants::XDF_DTD_NAME;
+    $Singleton->{logFileHandle} = $DefaultLogFileHandle;
 
     return $Singleton;
 }

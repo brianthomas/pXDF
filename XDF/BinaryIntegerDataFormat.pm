@@ -37,7 +37,7 @@ package XDF::BinaryIntegerDataFormat;
 use XDF::Constants;
 use XDF::Utility;
 use XDF::DataFormat;
-use Carp;
+use XDF::Log;
 
 use strict;
 use integer;
@@ -131,7 +131,7 @@ sub getBits {
 sub setBits {
    my ($self, $value) = @_;
 
-   carp "Cant set bits to $value, not allowed \n"
+   error("Cant set bits to $value, not allowed, ignoring request \n")
       unless (&XDF::Utility::isValidIntegerBits($value));
    $self->{bits} = $value;
    $self->_updateTemplate;
@@ -149,7 +149,7 @@ sub getSigned{
 # */
 sub setSigned {
    my ($self, $value) = @_;
-   carp "Cant set signed to $value, not allowed \n"
+   error("Cant set signed to $value, not allowed \n")
       unless (&XDF::Utility::isValidBinaryIntegerSigned($value));
    $self->{signed} = $value;
 }
@@ -172,7 +172,7 @@ sub convertBitStringToIntegerBits {
   # this check could slow down things.
   unless (length($bitString) == $self->{bits})
   {
-     warn "XDF::BinaryIntegerDataFormat->convertBitStringToInteger got different number of bits than specified in the dataformat object, cannot convert passed string.\n";
+     error("XDF::BinaryIntegerDataFormat->convertBitStringToInteger got different number of bits than specified in the dataformat object, cannot convert passed string.\n");
      return undef;
   }
 
@@ -289,12 +289,12 @@ sub _updateTemplate {
 }
 
 sub _regexNotation {
-  carp "_regexNotation shouldnt be called for binary numbers\n";
+  error("_regexNotation shouldnt be called for binary numbers\n");
 }
 
 # returns sprintf field notation
 sub _sprintfNotation {
-  carp "_sprintfNotation shouldnt be called for binary numbers\n";
+  error("_sprintfNotation shouldnt be called for binary numbers\n");
 }
 
 1;

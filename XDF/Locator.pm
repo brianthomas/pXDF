@@ -40,10 +40,11 @@ package XDF::Locator;
 #
 # */
 
-use Carp;
 
 use strict;
 use integer;
+
+use XDF::Log;
 
 # class attribs
 use fields qw ( _hasNext 
@@ -64,7 +65,8 @@ sub new {
   my ($proto, $parentArray) = @_;
 
   unless (caller eq 'XDF::Array') {
-    croak "Error: $proto is not meant to be instanciated standalone. Use XDF::Array method to create instance.\n";
+    error("Error: $proto is not meant to be instanciated standalone. Use XDF::Array method to create instance.\n");
+    return;
   }
 
   my $class = ref ($proto) || $proto;
@@ -571,12 +573,12 @@ sub _calculateLongArrayIndex
 sub _dumpLocation {
    my ($self) = @_;
 
-   print STDERR "Present Location :"; 
+   debug("Present Location :"); 
    while (my ($axisObj, $index) = each %{$self->{_locationHash}}) {
        my $id = $axisObj; #->getAxisId();
-       print STDERR "($id,$index)"; 
+       debug("($id,$index)"); 
    }
-   print STDERR "\n";
+   debug("\n");
 
 }
 

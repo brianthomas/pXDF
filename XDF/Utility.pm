@@ -87,6 +87,31 @@ sub isValidIOEncoding {
    return 0;
 }
 
+# /** isValidAxisSize
+# Determine if the passed quanity is an allowed value for the size of
+# an XDF::Axis object.
+# */
+sub isValidAxisSize {
+   my ($value) = @_;
+
+   # its not ok to be undefined
+   return 0 unless defined $value;
+   return 1 if ($value > &XDF::Constants::DEFAULT_AXIS_SIZE);
+   return 0;
+}
+
+# /** isValidUnits
+# Determine if the passed quanity is an allowed value for Units (e.g. 
+# an object of Units class).
+# */
+sub isValidUnits {
+   my ($value) = @_;
+
+   # its not ok to be undefined
+   return 1 if (defined $value && ref($value) =~ m/XDF::Units/);
+   return 0;
+}
+
 # /** isValidDatatype
 # Determine if the passed quanity is an allowed value for the datatype
 # attribute of the Parameter object and the axisDatatype attribute of
@@ -176,6 +201,16 @@ sub isValidIntegerBits {
 sub isValidBinaryIntegerSigned { 
    my ($value) = @_;
    return &_isYesOrNoString($value);
+}
+
+# /** isValidLogMsgLevel
+# Determine if the passed quanity is an allowed value for the setLogMsgLevel 
+# method in Specification.
+# */
+sub isValidLogMsgLevel {
+   my ($value) = @_;
+   return 1 if (defined $value && $value <= 3 && $value >= 0);
+   return 0;
 }
 
 # /** isValidXMLStandalone

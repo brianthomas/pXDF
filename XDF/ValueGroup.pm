@@ -41,10 +41,9 @@ package XDF::ValueGroup;
 # XDF::Value
 # */
 
-
-use Carp;
-use XDF::Group;
 use XDF::BaseObject;
+use XDF::Group;
+use XDF::Log;
 
 use strict;
 use integer;

@@ -43,7 +43,7 @@
 package XDF::Value;
 
 use XDF::BaseObject;
-use Carp;
+use XDF::Log;
 
 use strict;
 use integer;
@@ -154,7 +154,7 @@ sub getSpecial{
 sub setSpecial {
    my ($self, $value) = @_;
 
-   carp "Cant set special to $value, not allowed \n"
+   error("Cant set special to $value, not allowed \n") 
       unless (&XDF::Utility::isValidValueSpecial($value));
 
    $self->{special} = $value;
@@ -173,7 +173,7 @@ sub getInequality {
 sub setInequality {
    my ($self, $value) = @_;
 
-   carp "Cant set special to $value, not allowed \n"
+   error("Cant set special to $value, not allowed \n") 
       unless (&XDF::Utility::isValidValueInequality($value));
 
    $self->{inequality} = $value;

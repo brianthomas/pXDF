@@ -36,7 +36,7 @@ package XDF::FormattedXMLDataIOStyle;
 
 use XDF::BaseObject;
 use XDF::Constants;
-use Carp;
+use XDF::Log;
 
 use strict;
 use integer;
@@ -168,7 +168,7 @@ sub numOfBytes {
   my @dataFormatList = $self->{_parentArray}->getDataFormatList();
 
   if (!@dataFormatList or $#dataFormatList < 0) {
-    carp "Error: cant determine Formatted ReadStyle byte size w/o defined dataFormat.\n";
+    error("Error: cant determine Formatted ReadStyle byte size w/o defined dataFormat.\n");
     return;
   }
 
@@ -180,7 +180,7 @@ sub numOfBytes {
     } elsif (ref($obj) eq 'XDF::SkipCharFormattedIOCmd') {
       $bytes += $obj->numOfBytes();
     } else {
-      warn "Unknown format cmd in $self bytes: $obj, ignoring\n";
+      error("Unknown format cmd in $self bytes: $obj, ignoring\n");
     }
   }
 
@@ -326,7 +326,7 @@ sub _regexNotation {
   my @dataFormatList = $self->{_parentArray}->getDataFormatList();
 
   if (!@dataFormatList or $#dataFormatList < 0) {
-    carp "Error: cant read Formatted ReadStyle w/o defined dataFormat\n";
+    error("Error: cant read Formatted ReadStyle w/o defined dataFormat\n");
     return;
   }
 
@@ -338,7 +338,7 @@ sub _regexNotation {
     } elsif (ref($obj) eq 'XDF::SkipCharFormattedIOCmd') {
       $notation .= $obj->_regexNotation();
     } else {
-      warn "Unknown format cmd in $self _regexNotation: $obj, ignoring\n";
+      error("Unknown format cmd in $self _regexNotation: $obj, ignoring\n");
     }
   }
 
@@ -354,7 +354,7 @@ sub _outputSkipCharArray {
   my @dataFormatList = $self->{_parentArray}->getDataFormatList();
   
   if (!@dataFormatList or $#dataFormatList < 0) {
-    carp "Error: cant read Formatted ReadStyle w/o defined dataFormat\n";
+    error("Error: cant read Formatted ReadStyle w/o defined dataFormat\n");
     return;
   }
   
@@ -366,7 +366,7 @@ sub _outputSkipCharArray {
     } elsif (ref($obj) eq 'XDF::SkipCharFormattedIOCmd') {
       push @outArray, $obj->getOutput();
     } else {
-      warn "Unknown format cmd in $self outputSkipCharArray $obj, ignoring\n";
+      error("Unknown format cmd in $self outputSkipCharArray $obj, ignoring\n");
     }
   }
 
@@ -383,7 +383,7 @@ sub _templateNotation {
   my @dataFormatList = $self->{_parentArray}->getDataFormatList();
 
   if (!@dataFormatList or $#dataFormatList < 0) {
-    carp "Error: cant read Formatted ReadStyle w/o defined dataFormat\n";
+    error("Error: cant read Formatted ReadStyle w/o defined dataFormat\n");
     return;
   }
 
@@ -396,7 +396,7 @@ sub _templateNotation {
       $notation .= $obj->_templateNotation($endian,$encoding,$input);
     } else { 
       # everything else, which nothing right now, so throw an error
-      warn "Got weird formattedIOCmd in $self : $obj , ignoring it.\n";
+      error("Got weird formattedIOCmd in $self : $obj , ignoring it.\n");
     }
   }
 
@@ -411,7 +411,7 @@ sub _sprintfNotation {
   my @dataFormatList = $self->{_parentArray}->getDataFormatList();
 
   if (!@dataFormatList or $#dataFormatList < 0) {
-    carp "Error: cant read Formatted ReadStyle w/o defined dataFormat\n";
+    error("Error: cant read Formatted ReadStyle w/o defined dataFormat\n");
     return;
   }
 
@@ -423,7 +423,7 @@ sub _sprintfNotation {
     } elsif (ref($obj) eq 'XDF::SkipCharFormattedIOCmd') {
       $notation .= $obj->_sprintfNotation(); 
     } else {
-      warn "Got weird formattedIOCmd in $self : $obj , ignoring it.\n";
+      error("Got weird formattedIOCmd in $self : $obj , ignoring it.\n");
     }
   }
 

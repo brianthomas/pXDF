@@ -38,7 +38,7 @@
 package XDF::Chars;
 
 use XDF::BaseObject;
-use Carp;
+use XDF::Log;
 
 use strict;
 use integer;
@@ -128,7 +128,7 @@ sub _basicXMLWriter {
   my $niceOutput = XDF::Specification->getInstance->isPrettyXDFOutput();
 
   if(!defined $fileHandle) {
-    carp "Can't write out object, filehandle not defined.\n";
+    error("Can't write out object, filehandle not defined.\n");
     return;
   }
 

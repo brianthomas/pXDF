@@ -22,7 +22,7 @@
 package XDF::DelimitedXMLDataIOStyle;
 
 use XDF::XMLDataIOStyle;
-use Carp;
+#use XDF::Log;
 
 use strict;
 use integer;

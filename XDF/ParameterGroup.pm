@@ -39,7 +39,6 @@ package XDF::ParameterGroup;
 # */
 
 
-use Carp;
 use XDF::Group;
 
 use strict;

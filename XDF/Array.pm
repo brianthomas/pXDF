@@ -63,7 +63,7 @@ package XDF::Array;
 #
 # */
 
-use Carp;
+# use Carp;
 
 use XDF::BaseObjectWithXMLElements;
 
@@ -72,6 +72,7 @@ use XDF::DataCube;
 use XDF::DataFormat;
 use XDF::FieldAxis;
 use XDF::Locator;
+use XDF::Log;
 use XDF::Notes;
 use XDF::Parameter;
 use XDF::ParameterGroup;
@@ -543,6 +544,18 @@ sub getUnits {
 # */
 sub setUnits {
    my ($self, $value) = @_;
+
+   unless (&XDF::Utility::isValidUnits($value)) {
+     error("Cant set array units to $value, not allowed, ignoring \n");
+     return;
+   }
+  
+   # no units in case of a field Axis
+   if ($self->hasFieldAxis() && !$value->isUnitless()) {
+      warn "Cant set array units to $value, array must be unitless if it has a fieldAxis, ignoring \n";
+      return;
+   }
+
    $self->{units} = $value;
 }
 
@@ -699,7 +712,7 @@ sub _can_add_axisObj_to_array {
   my ($axisObj) = @_;
 
   unless (defined $axisObj and defined $axisObj->getAxisId() ) {
-     carp "Can't add Axis object wi/o axisId attribute defined.\n";
+     error("Can't add Axis object wi/o axisId attribute defined.\n");
      return 0;
   }
   return 1;
@@ -879,14 +892,18 @@ sub setFieldAxis {
      $fieldAxisObj->setParentArray($self);
 
      # undef the units
-     $self->{units} = undef;
+     # no units in case of a field Axis
+     if (!$self->{units}->isUnitless()) {
+        warn ("Now that array ($self) has a fieldAxis, setting array units to unitless.\n");
+     }
+     $self->{units}->makeUnitless();
 
      return 1;
 
   } else {
 
      # we must have units now
-     $self->{units} = new XDF::Units();
+     # $self->{units} = new XDF::Units(); # this isnt true (may want unitless?)
 
      # remove the field Axis
      return $self->removeFieldAxis();

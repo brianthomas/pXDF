@@ -22,7 +22,7 @@
 package XDF::FieldRelation;
 
 use XDF::BaseObject;
-use Carp;
+use XDF::Log;
 
 use strict;
 use integer;
@@ -106,7 +106,7 @@ sub getRole {
 sub setRole {
    my ($self, $value) = @_;
 
-   carp "Cant set role to $value, not allowed \n"
+   error("Cant set role to $value, not allowed \n")
       unless (&XDF::Utility::isValidRelationRole($value));
 
    $self->{role} = $value;

@@ -50,6 +50,7 @@
 package XDF::DOM::Element;
 
 use XML::DOM;
+use XDF::Log;
 
 use vars qw (@ISA);
 @ISA = ( "XML::DOM::Element" );

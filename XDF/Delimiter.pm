@@ -35,7 +35,7 @@ package XDF::Delimiter;
 
 use XDF::BaseObject;
 use XDF::Chars;
-use Carp;
+use XDF::Log;
 
 use strict;
 use integer;
@@ -124,7 +124,7 @@ sub setValue {
    if (&XDF::Utility::isValidCharOutput($valueObj)) {
       $self->{valueObj} = $valueObj;
    } else {
-      warn "Cant set $valueObj as value of XDF::Delimiter class, ignoring request\n";
+      error("Cant set $valueObj as value of XDF::Delimiter class, ignoring request\n");
    }
 }
 

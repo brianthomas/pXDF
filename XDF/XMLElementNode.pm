@@ -38,8 +38,8 @@ package XDF::XMLElementNode;
 
 use XML::DOM;
 use XDF::Constants;
+#use XDF::Log;
 use XDF::Specification;
-use Carp;
 
 use strict;
 use integer;

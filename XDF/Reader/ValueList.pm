@@ -31,7 +31,7 @@
 package XDF::Reader::ValueList;
 
 use XDF::GenericObject;
-use Carp;
+#use XDF::Log qw/:error :warn/;
 
 use strict;
 use integer;

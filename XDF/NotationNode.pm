@@ -32,9 +32,9 @@ package XDF::NotationNode;
 #
 # */
 
-use Carp;
 
 use XDF::BaseObject;
+use XDF::Log;
 
 use strict;
 use integer;
@@ -177,7 +177,7 @@ sub _basicXMLWriter {
       $newNodeNameString, $noChildObjectNodeName) = @_;
 
   if(!defined $fileHandle) {
-    carp "Can't write out object, filehandle not defined.\n";
+    error("Can't write out object, filehandle not defined.\n");
     return;
   }
 

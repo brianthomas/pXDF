@@ -23,29 +23,16 @@ package XDF::Axis;
 #    NASA/Goddard Space Flight Center
 # */
 
-use Carp;
 use XDF::BaseObjectWithXMLElementsAndValueList;
 use XDF::UnitDirection;
 use XDF::ValueGroup;
+use XDF::Constants;
+use XDF::Log;
 use XDF::Units;
 use XDF::Utility;
 use XDF::ValueListAlgorithm;
 
 use strict;
-# Does this help??
-#use fields qw (
-#                      name
-#                      description
-#                      align
-#                      axisId
-#                      axisIdRef
-#                      valueList
-#                      axisUnits
-#                      axisDatatype
-#                      length
-#                      _valueGroupOwnedHash
-#              );
-
 use integer;
 
 use vars qw ($AUTOLOAD %field @ISA);
@@ -109,7 +96,7 @@ use vars qw ($AUTOLOAD %field @ISA);
 # /** align
 # B<NOT CURRENTLY IMPLEMENTED>
 # */
-# /** axisUnits
+# /** units
 # Holds a SCALAR object reference to the XDF::Units object for this axis. 
 # */
 # /** axisDatatype
@@ -119,6 +106,7 @@ use vars qw ($AUTOLOAD %field @ISA);
 # Holds a scalar Array Reference to the list of axisValue objects for this axis.
 # */
 
+my $DEFAULT_AXIS_SIZE = &XDF::Constants::DEFAULT_AXIS_SIZE;
 my $Class_XML_Node_Name = "axis";
 
 # the order of these attributes IS important.
@@ -127,7 +115,8 @@ my @Local_Class_XML_Attributes = qw (
                       name
                       description
                       axisDatatype
-                      axisUnits
+                      units
+                      size
                       align
                       axisId
                       axisIdRef
@@ -135,8 +124,8 @@ my @Local_Class_XML_Attributes = qw (
                           ); 
 
 my @Local_Class_Attributes = qw (
-                             length
                              _parentArray
+                             _lastValueIndex
                              _valueGroupOwnedHash
                           ); 
 
@@ -229,26 +218,71 @@ sub getAxisDatatype {
 sub setAxisDatatype {
    my ($self, $value) = @_;
 
-   carp "Cant set axisDatatype to $value, not allowed \n"
-      unless (&XDF::Utility::isValidDatatype($value));
+   unless (&XDF::Utility::isValidDatatype($value)) {
+     error("Cant set axisDatatype to $value, not allowed, ignoring \n");
+     return;
+   }
 
    $self->{axisDatatype} = $value;
 
 }
 
-# /** getAxisUnits
+# /** getSize
 # */
-sub getAxisUnits {
+sub getSize {
    my ($self) = @_;
-   return $self->{axisUnits};
+   return $self->{size};
 }
 
-# /** setAxisUnits
-#     Set the axisUnits attribute. 
+# /** setSize
+#     Set the size (number of indices) of this axis.
+#     This attribute must be a non-zero whole number.
+#
+#     Changing the size of the axis removes all the axisValues
+#     from the axis if the new size is smaller than the old one
+#     (So, if you shrink the size of the axis, you have to add 
+#      the values of the indices back in).
+#
 # */
-sub setAxisUnits {
+
+sub setSize {
    my ($self, $value) = @_;
-   $self->{axisUnits} = $value;
+
+   if (&XDF::Utility::isValidAxisSize($value)) {
+      if ($value < $self->{size})
+      {
+         info("axis:".$self->getAxisId()."is being shrunk. Releasing all axisValues\n");
+         $self->_reset();
+      }
+
+      $self->{size} = $value;
+      $#{$self->{valueList}} = $value; # change the size of the valueList 
+
+   } else {
+      error("Can't set axis size to $value (axis:".$self->getAxisId().")\n");
+   } 
+}
+
+# /** getUnits
+#     An "undef" value means this axis is unitless.
+# */
+sub getUnits {
+   my ($self) = @_;
+   return $self->{units};
+}
+
+# /** setUnits
+#     Set the type of units that the values of this axis are given in.
+#     Passing the "undef" value will make this axis unitless.
+# */
+sub setUnits {
+   my ($self, $value) = @_;
+
+   unless (&XDF::Utility::isValidUnits($value)) {
+     error("Cant set axis units to $value, not allowed, ignoring \n");
+     return;
+   }
+   $self->{units} = $value;
 }
 
 # /** getAxisId
@@ -304,27 +338,31 @@ sub getValueList {
 }
 
 # /** setValueList
-#  Set the valueList attribute. You may either pass an array of Value
-#  objects OR a valueList object (either ValueListAlgorithm or ValueListDelimitedList).
-#  Either way, (axis) Value objects will be added to the axis and its size set to their number.
-#  Using a valueList *object* will result in a more compact description of 
+#  Set the values of the indices on this axis using a passed list. 
+#  The passed list may either contain Value objects OR may be an XDF::ValueList object 
+#  (either ValueListAlgorithm or ValueListDelimitedList).
+#  Either way, (axis) Value objects will be added to the axis and its size set to 
+#  the number of Values.
+#
+#  Note: Using a valueList *object* will result in a more compact description of 
 #  the passed values when the parameter is printed out.
+#
 # */
 sub setValueList {
    my ($self, $arrayOrValueListObjRefValue) = @_;
 
    # clear old list
-   $self->resetValues();
+   $self->_reset();
    $self->addValueList($arrayOrValueListObjRefValue);
 
 }
 
 # /** getLength
-# Get the length of this axis (eg number of axis value objects) 
+# Get the length of this axis (same as the method getSize)
 # */
 sub getLength {
   my ($self) = @_;
-  $self->{length};
+  $self->{size};
 }
 
 # /** getAxisValue 
@@ -347,8 +385,8 @@ sub setAxisValue {
   unless (defined $valueObj ) {
      if (defined @{$self->{valueList}}->[$index]) {
         # if the axisValue is presently defined, we lower
-        # the length of the axis by 1
-        $self->{length} = $self->{length} - 1;
+        # the lastvalueIndex by 1
+        # $self->{_lastValueIndex}--;
         @{$self->{valueList}}->[$index] = undef;
      }
 
@@ -368,7 +406,8 @@ sub setAxisValue {
   # if the axisValue is not presently defined, we raise
   # the length of the axis by 1
   if (!defined @{$self->{valueList}}->[$index]) {
-     $self->{length} = $self->{length} + 1;
+
+     $self->{_lastValueIndex}++;
 
      # also means length changed, so lets update array internal datacube 
      if (defined $self->{_parentArray}) {
@@ -437,15 +476,26 @@ sub new {
    return $self;
 }
 
+# do a reset of the axis object
+sub _reset {
+  my ($self) = @_;
+
+  $self->{size} = 0;
+  $self->_resetValues();
+
+}
+
 # /** resetValues
 # The valueList (which holds either Value or UnitDirection objects) is
 # reset to be empty by this method.
 # */
-sub resetValues {
+sub _resetValues {
    my ($self) = @_;
 
    # free up all declared values
    $self->{valueList} = []; # has to be this way to avoid deep recursion 
+   $#{$self->{valueList}} = 0;
+   $self->{_lastValueIndex} = 0;
 
    # no compact description allowed now 
    $self->_resetBaseValueListObjects();
@@ -454,11 +504,15 @@ sub resetValues {
 
 # /** addAxisValue
 # Add an XDF::AxisValue object to this axis. 
-# RETURNS : 1 on success, 0 on failure.
+# The passed value is ascribed to the last undefined indice at the end of the axis.
+# IF all indices on the axis are defined, then the axis size is increased by 1 and
+# the axisValue ascribed to the last indice on the axis. HINT: This is a slow operation, 
+# it is better to pre-allocate the size of the axis first, and then tack in the values. 
+#
+# This method returns: 1 on success, 0 on failure.
 # */
 sub addAxisValue {
   my ($self, $valueObj ) = @_;
-
 
    if ($self->_addAxisValue($valueObj)) {
 
@@ -480,14 +534,24 @@ sub addAxisUnitDirection {
   my ($self, $obj) = @_; 
 
   if (!defined $obj) {
-     carp "Cannot add an AxisUnitDirection, no value specified. Ignoring request.\n"; 
+     error("Cannot add an AxisUnitDirection, no value specified. Ignoring request.\n"); 
      return 0;
   }
 
-  my $index = $self->{length};
-  if (defined @{$self->{ValueList}}->[$index]) {
+  my $index = $self->{_lastValueIndex};
+
+  if($self->{size} <= $index) {
+     error("Cannot add an AxisUnitDirection, Axis is filled, you should increase axis size. Ignoring request.\n"); 
+     return 0;
+  }
+
+  if (defined @{$self->{valueList}}->[$index]) {
      # increase the size of the array by pushing
      push @{$self->{valueList}}, $obj;
+
+     # bump up the size of last index
+     $self->{_lastValueIndex}++;
+
   } else {
      # use a pre-alocated spot that is undefined
      @{$self->{valueList}}->[$index] = $obj;
@@ -511,12 +575,17 @@ sub removeAxisValue {
   my ($self, $obj) = @_;
 
   if ($self->_remove_from_list($obj, $self->{ValueList}, 'valueList')) {
-     # bump down size of the axis 
-     $self->{length} = $self->{length} -1;
+
+     # bump down size of the last axisValue 
+     $self->{size} = $self->{_lastAxisValue} -1;
 
      if (defined $self->{_parentArray}) {
         $self->{_parentArray}->_updateInternalLookupIndices();
      }
+
+     # safety
+     $self->setSize($DEFAULT_AXIS_SIZE) if ($self->{size} < $DEFAULT_AXIS_SIZE);
+
      return 1;
   }
 
@@ -530,8 +599,10 @@ sub removeAxisValue {
 sub addAxisValueList {
    my ($self, $arrayOrValueListObjRefValue) = @_;
 
-   croak "axis->setAxisValueList() passed non-reference.\n"
-      unless (ref($arrayOrValueListObjRefValue));
+   unless (ref($arrayOrValueListObjRefValue)) {
+     error("axis->setAxisValueList() passed non-reference. Ignoring request.\n");
+     return;
+   }
 
    if (ref($arrayOrValueListObjRefValue) eq 'ARRAY') {
 
@@ -560,13 +631,14 @@ sub addAxisValueList {
           }
           return 1;
        } else {
-          carp "axis->addAxisValueList passed ValueList object with 0 values, Ignoring.\n";
+          warn ("axis->addAxisValueList passed ValueList object with 0 values, Ignoring.\n");
        }
 
    }
    else
    {
-      croak "Unknown reference object passed to setvalueList in axis:$arrayOrValueListObjRefValue. Dying.\n";
+      error("Unknown reference object passed to setvalueList in axis:$arrayOrValueListObjRefValue. Dying.\n");
+      exit -1;
    }
 
    return 0;
@@ -578,7 +650,7 @@ sub addAxisValueList {
 # */ 
 sub addUnit { 
    my ($self, $unitObj) = @_;
-   return $self->{axisUnits}->addUnit($unitObj);
+   return $self->{units}->addUnit($unitObj);
 }
 
 # /** removeUnit 
@@ -587,7 +659,7 @@ sub addUnit {
 # */ 
 sub removeUnit { 
   my ($self, $indexOrObjectRef) = @_; 
-  return $self->{axisUnits}->removeUnit($indexOrObjectRef); 
+  return $self->{units}->removeUnit($indexOrObjectRef); 
 }
 
 # /** addValueGroup 
@@ -598,7 +670,7 @@ sub addValueGroup {
   my ($self, $valueGroupObj) = @_;
 
   unless (defined $valueGroupObj && ref ($valueGroupObj) =~ m/XDF::ValueGroup/) {
-     carp "Cannot add a valueGroup, no value specified or not a ValueGroup object. Ignoring request.\n"; 
+     error("Cannot add a valueGroup, no value specified or not a ValueGroup object. Ignoring request.\n"); 
      return 0;
   }
 
@@ -666,22 +738,23 @@ sub _init {
 
   $self->SUPER::_init();
 
-  $self->{axisUnits} = new XDF::Units();
-  $self->{axisUnits}->setXMLNodeName("axisUnits");
+  $self->{size} = $DEFAULT_AXIS_SIZE;
 
   $self->{_valueGroupOwnedHash} = {};
 
-  # initialize lists 
+  # initialize lists, objects 
   $self->{valueList} = [];
+  $#{$self->{valueList}} = $DEFAULT_AXIS_SIZE - 1;
+  $self->{_lastValueIndex} = 0;
+  $self->{units} = new XDF::Units();
 
   # set the minimum array size (essentially the size of the axis)
   my $spec = XDF::Specification->getInstance();
-  $#{$self->{valueList}} = $spec->getDefaultDataArraySize();
 
   # this variable is needed because $#{$self->{valueList}}
   # is pre-allocated in prior statement, and is not necess.
   # reflective of the real axis size.
-  $self->{length} = 0;
+#  $self->{length} = 0;
 
   $self->{_valueListGetMethodName} = "getValueList";
 
@@ -697,7 +770,7 @@ sub _addAxisValue {
              
   unless (defined $valueObj) {
     # No point in adding an axis value w/o a value for it.
-    carp "Cannot add an AxisValue, no value specified. Ignoring request.\n";
+    error("Cannot add an AxisValue, no value specified. Ignoring request.\n");
     return 0; 
   }       
    
@@ -706,18 +779,27 @@ sub _addAxisValue {
   # ah the pain of it all. It would seem wiser to just
   # NOT have reference objects at all.
 
-  my $index = $self->{length};
-
-  if (defined @{$self->{valueList}}->[$index]) {
-     # increase the size of the array by pushing
-     push @{$self->{valueList}}, $valueObj;
-  } else {
-     # use a pre-alocated spot that is undefined
-     @{$self->{valueList}}->[$index] = $valueObj;
+  my $index = $self->{_lastValueIndex};
+  
+  if($self->{size} <= $index) {
+     error("Cannot add an AxisUnitDirection, Axis is filled, you should increase axis size. Ignoring request.\n");
+     return 0;
   }
 
-  # bump up the size of this axis
-  $self->{length} = $self->{length} + 1;
+  if (defined @{$self->{valueList}}->[$index]) {
+
+     # increase the size of the array by pushing
+     push @{$self->{valueList}}, $valueObj;
+
+     # bump up the size of last index
+     $self->{_lastValueIndex}++;
+
+  } else {
+
+     # use a pre-alocated spot that is undefined
+     @{$self->{valueList}}->[$index] = $valueObj;
+
+  }
 
   if (defined $self->{_parentArray}) {
      $self->{_parentArray}->_updateInternalLookupIndices();
@@ -825,13 +907,13 @@ Set the name attribute.
 
 Set the axisDatatype attribute.  
 
-=item getAxisUnits (EMPTY)
+=item getUnits (EMPTY)
 
  
 
-=item setAxisUnits ($value)
+=item setUnits ($value)
 
-Set the axisUnits attribute.  
+Set the units attribute.  
 
 =item getAxisId (EMPTY)
 
@@ -880,10 +962,6 @@ Set the value of this axis at the given index.
 =item getAxisValues (EMPTY)
 
 This is a convenience method which returns all of the values (as strings) on this axis.  
-
-=item resetValues (EMPTY)
-
-The valueList (which holds either Value or UnitDirection objects) isreset to be empty by this method.  
 
 =item addAxisValue ($valueObj)
 

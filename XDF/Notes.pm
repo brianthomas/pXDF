@@ -18,9 +18,9 @@ package XDF::Notes;
 
 
 use XDF::BaseObject;
+use XDF::Log;
 use XDF::NotesLocationOrder;
 use XDF::Note;
-use Carp;
 
 use strict;
 use integer;

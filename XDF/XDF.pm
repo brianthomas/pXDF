@@ -78,9 +78,8 @@ package XDF::XDF;
 #
 # */
 
-use Carp;
-
 use XDF::Structure;
+use XDF::Log;
 use XDF::Reader;
 
 use strict;
@@ -162,7 +161,7 @@ sub setDocumentType {
    if (!defined $docType or ref $docType eq 'XDF::DocumentType') {
       $self->{documentType} = $docType;
    } else {
-      warn "Cant setDocumentType(), object:$docType is wrong class! Ignoring request.\n"; 
+      error("Cant setDocumentType(), object:$docType is wrong class! Ignoring request.\n"); 
    }
 }
 
@@ -194,7 +193,7 @@ sub setXMLDeclaration {
    if (!defined $xmlDecl or ref $xmlDecl eq 'XDF::XMLDeclaration') {
       $self->{xmlDeclaration} = $xmlDecl;
    } else {
-      warn "Cant setXMLDeclaration(), object:$xmlDecl is wrong class! Ignoring request.\n";
+      error("Cant setXMLDeclaration(), object:$xmlDecl is wrong class! Ignoring request.\n");
    }
 }
 
@@ -229,7 +228,7 @@ sub _basicXMLWriter {
 
 
   if(!defined $fileHandle) {
-    carp "Can't write out object, filehandle not defined.\n";
+    error("Can't write out object, filehandle not defined.\n");
     return;
   }
 

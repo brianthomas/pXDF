@@ -32,7 +32,7 @@ package XDF::Unit;
 
 
 use XDF::BaseObject;
-use Carp;
+use XDF::Log;
 
 use strict;
 use integer;

@@ -47,7 +47,7 @@ package XDF::BaseObject;
 
 use XDF::GenericObject;
 use XDF::Specification;
-use Carp;
+use XDF::Log;
 
 use strict;
 use integer;
@@ -174,7 +174,7 @@ sub addXMLAttribute {
       return 1;      
 
    } else {
-      carp "$attrib already exists within $self, cannot addXMLAttribute, Ignoring";
+      error("$attrib already exists within $self, cannot addXMLAttribute, Ignoring\n");
       return 0;      
    }
 
@@ -209,7 +209,7 @@ sub addToGroup {
     %{$self->{_groupMemberHash}}->{$groupObj} = $groupObj;
     return 1;
   } else {
-     carp "Can't add to group: $self already a member of $groupObj\n"; 
+     error("Can't add to group: $self already a member of $groupObj\n"); 
      return 0;
   }
 
@@ -229,7 +229,7 @@ sub removeFromGroup {
     delete %{$self->{_groupMemberHash}}->{$groupObj};
     return $groupObj;
   } else {
-    carp "Can't delete from group: $self not a member of $groupObj\n"; 
+    error("Can't delete from group: $self not a member of $groupObj\n"); 
   }
 
 }
@@ -296,7 +296,7 @@ sub toXMLFile {
   my ($self, $file) = @_;
 
   if(!open(FILE, ">$file")) {
-    carp "Can't open file: $file for writing.\n";
+    error("Can't open file: $file for writing.\n");
     return;
   }
 
@@ -315,7 +315,7 @@ sub _basicXMLWriter {
   my ($self, $fileHandle, $indent, $dontCloseNode, $newNodeNameString, $noChildObjectNodeName) = @_;
 
   if(!defined $fileHandle) {
-    carp "Can't write out object, filehandle not defined.\n";
+    error("Can't write out object, filehandle not defined.\n");
     return;
   }
 

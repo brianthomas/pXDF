@@ -36,7 +36,7 @@ package XDF::TaggedXMLDataIOStyle;
 
 use XDF::XMLDataIOStyle;
 use XDF::Constants;
-use Carp;
+use XDF::Log;
 
 use strict;
 use integer;

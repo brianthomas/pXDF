@@ -31,9 +31,8 @@ package XDF::XMLDeclaration;
 #
 # */
 
-use Carp;
-
 use XDF::BaseObject;
+use XDF::Log;
 use XDF::Utility;
 
 use strict;
@@ -127,7 +126,7 @@ sub setStandalone {
    if (&XDF::Utility::isValidXMLStandalone($value)) {
      $self->{standalone} = $value;
    } else {
-     warn "Value:$value is not a valid XMLDeclaration standalone value. Ignoring set request.\n";
+     error("Value:$value is not a valid XMLDeclaration standalone value. Ignoring set request.\n");
    }
 }
 
@@ -153,7 +152,7 @@ sub _basicXMLWriter {
       $newNodeNameString, $noChildObjectNodeName) = @_;
 
   if(!defined $fileHandle) {
-    carp "Can't write out object, filehandle not defined.\n";
+    error("Can't write out object, filehandle not defined.\n");
     return;
   }
 

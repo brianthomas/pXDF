@@ -68,6 +68,7 @@ package XDF::DOM::Parser;
 
 use XDF::DOM;
 use XDF::DOM::Element;
+use XDF::Log;
 
 use XDF::Reader; 
 

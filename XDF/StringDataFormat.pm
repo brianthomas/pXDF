@@ -35,7 +35,7 @@ package XDF::StringDataFormat;
 
 
 use XDF::DataFormat;
-use Carp;
+use XDF::Log;
 
 use strict;
 use integer;

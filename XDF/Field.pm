@@ -35,7 +35,6 @@ package XDF::Field;
 # XDF::FieldRelationship;
 # */
 
-use Carp;
 use XDF::BaseObjectWithXMLElements;
 use XDF::DataFormat;
 use XDF::Units;
@@ -418,7 +417,7 @@ sub setDisabledValue {
 
 # /** getUnits
 # */
-sub getUnits{
+sub getUnits {
    my ($self) = @_;
    return $self->{units};
 }

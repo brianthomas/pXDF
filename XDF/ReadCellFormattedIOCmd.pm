@@ -21,7 +21,7 @@ package XDF::ReadCellFormattedIOCmd;
 
 
 use XDF::FormattedIOCmd;
-use Carp;
+#use XDF::Log;
 
 use strict;
 use integer;

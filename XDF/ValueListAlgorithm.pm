@@ -45,8 +45,8 @@
 package XDF::ValueListAlgorithm;
 
 use XDF::BaseObject;
+use XDF::Log;
 use XDF::Value;
-use Carp;
 
 use strict;
 use integer;
@@ -129,7 +129,8 @@ sub new {
   my ($proto, $start, $step, $size, $noDataValue, $infiniteValue, $infiniteNegativeValue, $notANumberValue, $overflowValue, $underflowValue ) = @_;
 
   unless ((!defined $size || $size != 0) && (!defined $step || $step != 0)) {
-    croak "Error: $proto got 0 value for either step or size value.\n";
+    error("Error: $proto got 0 value for either step or size value.\n");
+    exit -1;
   }
 
   my $class = ref ($proto) || $proto;
@@ -425,7 +426,7 @@ sub _basicXMLWriter {
    my ($self, $fileHandle, $indent ) = @_;
 
    if(!defined $fileHandle) {
-      carp "Can't write out object, filehandle not defined.\n";
+      error("Can't write out object, filehandle not defined.\n");
       return;
    }
 

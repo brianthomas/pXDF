@@ -35,7 +35,7 @@ package XDF::DataCube;
 # XDF::Array
 # */
 
-use Carp;
+use XDF::Log;
 use XDF::Utility;
 use XDF::BaseObject;
 
@@ -185,7 +185,7 @@ sub setHref {
    if (!defined $hrefObjectRef || ref($hrefObjectRef) eq 'XDF::Entity') {
      $self->{href} = $hrefObjectRef;
    } else {
-     warn "Cant set $hrefObjectRef as value in setHref. Ignoring\n";
+     error("Cant set $hrefObjectRef as value in setHref. Ignoring\n");
    } 
 }
 
@@ -202,7 +202,7 @@ sub getCompression {
 sub setCompression {
    my ($self, $value) = @_;
 
-   carp "Cant set compression to $value, not allowed \n"
+   error("Cant set compression to $value, not allowed \n") 
       unless (&XDF::Utility::isValidDataCompression($value));
 
    $self->{compression} = $value;
@@ -221,7 +221,7 @@ sub getEncoding {
 sub setEncoding {
    my ($self, $value) = @_;
 
-   carp "Cant set encoding to $value, not allowed \n"
+   error("Cant set encoding to $value, not allowed \n") 
       unless (&XDF::Utility::isValidDataEncoding($value));
 
    $self->{encoding} = $value;
@@ -327,8 +327,10 @@ sub writeDataToFileHandle {
 
   my $readObj = $parentArray->getXMLDataIOStyle();
 
-  croak "DataCube can't write out. No format reference object defined.\n"
-     unless defined $readObj;
+  unless (defined $readObj) {
+    error("DataCube can't write out. No format reference object defined.\n"); 
+    return;
+  }
 
   my $dataFileHandle;
   my $dataFileName;
@@ -350,18 +352,22 @@ sub writeDataToFileHandle {
         $dataFileHandle = \*DFH;
         $dontPrintCDATATag = 1;
       } else {
-        croak "XDF::DataCube Href lacks SysId attribute, cannot write out data.\n";
+        error("XDF::DataCube Href lacks SysId attribute, cannot write out data, aborting write.\n");
+        return; 
       }   
 
   } else {
     $dataFileHandle = $fileHandle; # writing to metadata (XML) file 
 
     # some warning message
-    carp "XDF::DataCube can only compress data held in an external file (HREF). Ignoring\n"
+    error("XDF::DataCube can only compress data held in an external file (HREF). Ignoring\n") 
        unless (!defined $compression_type);
   } 
 
-  croak "XDF::DataCube has no valid data filehandle" unless defined $dataFileHandle;
+  unless (defined $dataFileHandle) {
+    error("XDF::DataCube has no valid data filehandle, aborting.");
+    exit -1;
+  }
 
   #my $fastestAxis = $parentArray->getAxisList()->[0];
 
@@ -414,7 +420,7 @@ sub writeDataToFileHandle {
      } 
      else 
      {
-        carp "Unknown read object: $readObj. $self cannot write itself out.\n";
+        error("Unknown read object: $readObj. $self cannot write itself out.\n");
      }
 
      unless ($dontPrintCDATATag) {
@@ -460,7 +466,7 @@ sub _addData {
 # B<NOT CURRENTLY IMPLEMENTED>.
 # */
 sub _removeData {
-  carp "Remove_data not currently implemented.\n";
+  error("Remove_data not currently implemented.\n");
 } 
   
 #/** _setData
@@ -648,7 +654,8 @@ sub _dataCompressionProgram {
      $compression_program .= &XDF::Constants::DATA_COMPRESSION_ZIP_PATH();
      $compression_program .= ' -pq ';
   } else {
-     croak "Data compression for type: $compression_type NOT Implemented. Aborting write.\n";
+     error("Data compression for type: $compression_type NOT Implemented. Aborting write.\n");
+     exit -1;
   }
 
   return $compression_program;
@@ -890,7 +897,7 @@ sub _writeFormattedData {
               if (defined $noData) {
                  print $fileHandle $noData;
               } else {
-                 warn "Can't print out null data: noDataValue NOT defined.\n";
+                 error("Can't print out null data: noDataValue NOT defined.\n");
               }
 
           }
@@ -918,9 +925,9 @@ sub _writeFormattedData {
        else
        {
           if (defined $command) {
-             carp("DataCube cannot write out, unimplemented format command:$command\n");
+             error("DataCube cannot write out, unimplemented format command:$command\n");
           } else {
-             carp("DataCube cannot write out, format command not defined (weird)!\n");
+             error("DataCube cannot write out, format command not defined (weird)!\n");
           }
        }
 
@@ -972,12 +979,12 @@ sub _doReadCellFormattedIOCmdOutput {
       if ($padsize > 0) {
           $output = " " x $padsize . $datum;
       } elsif ($padsize < 0) {
-          warn "Error: cant write data:[$datum], actual length is larger than declared size ($formatsize) ";
+          error("Error: cant write data:[$datum], actual length is larger than declared size ($formatsize)\n");
           if (defined $noDataValue) {
-             warn "printing with noDataValue:[$noDataValue]\n";
+             info("printing with noDataValue:[$noDataValue]\n");
              $output = $noDataValue; # just print no datavalue
           } else { 
-             warn "printing as blanks.\n";
+             info("printing noDataValue as blanks.\n");
              $output = " " x $formatsize; # just print as blanks
           }
       }  else {
@@ -1019,8 +1026,7 @@ sub _doReadCellFormattedIOCmdOutput {
    else
    {
       # a failure to communicate :)
-      carp("Unknown Dataformat:".ref($thisDataFormat).
-           " is not implemented for formatted writes. Aborting.");
+      error("Unknown Dataformat:".ref($thisDataFormat)." is not implemented for formatted writes. Aborting.");
       exit(-1);
    }
 
@@ -1040,7 +1046,7 @@ sub _doReadCellFormattedIOCmdOutput {
 
    } else {
       # throw error
-      carp("doReadCellFormattedIOCmdOutput got NO data\n");
+      error("doReadCellFormattedIOCmdOutput got NO data\n");
    }
 
 }

@@ -94,13 +94,11 @@ package XDF::Structure;
 #
 # */
 
-use Carp;
-
 use XDF::BaseObjectWithXMLElements;
 use XDF::Array;
 use XDF::Parameter;
 use XDF::ParameterGroup;
-#use XDF::Reader;
+use XDF::Log;
 
 use strict;
 use integer;

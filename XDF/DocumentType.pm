@@ -32,11 +32,10 @@ package XDF::DocumentType;
 #
 # */
 
-use Carp;
-
 use XDF::BaseObject;
-use XDF::NotationNode;
 use XDF::Constants;
+use XDF::Log;
+use XDF::NotationNode;
 
 use strict;
 use integer;
@@ -111,7 +110,8 @@ sub new {
   my ($proto, $ownerXDF) = @_;
 
   unless (ref $ownerXDF eq 'XDF::XDF') {
-    croak "Error: $proto requires an XDF object reference\n";
+    error("Error: $proto requires an XDF object reference\n");
+    exit -1;
   }
 
   my $class = ref ($proto) || $proto;
@@ -232,7 +232,7 @@ sub _basicXMLWriter {
       $newNodeNameString, $noChildObjectNodeName) = @_;
 
   if(!defined $fileHandle) {
-    carp "Can't write out object, filehandle not defined.\n";
+    error("Can't write out object, filehandle not defined.\n");
     return;
   }
 
@@ -273,7 +273,7 @@ sub _basicXMLWriter {
      # BUT there are Href entity objects
      if ($#notationObjList == -1)
      {
-        warn "xdf notation missing!, adding new XDF::NotationNode to DocumentType object:$self. You should double-check entities for correct/missing NDATA!\n";
+        warn("xdf notation missing!, adding new XDF::NotationNode to DocumentType object:$self. You should double-check entities for correct/missing NDATA!\n");
         my $xdfNotation = new XDF::NotationNode();
         $xdfNotation->setName(&XDF::Constants::XDF_NOTATION_NAME);
         $xdfNotation->setPublicId(&XDF::Constants::XDF_NOTATION_PUBLICID);

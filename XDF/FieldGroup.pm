@@ -38,7 +38,6 @@ package XDF::FieldGroup;
 # XDF::ValueGroup
 # */
 
-use Carp;
 use XDF::Group;
 
 use strict;

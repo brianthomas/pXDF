@@ -31,8 +31,8 @@ package XDF::Note;
 # */
 
 
-use Carp;
 use XDF::BaseObject;
+#use XDF::Log;
 
 use strict;
 use integer;

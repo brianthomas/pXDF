@@ -47,13 +47,13 @@ package XDF::Parameter;
 # XDF::Structure
 # */
 
-use Carp;
 
-use XDF::Utility;
 use XDF::BaseObjectWithXMLElementsAndValueList;
+use XDF::ErroredValue;
+use XDF::Log;
 use XDF::Note;
 use XDF::Units;
-use XDF::ErroredValue;
+use XDF::Utility;
 
 use strict;
 use integer;
@@ -227,7 +227,7 @@ sub getDatatype {
 sub setDatatype {
    my ($self, $value) = @_;
 
-   carp "Cant set datatype to $value, not allowed \n"
+   error("Cant set datatype to $value, not allowed \n") 
       unless (&XDF::Utility::isValidDatatype($value));
 
    $self->{datatype} = $value;
@@ -298,7 +298,7 @@ sub setUnits {
 sub addValueList {
    my ($self, $arrayOrValueListObjRefValue) = @_;
 
-   croak "parameter->setValueList() passed non-reference.\n"
+   error("parameter->setValueList() passed non-reference.\n") 
       unless (ref($arrayOrValueListObjRefValue));
 
    if (ref($arrayOrValueListObjRefValue) eq 'ARRAY') {
@@ -328,13 +328,14 @@ sub addValueList {
           }
           return 1;
        } else {
-          carp "parameter->addValueList passed ValueList object with 0 values, Ignoring.\n";
+          warn("parameter->addValueList passed ValueList object with 0 values, Ignoring.\n");
        }
 
    }
    else
    {
-      croak "Unknown reference object passed to setvalueList in parameter:$arrayOrValueListObjRefValue. Dying.\n";
+      error("Unknown reference object passed to setvalueList in parameter:$arrayOrValueListObjRefValue. Dying.\n");
+      exit -1;
    }
 
    return 0;

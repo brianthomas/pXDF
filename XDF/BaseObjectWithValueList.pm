@@ -36,7 +36,7 @@
 package XDF::BaseObjectWithValueList;
 
 use XDF::BaseObject;
-use Carp;
+use XDF::Log;
 
 use strict;
 use integer;
@@ -142,7 +142,7 @@ sub _basicXMLWriter_not_needed {
   my ($self, $fileHandle, $indent, $dontCloseNode, $newNodeNameString, $noChildObjectNodeName) = @_;
 
   if(!defined $fileHandle) {
-    carp "Can't write out object, filehandle not defined.\n";
+    error("Can't write out object, filehandle not defined.\n");
     return;
   }
 
@@ -280,7 +280,7 @@ sub _doObjectListtoXMLFileHandle {
                my $thisValuesGroups = $thisValue->{_groupMemberHash};
                # are these hashes equivalent? No means differing group membership
                if (&_hashesAreEquivalent($firstValueGroups,$thisValuesGroups)) {
-                  carp ("Cant use short description for values because some values have differing groups! Using long description instead.");
+                  warn ("Cant use short description for values because some values have differing groups! Using long description instead.");
                   $canUseCompactValueDescription = 0;
                   last;
                }

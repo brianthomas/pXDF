@@ -26,7 +26,6 @@ package XDF::FormattedIOCmd;
 # */
 
 use XDF::BaseObject;
-use Carp;
 
 use strict;
 use integer;
@@ -81,7 +80,7 @@ sub getClassXMLAttributes {
 
 sub numOfBytes {
   my ($self, $dataFormatListRef ) = @_;
-  warn "You are calling the bytes method of an abstract class from $self.\n";
+  error("You are calling the bytes method of an abstract class from $self.\n");
 }
 
 #
@@ -109,19 +108,19 @@ sub AUTOLOAD {
 # Protected method
 sub _templateNotation {
   my ($self, $dataFormatListRef, $endian, $encoding, $input ) = @_;
-  warn "You are calling the _templateNotation method of an abstract class from $self.\n";
+  error("You are calling the _templateNotation method of an abstract class from $self.\n");
 }
 
 # Protected method
 sub _regexNotation {
   my ($self, $dataFormatListRef) = @_;
-  warn "You are calling the _regexNotation method of an abstract class from $self.\n";
+  error("You are calling the _regexNotation method of an abstract class from $self.\n");
 }
 
 # Protected method
 sub _sprintfNotation {
   my ($self, $listRef) = @_;
-  warn "You are calling the _sprintfNotation method of an abstract class from $self.\n";
+  error("You are calling the _sprintfNotation method of an abstract class from $self.\n");
 }
 
 1;

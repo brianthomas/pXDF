@@ -37,7 +37,6 @@ package XDF::Group;
 # XDF::ValueGroup
 # */
 
-use Carp;
 use XDF::BaseObject;
 
 use strict;

@@ -43,8 +43,8 @@
 package XDF::ValueListDelimitedList;
 
 use XDF::BaseObject;
+use XDF::Log;
 use XDF::Value;
-use Carp;
 
 use strict;
 use integer;
@@ -125,7 +125,8 @@ sub new {
   my ($proto, $valueListRef, $delimiter, $noDataValue, $infiniteValue, $infiniteNegativeValue, $notANumberValue, $overflowValue, $underflowValue ) = @_;
 
   unless (defined $valueListRef && ref($valueListRef)) {
-    croak "Error: $proto got insufficient information to create self (missing value list).\n";
+    error("Error: $proto got insufficient information to create self (missing value list).\n");
+    exit -1;
   }
 
   my $class = ref ($proto) || $proto;
@@ -300,7 +301,7 @@ sub _basicXMLWriter {
    my ($self, $fileHandle, $indent ) = @_;
 
    if(!defined $fileHandle) {
-      carp "Can't write out object, filehandle not defined.\n";
+      error("Can't write out object, filehandle not defined.\n");
       return;
    }
 
@@ -387,7 +388,7 @@ sub _doValuePrint {
    if (defined $value) {
       print $fileHandle $value;
    } else {
-      carp("Error: valueList doesnt have ",$specialValue," defined but value does. Ignoring.");
+      error("Error: valueList doesnt have ",$specialValue," defined but value does. Ignoring.");
    }
 }
 

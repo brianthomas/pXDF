@@ -120,6 +120,7 @@ WriteMakefile(
             'XDF/Group.pm'      => "\$(INST_LIBDIR)/$install_dir/Group.pm",
             'XDF/IntegerDataFormat.pm'      => "\$(INST_LIBDIR)/$install_dir/IntegerDataFormat.pm",
             'XDF/Locator.pm'       => "\$(INST_LIBDIR)/$install_dir/Locator.pm",
+            'XDF/Log.pm'       => "\$(INST_LIBDIR)/$install_dir/Log.pm",
             'XDF/NewLine.pm'      => "\$(INST_LIBDIR)/$install_dir/NewLine.pm",
             'XDF/NotationNode.pm'      => "\$(INST_LIBDIR)/$install_dir/NotationNode.pm",
             'XDF/Note.pm'       => "\$(INST_LIBDIR)/$install_dir/Note.pm",

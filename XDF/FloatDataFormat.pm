@@ -56,7 +56,6 @@ package XDF::FloatDataFormat;
 # */
 
 use XDF::DataFormat;
-use Carp;
 
 use strict;
 use integer;

@@ -44,7 +44,7 @@ package XDF::DataFormat;
 # */
 
 use XDF::BaseObject;
-use Carp;
+#use XDF::Log;
 
 use strict;
 use integer;

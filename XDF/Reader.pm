@@ -65,6 +65,7 @@ use XDF::Field;
 use XDF::FieldRelation;
 use XDF::FloatDataFormat;
 use XDF::FormattedXMLDataIOStyle;
+use XDF::Log;
 use XDF::NewLine;
 use XDF::NotationNode;
 use XDF::IntegerDataFormat;
@@ -185,10 +186,10 @@ my %Default_Handler = ( 'start' => sub { &_default_start_handler(@_); },
                       );
 
 # dispatch table for the start node handler of the parser
+#                       $XDF_node_name{'axisUnits'}    => sub { &_axisUnits_node_start(@_); },
 my %Start_Handler = (
                        $XDF_node_name{'array'}        => sub { &_array_node_start(@_); },
                        $XDF_node_name{'axis'}         => sub { &_axis_node_start(@_); },
-                       $XDF_node_name{'axisUnits'}    => sub { &_axisUnits_node_start(@_); },
                        $XDF_node_name{'binaryFloat'}  => sub { &_binaryFloatField_node_start(@_); },
                        $XDF_node_name{'binaryInteger'} => sub { &_binaryIntegerField_node_start(@_); },
                        $XDF_node_name{'chars'}        => sub { &_chars_node_start(@_); },
@@ -355,7 +356,7 @@ sub parseFileHandle {
   $self->{Options} = $optionsHashRef if defined $optionsHashRef && ref($optionsHashRef);
 
   if ($self->{Options}->{validate} && ! eval { new XML::Checker::Parser } ) {
-    warn "Validating parser module (XML::Checker::Parser) not available on this system, using default non-validating parser XML::Parser.\n";
+    warn("Validating parser module (XML::Checker::Parser) not available on this system, using default non-validating parser XML::Parser.\n");
     $self->{Options}->{validate} = 0;
   }
 
@@ -396,7 +397,7 @@ sub parseString {
   $self->{Options} = $optionsHashRef if defined $optionsHashRef && ref($optionsHashRef);
 
   if ($self->{Options}->{validate} && ! eval { new XML::Checker::Parser } ) {
-    warn "Validating parser module (XML::Checker::Parser) not available on this system, using default non-validating parser XML::Parser.\n";
+    warn("Validating parser module (XML::Checker::Parser) not available on this system, using default non-validating parser XML::Parser.\n");
     $self->{Options}->{validate} = 0;
   }
 
@@ -553,7 +554,7 @@ sub _handle_doctype {
    $systemId = "" unless defined $systemId;
    $publicId = "" unless defined $publicId;
    $internal = "" unless defined $internal;
-   &_printDebug("H_DOCTYPE: $name, $systemId, $publicId, $internal\n");
+   debug("H_DOCTYPE: $name, $systemId, $publicId, $internal\n");
 
    my %hashTable;
    $hashTable{"name"} = $name;
@@ -565,9 +566,9 @@ sub _handle_doctype {
 
 sub _handle_xml_decl {
    my ($self, $parser_ref, @stuff) = @_;
-   &_printDebug("H_XML_DECL: ");
-   foreach my $thing (@stuff) { &_printDebug($thing.", ") if defined $thing; }
-   &_printDebug("\n");
+   debug("H_XML_DECL: ");
+   foreach my $thing (@stuff) { debug($thing.", ") if defined $thing; }
+   debug("\n");
 }
 
 # store these in the entity array
@@ -598,7 +599,7 @@ sub _handle_unparsed {
    }
 
    $msgstring .= "\n";
-   &_printDebug($msgstring);
+   debug($msgstring);
 
 }
 
@@ -626,33 +627,33 @@ sub _handle_notation {
    }
 
    $msgstring .= "\n";
-   &_printDebug($msgstring);
+   debug($msgstring);
 
 }
 
 sub _handle_element {
    my ($self, $parser_ref, $name, $model) = @_; 
-   &_printDebug("H_ELEMENT: $name [$model]\n"); 
+   debug("H_ELEMENT: $name [$model]\n"); 
 }
 
 # do we really need this? attribute list from entity defs 
 sub _handle_attlist {
    my ($self, $parser_ref, $elname, $attname, $type, $default, $fixed) = @_; 
-   &_printDebug("H_ATTLIST: $elname [");
-   &_printDebug($attname) if defined $attname;
-   &_printDebug(" | ");
-   &_printDebug($type) if defined $type;
-   &_printDebug(" | ");
-   &_printDebug($default) if defined $default;
-   &_printDebug(" | ");
-   &_printDebug($fixed) if defined $fixed;
-   &_printDebug(" ]\n");
+   debug("H_ATTLIST: $elname [");
+   debug($attname) if defined $attname;
+   debug(" | ");
+   debug($type) if defined $type;
+   debug(" | ");
+   debug($default) if defined $default;
+   debug(" | ");
+   debug($fixed) if defined $fixed;
+   debug(" ]\n");
 }
 
 sub _handle_start {
    my ($self, $parser_ref, $element, @attribinfo) = @_; 
 
-   &_printDebug("H_START: $element \n"); 
+   debug("H_START: $element \n"); 
 
    my %attrib_hash = &_make_attrib_array_a_hash(@attribinfo);
 
@@ -683,7 +684,7 @@ sub _handle_start {
 sub _handle_end {
    my ($self, $parser_ref, $element) = @_;
 
-   &_printDebug("H_END: $element\n");
+   debug("H_END: $element\n");
 
    # peel off the last element in the current path
    my $last_element = pop @{$self->{currentNodePath}};
@@ -708,7 +709,7 @@ sub _handle_end {
 sub _handle_char {
    my ($self, $parser_ref, $string) = @_;
 
-   &_printDebug("H_CHAR:".join '/', @{$self->{currentNodePath}} ."[$string]\n");
+   debug("H_CHAR:".join '/', @{$self->{currentNodePath}} ."[$string]\n");
 
    # we need to know what the current node is in order to 
    # know what to do with this data, however, 
@@ -738,13 +739,13 @@ sub _handle_char {
 # ignore comments
 sub _handle_comment {
    my ($self, $parser_ref, $data) = @_;
-   &_print_extreme_debug("H_COMMENT: $data\n");
+   info("H_COMMENT: $data\n");
 }
 
 # the same as endDocument?
 sub _handle_final {
    my ($self, $parser_ref) = @_;
-   &_printDebug("H_FINAL \n");
+   debug("H_FINAL \n");
 
    if (defined $self->{DoctypeObjectAttributes} || $self->{ForceSetXMLHeaderStuff} ) {
 
@@ -791,23 +792,23 @@ sub _handle_final {
 
 sub _handle_init {
    my ($self, $parser_ref) = @_;
-   &_printDebug("H_INIT \n");
+   debug("H_INIT \n");
 }
 
 sub _handle_proc {
    my ($self, $parser_ref, $target, $data) = @_;
-   &_printDebug("H_PROC: $target [$data] \n");
+   debug("H_PROC: $target [$data] \n");
 }
 
 sub _handle_cdata_start {
    my ($self, $parser_ref) = @_;
-   &_printDebug( "H_CDATA_START \n");
+   debug( "H_CDATA_START \n");
    $self->{inCdataBlock} = 1;
 }
 
 sub _handle_cdata_end {
    my ($self, $parser_ref) = @_;
-   &_printDebug("H_CDATA_END \n");
+   debug("H_CDATA_END \n");
    $self->{inCdataBlock} = undef;
 }
 
@@ -815,7 +816,7 @@ sub _handle_cdata_end {
 sub _handle_default {
    my ($self, $parser_ref, $string) = @_;
    return unless defined $string;
-   &_printDebug("H_DEFAULT:[$string]\n");
+   debug("H_DEFAULT:[$string]\n");
 
    # well, i dont know what else can go here, but for now
    # lets assume its entities in the character data ONLY.
@@ -834,7 +835,7 @@ sub _handle_external_ent {
    $entityString .= ", SYS:$sysid" if defined $sysid;
    $entityString .= " PUB:$pubid" if defined $pubid;
    $entityString .= "\n";
-   &_printDebug($entityString);
+   debug($entityString);
 
 }
 
@@ -865,7 +866,7 @@ sub _handle_entity {
    }
 
    $msgstring .= "\n";
-   &_printDebug($msgstring);
+   debug($msgstring);
 
 }
 
@@ -1010,11 +1011,11 @@ sub _axis_node_start {
   return $axisObj;
 }
 
-sub _axisUnits_node_start { 
-  my ($self, %attrib_hash) = @_;
-  # do nothing
-  return undef;
-}
+#sub _axisUnits_node_start { 
+#  my ($self, %attrib_hash) = @_;
+#  # do nothing
+#  return undef;
+#}
 
 sub _binaryFloatField_node_start {
   my ($self, %attrib_hash) = @_;
@@ -1034,7 +1035,7 @@ sub _binaryFloatField_node_start {
   
   } else {
   
-    warn "Unknown parent object, cant set string dataformat in $dataTypeObj, ignoring\n";
+    error("Unknown parent object, cant set string dataformat in $dataTypeObj, ignoring\n");
   
   }
 
@@ -1059,7 +1060,7 @@ sub _binaryIntegerField_node_start {
   
   } else {
   
-    warn "Unknown parent object, cant set string data format in $dataTypeObj, ignoring\n";
+    error("Unknown parent object, cant set string data format in $dataTypeObj, ignoring\n");
   
   }
 
@@ -1086,7 +1087,7 @@ sub _chars_node_start {
      $lastObject->setValue($charDataObj);
      return $charDataObj;
   } else {
-     warn "Warning: cant add Chars object to parent:$lastObject not a valid object. Ignoring request\n";
+     error("Warning: cant add Chars object to parent:$lastObject not a valid object. Ignoring request\n");
   }
 
   return undef;
@@ -1129,7 +1130,7 @@ sub _data_node_charData {
          if ( (!$IGNORE_WHITESPACE_ONLY_DATA || $string !~ m/^\s*$/)
              or $self->{inCdataBlock} )
          {
-            #&_printDebug("ADDING String to DataBlock: [$string]\n");
+            #debug("ADDING String to DataBlock: [$string]\n");
             $self->{dataBlock} .= $string;
          }
 
@@ -1202,7 +1203,7 @@ sub _data_node_end {
   $locator->setIterationOrder(\@{$self->{readAxisOrderList}});
   $formatObj->setWriteAxisOrderList(\@{$self->{readAxisOrderList}});
 
-  &_print_extreme_debug("locator[$locator] has axisOrder:[",join ',', @{$self->{readAxisOrderList}},"]\n");
+  info("locator[$locator] has axisOrder:[",join ',', @{$self->{readAxisOrderList}},"]\n");
 
   if ( $isFormattedIOStyle )
   {
@@ -1328,7 +1329,7 @@ sub _delimiter_node_start {
      $formatObj->setDelimiter($delimiterObj);
      return $delimiterObj;
   } else {
-     warn "Warning: cant add Delimiter object to parent($formatObj)..its not a DelimitedXMLDataIOStyle Object. Ignoring request\n";
+     error("Warning: cant add Delimiter object to parent($formatObj)..its not a DelimitedXMLDataIOStyle Object. Ignoring request\n");
   }
 
   return undef;
@@ -1463,7 +1464,7 @@ sub _floatField_node_start {
   
   } else {
   
-    warn "Unknown parent object, cant set string data type/format in $dataTypeObj, ignoring\n";
+    error("Unknown parent object, cant set string data type/format in $dataTypeObj, ignoring\n");
   
   }
 
@@ -1480,7 +1481,7 @@ sub _for_node_start {
     $axisObj = $self->{AxisObj}->{$id} unless defined $axisObj;
     push @{$self->{readAxisOrderList}}, $axisObj;
   } else {
-    &_printError("Error: got for node without axisIdRef, aborting read.\n");
+    error("Error: got for node without axisIdRef, aborting read.\n");
     exit (-1); 
   }
 
@@ -1542,7 +1543,7 @@ sub _integerField_node_start {
   
   } else {
   
-    warn "Unknown parent object, cant set string data type/format in $dataTypeObj, ignoring\n";
+    error("Unknown parent object, cant set string data type/format in $dataTypeObj, ignoring\n");
   
   }
 
@@ -1568,7 +1569,7 @@ sub _newLine_node_start {
      $lastObject->setValue($newLineObj);
      return $newLineObj;
   } else {
-     warn "Warning: cant add NewLine object to parent:$lastObject not a valid object. Ignoring request\n";
+     error("Warning: cant add NewLine object to parent:$lastObject not a valid object. Ignoring request\n");
   }
 
   return undef;
@@ -1883,7 +1884,7 @@ sub _recordTerminator_node_start {
      $formatObj->setRecordTerminator($recordTerminatorObj);
      return $recordTerminatorObj;
   } else {
-     warn "Warning: cant add RecordTerminator object to parent($formatObj)..its not a DelimitedXMLDataIOStyle Object. Ignoring request\n";
+     error("Warning: cant add RecordTerminator object to parent($formatObj)..its not a DelimitedXMLDataIOStyle Object. Ignoring request\n");
   }
 
   return undef;
@@ -1954,7 +1955,7 @@ sub _stringField_node_start {
 
   } else {
 
-    warn "Unknown parent object, cant set string dataformat in $dataTypeObj, ignoring\n";
+    error("Unknown parent object, cant set string dataformat in $dataTypeObj, ignoring\n");
 
   }
   return $dataFormatObj;
@@ -1987,7 +1988,7 @@ sub _taggedData_node_charData {
          # dont add this data unless it has more than just whitespace
          if (!$IGNORE_WHITESPACE_ONLY_DATA || $string !~ m/^\s*$/) {
 
-#       &_printDebug("ADDING DATA to ($self->{taggedLocatorObject}) : [$string]\n");
+#       debug("ADDING DATA to ($self->{taggedLocatorObject}) : [$string]\n");
            $self->{dataTagLevel} = $self->{currentDataTagLevel};
            $self->{currentArray}->addData($self->{taggedLocatorObject}, $string);
          }
@@ -2117,6 +2118,11 @@ sub _units_node_start {
       my $paramObj = $self->{lastParamObject};
       $unitsObj = $paramObj->setUnits($unitsObj);
   
+  } elsif ($_parentNodeName eq $XDF_node_name{'axis'} ) {
+
+      my $axisObj = $self->_lastAxisObj();
+      $unitsObj = $axisObj->setUnits($unitsObj);
+
   } else {
 
       $self->_printWarning( "Got Weird parent node ($_parentNodeName) for units. \n");
@@ -2604,24 +2610,25 @@ sub _vector_node_start {
 # Protected methods
 #
 
-sub _printDebug { 
-   my ($msg) = @_; 
-   print STDERR $msg if $DEBUG; 
-}
+#sub _printDebug { 
+#   my ($msg) = @_; 
+#   print STDERR $msg if $DEBUG; 
+#}
 
-sub _print_extreme_debug { 
-   my ($msg) = @_; 
-   print STDERR $msg if $DEBUG > 1; 
-}
+#sub _print_extreme_debug { 
+#   my ($msg) = @_; 
+#   print STDERR $msg if $DEBUG > 1; 
+#}
 
-sub _printError { 
-   my ($msg) = @_; 
-   print STDERR $msg; 
-}
+# ugh. is this even used?
+#sub _printError { 
+#   my ($msg) = @_; 
+#   print STDERR $msg; 
+#}
 
 sub _printWarning {
   my ($self, $msg) = @_;
-  warn "$msg";
+  warn("$msg");
   die "$0 exiting, too many warnings.\n" if ($self->{Options}->{maxWarnings} > 0 && 
                                              $self->{nrofWarnings}++ > $self->{Options}->{maxWarnings});
 }
@@ -2732,7 +2739,7 @@ sub _addValueListToParent {
     } 
     else
     {
-        $self->_printError("Error: weird parent node $parentNodeName for valueList node, aborting read.\n");
+        error("Error: weird parent node $parentNodeName for valueList node, aborting read.\n");
         exit -1;
     }
 
@@ -3084,7 +3091,7 @@ sub _change_integerField_data_to_flagged_format {
 
   } else {
 
-    &_printError("XDF::Reader does'nt understand integer type: $formatflag\n");
+    error("XDF::Reader does'nt understand integer type: $formatflag\n");
     return $datum;
   }
 
@@ -3099,7 +3106,7 @@ sub _make_attrib_array_a_hash {
   while (@array) {
      my $var = shift @array;
      my $val = shift @array;
-     &_printError( "duplicate attributes for $var, overwriting\n")
+     error("duplicate attributes for $var, overwriting\n")
        unless !defined $hash{$var} || $QUIET;
      $hash{$var} = $val;
   }
@@ -3359,7 +3366,7 @@ sub _getHrefData {
 
        my $can_open = open(DATAFILE, $openstatement);
        if (!$can_open) {
-          $self->_printError("Cant open $file, aborting read of this data file.\n");
+          error("Cant open $file, aborting read of this data file.\n");
           return;
        }
 
@@ -3417,7 +3424,7 @@ sub _read_formatted_data_from_fileHandle {
   my $data_has_binary_values = &_arrayHasBinaryData($self->{currentArray});
   #my $locator = $self->{currentArray}->createLocator();
 
-  &_print_extreme_debug("locator[".$self->{hrefLocator}."] has axisOrder:[",join ',', @{$self->{readAxisOrderList}},"]\n");
+  info("locator[".$self->{hrefLocator}."] has axisOrder:[",join ',', @{$self->{readAxisOrderList}},"]\n");
 
   # $self->{hrefLocator}->_dumpLocation();
 
@@ -3473,7 +3480,7 @@ sub _read_formatted_data_from_fileHandle {
            if $data_has_special_integers;
 
 
-        &_printDebug("ADDING DATA : [".@data."]\n");
+        debug("ADDING DATA : [".@data."]\n");
 
         $self->{currentArray}->setRecords($self->{hrefLocator}, \@data);
         #$self->{hrefLocator}->forward($#data+1);
@@ -3519,8 +3526,8 @@ sub _read_formatted_data_from_string {
            if $data_has_special_integers;
 
         foreach my $datum (@data) {
-#          &_printDebug("ADDING DATA [$locator]($self->{currentArray}) : [".$datum."]\n");
-#          &_printDebug("ADDING DATA : [".$datum."]\n");
+#          debug("ADDING DATA [$locator]($self->{currentArray}) : [".$datum."]\n");
+#          debug("ADDING DATA : [".$datum."]\n");
           $self->{currentArray}->setData($locator, $datum);
           $locator->next();
         }
@@ -3561,8 +3568,8 @@ sub _read_delimitted_data {
            if $data_has_special_integers;
 
         for (@data) {
-#          &_printDebug("ADDING DATA [$locator]($self->{currentArray}) : [".$_."]\n");
-#          &_printDebug("ADDING DATA : [".$_."]\n");
+#          debug("ADDING DATA [$locator]($self->{currentArray}) : [".$_."]\n");
+#          debug("ADDING DATA : [".$_."]\n");
           $self->{currentArray}->setData($locator, $_);
           $locator->next();
         }
@@ -3586,7 +3593,7 @@ sub _read_delimitted_data {
 sub _appendArrayToArray {
    my ($arrayToAppendTo, $arrayToAdd) = @_;
 
-   &_printDebug("appendArrayToArray\n");
+   debug("appendArrayToArray\n");
    if (defined $arrayToAppendTo)
    {
 
@@ -3595,7 +3602,8 @@ sub _appendArrayToArray {
       my %correspondingAddAxis;
       my %correspondingOrigAxis;
 
-      &_printDebug("Getting array alignments \n");
+      #debug("Getting array alignments \n");
+
       # 1. determine the proper alignment of the axes between both arrays
       #    Then cross-reference each in lookup Hashtables.
       foreach my $origAxis (@origAxisList)
@@ -3622,20 +3630,20 @@ sub _appendArrayToArray {
                    last;
                 }
              } else {
-                warn "Cant align axes, axis missing defined align attribute. Aborting.\n";
+                error("Cant align axes, axis missing defined align attribute. Aborting.\n");
                 #return $arrayToAppendTo;
              }
           }
 
           # no match?? then alignments are mis-specified.
           if (!$gotAMatch) {
-              warn "Cant align axes, axis has align attribute that is mis-specified. Aborting.\n";
+              error("Cant align axes, axis has align attribute that is mis-specified. Aborting.\n");
               #return $arrayToAppendTo;
           }
 
       }
 
-      &_printDebug("Appending axisvalues to array axis\n");
+      &_debug("Appending axisvalues to array axis\n");
       # 2. "Append" axis values to original axis. Because
       # there are 2 different ways to add in data we either
       # have a pre-existing axis value, in which case we dont
@@ -3686,7 +3694,7 @@ sub _appendArrayToArray {
          # set up the origLocator
          my @locatorAxisList = @{$addLocator->getIterationOrder()};
          #Iterator iter5 = locatorAxisList.iterator();
-         &_printDebug("Appending data to array($arrayToAppendTo)(");
+         debug("Appending data to array($arrayToAppendTo)(");
          foreach my $addAxis (@locatorAxisList) {
 
             #Axis addAxis = (Axis) iter5.next();
@@ -3695,7 +3703,7 @@ sub _appendArrayToArray {
 
             #try {
                $origLocator->setAxisIndexByAxisValue($thisAxis, $thisAxisValue);
-               &_printDebug($origLocator->getAxisIndex($thisAxis).",");
+               debug($origLocator->getAxisIndex($thisAxis).",");
 
              #} catch (AxisLocationOutOfBoundsException e) {
                 #       Log.errorln("Weird axis out of bounds error for append array.");
@@ -3703,7 +3711,7 @@ sub _appendArrayToArray {
          }
 
          # add in the data as appropriate.
-         &_printDebug(") => [$data]\n");
+         debug(") => [$data]\n");
 
          #try {
 
@@ -3731,7 +3739,7 @@ sub _appendArrayToArray {
       }
 
    } else {
-      warn "Cannot append to null array. Ignoring request.";
+      error("Cannot append to null array. Ignoring request.");
    }
 
   # return $arrayToAppendTo;

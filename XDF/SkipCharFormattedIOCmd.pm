@@ -18,7 +18,7 @@ package XDF::SkipCharFormattedIOCmd;
 
 use XDF::FormattedIOCmd;
 use XDF::Chars;
-use Carp;
+use XDF::Log;
 
 use strict;
 use integer;
@@ -112,7 +112,7 @@ sub setOutput {
    if (&XDF::Utility::isValidCharOutput($object)) {
       $self->{output} = $object;
    } else {
-      warn "Cant set $object as output for XDF::Char class, ignoring request\n"; 
+      error("Cant set $object as output for XDF::Char class, ignoring request\n"); 
    }
 }
 

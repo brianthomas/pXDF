@@ -43,7 +43,6 @@ package XDF::NewLine;
 # */
 
 use XDF::BaseObject;
-use Carp;
 
 use strict;
 use integer;

@@ -38,7 +38,6 @@ package XDF::ErroredValue;
 # */
 
 use XDF::Value;
-use Carp;
 
 use strict;
 use integer;

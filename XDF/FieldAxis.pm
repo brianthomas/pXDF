@@ -56,9 +56,9 @@ package XDF::FieldAxis;
 # XDF::Axis
 # */
 
-use Carp;
 use XDF::BaseObject;
 use XDF::Field;
+use XDF::Log;
 use XDF::StringDataFormat;
 use XDF::FieldGroup;
 
@@ -201,7 +201,7 @@ sub getDataFormatList {
   foreach my $field ($self->getFields) {
     if (!defined $field->getDataFormat()) {
       my $name = $field->getName();
-      carp "Error! FieldAxis dataFormatList request has problem: $field ($name) does not have dataFormat defined, ignoring (probably will cause an IO error)\n";
+      error("Error! FieldAxis dataFormatList request has problem: $field ($name) does not have dataFormat defined, ignoring (probably will cause an IO error)\n");
     } else {
       push @list, $field->getDataFormat();
     }
@@ -320,7 +320,7 @@ sub addField {
 
   unless (defined $fieldObj) {
     # No point in adding a field w/o a value for it.
-    carp "Cannot add an Field, no fieldObj specified. Ignoring request.\n";
+    error("Cannot add an Field, no fieldObj specified. Ignoring request.\n");
     return 0;
   }
 

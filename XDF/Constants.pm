@@ -35,6 +35,7 @@ package XDF::Constants;
 # */
 
 use XML::DOM;
+
 use strict;
 use integer;
 
@@ -164,11 +165,17 @@ sub VALUE_SPECIAL_LIST { ( &VALUE_SPECIAL_INFINITE,  &VALUE_SPECIAL_INFINITE_NEG
                            &VALUE_SPECIAL_NODATA, &VALUE_SPECIAL_NOTANUMBER, &VALUE_SPECIAL_UNDERFLOW,
                            &VALUE_SPECIAL_OVERFLOW ); }
 
+sub DEFAULT_AXIS_SIZE { 1; }
+
 sub DEFAULT_VALUELIST_SIZE { 0; }
 sub DEFAULT_VALUELIST_STEP { 1; }
 sub DEFAULT_VALUELIST_START { 0; }
 sub DEFAULT_VALUELIST_REPEATABLE { 0; }
 sub DEFAULT_VALUELIST_DELIMITER { " "; }
+
+sub LOG_WARN_MSG_LEVEL { 2; }
+sub LOG_DEBUG_MSG_LEVEL { 1; }
+sub LOG_INFO_MSG_LEVEL { 0; }
 
 sub XDF_NOTATION_NAME {
   return 'xdf'; 

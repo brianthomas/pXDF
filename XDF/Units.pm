@@ -18,9 +18,9 @@ package XDF::Units;
 
 
 use XDF::BaseObject;
+use XDF::Log;
 use XDF::Utility;
 use XDF::Unit;
-use Carp;
 
 use strict;
 use integer;
@@ -138,7 +138,7 @@ sub getLogarithm {
 sub setLogarithm {
    my ($self, $value) = @_;
    unless (&XDF::Utility::isValidLogarithm($value)) { 
-     carp "Cant set units logarithm to $value, not allowed \n"; 
+     error("Cant set units logarithm to $value, not allowed \n"); 
      return;
    }
    $self->{logarithm} = $value;
@@ -207,6 +207,25 @@ sub getUnits {
 #
 # Other Public Methods
 #
+
+# /** isUnitless
+# Returns true ("1") if this objects lacks any child unit objects.
+# */
+sub isUnitless {
+  my ($self) = @_;
+
+  return 1 if #${$self->{unitList}} < 0;
+  return 0;
+}
+
+# /** makeUnitless
+# Releases all child unit objects, thus making this a "unitless" Units 
+# object.
+# */
+sub makeUnitless {
+  my ($self) = @_;
+  $self->{unitList} = [];
+}
 
 #/** addUnit
 # Add an XDF::Unit Object to the list of units within this XDF::Units object.
