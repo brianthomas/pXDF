@@ -125,7 +125,7 @@ sub addAxisIdToLocatorOrder {
 
 # Special overloaded method inthis class to allow proper printing.
 sub _basicXMLWriter {
-  my ($self, $fileHandle, $XMLDeclAttribs, $indent, $dontCloseNode,
+  my ($self, $fileHandle, $indent, $dontCloseNode,
       $newNodeNameString, $noChildObjectNodeName ) = @_;
 
   if(!defined $fileHandle) {
@@ -133,14 +133,10 @@ sub _basicXMLWriter {
     return;
   }
 
+  $indent = "" unless defined $indent;
+
   my $spec = XDF::Specification->getInstance();
   my $Pretty_XDF_Output = $spec->isPrettyXDFOutput;
-
-  if (defined $XMLDeclAttribs) {
-     $indent = ""; #$Pretty_XDF_Output_Indentation;
-     # write the XML && DOCTYPE decl
-     $self->_write_XML_decl_to_file_handle($fileHandle, $XMLDeclAttribs);
-  }
 
   my $nodeNameString = $self->classXMLNodeName;
   $nodeNameString = $newNodeNameString if defined $newNodeNameString;

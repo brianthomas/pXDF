@@ -144,14 +144,11 @@ sub print { # PRIVATE
 
    my $obj = $self->getXDFObject();
 
-#   my $spec = XDF::Specification->getInstance;
    if (defined $obj) {
-    # $obj->Pretty_XDF_Output(1);
-#     $spec->setPrettyXDFOutput(1); # huh? 
-     my $string = $obj->toXMLString(undef,undef,undef,undef,undef,1);
+     my $string = $obj->toXMLString(undef,undef,undef,undef,1);
      $FILE->print($string);
    } else { 
-     $FILE->print("<$XDF::DOM::XDF_ROOT_NAME/>\n");
+     $FILE->print("<$XDF::DOM::XDF_ROOT_NAME/>");
    }
 }
 
@@ -173,6 +170,9 @@ sub _init {
 # Modification History
 #
 # $Log$
+# Revision 1.5  2002/01/24 21:26:38  thomas
+# fixed toXML methods to remove XMLDeclAttribs dependance
+#
 # Revision 1.4  2001/08/13 20:56:58  thomas
 # updated documentation via utils/makeDoc.pl for the release.
 #

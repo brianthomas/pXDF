@@ -273,7 +273,7 @@ sub _create_value_object {
 #
 
 sub _basicXMLWriter {
-   my ($self, $fileHandle, $XMLDeclAttribs, $indent ) = @_;
+   my ($self, $fileHandle, $indent ) = @_;
 
    if(!defined $fileHandle) {
       carp "Can't write out object, filehandle not defined.\n";
@@ -385,7 +385,7 @@ Set the valueListIdRef attribute.
 
 Return the list of values held in this object.  
 
-=item toXMLFileHandle ($fileHandle, $XMLDeclAttribs, $indent)
+=item toXMLFileHandle ($fileHandle, $indent)
 
  
 

@@ -238,8 +238,8 @@ sub removeUnit {
 #
 
 sub _basicXMLWriter {
-  my ($self, $fileHandle, $XMLDeclAttribs, $indent, $dontCloseNode ) = @_;
-  $self->SUPER::_basicXMLWriter($fileHandle, $XMLDeclAttribs, $indent, 
+  my ($self, $fileHandle, $indent, $dontCloseNode ) = @_;
+  $self->SUPER::_basicXMLWriter($fileHandle, $indent, 
                                 $dontCloseNode, $self->{XMLNodeName}, 
                                 $Class_No_Unit_Child_Node_Name);
 }
@@ -372,7 +372,7 @@ Add an XDF::Unit Object to the list of units within this XDF::Units object. RETU
 
 RETURNS : 1 on success, 0 on failure.  
 
-=item toXMLFileHandle ($fileHandle, $XMLDeclAttribs, $indent, $dontCloseNode)
+=item toXMLFileHandle ($fileHandle, $indent, $dontCloseNode)
 
  
 
