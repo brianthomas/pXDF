@@ -36,6 +36,7 @@ package XDF::DataCube;
 # */
 
 use Carp;
+use XDF::Utility;
 use XDF::BaseObject;
 
 # fields pragma requires Perl 5.005 support. what does this do exactly?? 
@@ -61,6 +62,7 @@ use vars qw ($AUTOLOAD %field @ISA);
 my $Class_XML_Node_Name = "data";
 my @Class_XML_Attributes = qw (
                              href
+                             encoding
                              checksum
                              compression
                           );
@@ -166,7 +168,30 @@ sub getCompression {
 # */
 sub setCompression {
    my ($self, $value) = @_;
+
+   carp "Cant set compression to $value, not allowed \n"
+      unless (&XDF::Utility::isValidDataCompression($value));
+
    $self->{Compression} = $value;
+}
+
+# /** getEncoding
+# */
+sub getEncoding {
+   my ($self) = @_;
+   return $self->{Encoding};
+}
+
+# /** setEncoding
+#     Set the encoding attribute. 
+# */
+sub setEncoding {
+   my ($self, $value) = @_;
+
+   carp "Cant set encoding to $value, not allowed \n"
+      unless (&XDF::Utility::isValidDataEncoding($value));
+
+   $self->{Encoding} = $value;
 }
 
 # /** getDimension
@@ -720,7 +745,7 @@ sub _doReadCellFormattedIOCmdOutput {
          if ($intFlagType eq XDF::IntegerDataFormat->typeOctal()) {
             warn "Cant write OCTAL integers yet, aborting cell write";
             return;
-         } elsif ($intFlagType eq XDF::IntegerDataFormat->typeHex()) {
+         } elsif ($intFlagType eq XDF::IntegerDataFormat->typeHexadecimal()) {
             warn "Cant write HEX integers yet, aborting cell write";
             return;
          }
@@ -885,6 +910,11 @@ sub _build_locator_string {
 # Modification History
 #
 # $Log$
+# Revision 1.10  2001/03/09 22:05:31  thomas
+# added get/set methods for encoding attribute.
+# added Utility check for compression attribute
+# value.
+#
 # Revision 1.9  2001/03/07 23:13:27  thomas
 # added binary writing code from the Java package. Not complete yet
 # however.
