@@ -132,7 +132,7 @@ sub _resetBaseValueListObjects {
 #
 #*/
 sub toXMLFileHandle {
-  my ($self, $fileHandle, $XMLDeclAttribs, $indent, $dontCloseNode, $newNodeNameString, $noChildObjectNodeName, $isRootNode  ) = @_;
+  my ($self, $fileHandle, $XMLDeclAttribs, $indent, $dontCloseNode, $newNodeNameString, $noChildObjectNodeName) = @_;
 
   if(!defined $fileHandle) {
     carp "Can't write out object, filehandle not defined.\n";
@@ -145,12 +145,6 @@ sub toXMLFileHandle {
   my $Pretty_XDF_Output = $spec->isPrettyXDFOutput;
   my $Pretty_XDF_Output_Indentation = $spec->getPrettyXDFOutputIndentation;
 
- # if (defined $XMLDeclAttribs) {
- #    $indent = "";
-     # write the XML && DOCTYPE decl
- #    $self->_write_XML_decl_to_file_handle($fileHandle, $XMLDeclAttribs, $spec);
- # }
-
   # We need to invoke a little bit of Voodoo to keep the DTD happy; 
   # the first structure node is always called by the root node name
   # also, we may have nodes (w/o attributes) that just hold other nodes.
@@ -160,8 +154,8 @@ sub toXMLFileHandle {
   # open this node, print its attributes
   if ($nodename) {
       print $fileHandle $indent if $Pretty_XDF_Output;
-      $nodename = $spec->getXDFRootNodeName if ( (defined $XMLDeclAttribs || $isRootNode)
-                                           && $self =~ m/XDF::Structure/);
+  #    $nodename = $spec->getXDFRootNodeName if ( (defined $XMLDeclAttribs || $isRootNode)
+  #                                         && $self =~ m/XDF::Structure/);
       print $fileHandle "<" . $nodename;
   }
 
@@ -346,6 +340,10 @@ sub _hashesAreEquivalent {
 # Modification History
 #
 # $Log$
+# Revision 1.2  2001/07/17 17:37:51  thomas
+# Removed printing of XMLDecl from toXMLFileHandle method.
+# Removed isRootNode var on toXMLFileHandle method.
+#
 # Revision 1.1  2001/07/13 21:38:40  thomas
 # Initial Version
 #
