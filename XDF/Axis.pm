@@ -24,7 +24,7 @@ package XDF::Axis;
 # */
 
 use Carp;
-use XDF::BaseObjectWithXMLElements;
+use XDF::BaseObjectWithXMLElementsAndValueList;
 use XDF::UnitDirection;
 use XDF::ValueGroup;
 use XDF::Units;
@@ -80,7 +80,7 @@ use vars qw ($AUTOLOAD %field @ISA);
 # */
 
 # inherits from XDF::BaseObjectWithXMLElements
-@ISA = ("XDF::BaseObjectWithXMLElements");
+@ISA = ("XDF::BaseObjectWithXMLElementsAndValueList");
 
 # CLASS DATA
 # /** name
@@ -139,7 +139,7 @@ my @Class_Attributes = qw (
 push @Class_Attributes, @Class_XML_Attributes;
 
 # add in super class attributes
-push @Class_Attributes, @{&XDF::BaseObjectWithXMLElements::classAttributes};
+push @Class_Attributes, @{&XDF::BaseObjectWithXMLElementsAndValueList::classAttributes};
 
 # Initalization
 # set up object attributes.
@@ -283,12 +283,19 @@ sub getValueList {
 }
 
 # /** setValueList
-#  */
+#  Set the valueList attribute. You may either pass an array of Value
+#  objects OR a valueList object (either ValueListAlgorithm or ValueListDelimitedList).
+#  Either way, (axis) Value objects will be added to the axis and its size set to their number.
+#  Using a valueList *object* will result in a more compact description of 
+#  the passed values when the parameter is printed out.
+# */
 sub setValueList {
-   my ($self, $arrayRefValue) = @_;
-   # you must do it this way, or when the arrayRef changes it changes us here!
-   my @list = @{$arrayRefValue};
-   $self->{ValueList} = \@list;
+   my ($self, $arrayOrValueListObjRefValue) = @_;
+
+   # clear old list
+   $self->resetValues();
+   $self->addValueList($arrayOrValueListObjRefValue);
+
 }
 
 # /** getXMLAttributes
@@ -306,9 +313,101 @@ sub getLength {
   $self->{_length};
 }
 
+# /** getAxisValue 
+# Returns the axis XDF::Value object at the specified index.
+# */ 
+sub getAxisValue {
+  my ($self, $index) = @_;
+  return unless (defined $index && $index >= 0);
+  return $self->getAxisValues->[$index];
+}
+
+# /** setAxisValue
+# Set the value of this axis at the given index.
+# */
+sub setAxisValue {
+  my ($self, $index, $valueObj ) = @_;
+
+  return 0 unless defined $index && $index >= 0;
+
+  unless (defined $valueObj ) {
+     if (defined @{$self->{ValueList}}->[$index]) {
+        # if the axisValue is presently defined, we lower
+        # the length of the axis by 1
+        $self->{_length} = $self->{_length} - 1;
+        @{$self->{ValueList}}->[$index] = undef;
+     }
+
+     # no compact description allowed now 
+     $self->_resetBaseValueListObjects();
+
+     return 1;
+  }
+
+  unless (ref($valueObj) eq 'XDF::Value' or
+          ref($valueObj) eq 'XDF::UnitDirection' )
+  {
+     $valueObj  = new XDF::Value(); #@{$self->{ValueList}}->[$index];
+     $valueObj->setValue($valueObj);
+  }
+
+  # if the axisValue is not presently defined, we raise
+  # the length of the axis by 1
+  if (!defined @{$self->{ValueList}}->[$index]) {
+     $self->{_length} = $self->{_length} + 1;
+
+     # also means length changed, so lets update array internal datacube 
+     if (defined $self->{_parentArray}) {
+        $self->{_parentArray}->_updateInternalLookupIndices();
+     }
+
+   }
+
+   @{$self->{ValueList}}->[$index] = $valueObj;
+
+   # no compact description allowed now 
+   $self->_resetBaseValueListObjects();
+
+   return 1;
+}
+
+
+# /** getAxisValues 
+# This is a convenience method which returns all of the values (as strings) on this axis. 
+# */ 
+sub getAxisValues {
+   my ($self) = @_;
+
+   my @values = ();
+   foreach my $axisVal (@{$self->{ValueList}}) {
+      next unless defined $axisVal;
+      push @values, $axisVal->getValue();
+   }
+
+   return @values;
+}
+
+
+
 #
 # Other Public Methods
 #
+
+
+# /** resetValues
+# The valueList (which holds either Value or UnitDirection objects) is
+# reset to be empty by this method.
+# */
+sub resetValues {
+   my ($self) = @_;
+
+   # free up all declared values
+   $self->{ValueList} = []; # has to be this way to avoid deep recursion 
+
+   # no compact description allowed now 
+   $self->_resetBaseValueListObjects();
+
+}
 
 # /** addAxisValue
 # Add an XDF::AxisValue object to this axis. 
@@ -345,50 +444,11 @@ sub addAxisValue {
      $self->{_parentArray}->_updateInternalLookupIndices();
   }
 
+  # no compact description allowed now 
+  $self->_resetBaseValueListObjects();
+
   return 1;
 
-}
-
-# /** setAxisValue
-# Set the value of this axis at the given index.
-# */
-sub setAxisValue {
-  my ($self, $index, $valueObj ) = @_;
-
-  return 0 unless defined $index && $index >= 0;
-
-  unless (defined $valueObj ) {
-     if (defined @{$self->{ValueList}}->[$index]) {
-        # if the axisValue is presently defined, we lower
-        # the length of the axis by 1
-        $self->{_length} = $self->{_length} - 1;
-        @{$self->{ValueList}}->[$index] = undef;
-     }
-     return 1;
-  }
-    
-  unless (ref($valueObj) eq 'XDF::Value' or 
-          ref($valueObj) eq 'XDF::UnitDirection' )
-  {
-     $valueObj  = new XDF::Value(); #@{$self->{ValueList}}->[$index];
-     $valueObj->setValue($valueObj);
-  } 
-
-  # if the axisValue is not presently defined, we raise
-  # the length of the axis by 1
-  if (!defined @{$self->{ValueList}}->[$index]) {
-     $self->{_length} = $self->{_length} + 1;
-
-     # also means length changed, so lets update array internal datacube 
-     if (defined $self->{_parentArray}) {
-        $self->{_parentArray}->_updateInternalLookupIndices();
-     }
-
-   }
-
-   @{$self->{ValueList}}->[$index] = $valueObj;
-
-   return 1;
 }
 
 # /** addAxisUnitDirection
@@ -416,6 +476,9 @@ sub addAxisUnitDirection {
      $self->{_parentArray}->_updateInternalLookupIndices();
   }
 
+  # no compact description allowed now 
+  $self->_resetBaseValueListObjects();
+
   return 1;
 }
 
@@ -439,28 +502,53 @@ sub removeAxisValue {
   return 0;
 }
 
-# /** getAxisValue 
-# Returns the axis XDF::Value object at the specified index.
-# */ 
-sub getAxisValue {
-  my ($self, $index) = @_;
-  return unless (defined $index && $index >= 0);
-  return $self->getAxisValues->[$index];
-}
+# /** addValueList
+# Append a list of (axis) Values held by the passed ValueListObject (or Array of Values)
+# into this Axis object.
+# */
+sub addValueList {
+   my ($self, $arrayOrValueListObjRefValue) = @_;
 
-# /** getAxisValues 
-# This is a convenience method which returns all of the values (as strings) on this axis. 
-# */ 
-sub getAxisValues {
-   my ($self) = @_;
+   croak "axis->setAxisValueList() passed non-reference.\n"
+      unless (ref($arrayOrValueListObjRefValue));
 
-   my @values = ();
-   foreach my $axisVal (@{$self->{ValueList}}) {
-      next unless defined $axisVal;
-      push @values, $axisVal->getValue();
+   if (ref($arrayOrValueListObjRefValue) eq 'ARRAY') {
+
+      # you must do it this way, or when the arrayRef changes it changes us here!
+      if ($#{$arrayOrValueListObjRefValue} >= 0) {
+         foreach my $valueObj (@{$arrayOrValueListObjRefValue}) {
+            push @{$self->{ValueList}}, $valueObj;
+         }
+
+         # since we added vanilla values
+         # no compact description allowed now 
+         $self->_resetBaseValueListObjects();
+
+         return 1;
+      }
+
+   }
+   elsif (ref($arrayOrValueListObjRefValue) =~ m/^XDF::ValueList/)
+   {
+
+       my @values = @{$arrayOrValueListObjRefValue->getValues()};
+       if ($#values >= 0) {
+          $self->_addValueListObj($arrayOrValueListObjRefValue);
+          foreach my $valueObj (@values) {
+             push @{$self->{ValueList}}, $valueObj;
+          }
+          return 1;
+       } else {
+          carp "axis->addAxisValueList passed ValueList object with 0 values, Ignoring.\n";
+       }
+
+   }
+   else
+   {
+      croak "Unknown reference object passed to setvalueList in axis:$arrayOrValueListObjRefValue. Dying.\n";
    }
 
-   return @values;
+   return 0;
 }
 
 # /** addUnit 
@@ -574,6 +662,8 @@ sub _init {
   # reflective of the real axis size.
   $self->{_length} = 0;
 
+  $self->{_valueListGetMethodName} = "getValueList";
+
 }
 
 # /** getParentArray
@@ -593,6 +683,9 @@ sub setParentArray { # PRIVATE
 # Modification History
 #
 # $Log$
+# Revision 1.15  2001/07/13 21:43:36  thomas
+# added methods for ValueList stuff
+#
 # Revision 1.14  2001/06/29 21:07:12  thomas
 # changed public add (and remove) methods to
 # conform to Java API standard: e.g. return boolean
@@ -656,243 +749,3 @@ sub setParentArray { # PRIVATE
 
 1;
 
-
-__END__
-
-=head1 NAME
-
-XDF::Axis - Perl Class for Axis
-
-=head1 SYNOPSIS
-
- 
-    my $axisObj = new XDF::Axis();
-    $axisObj->name("first axis");
-    $axisObj->addAxisValue(9); # the axis value at index 0 has value "9" 
-
-    or 
- 
-    my @axisValueList = qw ( $axisValueObjRef1 $axisValueObjRef2 );
-    my $axisObj = new XDF::Axis( { 'name' => 'first axis',
-                                   'valueList' => \@axisValueList,
-                                 }
-                               );
-
-
-
-...
-
-=head1 DESCRIPTION
-
- There must be one axis (or fieldAxis) for every dimension in the datacube. There are n indices for every axis (n>= 1).  Each axis declaration defines the values of ALL the indices  along that dimension. Values of the indices in that axis need  not follow any algorthm for progression BUT each must be unique within the axis. A unit may be assocated with the axis.  Note that the unit specified for the axis indices is not the  same as the unit of the data held within the data cube. 
-
-XDF::Axis inherits class and attribute methods of L<XDF::GenericObject>, L<XDF::BaseObject>.
-
-
-=head1 METHODS
-
-=over 4
-
-=head2 CLASS Methods
-
-The following methods are defined for the class XDF::Axis.
-
-=over 4
-
-=item classXMLNodeName (EMPTY)
-
-This method returns the class node name for XDF::Axis; This method takes no arguments may not be changed.  
-
-=item classAttributes (EMPTY)
-
-This method returns a list reference containing the namesof the class attributes for XDF::Axis; This method takes no arguments may not be changed.  
-
-=item getXMLAttributes (EMPTY)
-
-This method returns the XMLAttributes of this class.  
-
-=item addUnit (EMPTY)
-
-Add an XDF::Unit object to the XDF::Units object contained in this axis.  
-
-=back
-
-=head2 INSTANCE (Object) Methods
-
-The following instance (object) methods are defined for XDF::Axis.
-
-=over 4
-
-=item getName (EMPTY)
-
- 
-
-=item setName ($value)
-
-Set the name attribute.  
-
-=item getDescription (EMPTY)
-
- 
-
-=item setDescription ($value)
-
- 
-
-=item getAxisDatatype (EMPTY)
-
- 
-
-=item setAxisDatatype ($value)
-
-Set the axisDatatype attribute.  
-
-=item getAxisUnits (EMPTY)
-
- 
-
-=item setAxisUnits ($value)
-
-Set the axisUnits attribute.  
-
-=item getAxisId (EMPTY)
-
- 
-
-=item setAxisId ($value)
-
-Set the axisId attribute.  
-
-=item getAxisIdRef (EMPTY)
-
- 
-
-=item setAxisIdRef ($value)
-
-Set the axisIdRef attribute.  
-
-=item getAlign (EMPTY)
-
- 
-
-=item setAlign ($value)
-
-Set the align attribute.  
-
-=item getValueList (EMPTY)
-
- 
-
-=item setValueList ($arrayRefValue)
-
- 
-
-=item getLength (EMPTY)
-
-Get the length of this axis (eg number of axis value objects)  
-
-=item addAxisValue ($value)
-
-Add an XDF::AxisValue object to this axis.  
-
-=item setAxisValue ($valueOrValueObjRef, $index)
-
-Set the value of this axis at the given index.  
-
-=item addAxisUnitDirection ($attribHashRef)
-
-Add an XDF::UnitDirection object to this axis.  
-
-=item removeAxisValue ($what)
-
-Remove either an XDF::Value or XDF::UnitDirection object from this axis. $what may either be an index value or object reference.  
-
-=item getAxisValue ($index)
-
-Returns the axis XDF::Value object at the specified index.  
-
-=item getAxisValues (EMPTY)
-
-This is a convenience method which returns all of the values (as strings) on this axis.  
-
-=item removeUnit ($indexOrObjectRef)
-
-Remove an XDF::Unit object from the XDF::Units object contained in this axis.  
-
-=item addValueGroup ($attribHashRefOrObjectRef)
-
-Insert a ValueGroup object into this object to group the axisValues.  
-
-=item removeValueGroup ($hashKey)
-
-Remove a ValueGroup object from this object  
-
-=item getIndexFromAxisValue ($valueOrValueObj)
-
-Return the axis index for the given (scalar) value. Does not currently work for unitDirection objects that resideon an axis. Returns -1 if it cant find an index for the given value.  
-
-=back
-
-
-
-=head2 INHERITED Class Methods
-
-=over 4
-
-
-
-=over 4
-
-The following class methods are inherited from L<XDF::BaseObject>:
-B<Pretty_XDF_Output>, B<Pretty_XDF_Output_Indentation>, B<DefaultDataArraySize>. 
-
-=back
-
-=back
-
-
-
-=head2 INHERITED INSTANCE Methods
-
-=over 4
-
-
-
-=over 4
-
-XDF::Axis inherits the following instance (object) methods of L<XDF::GenericObject>:
-B<new>, B<clone>, B<update>.
-
-=back
-
-
-
-=over 4
-
-XDF::Axis inherits the following instance (object) methods of L<XDF::BaseObject>:
-B<addXMLElement>, B<removeXMLElement>, B<getXMLElementList>, B<setXMLElementList>, B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLAttributes>, B<setXMLNotationHash>, B<toXMLFileHandle>, B<toXMLFile>.
-
-=back
-
-=back
-
-=back
-
-=head1 SEE ALSO
-
-
-
-=over 4
-
-L<XDF::BaseObject>, L<XDF::UnitDirection>, L<XDF::ValueGroup>, L<XDF::Units>, L<XDF::Utility>, L<XDF::Value>
-
-=back
-
-=head1 AUTHOR
-
-    Brian Thomas  (thomas@adc.gsfc.nasa.gov)
-    Astronomical Data Center <http://adc.gsfc.nasa.gov>
-    NASA/Goddard Space Flight Center
- 
-
-=cut
