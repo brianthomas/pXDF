@@ -1,6 +1,6 @@
-<!-- edited with XML Spy v4.3 (http://www.xmlspy.com) by Ed Shaya (NASA) -->
+<!-- edited with XML Spy v4.4 (http://www.xmlspy.com) by Ed Shaya (NASA) -->
 <!--  XDF.dtd - eXtensible Data Format - version 0.18
-	Date: May 17, 2002
+	Date: June 28, 2002
 	XML lanaguage Document Type Definition (DTD).
 
 	An XDF document contains arrays and data structures.  It  is
@@ -89,13 +89,42 @@ Units can begin with a constant multiplier in float format (F) exponential
 		<unit>kg</unit><unit>m</unit>
 		<unit power="-2">s</unit>
 	</units>
-This element will be superseded in a future version by a system in which the units are mathematically handled followining to MathML methods.-->
+This element will be superseded in a future version by a system in which the units are 
+mathematically handled followining to MathML methods.
+-->
+
+<!-- Conversion allows expression of an algorithm to be applied to the data.  
+     One can string together a sequence of operations to be applied to the 
+     stored data values. Applications would have the ability to optionally 
+     apply this and to invert it when storing. The sense of the algorithm is
+     that familiar to old HP users: RPN ("Reverse Polish Notation").
+     For example the algorithm " 10 ^ (50 * ln (45 x + 89)) " would be written 
+     <conversion>
+       <mulitply>45</multiply>
+       <add>89</add>
+       <naturalLogarithm/>
+       <mulitply>50</multiply>
+       <exponentOn>10</exponentOn>
+     </conversion>
+  -->
+<!ELEMENT conversion (multiply | add | logarithmBase | exponent | exponentOn)+>
+<!--number to multiply the data value  (cx).-->
+<!ELEMENT multiply (#PCDATA)>
+<!--number to add to data (a constant offset: x + c).-->
+<!ELEMENT add (#PCDATA)>
+<!--take the natural log by value here ln(x).-->
+<!ELEMENT naturalLogarithm (#PCDATA)>
+<!--take the log with base set by value here (e.g. "2" means log2(x)).-->
+<!ELEMENT logarithmBase (#PCDATA)>
+<!--take prior value to power with exponent set by value here (x^y).-->
+<!ELEMENT exponent (#PCDATA)>
+<!-- take prior value as exponent on provided constant y (y^x)-->
+<!ELEMENT exponentOn (#PCDATA)>
+
 <!ELEMENT units (unit+)>
 <!ATTLIST units
 	name CDATA #IMPLIED
 	description CDATA #IMPLIED
-	factor CDATA #IMPLIED
-	offset CDATA #IMPLIED
 >
 <!ELEMENT unit (#PCDATA)>
 <!ATTLIST unit
@@ -135,18 +164,13 @@ This element will be superseded in a future version by a system in which the uni
 	positiveErrorValue NMTOKEN #IMPLIED
 	negativeErrorValue NMTOKEN #IMPLIED
 >
-<!--
-	One can fill valueList with value elements or a delimited set of values,  
-	repeatable="yes" would mean that the delimiter can repeat several
-	times in a row and still represent a single demarcation.
+<!--The indices of an axis, which run from 0 to size-1,  can optionally be given values that  more 
+appropriately specify the coordinate values along the axis.  One can fill valueList with value elements 
+or a delimited list of values.
 -->
 <!ELEMENT valueList (#PCDATA)>
 <!ATTLIST valueList
-	size NMTOKEN #IMPLIED
 	delimiter CDATA "&space;"
-	repeatable (yes | no) "no"
-	start CDATA #IMPLIED
-	step CDATA #IMPLIED
 	valueListId ID #IMPLIED
 	valueListIdRef IDREF #IMPLIED
 	infiniteValue CDATA #IMPLIED
@@ -155,6 +179,27 @@ This element will be superseded in a future version by a system in which the uni
 	notANumberValue CDATA #IMPLIED
 	underflowValue CDATA #IMPLIED
 	overflowValue CDATA #IMPLIED
+>
+<!--One can fill valueList by algorithm.  For now, there is one such algorithm.  A polynomial with optional logarithm.
+-->
+<!ELEMENT valueListAlgorithm (polynomial)>
+<!ATTLIST valueListAlgorithm
+	valueListId ID #IMPLIED
+	valueListIdRef IDREF #IMPLIED
+>
+<!--A polynomial evaluated at x=0,1,2....size-1.  The coefficients are inserted as a list with space char as 
+delimiter  (c0 c1 c2 ...).  The number of coefficients is arbitrary.  For examples,
+0 2 4 6   has size=4 polynomial = "0 2" (e.g. <polynomial size="4">0 2</polynomial>) 
+1 3 5 7 9 has size=5 polynomial="1 2"
+1 2 5 10 17 26 has size=6 polynomial="1 0 1"
+reverse, if true, would have x=size-1, size-2, ... 1,0.
+The logarithm of the resulting series is taken if @logarithm is present.  The base of the logarithm is 
+either 10 or e.-->
+<!ELEMENT polynomial (#PCDATA)>
+<!ATTLIST polynomial
+	size NMTOKEN #IMPLIED
+	reverse (true | false) "false"
+	logarithm (10 | natural) #IMPLIED
 >
 <!ELEMENT parameterGroup ((parameter | parameterGroup)+)>
 <!ATTLIST parameterGroup
@@ -196,7 +241,7 @@ This element will be superseded in a future version by a system in which the uni
 			)
 			 |
 			(
-				 (units|unitless), dataFormat,
+				conversion?, (units|unitless), dataFormat,
 				 	(
 				 		(axis*,dataStyle)
 				 		 |
@@ -222,7 +267,7 @@ This element will be superseded in a future version by a system in which the uni
 			) 
 		|
 			(
-				 (units|unitless), dataFormat,
+				conversion?, (units|unitless), dataFormat,
 				 	(
 				 		(axis*,dataStyle)
 				 		 |
@@ -267,45 +312,34 @@ This element will be superseded in a future version by a system in which the uni
         to accomplish an array/@apppendTo.
 
 -->
+<!ENTITY % basicAxisChildren "conversion?,(units|unitless),dataFormat?, (valueListAlgorithm | valueList | valueGroup | value)*">
 <![ %BASIC_AXIS; [ 
-<!ELEMENT axis  ((units|unitless), (value | valueList | valueGroup)?) >
+<!ENTITY % axisChildren "(%basicAxisChildren;)" >
 ]]>
 <![ %INCLUDE_AXIS_CHILDREN; [ 
-<!ELEMENT axis (axis_children,((units|unitless), (value | valueList | valueGroup)?) )>
+<!ENTITY % axisChildren  (axis_children,%basicAxisChildren;)>
 ]]>
+<!ELEMENT axis (%axisChildren;)>
 <!ATTLIST axis
 	name CDATA #IMPLIED
 	description CDATA #IMPLIED
 	axisId ID #REQUIRED
 	axisIdRef IDREF #IMPLIED
 	align IDREF #IMPLIED
-	axisDatatype (integer | float | exponential | string | url) #IMPLIED
 	size CDATA #REQUIRED
 >
-<![ %BASIC_AXIS; [ 
-<!ELEMENT colAxis  ((units|unitless)?, (value | valueList | valueGroup)?) >
-]]>
-<![ %INCLUDE_AXIS_CHILDREN; [ 
-<!ELEMENT colAxis  (axis_children,(units|unitless)?, (value | valueList | valueGroup)?) >
-]]>
+<!ELEMENT colAxis (%axisChildren;)>
 <!ATTLIST colAxis
 	name CDATA #IMPLIED
 	description CDATA #IMPLIED
 	align IDREF #IMPLIED
-	axisDatatype (integer | float | exponential | string) #IMPLIED
 	size CDATA #REQUIRED
 >
-<![ %BASIC_AXIS; [ 
-<!ELEMENT rowAxis  ((units|unitless)?, (value | valueList | valueGroup)?) >
-]]>
-<![ %INCLUDE_AXIS_CHILDREN; [ 
-<!ELEMENT rowAxis  (axis_children,(units|unitless)?, (value | valueList | valueGroup)?) >
-]]>
+<!ELEMENT rowAxis (%axisChildren;)>
 <!ATTLIST rowAxis
 	name CDATA #IMPLIED
 	description CDATA #IMPLIED
 	align IDREF #IMPLIED
-	axisDatatype (integer | float | exponential | string) #IMPLIED
 	size CDATA #REQUIRED
 >
 <!-- a table or a set of tables can be formatted in XDF. In the same
@@ -339,10 +373,10 @@ way to define n-tuples.
 	size CDATA #REQUIRED
 >
 <![ %BASIC_FIELD; [ 
-<!ELEMENT field ((units|unitless), dataFormat, relation?, note*)>
+<!ELEMENT field (conversion?,(units|unitless), dataFormat, relation?, note*)>
 ]]>
 <![ %INCLUDE_FIELD_CHILDREN; [ 
-<!ELEMENT field (field_children,(units|unitless), dataFormat, relation?, note*)>
+<!ELEMENT field (field_children,conversion?,(units|unitless), dataFormat, relation?, note*)>
 ]]>
 <!ATTLIST field
 	name CDATA #IMPLIED
@@ -402,7 +436,7 @@ grouped together with name="position".
 	description CDATA #IMPLIED
 	class (spatial | temporal) #IMPLIED
 >
-<!ELEMENT valueGroup ((value | valueList | valueGroup)+)>
+<!ELEMENT valueGroup ((value | valueList | valueListAlgorithm | valueGroup)+)>
 <!ATTLIST valueGroup
 	name CDATA #IMPLIED
 	description CDATA #IMPLIED
