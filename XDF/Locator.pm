@@ -573,13 +573,14 @@ sub _calculateLongArrayIndex
 sub _dumpLocation {
    my ($self) = @_;
 
-   debug("Present Location :"); 
+   my $string;
    while (my ($axisObj, $index) = each %{$self->{_locationHash}}) {
        my $id = $axisObj; #->getAxisId();
-       debug("($id,$index)"); 
+       $string .= "($id,$index)";
    }
-   debug("\n");
+   $string .= "\n";
 
+   return $string;
 }
 
 1;
