@@ -109,7 +109,7 @@ for my $attr ( @Class_Attributes ) { $field{$attr}++; }
 
 # /** classAttributes
 #  This method returns a list reference containing the names
-#  of the class attributes for XDF::BaseObject;
+#  of the class attributes for this object;
 #  This method takes no arguments may not be changed. 
 # */
 sub classAttributes { 
@@ -589,6 +589,9 @@ sub _find_All_child_Href_Objects {
 # Modification History
 #
 # $Log$
+# Revision 1.6  2001/03/14 21:29:45  thomas
+# Minor documentation change.
+#
 # Revision 1.5  2001/01/02 02:39:31  thomas
 # Minor fix to prevent spurious messages from
 # toXMLFileHandle when only filehandle is passed
