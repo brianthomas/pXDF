@@ -50,10 +50,10 @@ use vars qw {@ISA %field};
 my @Local_Class_Attributes = qw (
                              _hasValueListCompactDescription
                              _valueListGetMethodName
-                             _valueListObjects
                           );
 
 my @Local_Class_XML_Attributes = qw (
+                             valueListObjects
                               );
 
 my @Class_Attributes;
@@ -74,6 +74,16 @@ push @Class_Attributes, @Local_Class_Attributes;
 # Initalization - set up object attributes.
 for my $attr ( @Class_Attributes ) { $field{$attr}++; }
 
+#
+# CLASS DATA
+#
+
+my $PCDATA_ATTRIBUTE = &XDF::Constants::getPCDATAAttribute;
+
+#
+# CLASS (Static) METHODS
+#
+
 # /** getClassAttributes
 #  This method returns a list reference containing the names
 #  of the class attributes for this object;
@@ -87,12 +97,12 @@ sub getClassXMLAttributes {
   return \@Class_XML_Attributes;
 }
 
-# /** _getValueListObjects
-# 
+# /** getValueListObjects
+# Get a list of ValueList objects held by this object. 
 # */
-sub _getValueListObjects {
+sub getValueListObjects {
   my ($self) = @_;
-  return $self->{_valueListObjects};
+  return $self->{valueListObjects};
 }
 
 # /** _setValueListObj
@@ -111,7 +121,7 @@ sub _addValueListObj {
   my ($self, $valueListObj) = @_;
 
   return 0 unless defined $valueListObj && ref $valueListObj;
-  push @{$self->_getValueListObjects}, $valueListObj;
+  push @{$self->{valueListObjects}}, $valueListObj;
 
   $self->{_hasValueListCompactDescription} = 1;
 
@@ -126,9 +136,14 @@ sub _resetBaseValueListObjects {
   if ($force || $self->{_hasValueListCompactDescription}) 
   {
      $self->{_hasValueListCompactDescription} = 0;
-     $self->{_valueListObjects} = []; 
+     $self->{valueListObjects} = []; 
   }
 
+}
+
+sub hasValues {
+  my ($self) = @_;
+  return 0;
 }
 
 #
@@ -243,7 +258,7 @@ sub _init {
   $self->SUPER::_init();
 
   $self->{_hasValueListCompactDescription} = 0;
-  $self->{_valueListObjects} = [];
+  $self->{valueListObjects} = [];
 
   # adds to ordered list of XML attributes
   $self->_appendAttribsToXMLAttribOrder(\@Local_Class_XML_Attributes);
@@ -259,7 +274,7 @@ sub _doObjectListtoXMLFileHandle {
         $objListRef eq $self->$valueListGetMethod )
    {
 
-      foreach my $valueListObj (@{$self->{_valueListObjects}}) 
+      foreach my $valueListObj (@{$self->{valueListObjects}}) 
       {
          # Grouping *may* differ between the values held in each ValueLists. To check we
          # if all valueListObjects are 'kosher' we use the first value in the values 

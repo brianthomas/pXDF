@@ -216,7 +216,7 @@ sub _init {
   # $self->SUPER::_init();
  
   $self->{_hasValueListCompactDescription} = 0;
-  $self->{_valueListObjects} = [];
+  $self->{valueListObjects} = [];
 
   $self->{_childXMLElementList} = [];
 
