@@ -34,7 +34,7 @@
 
 package XDF::FormattedXMLDataIOStyle;
 
-use XDF::BaseObject;
+use XDF::XMLDataIOStyle;
 use XDF::Constants;
 use XDF::Log;
 
@@ -94,6 +94,27 @@ sub getClassAttributes {
 sub getClassXMLAttributes {
   return \@Class_XML_Attributes;
 }
+
+# 
+# Constructor
+#
+sub new {
+  my ($proto, $parentArray, $attribHash) = @_;
+
+   unless (ref $parentArray eq 'XDF::Array') {
+     error("Cant create new $proto, illegal parentArray reference passed (or missing)\n");
+     exit -1;
+   }
+
+   my $self = $proto->SUPER::new(); # empty method call is correct 
+   $self->_init($parentArray);
+    # this must come *after* _init otherwise defaults will clobber 
+    # new values
+   $self->setXMLAttributes($attribHash) if defined $attribHash;
+
+   return $self;
+}
+
 
 #
 # Get/Set Methods
@@ -307,9 +328,9 @@ sub AUTOLOAD {
 }
 
 sub _init {
-  my ($self) = @_;
+  my ($self, $parentArray) = @_;
 
-  $self->SUPER::_init();
+  $self->SUPER::_init($parentArray);
 
   # set defaults
   $self->{formatCmdList} = []; 

@@ -67,7 +67,7 @@ use vars qw ($AUTOLOAD %field @ISA);
 # */
 
 my $Big_Endian             = 'BigEndian'; 
-my $Little_Endian             = 'LittleEndian'; 
+my $Little_Endian          = 'LittleEndian'; 
 
 my $Def_Encoding           = 'ISO-8859-1';
 my $Def_Endian             = $Big_Endian;
@@ -168,7 +168,7 @@ sub setDataStyleIdRef {
 
 # /** getEncoding
 # */
-sub getEncoding{
+sub getEncoding {
    my ($self) = @_;
    return $self->{encoding};
 }
@@ -215,7 +215,7 @@ sub getWriteAxisOrderList {
 
   my $list_ref = $self->{writeAxisOrderList};
   $list_ref = $self->{_parentArray}->getAxisList() unless
-      defined $list_ref || !defined $self->{_parentArray};
+      $#{$list_ref} > -1 || !defined $self->{_parentArray};
   return $list_ref;
 }
 
@@ -240,6 +240,35 @@ sub setWriteAxisOrderList {
   $self->{writeAxisOrderList} = \@list;
 }
 
+
+# /** setParentArray
+#     Set the parentArray of this dataStyle object.
+# */
+sub setParentArray { #PRIVATE
+   my ($self, $value) = @_;
+
+   error("Cant set parentArray to $value, not allowed ($self)\n")
+      unless (ref $value eq 'XDF::Array');
+   $self->{_parentArray} = $value;
+}
+
+# /** toXMLFileHandle
+#
+# */
+sub toXMLFileHandle {
+   my $self = shift;
+   
+   # first order of business: is this the simple style? -- then dont print node! 
+   my $parentArray =$self->{_parentArray};
+   if (ref $parentArray) {
+     return if ($parentArray->_isSimpleDataIOStyle);
+   }
+
+   # just as you were...
+   $self->SUPER::toXMLFileHandle(@_);
+
+}
+
 #
 # Private Methods 
 #
@@ -253,12 +282,15 @@ sub AUTOLOAD {
 }
 
 sub _init { 
-  my ($self) = @_; 
+  my ($self, $parentArray) = @_; 
 
   $self->SUPER::_init();
 
   $self->{encoding} = $Def_Encoding;
   $self->{endian} = $Def_Endian;
+  $self->setParentArray($parentArray) if defined $parentArray;
+
+  $self->{writeAxisOrderList} = [];
 
   # adds to ordered list of XML attributes
   $self->_appendAttribsToXMLAttribOrder(\@Local_Class_XML_Attributes);
