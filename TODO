@@ -4,6 +4,8 @@
       feature-complete release candidate.
    ---------------------------------------------------------------------------
 
+   - read external files with delmited/tagged data styles
+
    - binary IO not well tested (only on Linux so far). 
 
    - Href stuff only supports files. Need Entity Resolver type behavior ala Java.
