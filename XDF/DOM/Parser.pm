@@ -174,12 +174,28 @@ sub _do_document_parse {
       # itself) and remove the XDF child node from it (and the master DOM)
       # then add the new xdfnode in its place
       my $parentNode = $node->getParentNode();
-      #$parentNode->removeChild($node);
+
+      #first: remove the whitespace nodes that trail XDF node
+      $parentNode->normalize();
+      my $removeOk = 0;
+      foreach my $childNode ($parentNode->getChildNodes) {
+        if ($childNode eq $node) {
+          $removeOk = 1;
+          next;
+        }
+
+        if ($removeOk && $childNode->getNodeTypeName eq 'TEXT_NODE') {
+           $parentNode->removeChild($childNode);
+           $childNode->dispose;
+           last; # since we normalized, there should only be one 
+        }
+      }
 
       # add the DOM node location and the XDF to a list
       my $xdfNode = new XDF::DOM::Element($document, $XDFObject);
       $parentNode->replaceChild($xdfNode, $node);
       $node->dispose;
+
 
    }
 
@@ -193,12 +209,14 @@ sub _parseNodeIntoXDFObject {
    my $miniDOM = new XML::DOM::Document( { KeepCDATA => 1} );
 
    # the doctype object holds all the entity refs and whatnot. Lets just
-   # copy it and append onto the mini dom. 
+   # copy it and append onto the mini dom, should it exist (which it may not). 
    my $oldowner = $node->getOwnerDocument();
-   my $newdoctype = $oldowner->getDoctype->cloneNode(1);
-
-   $newdoctype->setOwnerDocument($miniDOM);
-   $miniDOM->setDoctype($newdoctype);
+   my $newdoctype;
+   if (ref $oldowner->getDoctype) {
+      $newdoctype = $oldowner->getDoctype->cloneNode(1);
+      $newdoctype->setOwnerDocument($miniDOM);
+      $miniDOM->setDoctype($newdoctype);
+   }
    
    # now clone  the old nodes and append into the new document 
    my $newnode = $node->cloneNode(1);
@@ -209,147 +227,14 @@ sub _parseNodeIntoXDFObject {
    my $reader = new XDF::Reader(\%options);
    my $XDFObject = $reader->parseString($miniDOM->toString());
 
+   # remove XMLDecl and XMLDocumentType as this info is 
+   # now stored in the overall document, not in the XDF object
+   $XDFObject->setDocumentType(undef);
+   $XDFObject->setXMLDeclaration(undef);
+
    return $XDFObject;
 }
-
-# Modification History
-#
-# $Log$
-# Revision 1.6  2001/08/13 20:56:58  thomas
-# updated documentation via utils/makeDoc.pl for the release.
-#
-# Revision 1.5  2001/08/13 19:53:13  thomas
-# bug fix: parsefile alias method screwing up parser. removed,
-# it should still work out alright anyways. This method was
-# never needed.
-#
-# Revision 1.4  2001/06/19 21:23:19  thomas
-# bug fix to passing argv for quiet, debug.
-#
-# Revision 1.3  2001/05/29 21:10:36  thomas
-# capture XDF specific args from new method.
-#
-# Revision 1.2  2001/04/10 22:09:16  thomas
-# minor change to invoked reader parameters.
-#
-# Revision 1.1  2001/03/23 21:55:14  thomas
-# Initial Version
-#
-#
-#
 
 1;
 
 
-__END__
-
-=head1 NAME
-
-XDF::DOM::Parser;  - Perl Class for DOM::Parser; 
-
-=head1 SYNOPSIS
-
-
- use XDF::DOM::Parser;
-
-  # note: KeepCDATA not available option for XDF::DOM::Parser
- my %options = ( 
-                 quiet => 0,
-                 debug => 1,
-                 NoExpand => 1,
-                 ParseParamEnt => 0,
-               );
-
- my $obj = new XDF::DOM::Parser(%options);
- my $document = $obj->parsefile($ARGV[0]);
-
- my $xdfElements = $document->getElementsByTagName('XDF');
- my $size = $xdfElements->getLength;
-
-    for (my $i = 0; $i < $size; $i++)
-    {
-        my $node = $xdfElements->item ($i);
-        my $obj = $node->getXDFObject;
-        print STDERR $node, ' ', $obj, "\n";
-        print STDERR $obj->toXMLString(), "\n";
-    }
- 
-
-
-
-...
-
-=head1 DESCRIPTION
-
- XDF::DOM is extends the L<XML::DOM> class and inherits all of its methods and attributes. XDF::DOM allows the reading writing and manipulation of any XML document which embeds XDF within it.  
- Rather than having to manipulate the XDF portion of the DOM with clumsy DOM methods, the XDF portions of the document may be operated on using  XDF methods viz L<XDF::DOM::Element>.   
- The options of 'debug' and 'quiet' may be specified to the XDF::DOM::Parser in addtion to those options allowed for the XML::DOM::Parser class.   
-
-
-XDF::DOM::Parser;  inherits class and attribute methods of L<XML::DOM::Parser>.
-
-
-=head1 METHODS
-
-=over 4
-
-=head2 CLASS Methods
-
-The following methods are defined for the class XDF::DOM::Parser; .
-
-=over 4
-
-=item new (%args)
-
- 
-
-=back
-
-=head2 INSTANCE (Object) Methods
-
-The following instance (object) methods are defined for XDF::DOM::Parser; .
-
-=over 4
-
-=item parse ($scalar)
-
- 
-
-=back
-
-
-
-=head2 INHERITED Class Methods
-
-=over 4
-
-=back
-
-
-
-=head2 INHERITED INSTANCE Methods
-
-=over 4
-
-=back
-
-=back
-
-=head1 SEE ALSO
-
-
-
-=over 4
-
-L<XDF::DOM>, L<XDF::DOM::Element>, L<XDF::Reader; >
-
-=back
-
-=head1 AUTHOR
-
-    Brian Thomas  (thomas@adc.gsfc.nasa.gov)
-    Astronomical Data Center <http://adc.gsfc.nasa.gov>
-    NASA/Goddard Space Flight Center
- 
-
-=cut
