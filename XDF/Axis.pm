@@ -42,7 +42,7 @@ use strict;
 #                      valueList
 #                      axisUnits
 #                      axisDatatype
-#                      _length
+#                      length
 #                      _valueGroupOwnedHash
 #              );
 
@@ -118,7 +118,7 @@ my $Class_XML_Node_Name = "axis";
 
 # the order of these attributes IS important.
 # 
-my @Class_XML_Attributes = qw (
+my @Local_Class_XML_Attributes = qw (
                       name
                       description
                       axisDatatype
@@ -129,17 +129,25 @@ my @Class_XML_Attributes = qw (
                       valueList
                           ); 
 
-my @Class_Attributes = qw (
-                             _length
+my @Local_Class_Attributes = qw (
+                             length
                              _parentArray
                              _valueGroupOwnedHash
                           ); 
 
-# add in class XML attributes
-push @Class_Attributes, @Class_XML_Attributes;
+my @Class_Attributes;
+my @Class_XML_Attributes;
 
-# add in super class attributes
+# add in local class XML attributes
+push @Local_Class_Attributes, @Local_Class_XML_Attributes;
+
+# get super class attributes
+push @Class_XML_Attributes, @{&XDF::BaseObjectWithXMLElementsAndValueList::getClassXMLAttributes};
 push @Class_Attributes, @{&XDF::BaseObjectWithXMLElementsAndValueList::getClassAttributes};
+
+# add in local to overall class
+push @Class_XML_Attributes, @Local_Class_XML_Attributes;
+push @Class_Attributes, @Local_Class_Attributes;
 
 # Initalization
 # set up object attributes.
@@ -311,7 +319,7 @@ sub setValueList {
 # */
 sub getLength {
   my ($self) = @_;
-  $self->{_length};
+  $self->{length};
 }
 
 # /** getAxisValue 
@@ -335,7 +343,7 @@ sub setAxisValue {
      if (defined @{$self->{valueList}}->[$index]) {
         # if the axisValue is presently defined, we lower
         # the length of the axis by 1
-        $self->{_length} = $self->{_length} - 1;
+        $self->{length} = $self->{length} - 1;
         @{$self->{valueList}}->[$index] = undef;
      }
 
@@ -355,7 +363,7 @@ sub setAxisValue {
   # if the axisValue is not presently defined, we raise
   # the length of the axis by 1
   if (!defined @{$self->{valueList}}->[$index]) {
-     $self->{_length} = $self->{_length} + 1;
+     $self->{length} = $self->{length} + 1;
 
      # also means length changed, so lets update array internal datacube 
      if (defined $self->{_parentArray}) {
@@ -454,7 +462,7 @@ sub addAxisUnitDirection {
      return 0;
   }
 
-  my $index = $self->{_length};
+  my $index = $self->{length};
   if (defined @{$self->{ValueList}}->[$index]) {
      # increase the size of the array by pushing
      push @{$self->{valueList}}, $obj;
@@ -482,7 +490,7 @@ sub removeAxisValue {
 
   if ($self->_remove_from_list($obj, $self->{ValueList}, 'valueList')) {
      # bump down size of the axis 
-     $self->{_length} = $self->{_length} -1;
+     $self->{length} = $self->{length} -1;
 
      if (defined $self->{_parentArray}) {
         $self->{_parentArray}->_updateInternalLookupIndices();
@@ -651,12 +659,12 @@ sub _init {
   # this variable is needed because $#{$self->{valueList}}
   # is pre-allocated in prior statement, and is not necess.
   # reflective of the real axis size.
-  $self->{_length} = 0;
+  $self->{length} = 0;
 
   $self->{_valueListGetMethodName} = "getValueList";
 
   # adds to ordered list of XML attributes
-  $self->_appendAttribsToXMLAttribOrder(\@Class_XML_Attributes);
+  $self->_appendAttribsToXMLAttribOrder(\@Local_Class_XML_Attributes);
 
 }
 
@@ -676,7 +684,7 @@ sub _addAxisValue {
   # ah the pain of it all. It would seem wiser to just
   # NOT have reference objects at all.
 
-  my $index = $self->{_length};
+  my $index = $self->{length};
 
   if (defined @{$self->{valueList}}->[$index]) {
      # increase the size of the array by pushing
@@ -687,7 +695,7 @@ sub _addAxisValue {
   }
 
   # bump up the size of this axis
-  $self->{_length} = $self->{_length} + 1;
+  $self->{length} = $self->{length} + 1;
 
   if (defined $self->{_parentArray}) {
      $self->{_parentArray}->_updateInternalLookupIndices();
@@ -701,6 +709,10 @@ sub _addAxisValue {
 # Modification History
 #
 # $Log$
+# Revision 1.17  2001/08/13 19:44:45  thomas
+# bug fix: use only local XML attributes for appendAttribs in _init
+# changed _length field to length.
+#
 # Revision 1.16  2001/07/23 15:58:07  thomas
 # added ability to add arbitary XML attribute to class.
 # getXMLattributes now an instance method, we
