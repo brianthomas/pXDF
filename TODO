@@ -9,22 +9,21 @@
      for example, bring getFormatCommands in FormattedXMLDataIOStyle in line 
      with Java package.
 
-   - blank data not written properly
+   - blank data not written properly (?) 
 
    - Implement append Array/align axis functionality
-
-   - readId/readIdRef not implemented yet.
-
-   - Unfortunately, binary transfer between machines of differing arch. is
-     difficult and not treated well. We need to explore the use of Data::Dumper
-     for binary streaming (Storable might be better, but doesnt come as a
-     standard module) as suggested by the Portable Perl document.  
 
    ---------------------------------------------------------------------------
    ** AT This Point the package is a "BETA", but more will need to be done: **
    ---------------------------------------------------------------------------
 
+   - binary IO not fully tested (only on Linux so far). 
+
    - Href stuff only supports files. Need Entity Resolver type behavior ala Java.
+
+   - readId/readIdRef implemented, however problems will result if readIdRef
+     is specified AND the read node has child for nodes. We probably need to 
+     prevent the user from doing this in the DTD (err. schema).
 
    - minor irritation: order of the attributes written (psuedo-)randomly in
      output XML. Need attribOrder as in Java.
@@ -32,10 +31,6 @@
    - Output of Notes/location stuff is yucky, need to use locator objects in
      the notes, same as we need to do in Java Package.
      (e.g. Fix XDF::Note setLocation method related stuff).
-
-   - Review Treatment of writing out binary data; its invalid unless sent to a 
-     separate file. Do we force this to happen or throw an error? How do we know 
-     the right filename if we choose the 'force' option?
 
    - ID/REF stuff not handled satisfactorily, we are blowing up the storage
      requirements for objects using the deep clone operation. Perhaps we
