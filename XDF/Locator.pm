@@ -426,7 +426,7 @@ sub forward {
   my $remainingCells = $nrofDataCells;
   foreach my $axis (reverse @needAxis) {
 
-     if ($remainingCells ==0) {
+     if ($remainingCells == 0) {
         push @changeIndex, 0;
         next;
      }
@@ -445,6 +445,7 @@ sub forward {
   }
 
   @changeIndex = reverse @changeIndex;
+  my $maxedPosition = 1;
   foreach my $which (0 .. $#needAxis) {
 
     next unless $changeIndex[$which] > 0; 
@@ -452,8 +453,11 @@ sub forward {
     my %axisInfo = %{$needAxis[$which]};
     my $newIndex = $changeIndex[$which] + $axisInfo{'index'};
     my $axisObj = $axisInfo{'axis'};
+    my $maxIndex = $axisInfo{'maxIndex'};
 
     $self->setAxisIndex($axisObj, $newIndex);
+
+    $maxedPosition = 0 unless ($newIndex == $maxIndex);
 
   } 
 
@@ -466,8 +470,7 @@ sub forward {
   }
 
   # info we need to cache or pass on back
-
-  $self->{_hasNext} = !$outOfDataCells;
+  $self->{_hasNext} = ($remainingCells > 0 || $maxedPosition) ? 0 : 1;
 
   return !$outOfDataCells;
 }
