@@ -23,10 +23,29 @@ package XDF::FloatDataFormat;
 # */
 
 # /** DESCRIPTION
-# XDF::FloatDataFormat is the class that describes (ASCII) 
-# floating point numbers. The format is in FORTRAN 'F' style
-# unless the exponent attribute is non-zero. In this case 'E'
-# style is used (e.g. scientific notation, ex. '1.01E10').
+# XDF::FloatDataFormat is the class that describes 
+#  floating point numbers written as ASCII.
+#  Two different output styles are supported. When the exponent attribute
+#  is non-zero, numbers are read/written in FORTRAN 'E' format, in all other 
+#  cases an 'F' style read/write format is used.
+#  Definitions of number fields are for example:
+#@ 
+#  130050.0000001E-034
+#
+#         |----|  |--| 
+#           P      X 
+#  |-----------------|
+#         W
+#@
+#@
+#  where 'W' indicates the width of the 'width' attribute.
+#  'P' indicates the width of the 'precision' attribute.
+#  'X' indicates the width of the 'exponent' attribute.
+#@
+# The 'E' only exists when there are a positive non-zero 
+#  number of 'X'. For example, a FloatDataFormat with the
+#  attributes width=8, precision=5 and exponent=0 would describe
+#  the following number: "11.00014" 
 # */
 
 # /** SYNOPSIS
@@ -50,6 +69,7 @@ use vars qw ($AUTOLOAD %field @ISA);
 # CLASS DATA
 
 # Stuff specific to Perl
+my $Perl_Sprintf_Field_Float= 'f';
 my $Perl_Sprintf_Field_Exponent = 'E';
 my $Perl_Regex_Field_Exponent = '[Ee][+-]?';
 my $Perl_Regex_Field_Float = '\d';
@@ -215,19 +235,23 @@ sub _regexNotation {
   my $width = $self->{Width};
   my $precision = $self->{Precision};
   my $exponent = $self->{Exponent};
-  my $symbol = $Perl_Regex_Field_Exponent;
   my $notation = '(';
 
   my $float_symbol = $Perl_Regex_Field_Float;
   my $integer_symbol = $Perl_Regex_Field_Integer;
 
-  my $before_whitespace = $width - $precision - 1;
+  # shouldnt I subtract another '1' for the 'E'??
+  my $before_whitespace = $width - $precision - 1 - $exponent;
+
   $notation .= '\s' . "{0,$before_whitespace}" if($before_whitespace > 0);
   my $leading_length = $width - $precision;
   $notation .= $float_symbol . '{1,' . $leading_length . '}\.';
   $notation .= $float_symbol . '{1,' . $precision. '}';
-  $notation .= $symbol;
-  $notation .= $integer_symbol . '{1,' . $exponent . '}';
+   
+  if ($exponent > 0) {
+     $notation .= $Perl_Regex_Field_Exponent;
+     $notation .= $integer_symbol . '{1,' . $exponent . '}';
+  }
 
   $notation .= ')';
 
@@ -239,11 +263,15 @@ sub _sprintfNotation {
   my ($self) = @_;
 
   my $notation = '%';
-  my $field_symbol = $Perl_Sprintf_Field_Exponent;
 
   $notation .= $self->{Width}; 
   $notation .= '.' . $self->{Precision};
-  $notation .= $field_symbol;
+  my $exponent = $self->{Exponent};
+  if ($exponent > 0) {
+     $notation .= $Perl_Sprintf_Field_Exponent;
+  } else {
+     $notation .= $Perl_Sprintf_Field_Float;
+  }
 
   return $notation;
 }
@@ -251,6 +279,9 @@ sub _sprintfNotation {
 # Modification History
 #
 # $Log$
+# Revision 1.3  2001/02/15 22:42:50  thomas
+# fix to regexNotation
+#
 # Revision 1.2  2001/02/15 18:27:37  thomas
 # removed fortranNotation from class.
 #
