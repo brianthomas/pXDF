@@ -19,52 +19,60 @@
 # CVS $Id$
 
 use XDF::Array;
+use XDF::Axis;
+use XDF::Parameter;
 use strict;
 
-  my $XDF = new XDF::Array();
+  my $arrayObj = new XDF::Array();
 
-  my $param = $XDF->addParameter({'name' => 'par1',}); 
+  my $param = new XDF::Parameter ({'name' => 'par1',}); 
+  $arrayObj->addParameter($param);
   $param->addValue(0);
    
 
   print STDERR "Adding axes to Array\n";
-  my $axisObj = $XDF->addAxis({'name' => 'axis1', 'axisId' => "axis1", 'description' => 'the first axis'});
-  $XDF->addAxis({'name' => 'axis2', 'description' => 'the second axis'});
-  $XDF->addAxis({'name' => 'axis2', 'axisId' => 'axis2', 'description' => 'the second axis'});
+  my $axisObj = new XDF::Axis({'name' => 'axis1', 'axisId' => "axis1", 'description' => 'the first axis'});
+  my $axisObj2 = new XDF::Axis({'name' => 'axis2', 'description' => 'the second axis'});
+  $arrayObj->addAxis($axisObj);
+  $arrayObj->addAxis($axisObj2);
+  $arrayObj->addAxis($axisObj2);
 
   # test for trying to add empty tickmark
   #$axisObj->addAxisValue(); 
 
   print STDERR "Adding axisValues to first axis.\n";
-  $axisObj->addAxisValue(8); 
-  my $removeObj = $axisObj->addAxisValue(9); 
-  $axisObj->addAxisValue(10); 
+  $axisObj->addAxisValue(new XDF::Value(8)); 
+  my $removeObj = new XDF::Value(9); 
+  $axisObj->addAxisValue($removeObj);
+  $axisObj->addAxisValue(new XDF::Value(10)); 
 
 
-  $XDF->addNote({'mark' => '1', 'value' => "one way to add a note"});
-  $XDF->addNote("another simpler way to add the note");
-  my $remove_obj = $XDF->addNote("A note that I will remove.");
+  my $noteObj1 = new XDF::Note({'mark' => '1', 'value' => "one way to add a note"});
+  my $noteObj2 = new XDF::Note("A note I will remove");
+  $arrayObj->addNote($noteObj1);
+  $arrayObj->addNote($noteObj2);
+  my $remove_obj = $noteObj2;
 
   # test: try to remove the wrong type of object..
-  $XDF->removeNote($removeObj);
+  $arrayObj->removeNote($removeObj);
 
   # ok, now try to remove the right type of object
-  $XDF->removeNote($remove_obj);
+  $arrayObj->removeNote($remove_obj);
   $axisObj->removeAxisValue($removeObj);
 
 
-  # dump the XDF structure..
-  foreach my $axisObj (@{$XDF->getAxisList()}) {
+  # dump the XDF array
+  foreach my $axisObj (@{$arrayObj->getAxisList()}) {
     print "AXIS: ", $axisObj->getName, " ", $axisObj->getDescription, "\n";
     foreach my $val ($axisObj->getAxisValues()) {
        print "      val: $val\n";
     }
   }
 
-  foreach my $obj (@{$XDF->getParamList()}) {
+  foreach my $obj (@{$arrayObj->getParamList()}) {
     print "Param: ",$obj->getName(), " ", $obj->getValueList(), "\n";
   }
 
-  foreach my $noteObj (@{$XDF->getNoteList()}) { print "NOTE: ",$noteObj->getValue(), "\n"; }
+  foreach my $noteObj (@{$arrayObj->getNoteList()}) { print "NOTE: ",$noteObj->getValue(), "\n"; }
 
   exit 0;

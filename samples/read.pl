@@ -19,6 +19,7 @@
 # this is a SIMPLE reading of XDF file. See read_write_any_xml.pl for how to 
 # read/write documents with XDF embedded in them. -b.t. 
 
+use XDF::XDF;
 use XDF::Reader;
 use strict;
 
@@ -36,7 +37,7 @@ my $QUIET = 1;
 
   my %options = ('quiet' => $QUIET, 'debug' => $DEBUG, );
 
-  my $XDF = new XDF::Structure();
+  my $XDF = new XDF::XDF();
   $XDF->loadFromXDFFile($file, \%options);
 # not used anymore
 #  my $XDF = &XDF::Reader::createXDFObjectFromFile($file, \%options);

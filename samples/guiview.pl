@@ -704,7 +704,7 @@ sub add_Structure_toCurrentItem_cmd {
 
    } elsif (ref($CURRENT_ITEM) =~ m/XML::/) {
 
-      my $newXDF = new XDF::Structure();
+      my $newXDF = new XDF::XDF();
       $newNode = $XDF_DOM->createXDFElement($newXDF);
       $CURRENT_ITEM->appendChild($newNode);
 
@@ -1616,7 +1616,7 @@ sub select_Hlist_item {
      } else {
         die "couldnt get parent structure for $item\n";
      }
-   } elsif (ref($item) eq 'XDF::Structure') {
+   } elsif (ref($item) eq 'XDF::Structure' || ref($item) eq 'XDF::XDF' ) {
      $CURRENT_STRUCTURE = $item; # it is a structure 
      show_struct_frames();
    } else {
@@ -2546,7 +2546,7 @@ sub select_all_listBox_items {
 sub edit_struct_attribs {
    my ($frame) = @_;
 
-   return unless defined $CURRENT_ITEM && $CURRENT_ITEM =~ m/Structure/;
+   return unless defined $CURRENT_ITEM && ($CURRENT_ITEM =~ m/Structure/ || $CURRENT_ITEM =~ m/XDF::XDF/);
 
    if ($STRUCT_ATTRIB_EDIT_OPEN) {
       &close_struct_attrib_edit();
@@ -2807,7 +2807,7 @@ sub update_struct_edit_attrib_val {
 
    return unless (defined $CURRENT_ITEM);
 
-   if ($CURRENT_ITEM =~ m/Structure/) {
+   if ($CURRENT_ITEM =~ m/Structure/ || $CURRENT_ITEM =~ m/XDF::XDF/) {
 
       for (@{XDF::Structure->getXMLAttributes}) {
          my $name = 'struct' . $_ . "_val_label";
