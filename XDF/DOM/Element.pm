@@ -167,28 +167,6 @@ sub _init {
 
 }
 
-# Modification History
-#
-# $Log$
-# Revision 1.5  2002/01/24 21:26:38  thomas
-# fixed toXML methods to remove XMLDeclAttribs dependance
-#
-# Revision 1.4  2001/08/13 20:56:58  thomas
-# updated documentation via utils/makeDoc.pl for the release.
-#
-# Revision 1.3  2001/08/13 19:52:21  thomas
-# added alias method 'toXMLString'. Fixed toString to
-# *not* add newline at the end of printout.
-#
-# Revision 1.2  2001/04/17 18:48:54  thomas
-# now blessed properly. Removed pretty output
-# stuff. What was I thinking here??
-#
-# Revision 1.1  2001/03/23 21:55:14  thomas
-# Initial Version
-#
-#
-#
 
 1;
 
