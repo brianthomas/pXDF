@@ -41,13 +41,13 @@ my $QUIET = 1;
  
   my $arrayObj = @{$XDF->getArrayList()}->[0];
 
-  my $axis0 = @{$arrayObj->getAxisList}->[0];
-  my $axis1 = @{$arrayObj->getAxisList}->[1];
+  my $axis0 = @{$arrayObj->getAxisList()}->[0];
+  my $axis1 = @{$arrayObj->getAxisList()}->[1];
 
   my $locator = $arrayObj->createLocator;
 
-  $locator->setAxisLocation($axis0, 1);
-  $locator->setAxisLocation($axis1, 2);
+  $locator->setAxisIndex($axis0, 1);
+  $locator->setAxisIndex($axis1, 2);
 
   print "DATA at col=1 row=2 : [", $arrayObj->getData($locator), "]\n";
 
