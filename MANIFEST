@@ -59,6 +59,7 @@ XDF/ValueListDelimitedList.pm
 XDF/ValueGroup.pm
 XDF/XMLElementNode.pm
 XDF/XMLDataIOStyle.pm
+XDF/XDF.pm
 t/00BasicLoad.t
 t/01ReadWriteXDF.t
 t/02ReadWriteDOM.t

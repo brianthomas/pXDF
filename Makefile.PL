@@ -22,7 +22,7 @@ my $install_dir = 'XDF';
 my @extras = ();
 
 push(@extras,
-     ABSTRACT_FROM => 'BaseObject.pm',
+     ABSTRACT_FROM => 'XDF.pm',
      AUTHOR        => 'Brian Thomas (thomas@adc.gsfc.nasa.gov)')
     if ($ExtUtils::MakeMaker::Version >= 5.4301);
 
@@ -138,6 +138,7 @@ WriteMakefile(
             'XDF/ValueListDelimitedList.pm'      => "\$(INST_LIBDIR)/$install_dir/ValueListDelimitedList.pm",
             'XDF/XMLDataIOStyle.pm'      => "\$(INST_LIBDIR)/$install_dir/XMLDataIOStyle.pm",
             'XDF/XMLElementNode.pm'      => "\$(INST_LIBDIR)/$install_dir/XMLElementNode.pm",
+            'XDF/XDF.pm'      => "\$(INST_LIBDIR)/$install_dir/XDF.pm",
           },
     @extras
 
@@ -146,6 +147,9 @@ WriteMakefile(
 # Modification History
 #
 # $Log$
+# Revision 1.14  2001/08/13 21:53:53  thomas
+# *** empty log message ***
+#
 # Revision 1.13  2001/08/13 21:02:48  thomas
 # *** empty log message ***
 #
