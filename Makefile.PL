@@ -130,6 +130,7 @@ WriteMakefile(
             'XDF/ReadCellFormattedIOCmd.pm'     => "\$(INST_LIBDIR)/$install_dir/ReadCellFormattedIOCmd.pm",
             'XDF/Reader.pm'     => "\$(INST_LIBDIR)/$install_dir/Reader.pm",
             'XDF/RecordTerminator.pm'      => "\$(INST_LIBDIR)/$install_dir/RecordTerminator.pm",
+            'XDF/Reader/ValueList.pm'     => "\$(INST_LIBDIR)/$install_dir/Reader/ValueList.pm",
             'XDF/RepeatFormattedIOCmd.pm'     => "\$(INST_LIBDIR)/$install_dir/RepeatFormattedIOCmd.pm",
             'XDF/SkipCharFormattedIOCmd.pm'  => "\$(INST_LIBDIR)/$install_dir/SkipCharFormattedIOCmd.pm",
             'XDF/Specification.pm'      => "\$(INST_LIBDIR)/$install_dir/Specification.pm",
