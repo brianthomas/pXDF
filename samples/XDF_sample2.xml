@@ -8,19 +8,19 @@
    <!-- A little table about 3 nearby galaxies -->
    <parameterGroup name="Structure Properties">
      <parameter name="date" datatype="string">
-       <units><unitless/></units>
+       <unitless/>
        <value>01-12-99</value>
        <note>This parameter is not accurate.</note>
      </parameter>
      <parameter name="date2">
-       <units><unitless/></units>
+       <unitless/>
        <value>10-22-00</value>
      </parameter>
    </parameterGroup>
    <array name="Galaxy Data">
-      <fieldAxis axisId="fields">
+      <fieldAxis axisId="fields" size="8">
          <field fieldId="gname" name="galaxy name">
-             <units><unitless/></units>
+             <unitless/>
              <dataFormat><string width="8"/></dataFormat>
          </field>
          <fieldGroup name="position" >
@@ -43,21 +43,21 @@
             <relation fieldIdRefs="vmag" role="error" />
          </field>
          <field fieldId="ccdNumber" name="CCD ID Number">
-            <units><unitless/></units>
+            <unitless/>
             <dataFormat><integer width="1"/></dataFormat>
          </field>
          <field fieldId="enumber" name="A Sci. Number">
-            <units><unitless/></units>
+            <unitless/>
             <dataFormat><float width="8" precision="3" exponent="2" /></dataFormat>
          </field>
          <field name="Reference" >
-            <units><unitless/></units>
+            <unitless/>
             <dataFormat><string width="10" /></dataFormat>
-            <relation fieldIdRefs="gname" role="reference" />
+            <relation fieldIdRefs="gname" role="reference"/>
          </field>
       </fieldAxis>
-      <axis axisId="rows" axisDatatype="integer">
-         <axisUnits><unitless/></axisUnits>
+      <axis axisId="rows" axisDatatype="integer" size="3">
+         <unitless/>
          <valueGroup name="row values"> 
            <valueList delimiter=" ">0 1 2</valueList> 
          </valueGroup> 
@@ -68,10 +68,10 @@
             <fixedWidthInstruction>
                <repeat count="7">
                   <readCell/>
-                  <skip/>
+                  <skip><chars/></skip>
                </repeat>
                <readCell/>
-               <skip count="1"><newLine/></skip>
+               <skip><newLine/></skip>
             </fixedWidthInstruction>
             <for axisIdRef="rows">
                <for axisIdRef="fields"> <!-- the "fast" axis -->
