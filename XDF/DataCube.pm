@@ -642,19 +642,19 @@ sub _writeFormattedData {
    my $nrofDataFormats = $#dataFormat;
    my $currentDataFormat = 0;
    my @pattern;
-   my @intFlag;
+#   my @intFlag;
    my @numOfBytes;
 
    for (my $i = 0; $i <= $nrofDataFormats; $i++) {
       $pattern[$i] = $dataFormat[$i]->_outputTemplateNotation();
 
       $numOfBytes[$i] = $dataFormat[$i]->numOfBytes();
-      if (ref($dataFormat[$i]) eq 'XDF::IntegerDataFormat')
-      {
-         $intFlag[$i] = $dataFormat[$i]->getType();
-      } else { 
-         $intFlag[$i] = undef;
-      }
+#      if (ref($dataFormat[$i]) eq 'XDF::IntegerDataFormat')
+#      {
+#         $intFlag[$i] = $dataFormat[$i]->getType();
+#      } else { 
+#         $intFlag[$i] = undef;
+#      }
    }
 
    # loop thru all of the dataCube until finished with all data and commands 
@@ -682,8 +682,9 @@ sub _writeFormattedData {
                                            $numOfBytes[$currentDataFormat],
                                            $pattern[$currentDataFormat],
                                            $endian,
-                                           $intFlag[$currentDataFormat],
+                                           $noDataValues[$currentDataFormat],
                                            $datum);
+                                           #$intFlag[$currentDataFormat],
 
           } else {
 
@@ -757,7 +758,9 @@ sub _doSkipCharFormattedIOCmdOutput
 }
 
 sub _doReadCellFormattedIOCmdOutput {
-   my ($fileHandle, $thisDataFormat, $formatsize, $template, $endian, $intFlagType, $datum) = @_;
+   my ($fileHandle, $thisDataFormat, $formatsize, $template, 
+       $endian, $noDataValue, $datum) = @_;
+       #$endian, $intFlagType, $noDataValue, $datum) = @_;
 
    my $output;
 #   my $template = $thisDataFormat->_templateNotation(0);
@@ -769,13 +772,30 @@ sub _doReadCellFormattedIOCmdOutput {
    }
    elsif (ref($thisDataFormat) eq 'XDF::FloatDataFormat') 
    {
+
+      # we have our own print formatting routine here as 
+      # printf leads to some uncomfortable conversions of numbers
+      # (e.g. "-.9" becomes "-0.9" which is 1 char bigger than the
+      #  declared width).
       #$output = sprintf $template, $datum;
       #$output = pack $template, $datum;
-      $output = $datum;
 
       # pad with leading spaces
-      my $padsize = $formatsize - length($output);
-      $output = " " x $padsize . $output if $padsize > 0;
+      my $padsize = $formatsize - length($datum);
+      if ($padsize > 0) {
+          $output = " " x $padsize . $datum;
+      } elsif ($padsize < 0) {
+          warn "Error: cant write $output, actual length is larger than declared size($formatsize) ";
+          if (defined $noDataValue) {
+             warn "printing with noDataValue:[$noDataValue]\n";
+             $output = $noDataValue; # just print no datavalue
+          } else { 
+             warn "printing as blanks.\n";
+             $output = " " x $formatsize; # just print as blanks
+          }
+      }  else {
+         $output = $datum; # exactly right size 
+      }
 #      while ($actualsize < $formatsize)
 #      {
 #         print $fileHandle " ";
@@ -787,15 +807,15 @@ sub _doReadCellFormattedIOCmdOutput {
    {
       # $output = pack $template, $datum;
       $output = sprintf $template, $datum;
-      if (defined $intFlagType) {
-         if ($intFlagType eq XDF::Constants::INTEGER_TYPE_OCTAL) {
-            warn "Cant write OCTAL integers yet, aborting cell write";
-            return;
-         } elsif ($intFlagType eq XDF::Constants::INTEGER_TYPE_HEX) {
-            warn "Cant write HEX integers yet, aborting cell write";
-            return;
-         }
-      }
+#      if (defined $intFlagType) {
+#         if ($intFlagType eq XDF::Constants::INTEGER_TYPE_OCTAL) {
+#            warn "Cant write OCTAL integers yet, aborting cell write";
+#            return;
+#         } elsif ($intFlagType eq XDF::Constants::INTEGER_TYPE_HEX) {
+#            warn "Cant write HEX integers yet, aborting cell write";
+#            return;
+#         }
+#      }
    }
    elsif (ref($thisDataFormat) eq 'XDF::BinaryIntegerDataFormat') 
    {
@@ -863,6 +883,9 @@ sub _build_locator_string {
 # Modification History
 #
 # $Log$
+# Revision 1.24  2001/05/29 21:08:54  thomas
+# Fix bug in output of FloatDataFormat data for formatted case.
+#
 # Revision 1.23  2001/05/25 22:11:45  thomas
 # Fixed floatnumbers to pad w/ spaces for right justify. This
 # prevents the case of printf turning "-.9" into "-0.9" which
