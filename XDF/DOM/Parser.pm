@@ -29,6 +29,10 @@
 # Rather than having to manipulate the XDF portion of the DOM with clumsy
 # DOM methods, the XDF portions of the document may be operated on using 
 # XDF methods viz L<XDF::DOM::Element>. 
+#@ 
+# The options of 'debug' and 'quiet' may be specified to the XDF::DOM::Parser
+# in addtion to those options allowed for the XML::DOM::Parser class. 
+#@ 
 # */
 
 # /** SYNOPSIS
@@ -37,6 +41,8 @@
 #
 #  # note: KeepCDATA not available option for XDF::DOM::Parser
 # my %options = ( 
+#                 quiet => 0,
+#                 debug => 1,
 #                 NoExpand => 1,
 #                 ParseParamEnt => 0,
 #               );
@@ -77,6 +83,7 @@ use vars qw( @ISA @SupportedHandlers );
 @SupportedHandlers = qw( Init Final Char Start End Default Doctype
                          CdataStart CdataEnd XMLDecl Entity Notation Proc 
                          Default Comment Attlist Element Unparsed );
+my $DEBUG = 0;
 my $QUIET = 1;
 my $VALIDATE = 0;
 
@@ -90,10 +97,18 @@ sub new {
         $handlers{$_} = \&$domHandler;
     }
     $args{Handlers} = \%handlers;
-    if ( exists $args{'quiet'}) { $QUIET = $args{'quiet'}; }
-    if ( exists $args{'validate'}) { $VALIDATE = $args{'validate'}; }
+    my $debug = $DEBUG;
+    my $quiet = $QUIET;
+    my $validate = $VALIDATE;
+
+    if ( exists $args{'debug'}) { $debug = $args{'debug'}; }
+    if ( exists $args{'quiet'}) { $quiet = $args{'quiet'}; }
+    if ( exists $args{'validate'}) { $validate = $args{'validate'}; }
 
     my $self = $proto->SUPER::new (%args);
+    $self->{'DEBUG'} = $debug;
+    $self->{'QUIET'} = $quiet;
+    $self->{'VALIDATE'} = $validate;
 
     return $self;
 } 
@@ -125,7 +140,7 @@ sub parse {
 
       my $node = $xdfElements->item ($i);
 
-      my $XDFObject = &_parseNodeIntoXDFObject($node);
+      my $XDFObject = $self->_parseNodeIntoXDFObject($node);
 
       # ok, now get the parent node of this (could be the document 
       # itself) and remove the XDF child node from it (and the master DOM)
@@ -147,7 +162,7 @@ sub parse {
 #
 
 sub _parseNodeIntoXDFObject {
-   my ($node) = @_;
+   my ($self,$node) = @_;
 
    # no need for XDF::DOM::Document here, XML::DOM will do 
    my $miniDOM = new XML::DOM::Document( { KeepCDATA => 1} );
@@ -165,7 +180,8 @@ sub _parseNodeIntoXDFObject {
    $newnode->setOwnerDocument($miniDOM);
    $miniDOM->appendChild($newnode);
 
-   my $reader = new XDF::Reader(('validate' => $VALIDATE, 'quiet' => $QUIET,));
+   my %options = ('validate' => $self->{'VALIDATE'}, 'quiet' => $self->{'QUIET'}, 'debug' => $self->{'DEBUG'},);
+   my $reader = new XDF::Reader(\%options);
    my $XDFObject = $reader->parseString($miniDOM->toString());
 
    return $XDFObject;
@@ -174,6 +190,9 @@ sub _parseNodeIntoXDFObject {
 # Modification History
 #
 # $Log$
+# Revision 1.4  2001/06/19 21:23:19  thomas
+# bug fix to passing argv for quiet, debug.
+#
 # Revision 1.3  2001/05/29 21:10:36  thomas
 # capture XDF specific args from new method.
 #
