@@ -1051,7 +1051,10 @@ sub _data_node_end {
 
     my $locator = $self->{currentArray}->createLocator();
 
-    @{$self->{readAxisOrderList}} = reverse @{$self->{readAxisOrderList}}; # this is done for the locator 
+    # this is done because we read these in the reverse order in which
+    # the API demands the axes, e.g. first axis is the 'fast' one, whereas
+    # reading the XDF node by node we get the fastest last in the array.
+    @{$self->{readAxisOrderList}} = reverse @{$self->{readAxisOrderList}}; 
 
     # needed for the appendTo stuff
     my @temparray = @{$self->{readAxisOrderList}};
@@ -2849,6 +2852,9 @@ sub _appendArrayToArray {
 # Modification History
 #
 # $Log$
+# Revision 1.24  2001/03/26 18:17:38  thomas
+# added some internal documentation.
+#
 # Revision 1.23  2001/03/23 20:39:27  thomas
 # Added parseString method.
 #
