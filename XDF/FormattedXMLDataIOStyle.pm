@@ -281,7 +281,6 @@ sub _init {
 
   # set defaults
   $self->{FormatCmdList} = []; 
-  $self->{WriteAxisOrderList} = $self->{_parentArray}->getAxisList();
 
 }
 
@@ -400,6 +399,10 @@ sub _sprintfNotation {
 # Modification History
 #
 # $Log$
+# Revision 1.11  2001/03/14 16:41:48  thomas
+# removed self->WriteReadAxisOrder in _init
+# because _parentArray may not be defined.
+#
 # Revision 1.10  2001/03/14 16:36:31  thomas
 # No changes, just line layout changed.
 #
