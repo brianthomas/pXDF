@@ -121,10 +121,14 @@ sub init_gui {
   my $topFrame     = $WIDGET{'main'}->Frame->pack(fill => 'both');
   my $topTopFrame  = $topFrame->Frame->pack(side=> 'top', fill => 'both');
   my $topBottomFrame  = $topFrame->Frame->pack(fill => 'both');
-  my $fieldsFrame  = $WIDGET{'main'}->Frame->pack(side => 'top', fill => 'both');
-  my $viewFrame    = $WIDGET{'main'}->Frame->pack(expand => 'yes', fill => 'both');
-  my $axisRowFrame = $viewFrame->Frame->pack(expand => 'yes', fill => 'y', side => 'left');
-  my $tableFrame   = $viewFrame->Frame->pack(expand => 'yes', fill => 'both' );
+  my $infoFrame  = $WIDGET{'main'}->Frame->pack(expand => 1, fill => 'both', side => 'top' );
+  my $rowFieldFrame  = $infoFrame->Frame->pack(fill => 'both', side => 'left' );
+  my $fieldsFrame  = $infoFrame->Frame->pack(expand => 1, fill => 'both', side => 'left');
+  my $labelFieldsFrame  = $fieldsFrame->Frame->pack(expand => 1, fill => 'both', side => 'top');
+  my $theFieldsFrame  = $fieldsFrame->Frame->pack(expand => 1, fill => 'both', side => 'bottom');
+  my $viewFrame    = $WIDGET{'main'}->Frame->pack(expand => 1, side => 'bottom', fill => 'both');
+  # my $axisRowFrame = $viewFrame->Frame->pack(expand => 'yes', fill => 'y', side => 'left');
+  my $tableFrame   = $viewFrame->Frame->pack(expand => 1, side => 'bottom', fill => 'both');
   #my $tscrollFrame  = $viewFrame->Frame->pack(expand => 'yes', fill => 'y', side => 'right');
 
   # configure frames
@@ -132,7 +136,15 @@ sub init_gui {
   $topFrame ->configure ( relief => 'flat', bd => 2, bg => $baseColor );
   $topTopFrame ->configure ( relief => 'flat', bd => 2, bg => $baseColor );
   $topBottomFrame ->configure ( relief => 'flat', bd => 2, bg => $baseColor );
+  $infoFrame->configure ( relief => 'flat', bd => 2, bg => 'white'); 
+  $rowFieldFrame->configure ( relief => 'flat', bd => 0, bg => 'green'); 
+  $fieldsFrame->configure ( relief => 'flat', bd => 0, bg => 'white'); 
+  $theFieldsFrame->configure ( relief => 'flat', bd => 0, bg => 'white'); 
+  $labelFieldsFrame->configure ( relief => 'flat', bd => 0, bg => 'green'); 
 
+  $labelFieldsFrame->Label( text => 'Field Axis', bg => 'green' )->pack( expand => 1, fill => 'x');
+  $rowFieldFrame->Label(width => 4, bg => 'black', text => "\n")->pack( side => 'top', expand => 0);
+  $rowFieldFrame->Label(width => 4, bg => 'green', text => "Axis\nRow")->pack();
   
   # Widgets
   # menuBar Frame Widgets
@@ -149,10 +161,11 @@ sub init_gui {
                                                  font => $Font{$DISPLAY_SIZE},
                                                )->pack(fill => 'x', side=> 'left' );
 
-  $WIDGET{'fieldsFrame'} = $fieldsFrame;
+  $WIDGET{'rowFieldFrame'} = $rowFieldFrame;
+  $WIDGET{'fieldsFrame'} = $theFieldsFrame;
 
-  $WIDGET{'tableText'} = $tableFrame->Text()->pack(expand => 'yes', fill => 'both');
-  my $y_scroll = $tableFrame->Scrollbar()->pack(side => 'left');
+  $WIDGET{'tableText'} = $tableFrame->Text()->pack(expand => 'yes', side => 'left', fill => 'both');
+  my $y_scroll = $tableFrame->Scrollbar()->pack(side => 'right');
   &add_horizontal_scrollbar_to_text_widget($WIDGET{'tableText'},$tableFrame,'right',$y_scroll);
 
   
@@ -253,17 +266,30 @@ sub update_table_viewer {
 
   return unless defined $arrayObj;
 
+  my @field_size;
+  my @dataFormatObjs;
   my $data_separator = "\t";
 
   my $textWidget = $WIDGET{'tableText'};
   my $fieldFrame = $WIDGET{'fieldsFrame'};
+  my $rowFieldFrame = $WIDGET{'rowFieldFrame'};
 
-  $fieldFrame->Label(width => 8, text => "AxisRow")->pack(side => 'left');;
   foreach my $fieldObj ($arrayObj->fieldAxis->getFields) { 
-    my $string = $fieldObj->name . "\n". $fieldObj->units->value . "\n";
-    my $fieldLabel = $fieldFrame->Label( width => 10, 
-                                         text => $string,
-                                       )->pack(side => 'left'); 
+    my $string = $fieldObj->name . "\n";
+    my $dataFObj = $fieldObj->dataFormat ? $fieldObj->dataFormat :
+                   $arrayObj->dataFormat;
+    my $width = defined $dataFObj ? $dataFObj->width() : 1;
+    $width = length($string) if length($string) > $width;
+    $width *= 2;
+    push @dataFormatObjs, $dataFObj;
+    push @field_size, $width;
+print STDERR "WIDTH : $width\n";
+    $string .= $fieldObj->units->value; # . "\n";
+    my $fieldLabel =  $fieldFrame->Label( width => $width,
+                                          text => $string,
+                                           bg => 'white',
+                                        )->pack( fill => 'both', side => 'left' ); 
+    $fieldLabel->configure ( bd => 2 );
   }
 
    # dump the array
@@ -277,13 +303,20 @@ sub update_table_viewer {
 
    foreach my $col (0 .. $size[1]) {
      my $rowName = " " x (6 - length($col)) . $col;
-     $textWidget->insert('end', "$rowName || "); # oops! should be the axisValue 
+     #$textWidget->insert('end', "$rowName || "); # oops! should be the axisValue 
+     # crappy little hack. Obviously will fail when > 1000 rows
+     $data_separator = " " x (4 - length($rowName));
+     $textWidget->insert('end', "$rowName$data_separator    "); # oops! should be the axisValue 
      my $dataline;
      foreach my $row (0 .. $size[0]) {
        $locator->setAxisLocation($rowAxis, $row);
        $locator->setAxisLocation($colAxis, $col);
        my $datum = $arrayObj->getData($locator);
-       $datum = " " unless defined $datum;
+       my $dataFObj = $dataFormatObjs[$row];
+       $datum = "---" if defined $datum && defined $dataFObj && defined $dataFObj->noDataValue &&
+                         $dataFObj->noDataValue eq $datum;
+       $datum = " " x $field_size[$row] unless defined $datum;
+       $data_separator = " " x $field_size[$row];
        $dataline .= $datum . $data_separator;
 #       $textWidget->insert('end', $datum . $data_separator);
      }
