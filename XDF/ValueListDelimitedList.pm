@@ -60,13 +60,14 @@ my @Local_Class_XML_Attributes = qw (
                              valueListId
                              valueListIdRef
                              delimiter
-                             noDataValue 
-                             infiniteValue 
-                             infiniteNegativeValue 
-                             notANumberValue 
-                             overflowValue 
-                             underflowValue
+                             repeatable
                            );
+                           #  noDataValue 
+                           #  infiniteValue 
+                           #  infiniteNegativeValue 
+                           #  notANumberValue 
+                            # overflowValue 
+                            # underflowValue
 my @Local_Class_Attributes = qw ( 
                              values
                           );
@@ -116,23 +117,22 @@ sub getClassXMLAttributes {
 # 
 
 # /** new
-# Constructs a valueList object with Values in passed List.
+# Constructs a delimited valueList object with ValueObjs in passed List.
 # Care should be taken that none of the Value objects are set
 # to the same sequence of characters as the passed delimiter (or 
-# the default delimiter if no delimiter variable is passed).
+# the default delimiter if no delimiter attribute is passed).
 # */
 sub new { 
-  my ($proto, $valueListRef, $delimiter, $noDataValue, $infiniteValue, $infiniteNegativeValue, $notANumberValue, $overflowValue, $underflowValue ) = @_;
+  my ($proto, $attrib_hash_ref, $valueListRef) = @_;
 
   unless (defined $valueListRef && ref($valueListRef)) {
-    error("Error: $proto got insufficient information to create self (missing value list).\n");
-    exit -1;
+    warn("Error: $proto missing list of valueObjs, please remember to init later).\n");
   }
 
   my $class = ref ($proto) || $proto;
   my $self = bless( { }, $class);
 
-  $self->_init($valueListRef, $delimiter, $noDataValue, $infiniteValue, $infiniteNegativeValue, $notANumberValue, $overflowValue, $underflowValue); # init of class specific stuff
+  $self->_init($attrib_hash_ref, $valueListRef);
 
   return $self;
 }
@@ -204,94 +204,155 @@ sub setValueListIdRef {
 }
 
 # /** getValues
-# Return the list of values held in this object.
+# Return the list of valueObjs held in this object.
 # */
 sub getValues {
    my ($self) = @_;
    return $self->{values};
 }
 
-# /** getNoDataValue
+# /** setValues
+# Set the list of valueObjs held by this object.
+# */
+sub setValues {
+  my ($self, $valueListRef) = @_;
+
+  # you must do it this way, or when the arrayRef changes it changes us here!
+  # however we DO want to preserve the valueObj ref tho.
+  foreach my $valueObj (@{$valueListRef}) {
+      push @{$self->{values}}, $valueObj;
+  }
+
+}
+
+# /** getDelimiter
+# Return the delimiter string between values.  
+# */
+sub getDelimiter {
+  my ($self) = @_;
+  return $self->{delimiter};
+}
+
+# /** setDelimiter
+# Set the delimiter string between values.  
+# */
+sub setDelimiter {
+  my ($self, $value) = @_;
+  $self->{delimiter} = $value;
+}
+
+# /** getRepeatable
+# Get the repeatable attribute. Repeatable will tell 
+# whether or not the delimiting string between values may repeat.
+# */
+sub getRepeatable {
+  my ($self) = @_;
+  return $self->{repeatable};
+}
+
+# /** setRepeatable
+# Set whether or not the delimiting string between values may repeat.
+# */
+sub setRepeatable {
+  my ($self, $value) = @_;
+  $self->{repeatable} = $value;
+}
+
+# /* getNoDataValue
 # Return the particular value in the list that indicates a 'noData' value.
 # */
-sub getNoDataValue {
-  my ($self) = @_;
-  return $self->{noDataValue};
-}
+#sub getNoDataValue {
+#  my ($self) = @_;
+#  return $self->{noDataValue};
+#}
 
-# /** setNoDataValue
+# /* setNoDataValue
 # Set the particular value in the list that indicates a 'noData' value.
 # */
-sub setNoDataValue {
-  my ($self, $value) = @_;
-  $self->{noDataValue} = $value;
-}
+#sub setNoDataValue {
+#  my ($self, $value) = @_;
+#$  $self->{noDataValue} = $value;
+#}
 
-# /** getInfiniteValue 
+# /* getInfiniteValue 
 # Return the particular value in the list that indicates an 'infinite' value.
 # */
-sub getInfiniteValue {
-  my ($self) = @_;
-  return $self->{infiniteValue};
-}
+#sub getInfiniteValue {
+#  my ($self) = @_;
+#  return $self->{infiniteValue};
+#}
 
-# /** setInfiniteValue
+# /* setInfiniteValue
 # Set the particular value in the list that indicates an 'infinite' value.
 # */
-sub setInfiniteValue {
-  my ($self, $value) = @_;
-  $self->{infiniteValue} = $value;
-}
+#sub setInfiniteValue {
+#  my ($self, $value) = @_;
+#  $self->{infiniteValue} = $value;
+#}
 
-# /** getNotANumberValue
+# /* getInfiniteNegativeValue 
+# Return the particular value in the list that indicates an 'infiniteNegative' value.
+# */
+#sub getInfiniteNegativeValue {
+#  my ($self) = @_;
+#  return $self->{infiniteNegativeValue};
+#}
+
+# /* setInfiniteNegativeValue
+# Set the particular value in the list that indicates an 'infiniteNegative' value.
+# */
+#sub setInfiniteNegativeValue {
+#  my ($self, $value) = @_;
+#  $self->{infiniteNegativeValue} = $value;
+#}
+
+# /* getNotANumberValue
 # Return the particular value in the list that indicates an 'notANumber' value.
 # */
-sub getNotANumberValue {
-  my ($self) = @_;
-  return $self->{notANumberValue};
-}
+#sub getNotANumberValue {
+#  my ($self) = @_;
+#  return $self->{notANumberValue};
+#}
 
-# /** setNotANumberValue
+# /* setNotANumberValue
 # Set the particular value in the list that indicates an 'notANumber' value.
 # */
-sub setNotANumberValue {
-  my ($self, $value) = @_;
-  $self->{notANumberValue} = $value;
-}
+#sub setNotANumberValue {
+#  my ($self, $value) = @_;
+#  $self->{notANumberValue} = $value;
+#}
 
-# /** getUnderflowValue
+# /* getUnderflowValue
 # Return the particular value in the list that indicates an 'underflow' value.
 # */
-sub getUnderflowValue {
-  my ($self) = @_;
-  return $self->{underflowValue};
-}
+#sub getUnderflowValue {
+#  my ($self) = @_;
+#  return $self->{underflowValue};
+#}
 
-# /** setUnderflowValue
+# /* setUnderflowValue
 # Set the particular value in the list that indicates an 'underflow' value.
 # */
-sub setUnderflowValue {
-  my ($self, $value) = @_;
-  $self->{underflowValue} = $value;
-}
+#sub setUnderflowValue {
+#  my ($self, $value) = @_;
+#  $self->{underflowValue} = $value;
+#}
 
-# /** getOverflowValue
+# /* getOverflowValue
 # Return the particular value in the list that indicates an 'overflow' value.
 # */
-sub getOverflowValue {
-  my ($self) = @_;
-  return $self->{overflowValue};
-}
+#sub getOverflowValue {
+#  my ($self) = @_;
+#  return $self->{overflowValue};
+#}
 
-# /** setOverflowValue
+# /* setOverflowValue
 # Set the particular value in the list that indicates an 'overflow' value.
 # */
-sub setOverflowValue {
-  my ($self, $value) = @_;
-  $self->{overflowValue} = $value;
-}
-
-
+#sub setOverflowValue {
+#  my ($self, $value) = @_;
+#  $self->{overflowValue} = $value;
+#}
 
 #
 # Protected/Private Methods
@@ -312,7 +373,8 @@ sub _basicXMLWriter {
 
    print $fileHandle $indent if $isPrettyXDFOutput;
 
-   print $fileHandle "<valueList delimiter=\"".$self->{delimiter}."\" repeatable=\"no\"";
+   print $fileHandle "<$Class_XML_Node_Name";
+   print $fileHandle " delimiter=\"".$self->{delimiter}."\" repeatable=\"".$self->{repeatable}."\"";
    print $fileHandle " valueListId=\"".$self->{valueListId}."\"" if (defined $self->{valueListId});
    print $fileHandle " valueListIdRef=\"".$self->{valueListIdRef}."\"" if (defined $self->{valueListIdRef});
    print $fileHandle " noDataValue=\"".$self->{noDataValue}."\"" if (defined $self->{noDataValue});
@@ -358,16 +420,18 @@ sub _basicXMLWriter {
 }
 
 sub _init {
-   my ($self, $valueListRef, $delimiter, $noDataValue, $infiniteValue, $infiniteNegativeValue, $notANumberValue, $overflowValue, $underflowValue) = @_;
+   my ($self, $attribHashRef, $valueListRef) = @_;
 
-   $self->{delimiter} = defined $delimiter ? $delimiter : &XDF::Constants::DEFAULT_VALUELIST_DELIMITER;
+   # adds to ordered list of XML attributes
+   $self->_appendAttribsToXMLAttribOrder(\@Local_Class_XML_Attributes);
 
-   $self->{noDataValue} = $noDataValue;
-   $self->{infiniteValue} = $infiniteValue;
-   $self->{infiniteNegativeValue} = $infiniteNegativeValue;
-   $self->{notANumberValue} = $notANumberValue;
-   $self->{overflowValue} = $overflowValue;
-   $self->{underflowValue} = $underflowValue;
+   $self->setXMLAttributes($attribHashRef) if defined $attribHashRef;
+
+   $self->{delimiter} = &XDF::Constants::DEFAULT_VALUELIST_DELIMITER
+       unless defined $self->{delimiter};
+
+   $self->{repeatable} = &XDF::Constants::DEFAULT_VALUELIST_REPEATABLE
+       unless defined $self->{repeatable};
 
    # init values
    $self->{values} = [];
@@ -376,9 +440,6 @@ sub _init {
    foreach my $valueObj (@{$valueListRef}) {
       push @{$self->{values}}, $valueObj;
    }
-
-   # adds to ordered list of XML attributes
-   $self->_appendAttribsToXMLAttribOrder(\@Local_Class_XML_Attributes);
 
 }
 
