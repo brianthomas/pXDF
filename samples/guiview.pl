@@ -278,9 +278,11 @@ sub update_table_viewer {
     my $string = $fieldObj->name . "\n";
     my $dataFObj = $fieldObj->dataFormat ? $fieldObj->dataFormat :
                    $arrayObj->dataFormat;
-    my $width = defined $dataFObj ? $dataFObj->width() : 1;
+
+    my $width = defined $dataFObj ? $dataFObj->bytes() : 1;
+
     $width = length($string) if length($string) > $width;
-    $width *= 2;
+  #  $width *= 2;
     push @dataFormatObjs, $dataFObj;
     push @field_size, $width;
 print STDERR "WIDTH : $width\n";
