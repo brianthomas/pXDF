@@ -97,9 +97,11 @@ my $PCDATA_ATTRIBUTE = 'value';    # Used by toXMLFileHandle method. This says t
 my @Class_Attributes = qw (
                              _openGroupNodeHash
                              _groupMemberHash
+                             _childXMLElementList
                           );
 
-my @Class_XML_Attributes = ();
+my @Class_XML_Attributes = qw (
+                              );
 
 # add in super class attributes
 push @Class_Attributes, @{&XDF::GenericObject::classAttributes};
@@ -123,6 +125,41 @@ sub getXMLAttributes {
 #
 # Methods ..
 #
+
+# /** addXMLElement
+# 
+# */
+sub addXMLElement {
+  my ($self, $xmlElementObjRef) = @_;
+
+  push @{$self->{_ChildXMLElementList}}, $xmlElementObjRef;
+  return $xmlElementObjRef;
+}
+
+# /** removeXMLElement
+# 
+# */
+sub removeXMLElement {
+   my ($self, $xmlElementObjRef) = @_;
+
+   die "removeXMLElement not implemented yet.\n";
+}
+
+# /** getXMLElementList 
+# 
+# */
+sub getXMLElementList {
+  my ($self) = @_;
+  return $self->{_ChildXMLElementList};
+}
+
+# /** setXMLElementList 
+# 
+# */
+sub setXMLElementList {
+  my ($self, $listRef) = @_;
+  $self->{_ChildXMLElementList} = $listRef;
+}
 
 # /** addToGroup
 # Add this object as a member of a group.
@@ -309,13 +346,21 @@ sub toXMLFileHandle {
   $self->_printAttributes($fileHandle, $attribListRef);
 
   # now, does this object own others? if so print them
-  if ($#objList > -1 or defined $objPCDATA or defined $noChildObjectNodeName) {
+  my @childXMLElements; # generic XML nodes we need to print 
+  @childXMLElements = @{$self->{_ChildXMLElementList}} if defined $self->{_ChildXMLElementList};
+  if ( $#objList > -1 
+       or $#childXMLElements > -1 
+       or defined $objPCDATA 
+       or defined $noChildObjectNodeName) 
+  {
 
-    foreach my $nodename (reverse @nodenames) {
-      if ($nodename) {
-        print $fileHandle ">";
-        print $fileHandle "\n" if $Pretty_XDF_Output && !defined $objPCDATA;
-      }
+    # close the opening node
+    print $fileHandle ">";
+    print $fileHandle "\n" if $Pretty_XDF_Output && !defined $objPCDATA;
+
+    # by definition these are printed first 
+    for (@childXMLElements) { 
+      $_->toXMLFileHandle($fileHandle, $indent . $Pretty_XDF_Output_Indentation);
     }
 
     # these are objects owned by this one, print them out too 
@@ -589,6 +634,11 @@ sub _find_All_child_Href_Objects {
 # Modification History
 #
 # $Log$
+# Revision 1.10  2001/03/21 20:18:01  thomas
+# Added methods for XMLElement class. Fixed
+# toXMLFileHandle method so these would print
+# out.
+#
 # Revision 1.9  2001/03/16 19:54:56  thomas
 # Documentation updated and improved, re-ran makeDoc on file.
 #
