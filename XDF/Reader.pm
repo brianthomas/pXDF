@@ -132,6 +132,7 @@ my $LAST_VALUEGROUP_PARENT_OBJECT;
 
 my $TAGGED_LOCATOR_OBJ; 
 my @READAXISORDER = ();
+my %ReadAxisOrder;
 
 my $DataIOStyle_Attrib_Ref; # used for holding on to the attrib_hash of a 'read' node
                             # for later when we know what kind of DataIOStyle obj to use
@@ -183,6 +184,7 @@ my %CURRENT_VALUELIST = ( 'parent_node' => "",
 
 # GLobal hashes to keep track of various
 # ID's (so we can use IDREF mech to reference objects)
+my %ArrayObj;
 my %AxisObj;
 my %FieldObj;
 my %XMLDataIOStyleObj;
@@ -320,22 +322,23 @@ my %CharData_Handler = (
 
 # dispatch table for the end node handler of the parser
 my %End_Handler = (
+                       $XDF_node_name{'array'}        => sub { &array_node_end(); },
                        $XDF_node_name{'data'}         => sub { &data_node_end(); },
-                       $XDF_node_name{'fieldGroup'}   => sub { &fieldGroup_node_end(@_); },
+                       $XDF_node_name{'fieldGroup'}   => sub { &fieldGroup_node_end(); },
                        $XDF_node_name{'notes'}        => sub { &notes_node_end(); },
-                       $XDF_node_name{'parameterGroup'} => sub { &parameterGroup_node_end(@_); },
+                       $XDF_node_name{'parameterGroup'} => sub { &parameterGroup_node_end(); },
                        $XDF_node_name{'read'}         => sub { &read_node_end(); },
-                       $XDF_node_name{'repeat'}       => sub { &repeat_node_end(@_); },
-                       $XDF_node_name{'td0'}          => sub { &dataTag_node_end(@_);},
-                       $XDF_node_name{'td1'}          => sub { &dataTag_node_end(@_);},
-                       $XDF_node_name{'td2'}          => sub { &dataTag_node_end(@_);},
-                       $XDF_node_name{'td3'}          => sub { &dataTag_node_end(@_);},
-                       $XDF_node_name{'td4'}          => sub { &dataTag_node_end(@_);},
-                       $XDF_node_name{'td5'}          => sub { &dataTag_node_end(@_);},
-                       $XDF_node_name{'td6'}          => sub { &dataTag_node_end(@_);},
-                       $XDF_node_name{'td7'}          => sub { &dataTag_node_end(@_);},
-                       $XDF_node_name{'td8'}          => sub { &dataTag_node_end(@_);},
-                       $XDF_node_name{'valueGroup'}   => sub { &valueGroup_node_end(@_); },
+                       $XDF_node_name{'repeat'}       => sub { &repeat_node_end(); },
+                       $XDF_node_name{'td0'}          => sub { &dataTag_node_end();},
+                       $XDF_node_name{'td1'}          => sub { &dataTag_node_end();},
+                       $XDF_node_name{'td2'}          => sub { &dataTag_node_end();},
+                       $XDF_node_name{'td3'}          => sub { &dataTag_node_end();},
+                       $XDF_node_name{'td4'}          => sub { &dataTag_node_end();},
+                       $XDF_node_name{'td5'}          => sub { &dataTag_node_end();},
+                       $XDF_node_name{'td6'}          => sub { &dataTag_node_end();},
+                       $XDF_node_name{'td7'}          => sub { &dataTag_node_end();},
+                       $XDF_node_name{'td8'}          => sub { &dataTag_node_end();},
+                       $XDF_node_name{'valueGroup'}   => sub { &valueGroup_node_end(); },
                   );
 
 # Finally, some globals to help us do Valuelist nodes 
@@ -549,7 +552,7 @@ sub deal_with_options {
      {
        # do nothing here. The parser will use these
      } else {
-        print STDERR "Unknown option: $option, Ignoring\n" unless $QUIET;
+        &print_error("Unknown option: $option, Ignoring\n") unless $QUIET;
      }
   }
 
@@ -852,6 +855,27 @@ sub asciiDelimiter_node_start {
 
 }
 
+sub array_node_end {
+
+   # well, well, which array will we deal with here?
+   # if an appendto is specified, then we will try to append this array
+   # to the specified one, otherwise, the current array is added to 
+   # the current structure.
+   my $arrayAppendId = $CURRENT_ARRAY->getAppendTo();
+   if (defined $arrayAppendId)
+   {
+      # we just add it to the designated array
+      my $arrayToAppendTo = $ArrayObj{$arrayAppendId};
+      &_appendArrayToArray($arrayToAppendTo, $CURRENT_ARRAY);
+   }
+   else
+   {
+      # add the current array and add this array to current structure 
+      my $retarray = $CURRENT_STRUCTURE->addArray($CURRENT_ARRAY);
+   }
+
+}
+
 sub array_node_start {
   my (%attrib_hash) = @_;
 
@@ -866,7 +890,20 @@ sub array_node_start {
   #   }
   #}
 
-  $CURRENT_ARRAY = $CURRENT_STRUCTURE->addArray(\%attrib_hash);
+  #$CURRENT_ARRAY = $CURRENT_STRUCTURE->addArray(\%attrib_hash);
+
+  my $newarray = new XDF::Array(\%attrib_hash);
+
+  # add this array to our list of arrays if it has an ID
+  if ($newarray) {
+     my $arrayId = $newarray->getArrayId();
+     if ( defined $arrayId)
+     {
+        $ArrayObj{$arrayId} = $newarray;
+     }
+  }
+
+  $CURRENT_ARRAY = $newarray;
   $CURRENT_DATATYPE_OBJECT = $CURRENT_ARRAY;
   my %tmpHash;
   %CURRENT_ARRAY_AXES = %tmpHash;
@@ -877,6 +914,9 @@ sub axis_node_start {
   my (%attrib_hash) = @_;
 
   my $axisObj = new XDF::Axis(\%attrib_hash);
+
+  # record this axis
+  $CURRENT_ARRAY_AXES{$axisObj->getAxisId} = $axisObj if defined $axisObj->getAxisId;
 
   # add in reference object, if it exists 
   if (exists($attrib_hash{'axisIdRef'})) {
@@ -893,10 +933,11 @@ sub axis_node_start {
      
      # record this axis under its parent id 
      $CURRENT_ARRAY_AXES{$id} = $axisObj;
+
   }
 
   # add this object to the lookup table, if it has an ID
-  if ((my $axisId = $attrib_hash{'axisId'})) {
+  if ((my $axisId = $attrib_hash{'axisId'}) && !$CURRENT_ARRAY->getAppendTo()) {
      &print_warning( "Danger: More than one axis node with axisId=\"$axisId\", using latest node.\n" )
            if defined $AxisObj{$axisId};
      $AxisObj{$axisId} = $axisObj;
@@ -1045,9 +1086,16 @@ sub data_node_end {
     my $locator = $CURRENT_ARRAY->createLocator();
 
     @READAXISORDER = reverse @READAXISORDER; # this is done for the locator 
+
+    # needed for the appendTo stuff
+    my @temparray = @READAXISORDER;
+    $ReadAxisOrder{$CURRENT_ARRAY} = \@temparray;
+
     $locator->setIterationOrder(\@READAXISORDER);
     $formatObj->setWriteAxisOrderList(\@READAXISORDER);
     my @dataFormat = $CURRENT_ARRAY->getDataFormatList;
+
+    &print_extreme_debug("locator[$locator] has axisOrder:[",join ',', @READAXISORDER,"]\n");
 
     while ( $DATABLOCK ) {
 
@@ -1219,6 +1267,9 @@ sub fieldAxis_node_start {
 
    my $axisObj = new XDF::FieldAxis(\%attrib_hash);
 
+   # record this axis
+   $CURRENT_ARRAY_AXES{$axisObj->getAxisId} = $axisObj if defined $axisObj->getAxisId;
+
    # add in reference object, if it exists 
    if (exists($attrib_hash{'axisIdRef'})) {
       my $id = $attrib_hash{'axisIdRef'};
@@ -1321,7 +1372,7 @@ sub for_node_start {
     $axisObj = $AxisObj{$id} unless defined $axisObj;
     push @READAXISORDER, $axisObj;
   } else {
-    print STDERR "Error: got for node without axisIdRef, aborting read.\n";
+    &print_error("Error: got for node without axisIdRef, aborting read.\n");
     exit (-1); 
   }
 
@@ -1384,6 +1435,7 @@ sub note_node_start {
 
       # clone from the reference object
       $noteObj = $NoteObj{$id}->clone();
+
 
       # override with local values
       $noteObj->setXMLAttributes(\%attrib_hash);
@@ -1586,10 +1638,16 @@ sub read_node_start {
 
      push @CURRENT_FORMAT_OBJECT, $CURRENT_ARRAY->getXMLDataIOStyle();
 
-     # populate readorder. We will have problems if someone specifies
+     # populate readorder array. We will have problems if someone specifies
      # readIdRef AND has child for nodes on the read node. fef.  
-     while ( my ($id, $axisObj) = each %CURRENT_ARRAY_AXES ) {
-       push @READAXISORDER, $axisObj;
+     my $oldArrayObj = $XMLDataIOStyleObj{$readIdRef}->{_parentArray}; #shouldnt be allowed to do this 
+     foreach my $oldAxisObj (@{$ReadAxisOrder{$oldArrayObj}}) {
+        my $axisObj = $CURRENT_ARRAY_AXES{$oldAxisObj->getAxisId};
+        if (defined $axisObj) {
+          push @READAXISORDER, $axisObj; 
+        } else {
+          die "Bad code error: axisObj not found in CURRENT_ARRAY_AXES.\n";
+        }
      }
    
   } else { 
@@ -2049,6 +2107,8 @@ sub vector_node_start {
 
 sub print_debug ($) { my ($msg) = @_; print STDERR $msg if $DEBUG; }
 
+sub print_error ($) { my ($msg) = @_; print STDERR $msg; }
+
 sub print_extreme_debug ($) { my ($msg) = @_; print STDERR $msg if $DEBUG > 1; }
 
 sub current_node_name { return $CURRENT_NODE_PATH[$#CURRENT_NODE_PATH]; }
@@ -2070,27 +2130,6 @@ sub getUniqueIdName {
 sub grand_parent_node_name { 
   return $CURRENT_NODE_PATH[$#CURRENT_NODE_PATH-2]; 
 } 
-
-# only deals with files right now. Bleah.
-sub _getHrefData {
-   my ($href) = @_;
-
-   my $file;
-   my $text;
-   $file = $href->getBase() if $href->getBase();
-   $file .= $href->getSysId();
-   if (defined $file) {
-       undef $/; #input rec separator, once newline, now nothing.
-                 # will cause whole file to be read in one whack 
-       open(DATAFILE, $file);
-       # binmode(DATAFILE); # needed ?
-       $text = <DATAFILE>;
-       close DATAFILE;
-   } else {
-      die "Can't read Href data, undefined sysId!\n";
-   }
-   return $text;
-}
 
 sub make_attrib_array_a_hash {
   my (@array) = @_; 
@@ -2235,7 +2274,8 @@ sub current_dataType_obj { return $CURRENT_DATATYPE_OBJECT; }
 sub current_format_obj { return $CURRENT_FORMAT_OBJECT[$#CURRENT_FORMAT_OBJECT]; }
 
 sub last_field_obj {
- return @{$CURRENT_ARRAY->getFieldAxis()->getFieldList()}[$#{$CURRENT_ARRAY->getFieldAxis()->getFieldList()}];
+ my @list = $CURRENT_ARRAY->getFieldAxis()->getFields;
+ return $list[$#list];
 }
 
 sub last_axis_obj { return @{$CURRENT_ARRAY->getAxisList()}[$#{$CURRENT_ARRAY->getAxisList()}]; }
@@ -2251,10 +2291,198 @@ sub my_fail {
    XML::Checker::print_error ($code, @_) if $code < $PARSER_MSG_THRESHOLD;
 }
 
+#
+# Private methods
+#
+# (some of the above are really private too. )
+
+# only deals with files right now. Bleah.
+sub _getHrefData {
+   my ($href) = @_;
+
+   my $file;
+   my $text; 
+   $file = $href->getBase() if $href->getBase();
+   $file .= $href->getSysId();
+   if (defined $file) {
+       undef $/; #input rec separator, once newline, now nothing.
+                 # will cause whole file to be read in one whack 
+       open(DATAFILE, $file);
+       # binmode(DATAFILE); # needed ?
+       $text = <DATAFILE>;
+       close DATAFILE;
+   } else {
+      die "Can't read Href data, undefined sysId!\n";
+   }
+   return $text;
+} 
+
+
+# this code copied almost verbatim from the original Java
+sub _appendArrayToArray {
+   my ($arrayToAppendTo, $arrayToAdd) = @_;
+
+   &print_debug("appendArrayToArray\n");
+   if (defined $arrayToAppendTo)
+   {
+
+      my @origAxisList = @{$arrayToAppendTo->getAxisList};
+      my @addAxisList = @{$arrayToAdd->getAxisList};
+      my %correspondingAddAxis;
+      my %correspondingOrigAxis;
+
+      &print_debug("Getting array alignments \n");
+      # 1. determine the proper alignment of the axes between both arrays
+      #    Then cross-reference each in lookup Hashtables.
+      foreach my $origAxis (@origAxisList)
+      {
+
+         #AxisInterface origAxis = (AxisInterface) iter.next();
+         my $align = $origAxis->getAlign();
+
+         # search the list of the other array for a matching axis 
+         my $gotAMatch = 0;
+             #Iterator iter2 = addAxisList.iterator();
+         foreach my $addAxis (@addAxisList)
+         {
+
+            #AxisInterface addAxis = (AxisInterface) iter2.next();
+            my $thisAlign = $addAxis->getAlign();
+            if(defined $thisAlign)
+            {
+               if($thisAlign eq $align)
+               {
+                   $correspondingAddAxis{$origAxis->getAxisId()} = $addAxis;
+                   $correspondingOrigAxis{$addAxis->getAxisId()} = $origAxis;
+                   $gotAMatch = 1;
+                   last;
+                }
+             } else {
+                warn "Cant align axes, axis missing defined align attribute. Aborting.\n";
+                #return $arrayToAppendTo;
+             }
+          }
+
+          # no match?? then alignments are mis-specified.
+          if (!$gotAMatch) {
+              warn "Cant align axes, axis has align attribute that is mis-specified. Aborting.\n";
+              #return $arrayToAppendTo;
+          }
+
+      }
+
+      &print_debug("Appending axisvalues to array axis\n");
+      # 2. "Append" axis values to original axis. Because
+      # there are 2 different ways to add in data we either
+      # have a pre-existing axis value, in which case we dont
+      # need to expand the existing axis, or there is no pre-existing
+      # value so we tack it in. We need to figure out here if an
+      # axis value already exists, and if it doesnt then we add it in. 
+      foreach my $origAxis (@origAxisList)
+      {
+
+         #   AxisInterface origAxis = (AxisInterface) iter3.next();
+         my $addAxis = $correspondingAddAxis{$origAxis->getAxisId};
+
+         if (ref($addAxis) eq 'XDF::Axis' && ref($origAxis) eq 'XDF::Axis')
+         {
+            my @valuesToAdd = $addAxis->getAxisValues();
+            foreach my $value (@valuesToAdd) {
+               if (( $origAxis->getIndexFromAxisValue($value)) == -1) 
+               {
+                  $origAxis->addAxisValue($value);
+               }
+            }
+
+         } elsif (ref($addAxis) eq 'XDF::FieldAxis' && ref($origAxis) eq 'XDF::FieldAxis') {
+
+            # both are fieldAxis
+            die "Dont know how to merge field Axis data. Aborting array appendTo operation.";
+
+         } else {
+            # mixed class Axes?!? (e.g. a fieldAxis id matches Axis id??!? Error!!)
+            die "Dont know how to merge this data. Aborting array appendTo operation.";
+         }
+
+      }
+
+      # 3. Append data from one array to the other appropriately 
+      my $origLocator = $arrayToAppendTo->createLocator();
+      my $addLocator = $arrayToAdd->createLocator();
+
+      while ($addLocator->hasNext())
+      {
+
+         #try {
+
+         #retrieve the data
+         my $data = $arrayToAdd->getData($addLocator);
+
+         # set up the origLocator
+         my @locatorAxisList = @{$addLocator->getIterationOrder()};
+         #Iterator iter5 = locatorAxisList.iterator();
+         &print_debug("Appending data to array($arrayToAppendTo)(");
+         foreach my $addAxis (@locatorAxisList) {
+
+            #Axis addAxis = (Axis) iter5.next();
+            my $thisAxisValue = $addLocator->getAxisValue($addAxis);
+            my $thisAxis = $correspondingOrigAxis{$addAxis->getAxisId()};
+
+            #try {
+               $origLocator->setAxisIndexByAxisValue($thisAxis, $thisAxisValue);
+               &print_debug($origLocator->getAxisIndex($thisAxis).",");
+
+             #} catch (AxisLocationOutOfBoundsException e) {
+                #       Log.errorln("Weird axis out of bounds error for append array.");
+             #}
+         }
+
+         # add in the data as appropriate.
+         &print_debug(") => [$data]\n");
+
+         #try {
+
+         $arrayToAppendTo->setData($origLocator, $data);
+
+         # // orig Java block
+         #   if (data instanceof Double)
+         #      arrayToAppendTo.setData(origLocator, (Double) data);
+         #          else if (data instanceof Integer)
+         #              arrayToAppendTo.setData(origLocator, (Integer) data);
+         #          else if (data instanceof String )
+         #              arrayToAppendTo.setData(origLocator, (String) data);
+         #          else
+         #              Log.errorln("Cant understand class of data !(Double|Integer|String). ignoring append");
+         #
+         # } catch (SetDataException e) {
+         #    Log.errorln("Cant setData. Ignoring append");
+         # }
+
+         #} catch (NoDataException e) {
+         #       // do nothing for NoDataValues??
+         #    }
+
+         $addLocator->next(); # go to next location
+      }
+
+   } else {
+      warn "Cannot append to null array. Ignoring request.";
+   }
+
+  # return $arrayToAppendTo;
+}
 
 # Modification History
 #
 # $Log$
+# Revision 1.15  2001/03/14 16:44:12  thomas
+# Fixes to the ReadId/IdRef problem (but some issues remain).
+# Added AppendArrayToArray method (for appentTo functionality).
+# This also required adding array_node_end handler. Minor changes
+# based on other method call changes within the API. Moved some
+# debuging messages over from "print STDERR" to appropriate
+# 'print_debug' and added 'print_error' method.
+#
 # Revision 1.14  2001/03/12 17:28:30  thomas
 # Added ReadId/IdRef code. Will break in cases where
 # readIdRef AND child for node exists on the read node.
