@@ -55,15 +55,15 @@ package XDF::FloatDataFormat;
 # /** SEE ALSO
 # */
 
-use XDF::DataFormat;
+use XDF::NumberDataFormat;
 
 use strict;
 use integer;
 
 use vars qw ($AUTOLOAD %field @ISA);
 
-# inherits from XDF::DataFormat
-@ISA = ("XDF::DataFormat");
+# inherits from XDF::NumberDataFormat
+@ISA = ("XDF::NumberDataFormat");
 
 # CLASS DATA
 
@@ -88,8 +88,8 @@ my @Class_XML_Attributes;
 push @Local_Class_Attributes, @Local_Class_XML_Attributes;
 
 # get super class attributes
-push @Class_XML_Attributes, @{&XDF::DataFormat::getClassXMLAttributes};
-push @Class_Attributes, @{&XDF::DataFormat::getClassAttributes};
+push @Class_XML_Attributes, @{&XDF::NumberDataFormat::getClassXMLAttributes};
+push @Class_Attributes, @{&XDF::NumberDataFormat::getClassAttributes};
 
 # add in local to overall class
 push @Class_XML_Attributes, @Local_Class_XML_Attributes;
@@ -219,7 +219,7 @@ sub numOfBytes {
 
 # /** fortranNotation 
 # A convenience method to generate the FORTRAN notation for this dataformat.
-# Returns the FORTRAN DataFormat notation.
+# Returns the FORTRAN data format notation.
 # */
 sub fortranNotation {
   my ($self) = @_;
@@ -353,7 +353,7 @@ XDF::FloatDataFormat - Perl Class for FloatDataFormat
   where 'W' indicates the width of the 'width' attribute.   'P' indicates the width of the 'precision' attribute.   'X' indicates the width of the 'exponent' attribute.  
  The 'E' only exists when there are a positive non-zero   number of 'X'. For example, a FloatDataFormat with the  attributes width=8, precision=5 and exponent=0 would describe  the following number: "11.00014" 
 
-XDF::FloatDataFormat inherits class and attribute methods of L<XDF::GenericObject>, L<XDF::BaseObject>, L<XDF::DataFormat>.
+XDF::FloatDataFormat inherits class and attribute methods of L<XDF::GenericObject>, L<XDF::BaseObject>, L<XDF::NumberDataFormat>, L<XDF::DataFormat>.
 
 
 =head1 METHODS
@@ -416,7 +416,7 @@ Return the number of bytes this XDF::FloatDataFormat holds.
 
 =item fortranNotation (EMPTY)
 
-A convenience method to generate the FORTRAN notation for this dataformat. Returns the FORTRAN DataFormat notation.  
+A convenience method to generate the FORTRAN notation for this dataformat. Returns the FORTRAN data format notation.  
 
 =back
 
@@ -456,7 +456,7 @@ B<getXMLAttributes>, B<setXMLAttributes>, B<getXMLAttribute>, B<setXMLAttribute>
 
 =over 4
 
-XDF::FloatDataFormat inherits the following instance (object) methods of L<XDF::DataFormat>:
+XDF::FloatDataFormat inherits the following instance (object) methods of L<XDF::NumberDataFormat>:
 B<getInfiniteValue>, B<setInfiniteValue>, B<getInfiniteNegativeValue>, B<setInfiniteNegativeValue>, B<getNoDataValue>, B<setNoDataValue>, B<getNotANumberValue>, B<setNotANumberValue>, B<getOverFlowValue>, B<setOverFlowValue>, B<getUnderFlowValue>, B<setUnderFlowValue>, B<getDisabledValue>, B<setDisabledValue>.
 
 =back
@@ -471,7 +471,7 @@ B<getInfiniteValue>, B<setInfiniteValue>, B<getInfiniteNegativeValue>, B<setInfi
 
 =over 4
 
-L<XDF::DataFormat>
+L<XDF::NumberDataFormat>
 
 =back
 

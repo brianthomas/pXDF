@@ -49,6 +49,7 @@ use vars qw ($AUTOLOAD %field @ISA);
 my $Class_XML_Node_Name = "string";
 my @Local_Class_XML_Attributes = qw (
                              length
+                             noDataValue
                           );
 my @Local_Class_Attributes = ();
 my @Class_Attributes;
@@ -147,6 +148,22 @@ sub setWidth {
 sub numOfBytes {
   my ($self) = @_;
   return $self->getLength();
+}
+
+# /** getNoDataValue
+# 
+# */
+sub getNoDataValue {
+   my ($self) = @_;
+   return $self->{noDataValue};
+}
+
+# /** setNoDataValue
+#     Set the noDataValue attribute. 
+# */
+sub setNoDataValue {
+   my ($self, $value) = @_;
+   $self->{noDataValue} = $value;
 }
 
 # /** getXMLAttributes
@@ -306,6 +323,14 @@ A convenience method, same as setLength();
 
 A convenience method. Return the number of bytes this XDF::StringDataFormat holds.  
 
+=item getNoDataValue (EMPTY)
+
+ 
+
+=item setNoDataValue ($value)
+
+Set the noDataValue attribute.  
+
 =item fortranNotation (EMPTY)
 
 A convenience method to generate the FORTRAN notation for this dataformat. Returns the FORTRAN DataFormat notation.  
@@ -341,15 +366,6 @@ B<new>, B<clone>, B<update>.
 
 XDF::StringDataFormat inherits the following instance (object) methods of L<XDF::BaseObject>:
 B<getXMLAttributes>, B<setXMLAttributes>, B<getXMLAttribute>, B<setXMLAttribute>, B<addXMLAttribute>, B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<toXMLFileHandle>, B<toXMLString>, B<toXMLFile>.
-
-=back
-
-
-
-=over 4
-
-XDF::StringDataFormat inherits the following instance (object) methods of L<XDF::DataFormat>:
-B<getInfiniteValue>, B<setInfiniteValue>, B<getInfiniteNegativeValue>, B<setInfiniteNegativeValue>, B<getNoDataValue>, B<setNoDataValue>, B<getNotANumberValue>, B<setNotANumberValue>, B<getOverFlowValue>, B<setOverFlowValue>, B<getUnderFlowValue>, B<setUnderFlowValue>, B<getDisabledValue>, B<setDisabledValue>.
 
 =back
 

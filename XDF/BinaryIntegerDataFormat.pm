@@ -36,7 +36,7 @@ package XDF::BinaryIntegerDataFormat;
 
 use XDF::Constants;
 use XDF::Utility;
-use XDF::DataFormat;
+use XDF::NumberDataFormat;
 use XDF::Log;
 
 use strict;
@@ -44,8 +44,8 @@ use integer;
 
 use vars qw ($AUTOLOAD %field @ISA);
 
-# inherits from XDF::DataFormat
-@ISA = ("XDF::DataFormat");
+# inherits from XDF::NumberDataFormat
+@ISA = ("XDF::NumberDataFormat");
 
 # CLASS DATA
 my $Def_BinaryInteger_Bits = 16;
@@ -66,8 +66,8 @@ my @Class_XML_Attributes;
 push @Local_Class_Attributes, @Local_Class_XML_Attributes;
 
 # get super class attributes
-push @Class_XML_Attributes, @{&XDF::DataFormat::getClassXMLAttributes};
-push @Class_Attributes, @{&XDF::DataFormat::getClassAttributes};
+push @Class_XML_Attributes, @{&XDF::NumberDataFormat::getClassXMLAttributes};
+push @Class_Attributes, @{&XDF::NumberDataFormat::getClassAttributes};
 
 # add in local to overall class
 push @Class_XML_Attributes, @Local_Class_XML_Attributes;
@@ -317,7 +317,7 @@ XDF::BinaryIntegerDataFormat - Perl Class for BinaryIntegerDataFormat
 
  XDF::BinaryIntegerDataFormat is the class that describes binary integer  numbers. 
 
-XDF::BinaryIntegerDataFormat inherits class and attribute methods of L<XDF::GenericObject>, L<XDF::BaseObject>, L<XDF::DataFormat>.
+XDF::BinaryIntegerDataFormat inherits class and attribute methods of L<XDF::GenericObject>, L<XDF::BaseObject>, L<XDF::NumberDataFormat>, L<XDF::DataFormat>.
 
 
 =head1 METHODS
@@ -416,7 +416,7 @@ B<getXMLAttributes>, B<setXMLAttributes>, B<getXMLAttribute>, B<setXMLAttribute>
 
 =over 4
 
-XDF::BinaryIntegerDataFormat inherits the following instance (object) methods of L<XDF::DataFormat>:
+XDF::BinaryIntegerDataFormat inherits the following instance (object) methods of L<XDF::NumberDataFormat>:
 B<getInfiniteValue>, B<setInfiniteValue>, B<getInfiniteNegativeValue>, B<setInfiniteNegativeValue>, B<getNoDataValue>, B<setNoDataValue>, B<getNotANumberValue>, B<setNotANumberValue>, B<getOverFlowValue>, B<setOverFlowValue>, B<getUnderFlowValue>, B<setUnderFlowValue>, B<getDisabledValue>, B<setDisabledValue>.
 
 =back
@@ -431,7 +431,7 @@ B<getInfiniteValue>, B<setInfiniteValue>, B<getInfiniteNegativeValue>, B<setInfi
 
 =over 4
 
-L<XDF::Constants>, L<XDF::Utility>, L<XDF::DataFormat>, L<XDF::Log>
+L<XDF::Constants>, L<XDF::Utility>, L<XDF::NumberDataFormat>, L<XDF::Log>
 
 =back
 

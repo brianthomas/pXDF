@@ -24,9 +24,7 @@ package XDF::DataFormat;
 
 # /** DESCRIPTION
 # XDF::DataFormat is an abstract class used to describe the data format of 
-# information held in datacells as specified in either XDF::Field or 
-# XDF::Array objects. Note that one should specify the DataFormat object for EITHER
-# an Array OR ALL of the Fields. Doing both has no meaning. 
+# information held in datacells.
 # */
 
 # /** SYNOPSIS
@@ -34,12 +32,8 @@ package XDF::DataFormat;
 # */
 
 # /** SEE ALSO
-# XDF::Array
-# XDF::Field
-# XDF::BinaryFloatDataFormat
-# XDF::BinaryIntegerDataFormat
-# XDF::FloatDataFormat
-# XDF::IntegerDataFormat
+# XDF::ArrayRefDataFormat
+# XDF::NumberDataFormat
 # XDF::StringDataFormat
 # */
 
@@ -58,19 +52,7 @@ use vars qw ($AUTOLOAD %field @ISA);
 
 my $Class_XML_Node_Name = ""; # will be filled in by concrete class 
 my $DataFormat_Class_XML_Node_Name = "dataFormat";
-				#lessThanValue
-                                #lessThanOrEqualValue
-#                                greaterThanValue
-#                                greaterThanOrEqualValue
 my @Local_Class_XML_Attributes = qw (
-                                infiniteValue
-                                infiniteNegativeValue
-                                noDataValue
-                                notANumberValue
-                                overFlowValue
-                                underFlowValue
-                                disabledValue
-
                           );
 my @Local_Class_Attributes = (); 
 
@@ -90,29 +72,6 @@ push @Class_Attributes, @Local_Class_Attributes;
 
 # Initalization -- set up object attributes.
 for my $attr ( @Class_Attributes ) { $field{$attr}++; }
-
-
-# /* lessThanValue
-# The STRING value which indicates the less than symbol ("<") within the data cube.
-# */
-# /* lessThanOrEqualValue
-# The STRING value which indicates the less than equal symbol ("=<") within the data cube.
-# */
-# /* greaterThanValue
-# The STRING value which indicates the greater than symbol (">") within the data cube.
-# */
-# /* greaterThanOrEqualValue
-# The STRING value which indicates the greater than equal symbol (">=") within the data cube.
-# */
-# /** infiniteValue
-# The STRING value which indicates the infinite value within the data cube.
-# */
-# /** infiniteNegativeValue
-# The STRING value which indicates the negative infinite value within the data cube.
-# */
-# /** noDataValue
-# The STRING value which indicates the no data value within the data cube.
-# */
 
 # /** classXMLNodeName
 # This method returns the class node name for this class.
@@ -142,183 +101,6 @@ sub getClassXMLAttributes {
 # 
 # SET/GET Methods
 #
-
-
-# /** getLessThanValue
-#   
-# */
-#sub getLessThanValue {
-#   my ($self) = @_;
-#   return $self->{lessThanValue};
-#}
-
-# /* setLessThanValue
-#     Set the lessThanValue attribute. 
-# */
-#sub setLessThanValue {
-#   my ($self, $value) = @_;
-#   $self->{lessThanValue} = $value;
-#}
-
-# /* getLessThanOrEqualValue
-#   
-# */
-#sub getLessThanOrEqualValue {
-#   my ($self) = @_;
-#   return $self->{lessThanOrEqualValue};
-#}
-
-# /* setLessThanOrEqualValue
-#     Set the lessThanOrEqualValue attribute. 
-# */
-#sub setLessThanOrEqualValue {
-#   my ($self, $value) = @_;
-#   $self->{lessThanOrEqualValue} = $value;
-#}
-
-# /* getGreaterThanValue
-#  
-# */
-#sub getGreaterThanValue {
-#   my ($self) = @_;
-#   return $self->{greaterThanValue};
-#}
-
-# /** setGreaterThanValue
-#     Set the greaterThanValue attribute. 
-# */
-#sub setGreaterThanValue {
-#   my ($self, $value) = @_;
-#   $self->{greaterThanValue} = $value;
-#}
-
-# /** getGreaterThanOrEqualValue
-# 
-# */
-#sub getGreaterThanOrEqualValue {
-#   my ($self) = @_;
-#   return $self->{greaterThanOrEqualValue};
-#}
-
-# /** setGreaterThanOrEqualValue
-#     Set the greaterThanOrEqualValue attribute. 
-# */
-#sub setGreaterThanOrEqualValue {
-#   my ($self, $value) = @_;
-#   $self->{greaterThanOrEqualValue} = $value;
-#}
-
-# /** getInfiniteValue
-# 
-# */
-sub getInfiniteValue {
-   my ($self) = @_;
-   return $self->{infiniteValue};
-}
-
-# /** setInfiniteValue
-#     Set the infiniteValue attribute. 
-# */
-sub setInfiniteValue {
-   my ($self, $value) = @_;
-   $self->{infiniteValue} = $value;
-}
-
-# /** getInfiniteNegativeValue
-# 
-# */
-sub getInfiniteNegativeValue {
-   my ($self) = @_;
-   return $self->{infiniteNegativeValue};
-}
-
-# /** setInfiniteNegativeValue
-#     Set the infiniteNegativeValue attribute. 
-# */
-sub setInfiniteNegativeValue {
-   my ($self, $value) = @_;
-   $self->{infiniteNegativeValue} = $value;
-}
-
-# /** getNoDataValue
-# 
-# */
-sub getNoDataValue {
-   my ($self) = @_;
-   return $self->{noDataValue};
-}
-
-# /** setNoDataValue
-#     Set the noDataValue attribute. 
-# */
-sub setNoDataValue {
-   my ($self, $value) = @_;
-   $self->{noDataValue} = $value;
-}
-
-# /** getNotANumberValue
-# 
-# */
-sub getNotANumberValue {
-   my ($self) = @_;
-   return $self->{notANumberValue};
-}
-
-# /** setNotANumberValue            
-#     Set the notANumberValue attribute. 
-# */                            
-sub setNotANumberValue {
-   my ($self, $value) = @_;
-   $self->{notANumberValue} = $value;
-}
-
-# /** getOverFlowValue
-# 
-# */
-sub getOverFlowValue {
-   my ($self) = @_;
-   return $self->{overFlowValue};
-}
-
-# /** setOverFlowValue            
-#     Set the overFlowValue attribute. 
-# */                            
-sub setOverFlowValue {
-   my ($self, $value) = @_;
-   $self->{overFlowValue} = $value;
-}
-
-# /** getUnderFlowValue
-# 
-# */
-sub getUnderFlowValue {
-   my ($self) = @_;
-   return $self->{underFlowValue};
-}
-
-# /** setUnderFlowValue            
-#     Set the underFlowValue attribute. 
-# */                            
-sub setUnderFlowValue {
-   my ($self, $value) = @_;
-   $self->{underFlowValue} = $value;
-}
-
-# /** getDisabledValue
-# 
-# */
-sub getDisabledValue {
-   my ($self) = @_;
-   return $self->{disabledValue};
-}
-
-# /** setDisabledValue            
-#     Set the disabledValue attribute. 
-# */                            
-sub setDisabledValue {
-   my ($self, $value) = @_;
-   $self->{disabledValue} = $value;
-}
 
 # /** numOfBytes
 # This returns the number of bytes this object describes.
@@ -387,7 +169,7 @@ XDF::DataFormat - Perl Class for DataFormat
 
 =head1 DESCRIPTION
 
- XDF::DataFormat is an abstract class used to describe the data format of  information held in datacells as specified in either XDF::Field or  XDF::Array objects. Note that one should specify the DataFormat object for EITHER an Array OR ALL of the Fields. Doing both has no meaning. 
+ XDF::DataFormat is an abstract class used to describe the data format of  information held in datacells. 
 
 XDF::DataFormat inherits class and attribute methods of L<XDF::GenericObject>, L<XDF::BaseObject>.
 
@@ -421,62 +203,6 @@ This method returns the XMLAttributes of this class.
 The following instance (object) methods are defined for XDF::DataFormat.
 
 =over 4
-
-=item getInfiniteValue (EMPTY)
-
- 
-
-=item setInfiniteValue ($value)
-
-Set the infiniteValue attribute.  
-
-=item getInfiniteNegativeValue (EMPTY)
-
- 
-
-=item setInfiniteNegativeValue ($value)
-
-Set the infiniteNegativeValue attribute.  
-
-=item getNoDataValue (EMPTY)
-
- 
-
-=item setNoDataValue ($value)
-
-Set the noDataValue attribute.  
-
-=item getNotANumberValue (EMPTY)
-
- 
-
-=item setNotANumberValue ($value)
-
-Set the notANumberValue attribute.  
-
-=item getOverFlowValue (EMPTY)
-
- 
-
-=item setOverFlowValue ($value)
-
-Set the overFlowValue attribute.  
-
-=item getUnderFlowValue (EMPTY)
-
- 
-
-=item setUnderFlowValue ($value)
-
-Set the underFlowValue attribute.  
-
-=item getDisabledValue (EMPTY)
-
- 
-
-=item setDisabledValue ($value)
-
-Set the disabledValue attribute.  
 
 =item numOfBytes (EMPTY)
 
@@ -526,7 +252,7 @@ B<getXMLAttributes>, B<setXMLAttributes>, B<getXMLAttribute>, B<setXMLAttribute>
 
 =over 4
 
-L< XDF::Array>, L< XDF::Field>, L< XDF::BinaryFloatDataFormat>, L< XDF::BinaryIntegerDataFormat>, L< XDF::FloatDataFormat>, L< XDF::IntegerDataFormat>, L< XDF::StringDataFormat>, L<XDF::BaseObject>
+L< XDF::ArrayRefDataFormat>, L< XDF::NumberDataFormat>, L< XDF::StringDataFormat>, L<XDF::BaseObject>
 
 =back
 
