@@ -129,6 +129,12 @@ sub DATA_COMPRESSION_LIST { ( &DATA_COMPRESSION_ZIP, &DATA_COMPRESSION_GZIP,
                               &DATA_COMPRESSION_BZIP2, &DATA_COMPRESSION_XMILL,
                               &DATA_COMPRESSION_COMPRESS ); }
 
+sub DATA_COMPRESSION_GZIP_PATH { "/usr/bin/gzip"; }
+sub DATA_COMPRESSION_BZIP2_PATH { "/usr/bin/bzip2"; }
+sub DATA_COMPRESSION_COMPRESS_PATH { "/usr/bin/compress"; }
+sub DATA_COMPRESSION_UNZIP_PATH { "/usr/bin/unzip"; }
+sub DATA_COMPRESSION_ZIP_PATH { "/usr/bin/zip"; }
+
 sub VALUE_INEQUALITY_LESS_THAN { "lessThan"; }
 sub VALUE_INEQUALITY_LESS_THAN_OR_EQUAL { "lessThanOrEqual"; }
 sub VALUE_INEQUALITY_GREATER_THAN { "greaterThan"; }
@@ -209,6 +215,9 @@ sub XDF_NODE_NAMES { (
 # Modification History
 #
 # $Log$
+# Revision 1.9  2001/06/19 21:19:43  thomas
+# added compression.
+#
 # Revision 1.8  2001/04/25 16:01:31  thomas
 # updated documentation
 #
