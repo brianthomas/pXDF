@@ -41,15 +41,16 @@ my $test = 1;
   # Test 2. Add an axis to an array, add some tickmarks, then remove one tickmark 
   my $arrayObj = new XDF::Array(); 
   my $axisObj = new XDF::Axis ({ 'name' => $axis[0], 
-                                     'description' => 'the first axis', 
-                                     'axisId' => 'firstAxis' }
-                                  );
+                                 'description' => 'the first axis', 
+                                 'axisId' => 'firstAxis' }
+                              );
   $arrayObj->addAxis($axisObj);
 
   my $remove_tickmark;
   foreach my $val (@starting_tickmark_values) {
     $remove_tickmark = $axisObj->addAxisValue($val); 
   }
+
   &its_ok (   defined $axisObj->removeAxisValue($remove_tickmark) &&
                     $ending_tickmark_values[$#ending_tickmark_values] eq 
                     $starting_tickmark_values[1]

@@ -20,6 +20,7 @@ BEGIN {
                      XDF_sample11.xml
                      XDF_sample12.xml
                      XDF_sample13.xml
+                     XDF_sample18.xml
                      document.xml
                    );
 

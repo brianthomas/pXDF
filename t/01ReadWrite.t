@@ -18,6 +18,7 @@ BEGIN {
                      XDF_sample11.xml
                      XDF_sample12.xml
                      XDF_sample13.xml
+                     XDF_sample18.xml
                    );
 
     my $test_number = $#test_file + 1;
@@ -39,8 +40,8 @@ my $QUIET = 1;
   &run_tests(0);
 
   # remove temp dat
-#  unlink ("table0.dat");
-#  unlink ("table1.dat");
+  unlink ("table0.dat");
+  unlink ("table1.dat");
 #  unlink ("table2.dat");
 #  unlink ("table3.dat");
 
