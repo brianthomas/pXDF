@@ -129,6 +129,37 @@ sub new {
   return $self;
 }
 
+# /** clone
+# Clone a deep copy from this object. 
+# */
+# this is needed in order to treat the values appropriately
+sub clone {
+  my ($self, $_parentArray) = @_;
+
+  my @list_clone_values = ();
+  foreach my $value (@{$self->getValues}) {
+     push @list_clone_values, $value->clone();
+  }
+
+  my $clone = (ref $self)->new(\@list_clone_values);
+
+  # IF this object is an array, then we will use it now as the
+  # parent array of all sub-objects that it owns.
+  $_parentArray = $clone if ref($clone) eq 'XDF::Array';
+
+  foreach my $attrib ( @{$self->getClassAttributes} ) {
+    next if $attrib eq 'values';
+    if ($attrib !~ m/_parentArray/) {
+      my $val = $self->_clone_attribute($attrib, $_parentArray);
+      $clone->$attrib($val);
+    } else {
+      # _parentArray is set as new cloned array (should it exist)
+      $clone->$attrib($_parentArray) if defined $_parentArray;
+    }
+  }
+
+  return $clone;
+}
 
 # 
 # SET/GET Methods
@@ -191,16 +222,16 @@ sub toXMLFileHandle {
 
    print $fileHandle $indent if $isPrettyXDFOutput;
 
-   print $fileHandle "<valueList delimiter=\"",$self->{Delimiter},"\" repeatable=\"no\"";
-   print $fileHandle " valueListId=\"",$self->{valueListId},"\"" if (defined $self->{valueListId});
-   print $fileHandle " valueListIdRef=\"",$self->{valueListIdRef},"\"" if (defined $self->{valueListIdRef});
-   print $fileHandle " noDataValue=\"",$self->{NoData},"\"" if (defined $self->{NoData});
-   print $fileHandle " infiniteValue=\"",$self->{Infinite},"\"" if (defined $self->{Infinite});
-   print $fileHandle " infiniteNegativeValue=\"",$self->{InfiniteNegative},"\"" 
+   print $fileHandle "<valueList delimiter=\"".$self->{Delimiter}."\" repeatable=\"no\"";
+   print $fileHandle " valueListId=\"".$self->{valueListId}."\"" if (defined $self->{valueListId});
+   print $fileHandle " valueListIdRef=\"".$self->{valueListIdRef}."\"" if (defined $self->{valueListIdRef});
+   print $fileHandle " noDataValue=\"".$self->{NoData}."\"" if (defined $self->{NoData});
+   print $fileHandle " infiniteValue=\"".$self->{Infinite}."\"" if (defined $self->{Infinite});
+   print $fileHandle " infiniteNegativeValue=\"".$self->{InfiniteNegative}."\"" 
                        if (defined $self->{InfiniteNegative});
-   print $fileHandle " notANumberValue=\"",$self->{NotANumber},"\"" if (defined $self->{NotANumber});
-   print $fileHandle " overflowValue=\"",$self->{Overflow},"\"" if (defined $self->{Overflow});
-   print $fileHandle " underflowValue=\"",$self->{Underflow},"\"" if (defined $self->{Underflow});
+   print $fileHandle " notANumberValue=\"".$self->{NotANumber}."\"" if (defined $self->{NotANumber});
+   print $fileHandle " overflowValue=\"".$self->{Overflow}."\"" if (defined $self->{Overflow});
+   print $fileHandle " underflowValue=\"".$self->{Underflow}."\"" if (defined $self->{Underflow});
    print $fileHandle ">";
 
    my @values = @{$self->{values}};
@@ -285,6 +316,10 @@ sub AUTOLOAD {
 # Modification History
 #
 # $Log$
+# Revision 1.3  2001/08/10 16:28:24  thomas
+# added local clone method (so work properly).
+# fixed toXMLFileHandle method to print properly.
+#
 # Revision 1.2  2001/07/23 15:58:07  thomas
 # added ability to add arbitary XML attribute to class.
 # getXMLattributes now an instance method, we
