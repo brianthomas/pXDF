@@ -54,7 +54,7 @@ use integer;
 use vars qw ($VERSION @ISA %field);
 
 # the version of this module
-$VERSION = "0.17l";
+$VERSION = "0.17-beta0";
 
 # inherits from XDF::GenericObject
 @ISA = ("XDF::GenericObject");
@@ -589,6 +589,9 @@ sub _find_All_child_Href_Objects {
 # Modification History
 #
 # $Log$
+# Revision 1.8  2001/03/14 22:09:31  thomas
+# updated Version name of package.
+#
 # Revision 1.7  2001/03/14 21:32:33  thomas
 # Updated perldoc section using new version of
 # makeDoc.pl.
