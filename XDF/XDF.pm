@@ -28,7 +28,7 @@ package XDF::XDF;
 # XDF is the eXtensible Data XDF, which is an XML format
 # designed to contain n-dimensional scientific/mathematical data.
 # For more background information on XDF see the XDF homepage at 
-# http://xml.gsfc.nasa.gov/XDF/XDF_home.html.
+# http://xml.gsfc.nasa.gov/XDF/XDF_home.html .
 #@   
 #@   
 # The XDF can hold both tagged and untagged data and may serve as
@@ -299,6 +299,9 @@ sub _write_XML_decl_to_file_handle {
 # Modification History
 #
 # $Log$
+# Revision 1.7  2001/08/13 22:03:25  thomas
+# small fix to documentation
+#
 # Revision 1.6  2001/08/13 20:56:37  thomas
 # updated documentation via utils/makeDoc.pl for the release.
 #
