@@ -150,6 +150,9 @@ sub setSysId {
 # Modification History
 #
 # $Log$
+# Revision 1.3  2001/03/16 19:54:57  thomas
+# Documentation updated and improved, re-ran makeDoc on file.
+#
 # Revision 1.2  2001/03/14 21:32:34  thomas
 # Updated perldoc section using new version of
 # makeDoc.pl.
@@ -187,9 +190,10 @@ XDF::Href inherits class and attribute methods of L<XDF::GenericObject>.
 
 =over 4
 
-=head2 INSTANCE Methods
+=head2 INSTANCE (Object) Methods
 
-The following instance methods are defined for XDF::Href.
+The following instance (object) methods are defined for XDF::Href.
+
 =over 4
 
 =item getBase (EMPTY)
@@ -234,29 +238,40 @@ Set the sysId attribute.
 
 =back
 
-=over 4
+
 
 =head2 INHERITED Class Methods
 
-A change in the value of these attributes will change the functioning of ALL instances of these objects that inherit from the indicated super class.
+=over 4
+
 =back
 
-=over 4
+
 
 =head2 INHERITED INSTANCE Methods
 
+=over 4
+
 
 
 =over 4
 
-XDF::Href inherits the following instance methods of L<XDF::GenericObject>:
-B<new>, B<clone>, B<update>. 
+XDF::Href inherits the following instance (object) methods of L<XDF::GenericObject>:
+B<new>, B<clone>, B<update>.
+
+=back
+
+=back
 
 =back
 
 =head1 SEE ALSO
 
-L<XDF::GenericObject> 
+
+
+=over 4
+
+L<XDF::GenericObject>
 
 =back
 

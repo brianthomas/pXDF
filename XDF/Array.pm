@@ -904,7 +904,7 @@ XDF::Array inherits class and attribute methods of L<XDF::GenericObject>, L<XDF:
 
 =head2 CLASS Methods
 
-A change in the value of these class attributes will change the value for ALL instances of XDF::Array.
+The following methods are defined for the class XDF::Array.
 
 =over 4
 
@@ -916,11 +916,20 @@ This method returns the class node name of XDF::Array; This method takes no argu
 
 This method returns a list reference containing the namesof the class attributes of XDF::Array; This method takes no arguments may not be changed.  
 
+=item getXMLAttributes (EMPTY)
+
+This method returns the XMLAttributes of this class.  
+
+=item addUnit (EMPTY)
+
+Insert an XDF::Unit object into the L<XDF::Units> object (e.g. $obj->units)held in this object. This method takes either a reference to an attribute hash ORobject reference to an existing XDF::Unit asits argument. Attributes in the attribute hash reference shouldcorrespond to attributes of the L<XDF::Unit> object. The attribute/value pairs in the attribute hash reference areused to initialize the new XDF::Unit object. RETURNS : an XDF::Unit object if successfull, undef if not.  
+
 =back
 
-=head2 INSTANCE Methods
+=head2 INSTANCE (Object) Methods
 
-The following instance methods are defined for XDF::Array.
+The following instance (object) methods are defined for XDF::Array.
+
 =over 4
 
 =item getName (EMPTY)
@@ -1079,10 +1088,6 @@ Set the XMLDataIOStyle object for this array.
 
 Get the XMLDataIOStyle object for this array. Returns a SCALAR (OBJECT REF) holding an instance derived from the abstract class L<XDF::DataIOStyle>.  
 
-=item getXMLAttributes (EMPTY)
-
-This method returns the XMLAttributes of this class.  
-
 =item getDimension (EMPTY)
 
 Get/set the dimension of the L<XDF::DataCube> held within this Array.  
@@ -1110,10 +1115,6 @@ Insert an XDF::Axis object into this object. This method takes a reference to an
 =item removeAxis ($indexOrObjectRef)
 
 Remove an XDF::Axis object from the list of XDF::Axesheld within this object. This method takes either the list index number or an object reference as its argument. RETURNS : 1 on success, undef on failure.  
-
-=item addUnit (EMPTY)
-
-Insert an XDF::Unit object into the L<XDF::Units> object (e.g. $obj->units)held in this object. This method takes either a reference to an attribute hash ORobject reference to an existing XDF::Unit asits argument. Attributes in the attribute hash reference shouldcorrespond to attributes of the L<XDF::Unit> object. The attribute/value pairs in the attribute hash reference areused to initialize the new XDF::Unit object. RETURNS : an XDF::Unit object if successfull, undef if not.  
 
 =item removeUnit ($indexOrObjectRef)
 
@@ -1161,32 +1162,35 @@ Removes the L<XDF::FieldAxis> object in this Array.
 
 =back
 
-=over 4
+
 
 =head2 INHERITED Class Methods
 
-A change in the value of these attributes will change the functioning of ALL instances of these objects that inherit from the indicated super class.
+=over 4
+
 
 
 =over 4
 
-The following class attribute methods are inherited from L<XDF::BaseObject>:
+The following class methods are inherited from L<XDF::BaseObject>:
 B<Pretty_XDF_Output>, B<Pretty_XDF_Output_Indentation>, B<DefaultDataArraySize>. 
 
 =back
 
 =back
 
-=over 4
+
 
 =head2 INHERITED INSTANCE Methods
 
+=over 4
+
 
 
 =over 4
 
-XDF::Array inherits the following instance methods of L<XDF::GenericObject>:
-B<new>, B<clone>, B<update>. 
+XDF::Array inherits the following instance (object) methods of L<XDF::GenericObject>:
+B<new>, B<clone>, B<update>.
 
 =back
 
@@ -1194,14 +1198,22 @@ B<new>, B<clone>, B<update>.
 
 =over 4
 
-XDF::Array inherits the following instance methods of L<XDF::BaseObject>:
-B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLAttributes>, B<setXMLNotationHash>, B<toXMLFileHandle>, B<toXMLFile>. 
+XDF::Array inherits the following instance (object) methods of L<XDF::BaseObject>:
+B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLAttributes>, B<setXMLNotationHash>, B<toXMLFileHandle>, B<toXMLFile>.
+
+=back
+
+=back
 
 =back
 
 =head1 SEE ALSO
 
-L<XDF::BaseObject>, L<XDF::Axis>, L<XDF::DataCube>, L<XDF::DataFormat>, L<XDF::FieldAxis>, L<XDF::Locator>, L<XDF::Notes>, L<XDF::Parameter>, L<XDF::ParameterGroup>, L<XDF::TaggedXMLDataIOStyle>, L<XDF::Units> 
+
+
+=over 4
+
+L<XDF::BaseObject>, L<XDF::Axis>, L<XDF::DataCube>, L<XDF::DataFormat>, L<XDF::FieldAxis>, L<XDF::Locator>, L<XDF::Notes>, L<XDF::Parameter>, L<XDF::ParameterGroup>, L<XDF::TaggedXMLDataIOStyle>, L<XDF::Units>
 
 =back
 

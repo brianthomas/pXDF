@@ -279,6 +279,9 @@ sub _remove_from_list {
 # Modification History
 #
 # $Log$
+# Revision 1.6  2001/03/16 19:54:57  thomas
+# Documentation updated and improved, re-ran makeDoc on file.
+#
 # Revision 1.5  2001/03/14 21:32:34  thomas
 # Updated perldoc section using new version of
 # makeDoc.pl.
@@ -329,7 +332,7 @@ XDF::GenericObject - Perl Class for GenericObject
 
 =head2 CLASS Methods
 
-A change in the value of these class attributes will change the value for ALL instances of XDF::GenericObject.
+The following methods are defined for the class XDF::GenericObject.
 
 =over 4
 
@@ -337,16 +340,17 @@ A change in the value of these class attributes will change the value for ALL in
 
 This method returns a list reference containing the namesof the class attributes for this class. This method takes no arguments may not be changed.  
 
-=back
-
-=head2 INSTANCE Methods
-
-The following instance methods are defined for XDF::GenericObject.
-=over 4
-
 =item new ($attribHashRef)
 
 Create a new object. Returns the new object if successfull. It takes an optional argument of an attribute HASH Referenceto initialize the object.   
+
+=back
+
+=head2 INSTANCE (Object) Methods
+
+The following instance (object) methods are defined for XDF::GenericObject.
+
+=over 4
 
 =item clone ($_parentArray)
 
@@ -358,20 +362,31 @@ Update the attributes of this object from the passed attribute HASH Reference. T
 
 =back
 
-=over 4
+
 
 =head2 INHERITED Class Methods
 
-A change in the value of these attributes will change the functioning of ALL instances of these objects that inherit from the indicated super class.
+=over 4
+
 =back
 
-=over 4
+
 
 =head2 INHERITED INSTANCE Methods
 
+=over 4
+
+=back
+
+=back
+
 =head1 SEE ALSO
 
- 
+
+
+=over 4
+
+
 
 =back
 

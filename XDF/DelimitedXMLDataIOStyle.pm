@@ -255,6 +255,9 @@ sub _sprintfNotation {
 # Modification History
 #
 # $Log$
+# Revision 1.8  2001/03/16 19:54:56  thomas
+# Documentation updated and improved, re-ran makeDoc on file.
+#
 # Revision 1.7  2001/03/14 21:32:34  thomas
 # Updated perldoc section using new version of
 # makeDoc.pl.
@@ -308,7 +311,7 @@ XDF::DelimitedXMLDataIOStyle inherits class and attribute methods of L<XDF::Gene
 
 =head2 CLASS Methods
 
-A change in the value of these class attributes will change the value for ALL instances of XDF::DelimitedXMLDataIOStyle.
+The following methods are defined for the class XDF::DelimitedXMLDataIOStyle.
 
 =over 4
 
@@ -320,11 +323,16 @@ A change in the value of these class attributes will change the value for ALL in
 
  
 
+=item getXMLAttributes (EMPTY)
+
+This method returns the XMLAttributes of this class.  
+
 =back
 
-=head2 INSTANCE Methods
+=head2 INSTANCE (Object) Methods
 
-The following instance methods are defined for XDF::DelimitedXMLDataIOStyle.
+The following instance (object) methods are defined for XDF::DelimitedXMLDataIOStyle.
+
 =over 4
 
 =item getDelimiter (EMPTY)
@@ -359,42 +367,41 @@ This method sets the ordering of the fastest to slowest axis forwriting out deli
 
 This method sets the ordering of the fastest to slowest axis forwriting out delimited data. The fastest axis is the last inthe array.  
 
-=item getXMLAttributes (EMPTY)
-
-This method returns the XMLAttributes of this class.  
-
 =item toXMLFileHandle ($indent, $junk, $fileHandle)
 
  
 
 =back
 
-=over 4
+
 
 =head2 INHERITED Class Methods
 
-A change in the value of these attributes will change the functioning of ALL instances of these objects that inherit from the indicated super class.
+=over 4
+
 
 
 =over 4
 
-The following class attribute methods are inherited from L<XDF::BaseObject>:
+The following class methods are inherited from L<XDF::BaseObject>:
 B<Pretty_XDF_Output>, B<Pretty_XDF_Output_Indentation>, B<DefaultDataArraySize>. 
 
 =back
 
 =back
 
-=over 4
+
 
 =head2 INHERITED INSTANCE Methods
 
+=over 4
+
 
 
 =over 4
 
-XDF::DelimitedXMLDataIOStyle inherits the following instance methods of L<XDF::GenericObject>:
-B<new>, B<clone>, B<update>. 
+XDF::DelimitedXMLDataIOStyle inherits the following instance (object) methods of L<XDF::GenericObject>:
+B<new>, B<clone>, B<update>.
 
 =back
 
@@ -402,8 +409,8 @@ B<new>, B<clone>, B<update>.
 
 =over 4
 
-XDF::DelimitedXMLDataIOStyle inherits the following instance methods of L<XDF::BaseObject>:
-B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLAttributes>, B<setXMLNotationHash>, B<toXMLFile>. 
+XDF::DelimitedXMLDataIOStyle inherits the following instance (object) methods of L<XDF::BaseObject>:
+B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLAttributes>, B<setXMLNotationHash>, B<toXMLFile>.
 
 =back
 
@@ -411,14 +418,22 @@ B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLAttributes>, B<setX
 
 =over 4
 
-XDF::DelimitedXMLDataIOStyle inherits the following instance methods of L<XDF::XMLDataIOStyle>:
-B<untaggedInstructionNodeName>, B<getReadId{>, B<setReadId>, B<getReadIdRef>, B<setReadIdRef>, B<getEncoding{>, B<setEncoding>, B<getEndian{>, B<setEndian>. 
+XDF::DelimitedXMLDataIOStyle inherits the following instance (object) methods of L<XDF::XMLDataIOStyle>:
+B<untaggedInstructionNodeName>, B<getReadId{>, B<setReadId>, B<getReadIdRef>, B<setReadIdRef>, B<getEncoding{>, B<setEncoding>, B<getEndian{>, B<setEndian>.
+
+=back
+
+=back
 
 =back
 
 =head1 SEE ALSO
 
-L<XDF::XMLDataIOStyle> 
+
+
+=over 4
+
+L<XDF::XMLDataIOStyle>
 
 =back
 

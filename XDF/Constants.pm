@@ -173,6 +173,9 @@ sub XDF_NODE_NAMES { (
 # Modification History
 #
 # $Log$
+# Revision 1.5  2001/03/16 19:54:56  thomas
+# Documentation updated and improved, re-ran makeDoc on file.
+#
 # Revision 1.4  2001/03/15 22:22:29  thomas
 # Transfered XDF_NODE_NAMES and some VALUELIST defines from the
 # Reader class to here.
@@ -218,9 +221,10 @@ XDF::Constants - Perl Class for Constants
 
 =over 4
 
-=head2 INSTANCE Methods
+=head2 CLASS Methods
 
-The following instance methods are defined for XDF::Constants.
+The following methods are defined for the class XDF::Constants.
+
 =over 4
 
 =item BIG_ENDIAN (EMPTY)
@@ -327,22 +331,45 @@ The following instance methods are defined for XDF::Constants.
 
  
 
+=item DEFAULT_VALUELIST_STEP (EMPTY)
+
+ 
+
+=item DEFAULT_VALUELIST_REPEATABLE (EMPTY)
+
+ 
+
+=item XDF_NODE_NAMES (EMPTY)
+
+ 
+
 =back
 
-=over 4
+
 
 =head2 INHERITED Class Methods
 
-A change in the value of these attributes will change the functioning of ALL instances of these objects that inherit from the indicated super class.
+=over 4
+
 =back
 
-=over 4
+
 
 =head2 INHERITED INSTANCE Methods
 
+=over 4
+
+=back
+
+=back
+
 =head1 SEE ALSO
 
- 
+
+
+=over 4
+
+
 
 =back
 

@@ -236,6 +236,9 @@ sub reverse64BitStringByteOrder {
 # Modification History
 #
 # $Log$
+# Revision 1.4  2001/03/16 19:54:57  thomas
+# Documentation updated and improved, re-ran makeDoc on file.
+#
 # Revision 1.3  2001/03/14 21:32:35  thomas
 # Updated perldoc section using new version of
 # makeDoc.pl.
@@ -279,9 +282,10 @@ XDF::Utility - Perl Class for Utility
 
 =over 4
 
-=head2 INSTANCE Methods
+=head2 CLASS Methods
 
-The following instance methods are defined for XDF::Utility.
+The following methods are defined for the class XDF::Utility.
+
 =over 4
 
 =item isValidEndian ($value)
@@ -350,20 +354,31 @@ Reverses the *byte* ordering of the passed 64 bit string. Returns revsersed bits
 
 =back
 
-=over 4
+
 
 =head2 INHERITED Class Methods
 
-A change in the value of these attributes will change the functioning of ALL instances of these objects that inherit from the indicated super class.
+=over 4
+
 =back
 
-=over 4
+
 
 =head2 INHERITED INSTANCE Methods
 
+=over 4
+
+=back
+
+=back
+
 =head1 SEE ALSO
 
-L<XDF::Constants> 
+
+
+=over 4
+
+L<XDF::Constants>
 
 =back
 

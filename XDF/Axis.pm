@@ -545,6 +545,9 @@ sub _init {
 # Modification History
 #
 # $Log$
+# Revision 1.9  2001/03/16 19:54:56  thomas
+# Documentation updated and improved, re-ran makeDoc on file.
+#
 # Revision 1.8  2001/03/14 21:32:33  thomas
 # Updated perldoc section using new version of
 # makeDoc.pl.
@@ -624,7 +627,7 @@ XDF::Axis inherits class and attribute methods of L<XDF::GenericObject>, L<XDF::
 
 =head2 CLASS Methods
 
-A change in the value of these class attributes will change the value for ALL instances of XDF::Axis.
+The following methods are defined for the class XDF::Axis.
 
 =over 4
 
@@ -636,11 +639,20 @@ This method returns the class node name for XDF::Axis; This method takes no argu
 
 This method returns a list reference containing the namesof the class attributes for XDF::Axis; This method takes no arguments may not be changed.  
 
+=item getXMLAttributes (EMPTY)
+
+This method returns the XMLAttributes of this class.  
+
+=item addUnit (EMPTY)
+
+Add an XDF::Unit object to the XDF::Units object contained in this axis.  
+
 =back
 
-=head2 INSTANCE Methods
+=head2 INSTANCE (Object) Methods
 
-The following instance methods are defined for XDF::Axis.
+The following instance (object) methods are defined for XDF::Axis.
+
 =over 4
 
 =item getName (EMPTY)
@@ -707,10 +719,6 @@ Set the align attribute.
 
  
 
-=item getXMLAttributes (EMPTY)
-
-This method returns the XMLAttributes of this class.  
-
 =item getLength (EMPTY)
 
 Get the length of this axis (eg number of axis value objects)  
@@ -739,10 +747,6 @@ Returns the axis XDF::Value object at the specified index.
 
 This is a convenience method which returns all of the values (as strings) on this axis.  
 
-=item addUnit (EMPTY)
-
-Add an XDF::Unit object to the XDF::Units object contained in this axis.  
-
 =item removeUnit ($indexOrObjectRef)
 
 Remove an XDF::Unit object from the XDF::Units object contained in this axis.  
@@ -761,32 +765,35 @@ Return the axis index for the given (scalar) value. Does not currently work for 
 
 =back
 
-=over 4
+
 
 =head2 INHERITED Class Methods
 
-A change in the value of these attributes will change the functioning of ALL instances of these objects that inherit from the indicated super class.
+=over 4
+
 
 
 =over 4
 
-The following class attribute methods are inherited from L<XDF::BaseObject>:
+The following class methods are inherited from L<XDF::BaseObject>:
 B<Pretty_XDF_Output>, B<Pretty_XDF_Output_Indentation>, B<DefaultDataArraySize>. 
 
 =back
 
 =back
 
-=over 4
+
 
 =head2 INHERITED INSTANCE Methods
 
+=over 4
+
 
 
 =over 4
 
-XDF::Axis inherits the following instance methods of L<XDF::GenericObject>:
-B<new>, B<clone>, B<update>. 
+XDF::Axis inherits the following instance (object) methods of L<XDF::GenericObject>:
+B<new>, B<clone>, B<update>.
 
 =back
 
@@ -794,14 +801,22 @@ B<new>, B<clone>, B<update>.
 
 =over 4
 
-XDF::Axis inherits the following instance methods of L<XDF::BaseObject>:
-B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLAttributes>, B<setXMLNotationHash>, B<toXMLFileHandle>, B<toXMLFile>. 
+XDF::Axis inherits the following instance (object) methods of L<XDF::BaseObject>:
+B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLAttributes>, B<setXMLNotationHash>, B<toXMLFileHandle>, B<toXMLFile>.
+
+=back
+
+=back
 
 =back
 
 =head1 SEE ALSO
 
-L<XDF::BaseObject>, L<XDF::UnitDirection>, L<XDF::ValueGroup>, L<XDF::Units>, L<XDF::Utility>, L<XDF::Value> 
+
+
+=over 4
+
+L<XDF::BaseObject>, L<XDF::UnitDirection>, L<XDF::ValueGroup>, L<XDF::Units>, L<XDF::Utility>, L<XDF::Value>
 
 =back
 

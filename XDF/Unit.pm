@@ -173,6 +173,9 @@ sub AUTOLOAD {
 # Modification History
 #
 # $Log$
+# Revision 1.7  2001/03/16 19:54:57  thomas
+# Documentation updated and improved, re-ran makeDoc on file.
+#
 # Revision 1.6  2001/03/14 21:32:35  thomas
 # Updated perldoc section using new version of
 # makeDoc.pl.
@@ -226,7 +229,7 @@ XDF::Unit inherits class and attribute methods of L<XDF::GenericObject>, L<XDF::
 
 =head2 CLASS Methods
 
-A change in the value of these class attributes will change the value for ALL instances of XDF::Unit.
+The following methods are defined for the class XDF::Unit.
 
 =over 4
 
@@ -238,11 +241,16 @@ This method returns the class node name of XDF::Unit. This method takes no argum
 
 This method returns a list reference containing the namesof the class attributes of XDF::Unit. This method takes no arguments may not be changed.  
 
+=item getXMLAttributes (EMPTY)
+
+This method returns the XMLAttributes of this class.  
+
 =back
 
-=head2 INSTANCE Methods
+=head2 INSTANCE (Object) Methods
 
-The following instance methods are defined for XDF::Unit.
+The following instance (object) methods are defined for XDF::Unit.
+
 =over 4
 
 =item getPower (EMPTY)
@@ -261,42 +269,41 @@ Set the power attribute.
 
 Set the value attribute.  
 
-=item getXMLAttributes (EMPTY)
-
-This method returns the XMLAttributes of this class.  
-
 =item setXMLAttributes ($info)
 
 XDF::Unit has a special setXMLAttributes method. These objects are so simple they seem to merit special handling. This new setXMLAttributes method takes eitherand attribute Hash reference or a STRING. If the input value is a HASH reference, we construct an object from it, else, we just set its value attribute to the contents of the passed STRING.  
 
 =back
 
-=over 4
+
 
 =head2 INHERITED Class Methods
 
-A change in the value of these attributes will change the functioning of ALL instances of these objects that inherit from the indicated super class.
+=over 4
+
 
 
 =over 4
 
-The following class attribute methods are inherited from L<XDF::BaseObject>:
+The following class methods are inherited from L<XDF::BaseObject>:
 B<Pretty_XDF_Output>, B<Pretty_XDF_Output_Indentation>, B<DefaultDataArraySize>. 
 
 =back
 
 =back
 
-=over 4
+
 
 =head2 INHERITED INSTANCE Methods
 
+=over 4
+
 
 
 =over 4
 
-XDF::Unit inherits the following instance methods of L<XDF::GenericObject>:
-B<new>, B<clone>, B<update>. 
+XDF::Unit inherits the following instance (object) methods of L<XDF::GenericObject>:
+B<new>, B<clone>, B<update>.
 
 =back
 
@@ -304,14 +311,22 @@ B<new>, B<clone>, B<update>.
 
 =over 4
 
-XDF::Unit inherits the following instance methods of L<XDF::BaseObject>:
-B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLNotationHash>, B<toXMLFileHandle>, B<toXMLFile>. 
+XDF::Unit inherits the following instance (object) methods of L<XDF::BaseObject>:
+B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLNotationHash>, B<toXMLFileHandle>, B<toXMLFile>.
+
+=back
+
+=back
 
 =back
 
 =head1 SEE ALSO
 
-L<XDF::BaseObject> 
+
+
+=over 4
+
+L<XDF::BaseObject>
 
 =back
 

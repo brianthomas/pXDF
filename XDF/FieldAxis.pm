@@ -438,6 +438,9 @@ sub _init {
 # Modification History
 #
 # $Log$
+# Revision 1.8  2001/03/16 19:54:56  thomas
+# Documentation updated and improved, re-ran makeDoc on file.
+#
 # Revision 1.7  2001/03/14 21:32:34  thomas
 # Updated perldoc section using new version of
 # makeDoc.pl.
@@ -504,7 +507,7 @@ XDF::FieldAxis inherits class and attribute methods of L<XDF::GenericObject>, L<
 
 =head2 CLASS Methods
 
-A change in the value of these class attributes will change the value for ALL instances of XDF::FieldAxis.
+The following methods are defined for the class XDF::FieldAxis.
 
 =over 4
 
@@ -516,11 +519,16 @@ This method returns the class node name for XDF::FieldAxis; This method takes no
 
 This method returns a list reference containing the namesof the class attributes for XDF::FieldAxis; This method takes no arguments may not be changed.  
 
+=item getXMLAttributes (EMPTY)
+
+This method returns the XMLAttributes of this class.  
+
 =back
 
-=head2 INSTANCE Methods
+=head2 INSTANCE (Object) Methods
 
-The following instance methods are defined for XDF::FieldAxis.
+The following instance (object) methods are defined for XDF::FieldAxis.
+
 =over 4
 
 =item getName (EMPTY)
@@ -575,10 +583,6 @@ Set the align attribute.
 
  
 
-=item getXMLAttributes (EMPTY)
-
-This method returns the XMLAttributes of this class.  
-
 =item getLength (EMPTY)
 
 return the length of this field axis (eg number of field objects)  
@@ -613,32 +617,35 @@ Remove a fieldGroup object from this object.
 
 =back
 
-=over 4
+
 
 =head2 INHERITED Class Methods
 
-A change in the value of these attributes will change the functioning of ALL instances of these objects that inherit from the indicated super class.
+=over 4
+
 
 
 =over 4
 
-The following class attribute methods are inherited from L<XDF::BaseObject>:
+The following class methods are inherited from L<XDF::BaseObject>:
 B<Pretty_XDF_Output>, B<Pretty_XDF_Output_Indentation>, B<DefaultDataArraySize>. 
 
 =back
 
 =back
 
-=over 4
+
 
 =head2 INHERITED INSTANCE Methods
 
+=over 4
+
 
 
 =over 4
 
-XDF::FieldAxis inherits the following instance methods of L<XDF::GenericObject>:
-B<new>, B<clone>, B<update>. 
+XDF::FieldAxis inherits the following instance (object) methods of L<XDF::GenericObject>:
+B<new>, B<clone>, B<update>.
 
 =back
 
@@ -646,14 +653,22 @@ B<new>, B<clone>, B<update>.
 
 =over 4
 
-XDF::FieldAxis inherits the following instance methods of L<XDF::BaseObject>:
-B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLAttributes>, B<setXMLNotationHash>, B<toXMLFileHandle>, B<toXMLFile>. 
+XDF::FieldAxis inherits the following instance (object) methods of L<XDF::BaseObject>:
+B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLAttributes>, B<setXMLNotationHash>, B<toXMLFileHandle>, B<toXMLFile>.
+
+=back
+
+=back
 
 =back
 
 =head1 SEE ALSO
 
-L< XDF::Array>, L< XDF::Axis>, L<XDF::BaseObject>, L<XDF::Field>, L<XDF::FieldGroup> 
+
+
+=over 4
+
+L< XDF::Array>, L< XDF::Axis>, L<XDF::BaseObject>, L<XDF::Field>, L<XDF::FieldGroup>
 
 =back
 

@@ -813,6 +813,9 @@ sub _build_locator_string {
 # Modification History
 #
 # $Log$
+# Revision 1.16  2001/03/16 19:54:56  thomas
+# Documentation updated and improved, re-ran makeDoc on file.
+#
 # Revision 1.15  2001/03/14 21:32:34  thomas
 # Updated perldoc section using new version of
 # makeDoc.pl.
@@ -900,7 +903,7 @@ XDF::DataCube inherits class and attribute methods of L<XDF::GenericObject>, L<X
 
 =head2 CLASS Methods
 
-A change in the value of these class attributes will change the value for ALL instances of XDF::DataCube.
+The following methods are defined for the class XDF::DataCube.
 
 =over 4
 
@@ -912,11 +915,24 @@ This method takes no arguments may not be changed. This method returns the class
 
 This method returns a list reference containing the namesof the class attributes of XDF::DataCube; This method takes no arguments may not be changed.  
 
+=item getXMLAttributes (EMPTY)
+
+This method returns the XMLAttributes of this class.  
+
+=item toXMLFileHandle (EMPTY)
+
+We overwrite the toXMLFileHandle method supplied by L<XDF::BaseObject> to have some special handling for the XDF::DataCube. The interface for thismethod remains the same however.  
+
+=item removeData (EMPTY)
+
+Data held within the requested datacell is removed. The value of the datacell is set to undef. B<NOT CURRENTLY IMPLEMENTED>.  
+
 =back
 
-=head2 INSTANCE Methods
+=head2 INSTANCE (Object) Methods
 
-The following instance methods are defined for XDF::DataCube.
+The following instance (object) methods are defined for XDF::DataCube.
+
 =over 4
 
 =item getChecksum (EMPTY)
@@ -955,14 +971,6 @@ Set the encoding attribute.
 
  
 
-=item getXMLAttributes (EMPTY)
-
-This method returns the XMLAttributes of this class.  
-
-=item toXMLFileHandle (EMPTY)
-
-We overwrite the toXMLFileHandle method supplied by L<XDF::BaseObject> to have some special handling for the XDF::DataCube. The interface for thismethod remains the same however.  
-
 =item writeDataToFileHandle ($indent, $fileHandle)
 
 Writes out just the data to the proscribed filehandle.  
@@ -970,10 +978,6 @@ Writes out just the data to the proscribed filehandle.
 =item addData ($no_append, $data, $locator)
 
 This routine will append data to a cell unless directed to do otherwise.  
-
-=item removeData (EMPTY)
-
-Data held within the requested datacell is removed. The value of the datacell is set to undef. B<NOT CURRENTLY IMPLEMENTED>.  
 
 =item setData ($datum, $locator)
 
@@ -985,32 +989,35 @@ Retrieve the SCALAR value of the requested datacell.
 
 =back
 
-=over 4
+
 
 =head2 INHERITED Class Methods
 
-A change in the value of these attributes will change the functioning of ALL instances of these objects that inherit from the indicated super class.
+=over 4
+
 
 
 =over 4
 
-The following class attribute methods are inherited from L<XDF::BaseObject>:
+The following class methods are inherited from L<XDF::BaseObject>:
 B<Pretty_XDF_Output>, B<Pretty_XDF_Output_Indentation>, B<DefaultDataArraySize>. 
 
 =back
 
 =back
 
-=over 4
+
 
 =head2 INHERITED INSTANCE Methods
 
+=over 4
+
 
 
 =over 4
 
-XDF::DataCube inherits the following instance methods of L<XDF::GenericObject>:
-B<new>, B<clone>, B<update>. 
+XDF::DataCube inherits the following instance (object) methods of L<XDF::GenericObject>:
+B<new>, B<clone>, B<update>.
 
 =back
 
@@ -1018,14 +1025,22 @@ B<new>, B<clone>, B<update>.
 
 =over 4
 
-XDF::DataCube inherits the following instance methods of L<XDF::BaseObject>:
-B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLAttributes>, B<setXMLNotationHash>, B<toXMLFile>. 
+XDF::DataCube inherits the following instance (object) methods of L<XDF::BaseObject>:
+B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLAttributes>, B<setXMLNotationHash>, B<toXMLFile>.
+
+=back
+
+=back
 
 =back
 
 =head1 SEE ALSO
 
-L< XDF::Array>, L<XDF::Utility>, L<XDF::BaseObject> 
+
+
+=over 4
+
+L< XDF::Array>, L<XDF::Utility>, L<XDF::BaseObject>
 
 =back
 

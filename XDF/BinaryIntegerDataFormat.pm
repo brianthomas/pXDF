@@ -285,6 +285,9 @@ sub _sprintfNotation {
 # Modification History
 #
 # $Log$
+# Revision 1.14  2001/03/16 19:54:56  thomas
+# Documentation updated and improved, re-ran makeDoc on file.
+#
 # Revision 1.13  2001/03/14 21:32:34  thomas
 # Updated perldoc section using new version of
 # makeDoc.pl.
@@ -367,7 +370,7 @@ XDF::BinaryIntegerDataFormat inherits class and attribute methods of L<XDF::Gene
 
 =head2 CLASS Methods
 
-A change in the value of these class attributes will change the value for ALL instances of XDF::BinaryIntegerDataFormat.
+The following methods are defined for the class XDF::BinaryIntegerDataFormat.
 
 =over 4
 
@@ -379,11 +382,16 @@ This method returns the class XML node name. This method takes no arguments may 
 
 This method returns a list containing the namesof the attributes of this class. This method takes no arguments may not be changed.  
 
+=item getXMLAttributes (EMPTY)
+
+This method returns the XMLAttributes of this class.  
+
 =back
 
-=head2 INSTANCE Methods
+=head2 INSTANCE (Object) Methods
 
-The following instance methods are defined for XDF::BinaryIntegerDataFormat.
+The following instance (object) methods are defined for XDF::BinaryIntegerDataFormat.
+
 =over 4
 
 =item getBits (EMPTY)
@@ -414,38 +422,37 @@ Convert the passed number into binary integer bits as specified by the instance 
 
 A convenience method. Return the number of bytes this XDF::BinaryIntegerDataFormat holds.  
 
-=item getXMLAttributes (EMPTY)
-
-This method returns the XMLAttributes of this class.  
-
 =back
 
-=over 4
+
 
 =head2 INHERITED Class Methods
 
-A change in the value of these attributes will change the functioning of ALL instances of these objects that inherit from the indicated super class.
+=over 4
+
 
 
 =over 4
 
-The following class attribute methods are inherited from L<XDF::BaseObject>:
+The following class methods are inherited from L<XDF::BaseObject>:
 B<Pretty_XDF_Output>, B<Pretty_XDF_Output_Indentation>, B<DefaultDataArraySize>. 
 
 =back
 
 =back
 
-=over 4
+
 
 =head2 INHERITED INSTANCE Methods
 
+=over 4
+
 
 
 =over 4
 
-XDF::BinaryIntegerDataFormat inherits the following instance methods of L<XDF::GenericObject>:
-B<new>, B<clone>, B<update>. 
+XDF::BinaryIntegerDataFormat inherits the following instance (object) methods of L<XDF::GenericObject>:
+B<new>, B<clone>, B<update>.
 
 =back
 
@@ -453,8 +460,8 @@ B<new>, B<clone>, B<update>.
 
 =over 4
 
-XDF::BinaryIntegerDataFormat inherits the following instance methods of L<XDF::DataFormat>:
-B<toXMLFileHandle>. 
+XDF::BinaryIntegerDataFormat inherits the following instance (object) methods of L<XDF::DataFormat>:
+B<toXMLFileHandle>.
 
 =back
 
@@ -462,14 +469,22 @@ B<toXMLFileHandle>.
 
 =over 4
 
-XDF::BinaryIntegerDataFormat inherits the following instance methods of L<XDF::BaseObject>:
-B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLAttributes>, B<setXMLNotationHash>, B<toXMLFile>. 
+XDF::BinaryIntegerDataFormat inherits the following instance (object) methods of L<XDF::BaseObject>:
+B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLAttributes>, B<setXMLNotationHash>, B<toXMLFile>.
+
+=back
+
+=back
 
 =back
 
 =head1 SEE ALSO
 
-L<XDF::Constants>, L<XDF::Utility>, L<XDF::DataFormat> 
+
+
+=over 4
+
+L<XDF::Constants>, L<XDF::Utility>, L<XDF::DataFormat>
 
 =back
 

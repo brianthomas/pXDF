@@ -589,6 +589,9 @@ sub _find_All_child_Href_Objects {
 # Modification History
 #
 # $Log$
+# Revision 1.9  2001/03/16 19:54:56  thomas
+# Documentation updated and improved, re-ran makeDoc on file.
+#
 # Revision 1.8  2001/03/14 22:09:31  thomas
 # updated Version name of package.
 #
@@ -659,7 +662,7 @@ XDF::BaseObject inherits class and attribute methods of L<XDF::GenericObject>.
 
 =head2 CLASS Methods
 
-A change in the value of these class attributes will change the value for ALL instances of XDF::BaseObject.
+The following methods are defined for the class XDF::BaseObject.
 
 =over 4
 
@@ -667,16 +670,21 @@ A change in the value of these class attributes will change the value for ALL in
 
 This method returns a list reference containing the namesof the class attributes for this object;This method takes no arguments may not be changed.  
 
-=back
-
-=head2 INSTANCE Methods
-
-The following instance methods are defined for XDF::BaseObject.
-=over 4
-
 =item getXMLAttributes (EMPTY)
 
  
+
+=item toXMLFileHandle (EMPTY)
+
+Write this structure and all the objects it owns to the supplied filehandle in XML (XDF) format. The first argument is the name of the filehandle and is required. The second, optional, argument indicates whether/how to write out the XML declaration at the beginning of the file. This second argument may either be a string or hash table. As a string is means simply to write the XML declaration and DOCTYPE. As a hash table, the attributes of the XML declaration are arranged in attribute/value pairs, e.g. %XMLDeclAttribs = ( 'version' => "1.0",'standalone => 'no',); 
+
+=back
+
+=head2 INSTANCE (Object) Methods
+
+The following instance (object) methods are defined for XDF::BaseObject.
+
+=over 4
 
 =item addToGroup ($groupObj)
 
@@ -710,39 +718,46 @@ This sets value of the indentation to use if pretty XDF output format is turned 
 
  
 
-=item toXMLFileHandle (EMPTY)
-
-Write this structure and all the objects it owns to the supplied filehandle in XML (XDF) format. The first argument is the name of the filehandle and is required. The second, optional, argument indicates whether/how to write out the XML declaration at the beginning of the file. This second argument may either be a string or hash table. As a string is means simply to write the XML declaration and DOCTYPE. As a hash table, the attributes of the XML declaration are arranged in attribute/value pairs, e.g. %XMLDeclAttribs = ( 'version' => "1.0",'standalone => 'no',); 
-
 =item toXMLFile ($XMLDeclAttribs, $file)
 
 This is a convenience method which allows writing of this structure and all the objects it owns to the indicated file in XML (XDF) format. The first argument is the name of the file and is required. The supplied filename will be OVERWRITTEN, not appended to. The second, optional, argument has the same meaning as for toXMLFileHandle.  
 
 =back
 
-=over 4
+
 
 =head2 INHERITED Class Methods
 
-A change in the value of these attributes will change the functioning of ALL instances of these objects that inherit from the indicated super class.
+=over 4
+
 =back
 
-=over 4
+
 
 =head2 INHERITED INSTANCE Methods
 
+=over 4
+
 
 
 =over 4
 
-XDF::BaseObject inherits the following instance methods of L<XDF::GenericObject>:
-B<new>, B<clone>, B<update>. 
+XDF::BaseObject inherits the following instance (object) methods of L<XDF::GenericObject>:
+B<new>, B<clone>, B<update>.
+
+=back
+
+=back
 
 =back
 
 =head1 SEE ALSO
 
-L< XDF::Array>, L< XDF::Axis>, L< XDF::DataCube>, L< XDF::FieldAxis>, L<XDF::GenericObject> 
+
+
+=over 4
+
+L< XDF::Array>, L< XDF::Axis>, L< XDF::DataCube>, L< XDF::FieldAxis>, L<XDF::GenericObject>
 
 =back
 

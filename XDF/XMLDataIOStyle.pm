@@ -221,6 +221,9 @@ sub _init {
 # Modification History
 #
 # $Log$
+# Revision 1.9  2001/03/16 19:54:57  thomas
+# Documentation updated and improved, re-ran makeDoc on file.
+#
 # Revision 1.8  2001/03/14 21:32:35  thomas
 # Updated perldoc section using new version of
 # makeDoc.pl.
@@ -284,7 +287,7 @@ XDF::XMLDataIOStyle inherits class and attribute methods of L<XDF::GenericObject
 
 =head2 CLASS Methods
 
-A change in the value of these class attributes will change the value for ALL instances of XDF::XMLDataIOStyle.
+The following methods are defined for the class XDF::XMLDataIOStyle.
 
 =over 4
 
@@ -296,16 +299,21 @@ This method returns the class node name of this class. This method takes no argu
 
 This method returns a list reference containing the namesof the class attributes of this class. This method takes no arguments may not be changed.  
 
-=back
-
-=head2 INSTANCE Methods
-
-The following instance methods are defined for XDF::XMLDataIOStyle.
-=over 4
-
 =item untaggedInstructionNodeName (EMPTY)
 
  
+
+=item getXMLAttributes (EMPTY)
+
+This method returns the XMLAttributes of this class.  
+
+=back
+
+=head2 INSTANCE (Object) Methods
+
+The following instance (object) methods are defined for XDF::XMLDataIOStyle.
+
+=over 4
 
 =item getReadId{ (EMPTY)
 
@@ -339,38 +347,37 @@ Set the encoding attribute.
 
 Set the endian attribute.  
 
-=item getXMLAttributes (EMPTY)
-
-This method returns the XMLAttributes of this class.  
-
 =back
 
-=over 4
+
 
 =head2 INHERITED Class Methods
 
-A change in the value of these attributes will change the functioning of ALL instances of these objects that inherit from the indicated super class.
+=over 4
+
 
 
 =over 4
 
-The following class attribute methods are inherited from L<XDF::BaseObject>:
+The following class methods are inherited from L<XDF::BaseObject>:
 B<Pretty_XDF_Output>, B<Pretty_XDF_Output_Indentation>, B<DefaultDataArraySize>. 
 
 =back
 
 =back
 
-=over 4
+
 
 =head2 INHERITED INSTANCE Methods
 
+=over 4
+
 
 
 =over 4
 
-XDF::XMLDataIOStyle inherits the following instance methods of L<XDF::GenericObject>:
-B<new>, B<clone>, B<update>. 
+XDF::XMLDataIOStyle inherits the following instance (object) methods of L<XDF::GenericObject>:
+B<new>, B<clone>, B<update>.
 
 =back
 
@@ -378,14 +385,22 @@ B<new>, B<clone>, B<update>.
 
 =over 4
 
-XDF::XMLDataIOStyle inherits the following instance methods of L<XDF::BaseObject>:
-B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLAttributes>, B<setXMLNotationHash>, B<toXMLFileHandle>, B<toXMLFile>. 
+XDF::XMLDataIOStyle inherits the following instance (object) methods of L<XDF::BaseObject>:
+B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLAttributes>, B<setXMLNotationHash>, B<toXMLFileHandle>, B<toXMLFile>.
+
+=back
+
+=back
 
 =back
 
 =head1 SEE ALSO
 
-L< XDF::TaggedXMLDataIOStyle>, L< XDF::FormattedXMLDataIOStyle>, L< XDF::DelimitedXMLDataIOStyle>, L<XDF::BaseObject> 
+
+
+=over 4
+
+L< XDF::TaggedXMLDataIOStyle>, L< XDF::FormattedXMLDataIOStyle>, L< XDF::DelimitedXMLDataIOStyle>, L<XDF::BaseObject>
 
 =back
 
