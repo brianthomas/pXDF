@@ -65,6 +65,16 @@ sub isValidIntegerType {
    return 0;
 }
 
+sub isValidCharOutput { 
+   my ($obj) = @_;
+
+   my $ref = ref($obj);
+   if ($ref) {
+     return 1 if ($ref eq 'XDF::Chars' or $ref eq 'XDF::NewLine');
+   }
+   return 0;
+}
+
 # /** isValidIOEncoding
 # Determine if the passed quanity is an allowed value for the encoding
 # attribute of XMLDataIOStyle objects.
@@ -165,10 +175,17 @@ sub isValidIntegerBits {
 # */
 sub isValidBinaryIntegerSigned { 
    my ($value) = @_;
-   return 0 unless defined $value;
-   return 1 if $value eq 'yes' || $value eq 'no';
-   return 0;
+   return &_isYesOrNoString($value);
 }
+
+# /** isValidXMLStandalone
+# Determine if the passed quanity is an allowed value for the XMLDeclaration
+# standalone attribute. 
+# */
+sub isValidXMLStandalone {
+   my ($value) = @_;
+   return &_isYesOrNoString($value);
+}  
 
 # /** isValidValueSpecial
 # Determine if the passed quanity is an allowed value for the special attribute
@@ -245,6 +262,15 @@ sub reverse64BitStringByteOrder {
   $bitString =~ s/(.{8})(.{8})(.{8})(.{8})(.{8})(.{8})(.{8})(.{8})/$8$7$6$5$4$3$2$1/;
   return $bitString;
 }
+
+# Private
+
+sub _isYesOrNoString {
+   my ($string) = @_;
+   return 0 unless defined $string;
+   return 1 if $string eq 'yes' || $string eq 'no';
+   return 0;
+}  
 
 1;
 
