@@ -31,9 +31,11 @@ my $QUIET = 1;
   die "Usage: $0 <XDF FILE>\n" unless defined $ARGV[0];
 
   my $spec = XDF::Specification->getInstance;
-  $spec->setLogMessageLevel(0);
-  open (LOG, ">logfile");
-  $spec->setLogFileHandle(\*LOG);
+
+  $spec->setLogMessageLevel(0) if $DEBUG;
+  #open (LOG, ">logfile");
+  $spec->setLogFileHandle(\*STDERR);
+
   my $data_separator = "\t";
   my $file = $ARGV[0];
 
@@ -60,7 +62,7 @@ my $QUIET = 1;
 
   print STDOUT $XDF->toXMLString();
 
-close LOG;
+#close LOG;
   exit 0;
 
 
