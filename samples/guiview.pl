@@ -70,8 +70,8 @@ my @LABELS;
 my @LISTBOXES;
 my $CURRENT_LISTBOX;
 my $ARRAY;
-my $ROWAXIS;
-my $COLAXIS;
+my $CURRENT_HORZ_AXIS;
+my $CURRENT_VERT_AXIS;
 my $LOCATOR;
 my $PRETTY_XDF_OUTPUT = 1;
 my $ARRAY_OSTYLE = 'Tagged';
@@ -109,15 +109,13 @@ my $CURRENT_STRUCTURE;
 my $CURRENT_ITEM; # could be an array or structure that is selected from Hlist
 my $ARRAY_ATTRIB_EDIT_OPEN;
 my $STRUCT_ATTRIB_EDIT_OPEN;
-my @AXIS_ATTRIB_EDIT_OPEN;
+my %AXIS_ATTRIB_EDIT_OPEN;
 my @ARRAYEDITFRAMES;
 my @STRUCTEDITFRAMES;
-my @AXISEDITFRAMES;
-#my @SHARED_SUBFRAMES;
+my %AXISEDITFRAMES = ( 'vert' => [], 'horz' => []);
 my @OSTYLE_SUBFRAMES;
 my @DATAFORMAT_SUBFRAMES;
 my @ArrayAttribList = qw ( Name Description ArrayId AppendTo );
-my @AxisAttribList = @{XDF::Axis->getXMLAttributes()}; #qw ( Name Description ArrayId AppendTo );
 
 # GLOBAL RunTIME Vars
 my $DEBUG = 0;
@@ -154,12 +152,19 @@ my $ButtonBgColor = $White;
 
 my $StructAttributeTitle = 'Structure Attributes';
 my $ArrayAttributeTitle = 'Array Attributes';
+my $AxisWidgetBaseName = 'Axis_edit_boldlabel';
 
-my %Font = ( 'tiny'   => '-adobe-fixed-medium-r-normal--12-*-*-*-*-*-*-*', 
-             'small'  => '-adobe-fixed-medium-r-normal--14-*-*-*-*-*-*-*',
-             'normal' => '-adobe-fixed-medium-r-normal--18-*-*-*-*-*-*-*',
-             'large'  => '-adobe-fixed-medium-r-normal--24-*-*-*-*-*-*-*'
+my %Font = ( 'tiny'   => '-*-fixed-medium-r-normal--12-*-*-*-*-*-*-*', 
+             'small'  => '-*-fixed-medium-r-normal--14-*-*-*-*-*-*-*',
+             'normal' => '-*-fixed-medium-r-normal--18-*-*-*-*-*-*-*',
+             'large'  => '-*-fixed-medium-r-normal--24-*-*-*-*-*-*-*'
            );
+
+my %SmallFont = ( 'tiny'   => '-adobe-fixed-medium-r-normal--10-*-*-*-*-*-*-*',
+                  'small'   => '-adobe-fixed-medium-r-normal--12-*-*-*-*-*-*-*',
+                  'normal'  => '-adobe-fixed-medium-r-normal--14-*-*-*-*-*-*-*',
+                  'large' => '-adobe-fixed-medium-r-normal--16-*-*-*-*-*-*-*',
+                );
 
 my %BoldFont  = ( 'tiny'   => '-adobe-helvetica-bold-r-normal--12-*-*-*-*-*-*-*',
                   'small'  => '-adobe-helvetica-bold-r-normal--14-*-*-*-*-*-*-*',
@@ -400,10 +405,11 @@ sub delete_selected_structure {
 }
 
 sub make_widget_highlight_on_mouseover {
-   my ($widget) = @_;
+   my ($widget, $leaveColor) = @_;
 
+   $leaveColor = $BaseColor unless defined $leaveColor;
   $widget->bind('<Enter>' => sub { $widget->configure(-bg => $EventMouseOverColor); });
-  $widget->bind('<Leave>' => sub { $widget->configure(-bg => $BaseColor); });
+  $widget->bind('<Leave>' => sub { $widget->configure(-bg => $leaveColor); });
 
 }
 
@@ -453,11 +459,12 @@ sub update_array_unitlist_view {
 
    return unless defined $WIDGET{'Array_Unitlist_listbox'};
    &reset_array_unitlist_view();
-   return unless ($CURRENT_ITEM && $CURRENT_ITEM =~ m/Array/);
+
+#   return unless ($CURRENT_ITEM && $CURRENT_ITEM =~ m/Array/);
 
    my $listbox = $WIDGET{'Array_Unitlist_listbox'};
 
-   foreach my $unitObj (@{$CURRENT_ITEM->getUnits()->getUnitList()}) {
+   foreach my $unitObj (@{$ARRAY->getUnits()->getUnitList()}) {
        my $name = 'Unit:';
        $name .= $unitObj->getValue() if defined $unitObj->getValue();
        $name .= ':';
@@ -480,11 +487,11 @@ sub update_array_notelist_view {
 
    return unless defined $WIDGET{'Array_Notelist_listbox'};
    &reset_array_notelist_view();
-   return unless ($CURRENT_ITEM && $CURRENT_ITEM =~ m/Array/);
+#   return unless ($CURRENT_ITEM && $CURRENT_ITEM =~ m/Array/);
 
    my $listbox = $WIDGET{'Array_Notelist_listbox'};
 
-   foreach my $noteObj (@{$CURRENT_ITEM->getNoteList()}) {
+   foreach my $noteObj (@{$ARRAY->getNoteList()}) {
        my $name = 'Note:';
        $name .= $noteObj->getNoteId() if defined $noteObj->getNoteId();
        $name .= ':';
@@ -507,11 +514,11 @@ sub update_array_parameterlist_view {
 
    return unless defined $WIDGET{'Array_Parameterlist_listbox'};
    &reset_array_parameterlist_view();
-   return unless ($CURRENT_ITEM && $CURRENT_ITEM =~ m/Array/); 
+#   return unless ($CURRENT_ITEM && $CURRENT_ITEM =~ m/Array/); 
 
    my $listbox = $WIDGET{'Array_Parameterlist_listbox'};
 
-   foreach my $paramObj (@{$CURRENT_ITEM->getParamList()}) {
+   foreach my $paramObj (@{$ARRAY->getParamList()}) {
        my $name = 'Parameter:';
        $name .= $paramObj->getName() if defined $paramObj->getName();
        $listbox->insert('end', $name);
@@ -568,7 +575,7 @@ sub reset_dataformat_view {
 
 sub update_dataformat_view {
 
-   return unless defined $CURRENT_ITEM && $CURRENT_ITEM =~ m/Array/;
+#   return unless defined $CURRENT_ITEM && $CURRENT_ITEM =~ m/Array/;
    return unless defined $FRAME{'dataformat_edit'};
 
    &reset_dataformat_view();
@@ -587,15 +594,15 @@ sub update_dataformat_view {
                                                     -bg => $White,
                                                  )->pack(side => 'top', expand => 0, fill => 'both');
 
-   for (@{$CURRENT_ITEM->getDataFormat->getXMLAttributes()}) {
+   for (@{$ARRAY->getDataFormat->getXMLAttributes()}) {
        my $subFrame = $subFrame1->Frame->pack(side => 'top', fill => 'both', expand => 0);
        my $labelname = 'dataformat' . $_ . "_label";
        my $entryname = 'dataformat' . $_ . "_val_label";
        my $methodname = 'get' . ucfirst ($_);
        my $getMethod = 'get' . ucfirst $_;
        my $setMethod = 'set' . ucfirst $_;
-       my $getMethodRef = sub { $CURRENT_ITEM->getDataFormat->$getMethod; };
-       my $setMethodRef = sub { $CURRENT_ITEM->getDataFormat->$setMethod(@_); };
+       my $getMethodRef = sub { $ARRAY->getDataFormat->$getMethod; };
+       my $setMethodRef = sub { $ARRAY->getDataFormat->$setMethod(@_); };
        &make_label_click_widget( $_, $subFrame, $labelname, $entryname, $getMethodRef, $setMethodRef );
    }
 
@@ -649,7 +656,7 @@ sub reset_ostyle_view {
 
 sub update_ostyle_view {
 
-   return unless defined $CURRENT_ITEM && $CURRENT_ITEM =~ m/Array/; 
+#   return unless defined $CURRENT_ITEM && $CURRENT_ITEM =~ m/Array/; 
    return unless defined $FRAME{'ostyle_edit'};
 
    &reset_ostyle_view();
@@ -679,8 +686,8 @@ sub update_ostyle_view {
        my $entryname = 'dateIOstyle' . $_ . "_val_label";
        my $getMethod = 'get' . ucfirst $_;
        my $setMethod = 'set' . ucfirst $_;
-       my $getMethodRef = sub { $CURRENT_ITEM->getXMLDataIOStyle->$getMethod; };
-       my $setMethodRef = sub { $CURRENT_ITEM->getXMLDataIOStyle->$setMethod(@_); };
+       my $getMethodRef = sub { $ARRAY->getXMLDataIOStyle->$getMethod; };
+       my $setMethodRef = sub { $ARRAY->getXMLDataIOStyle->$setMethod(@_); };
 
        &make_label_click_widget( $_, $subFrame, $labelname, $entryname, $getMethodRef, $setMethodRef );
    }
@@ -703,15 +710,15 @@ sub update_ostyle_view {
                           -font => $Font{$DISPLAY_SIZE},
                         )->pack(side => 'top', expand => 0, fill => 'both');
 
-      for (@{$CURRENT_ITEM->getAxisList()}) 
+      for (@{$ARRAY->getAxisList()}) 
       {
          my $thisFrame = $subFrame->Frame->pack(side => 'top');
          my $axisId = $_->getAxisId();
          my $labelname = 'dataIOstyle' . $axisId . "tag_label";
          my $entryname = 'dataIOstyle' . $axisId . "tag_val_label";
          my $label = "Axis Tag ($axisId):";
-         my $getMethodRef = sub { $CURRENT_ITEM->getXMLDataIOStyle->getAxisTag($axisId); };
-         my $setMethodRef = sub { $CURRENT_ITEM->getXMLDataIOStyle->setAxisTag($axisId, @_); };
+         my $getMethodRef = sub { $ARRAY->getXMLDataIOStyle->getAxisTag($axisId); };
+         my $setMethodRef = sub { $ARRAY->getXMLDataIOStyle->setAxisTag($axisId, @_); };
 
          &make_label_click_widget( $label, $thisFrame, $labelname, $entryname, $getMethodRef, $setMethodRef);
       }
@@ -736,8 +743,8 @@ sub update_ostyle_view {
          my $entryname = 'Delimited_dataIOstyle' . $_. "_val_label";
          my $getMethod = 'get' . ucfirst $_;
          my $setMethod = 'set' . ucfirst $_;
-         my $getMethodRef = sub { $CURRENT_ITEM->getXMLDataIOStyle->$getMethod; };
-         my $setMethodRef = sub { $CURRENT_ITEM->getXMLDataIOStyle->$setMethod(@_); };
+         my $getMethodRef = sub { $ARRAY->getXMLDataIOStyle->$getMethod; };
+         my $setMethodRef = sub { $ARRAY->getXMLDataIOStyle->$setMethod(@_); };
 
          &make_label_click_widget( $_, $thisFrame, $labelname, $entryname, $getMethodRef, $setMethodRef);
       }
@@ -856,31 +863,33 @@ sub init_table_gui {
 
   # widgets
 
-  $WIDGET{'horzAxisInfo_boldlabel'} = $horzAxisInfoFrame->Label( text => '', 
+  my $hAxisLabel = 'horz' . $AxisWidgetBaseName;
+  $WIDGET{$hAxisLabel} = $horzAxisInfoFrame->Label( text => '', 
                                                 -font => $BoldFont{$DISPLAY_SIZE},
                                                 bg => $AxisBoxColor,
                                              )->pack( expand => 1, fill => 'x');
 
 
-   $WIDGET{'horzAxisInfo_boldlabel'}->bind('<Enter>' => sub { $WIDGET{'horzAxisInfo_boldlabel'}->configure( -bg => $EventMouseOverColor); } );
-   $WIDGET{'horzAxisInfo_boldlabel'}->bind('<Leave>' => 
-                                    sub { my $c = &get_horzAxisColor(); $WIDGET{'horzAxisInfo_boldlabel'}->configure(bg => $c); } );
-   $WIDGET{'horzAxisInfo_boldlabel'}->bind('<Double-1>' => sub { &edit_axis_attribs($horzAxisInfoFrame, 0); } );
+   $WIDGET{$hAxisLabel}->bind('<Enter>' => sub { $WIDGET{$hAxisLabel}->configure( -bg => $EventMouseOverColor); } );
+   $WIDGET{$hAxisLabel}->bind('<Leave>' => 
+                                    sub { my $c = &get_horzAxisColor(); $WIDGET{$hAxisLabel}->configure(bg => $c); } );
+   $WIDGET{$hAxisLabel}->bind('<Double-1>' => sub { &edit_axis_attribs($horzAxisInfoFrame, 0, 'horz'); } );
 
   my $listBoxFrame = $tableFrame->Pane( -sticky => 'nsew'
                                       )->pack( expand => 1, side => 'top', fill => 'both');
 
   $listBoxFrame->configure (relief => 'flat', bd => 2, bg => $Lite_grey); 
 
-  $WIDGET{'vertAxisInfo_boldlabel'} = $vertAxisInfoFrame->Label( text => '',
+  my $vAxisLabel = 'vert' . $AxisWidgetBaseName;
+  $WIDGET{$vAxisLabel} = $vertAxisInfoFrame->Label( text => '',
                                                 -width => 2,
                                                 -font => $BoldFont{$DISPLAY_SIZE},
                                                 bg => $AxisBoxColor,
                                                 #-orient => 'horizontal',
                                              )->pack( expand => 1, side => 'left', fill => 'y');
-   $WIDGET{'vertAxisInfo_boldlabel'}->bind('<Enter>' => sub { $WIDGET{'vertAxisInfo_boldlabel'}->configure( -bg => $EventMouseOverColor); } );
-   $WIDGET{'vertAxisInfo_boldlabel'}->bind('<Leave>' => sub { my $c = &get_vertAxisColor(); $WIDGET{'vertAxisInfo_boldlabel'}->configure(bg => $c); } );
-   $WIDGET{'vertAxisInfo_boldlabel'}->bind('<Double-1>' => sub { &edit_axis_attribs($vertAxisInfoFrame, 1); } );
+   $WIDGET{$vAxisLabel}->bind('<Enter>' => sub { $WIDGET{$vAxisLabel}->configure( -bg => $EventMouseOverColor); } );
+   $WIDGET{$vAxisLabel}->bind('<Leave>' => sub { my $c = &get_vertAxisColor(); $WIDGET{$vAxisLabel}->configure(bg => $c); } );
+   $WIDGET{$vAxisLabel}->bind('<Double-1>' => sub { &edit_axis_attribs($vertAxisInfoFrame, 1, 'vert'); } );
 
   # the 'row' listbox
   $FRAME{'row_listbox'}->configure ( relief => 'flat', bd => 2, bg => 'white'); 
@@ -929,12 +938,9 @@ sub init_table_gui {
 }
 
 sub get_horzAxisColor {
+
    my $color = $AxisBoxColor;
- 
-   # note this will cause problems if we ever allow display
-   # of a field axis along the vertical
-   if (defined $CURRENT_ITEM && $CURRENT_ITEM =~ m/Array/ 
-       && defined $CURRENT_ITEM->getFieldAxis()) {
+   if (ref($CURRENT_HORZ_AXIS) eq 'XDF::FieldAxis') {
        $color = $FieldAxisBoxColor;
    }
 
@@ -943,9 +949,7 @@ sub get_horzAxisColor {
 
 sub get_vertAxisColor {
    my $color = $AxisBoxColor;
-
-   # note this will cause problems if we ever allow display
-   # of a field axis along the vertical
+   # for now, we never allow field axis on the vertical.
    return $color;
 }
 
@@ -1083,7 +1087,7 @@ sub show_structure_in_Hlist {
 sub change_array_dataformat {
 
    my $obj = eval "new $DataFormatClass{$ARRAY_DATAFORMAT}"; 
-   $CURRENT_ITEM->setDataFormat($obj);
+   $ARRAY->setDataFormat($obj);
 
 print STDERR "new obj dataformat is : $obj\n";
 
@@ -1094,7 +1098,7 @@ print STDERR "new obj dataformat is : $obj\n";
 sub change_ostyle {
 
    my $obj = eval "new $XMLDataIOStyleClass{$ARRAY_OSTYLE}"; 
-   $CURRENT_ITEM->setXMLDataIOStyle($obj);
+   $ARRAY->setXMLDataIOStyle($obj);
 
 print STDERR "new obj style is : $obj\n";
 
@@ -1329,6 +1333,8 @@ sub reset_header_view {
   } else {
       if (!defined $CURRENT_ITEM || $CURRENT_ITEM !~ m/Array/) { 
          &close_array_attrib_edit();
+         &close_axis_attrib_edit($CURRENT_HORZ_AXIS, 'horz', 'horz' . $AxisWidgetBaseName);
+         &close_axis_attrib_edit($CURRENT_VERT_AXIS, 'vert', 'vert' . $AxisWidgetBaseName);
       }
   }
 
@@ -1392,27 +1398,24 @@ sub update_plaintable_view {
    my $column_color = $ListBoxBgColor{ref($arrayObj->getDataFormat())};
    my $width = $arrayObj->getDataFormat()->numOfBytes();
 
-   my $first_axis = $arrayObj->getAxisList()->[0];
-   my $axisInfo = $first_axis->getName();
-   $axisInfo = "" unless defined $axisInfo;
-   $axisInfo .= " (" . $first_axis->getLength() . ")";
-   $WIDGET{'horzAxisInfo_boldlabel'}->configure( text => "Axis:$axisInfo", 
-                                                  bg => $AxisBoxColor,
-                                               );
+   # horz axis
+   my $axisInfo = &get_axis_title($CURRENT_HORZ_AXIS, 'horz');
+   my $axisLabel = 'horz' . $AxisWidgetBaseName;
+   $WIDGET{$axisLabel}->configure( text => $axisInfo, bg => $AxisBoxColor,);
 
-   my $second_axis = $arrayObj->getAxisList()->[1];
-   $axisInfo = $second_axis->getName();
-   $axisInfo = "" unless defined $axisInfo;
-   $axisInfo = "Axis $axisInfo (" . $second_axis->getLength() . ")";
-   $axisInfo =~ s/(.)/$1\n/g;
-   $WIDGET{'vertAxisInfo_boldlabel'}->configure ( text => $axisInfo, 
-                                               bg => $AxisBoxColor,
-                                             );
+   # vert axis
+   $axisLabel = 'vert' . $AxisWidgetBaseName;
+   $axisInfo = &get_axis_title($CURRENT_VERT_AXIS, 'vert');
+   $WIDGET{$axisLabel}->configure ( text => $axisInfo, bg => $AxisBoxColor, );
 
    # geometry of the widget: a 'row' listbox followed by fieldlistboxes
-   my @axisOrder = reverse @{$arrayObj->getAxisList()};
+   # 
+
+   # this next line will fail when more than 2 axes exist in the array.
+   my @axisOrder = ($CURRENT_VERT_AXIS, $CURRENT_HORZ_AXIS); 
+   #my @axisOrder = reverse @{$arrayObj->getAxisList()};
    $LOCATOR->setIterationOrder(\@axisOrder);
-   foreach my $col (0 ... ($first_axis->getLength()-1)) {
+   foreach my $col (0 ... ($CURRENT_HORZ_AXIS->getLength()-1)) {
 
       # create new frame for the axis header + listbox
       # after the first ('row') header + listbox and preexisting header + listboxes 
@@ -1507,7 +1510,7 @@ sub update_plaintable_view {
 
       # insert data into new listbox
       my $row = 0;
-      while ($LOCATOR->hasNext() && $LOCATOR->getAxisIndex($first_axis) == $col) {
+      while ($LOCATOR->hasNext() && $LOCATOR->getAxisIndex($CURRENT_HORZ_AXIS) == $col) {
          $listBox->insert('end', $arrayObj->getData($LOCATOR));
          $WIDGET{'row_listbox'}->insert('end', $row) if ($col == 0);
          $row++;
@@ -1560,7 +1563,6 @@ sub edit_struct_attribs {
 
    if ($STRUCT_ATTRIB_EDIT_OPEN) {
       &close_struct_attrib_edit();
-      &make_widget_highlight_on_mouseover($WIDGET{'struct_attrib_edit_label'});
       return;
    }
 
@@ -1598,7 +1600,6 @@ sub edit_array_attribs {
 
    if ($ARRAY_ATTRIB_EDIT_OPEN) {
       &close_array_attrib_edit();
-      &make_widget_highlight_on_mouseover($WIDGET{'array_attrib_edit_label'});
       return;
    }
 
@@ -1618,8 +1619,8 @@ sub edit_array_attribs {
        my $entryname = 'array' . $_ . "_val_label";
        my $getMethod = 'get' . ucfirst $_; 
        my $setMethod = 'set' . ucfirst $_; 
-       my $getMethodRef = sub { $CURRENT_ITEM->$getMethod; }; 
-       my $setMethodRef = sub { $CURRENT_ITEM->$setMethod(@_); }; 
+       my $getMethodRef = sub { $ARRAY->$getMethod; }; 
+       my $setMethodRef = sub { $ARRAY->$setMethod(@_); }; 
        &make_label_click_widget( $_, $subFrame, $labelname, $entryname, $getMethodRef, $setMethodRef); 
    }
 
@@ -1628,28 +1629,42 @@ sub edit_array_attribs {
 }
 
 sub edit_axis_attribs {
-  my ($frame, $axisNum) = @_;
+  my ($frame, $axisNum, $which) = @_;
 
-   if ($AXIS_ATTRIB_EDIT_OPEN[$axisNum]) {
-#      &close_array_attrib_edit();
-#      &make_widget_highlight_on_mouseover($WIDGET{'array_attrib_edit_label'});
+   # this could be bad, current item could now be structure?
+   my $axisObj = $CURRENT_ITEM->getAxisList->[$axisNum];
+   my $widgetname = $which . 'Axis_edit_boldlabel';
+
+   if ($AXIS_ATTRIB_EDIT_OPEN{$which}) {
+      &close_axis_attrib_edit($axisObj, $which, $widgetname);
       return;
    }
 
-   $AXIS_ATTRIB_EDIT_OPEN[$axisNum] = 1;
+   $AXIS_ATTRIB_EDIT_OPEN{$which} = 1;
 
-   my $axisObj = $CURRENT_ITEM->getAxisList->[$axisNum];
+   my $title = '<<Click to Close>>';
+   if ($which eq 'vert') { $title =~ s/(.)/$1\n/g; }
 
-   for (@AxisAttribList) {
+   $WIDGET{$widgetname}->configure( -text => $title,
+                                    -font => $SmallFont{$DISPLAY_SIZE},
+                                    -fg => $Black,
+                                    -bg => $AxisBoxColor,
+                                  );
+
+
+   &make_widget_not_highlight_on_mouseover($WIDGET{$widgetname});
+
+   for (@{$axisObj->getXMLAttributes()}) {
        my $subFrame = $frame->Frame->pack(side => 'top', fill => 'both', expand => 0);
-       push @AXISEDITFRAMES, $subFrame;
+       push @{$AXISEDITFRAMES{$which}}, $subFrame;
        my $labelname = 'axis' . $axisNum . $_ . "_label";
        my $entryname = 'axis' . $axisNum . $_ . "_val_label";
        my $getMethod = 'get' . ucfirst $_;
        my $setMethod = 'set' . ucfirst $_;
        my $getMethodRef = sub { $axisObj->$getMethod; };
        my $setMethodRef = sub { $axisObj->$setMethod(@_); };
-       &make_label_click_widget( $_, $subFrame, $labelname, $entryname, $getMethodRef, $setMethodRef);
+       &make_label_click_widget( $_, $subFrame, $labelname, $entryname, 
+                                 $getMethodRef, $setMethodRef );
    }
 }
 
@@ -1672,7 +1687,39 @@ sub close_struct_attrib_edit {
                                                   -bg => $BaseColor,
                                                );
 
+  &make_widget_highlight_on_mouseover($WIDGET{'struct_attrib_edit_label'});
+
   $STRUCT_ATTRIB_EDIT_OPEN = 0;
+  return;
+
+}
+
+sub close_axis_attrib_edit {
+  my ($axisObj, $which, $widgetname) = @_;
+
+  while ((my $frame = pop @{$AXISEDITFRAMES{$which}})) {
+      $frame->destroy();
+  }
+  
+  # update attribute title  
+  my $title = &get_axis_title($axisObj, $which);
+  my $color = $AxisBoxColor;
+
+  if ($which eq 'horz') {
+    $color = &get_horzAxisColor();
+  } else { 
+    $color = &get_vertAxisColor();
+  }
+
+  $WIDGET{$widgetname}->configure( -text => $title,
+                                   -font => $BoldFont{$DISPLAY_SIZE},
+                                   -fg => $Black,
+                                   -bg => $color,
+                                 );
+
+  &make_widget_highlight_on_mouseover($WIDGET{$widgetname}, $color);
+
+  $AXIS_ATTRIB_EDIT_OPEN{$which} = 0;
   return;
 
 }
@@ -1695,6 +1742,8 @@ sub close_array_attrib_edit {
                                                   -fg => $Black,
                                                   -bg => $BaseColor,
                                                );
+
+  &make_widget_highlight_on_mouseover($WIDGET{'array_attrib_edit_label'});
 
   $ARRAY_ATTRIB_EDIT_OPEN = 0;
   return;
@@ -1746,8 +1795,8 @@ sub edit_listBox_item {
 
   my $index = $listBox->curselection();
 
-  $LOCATOR->setAxisIndex($ROWAXIS, $index);
-  $LOCATOR->setAxisIndex($COLAXIS, $colIndex);
+  $LOCATOR->setAxisIndex($CURRENT_HORZ_AXIS, $index);
+  $LOCATOR->setAxisIndex($CURRENT_VERT_AXIS, $colIndex);
 
   my $value = &popup_edit_window("Edit Data Value", $ARRAY->getData($LOCATOR));
   $ARRAY->setData($LOCATOR, $value);
@@ -1779,16 +1828,17 @@ sub reset_table_globals {
 
    &debug("reset_table_globals()\n");
 
+   $CURRENT_HORZ_AXIS = undef; 
+   $CURRENT_VERT_AXIS = undef;
+
    $ARRAY = defined $obj && $obj =~ m/Array/ ? $obj : undef;
 
    if (defined $ARRAY) {
+     $CURRENT_VERT_AXIS = $ARRAY->getAxisList()->[1];
+     $CURRENT_HORZ_AXIS = $ARRAY->getAxisList()->[0];
      $LOCATOR = $ARRAY->createLocator();
-     $COLAXIS = $ARRAY->getAxisList()->[0];
-     $ROWAXIS = $ARRAY->getAxisList()->[1];
    } else { 
      $LOCATOR = undef;
-     $COLAXIS = undef;
-     $ROWAXIS = undef;
    }
 
 }
@@ -1797,13 +1847,15 @@ sub reset_table_view {
 
    &debug("reset_table_view()\n");
 
-   $WIDGET{'horzAxisInfo_boldlabel'}->configure( text => "Axis:", 
-                                                  bg => $AxisBoxColor,
-                                               ) if defined $WIDGET{'horzAxisInfo_boldlabel'}; 
+   #horz axis label
+   my $wname = 'horz' . 'Axis_edit_boldlabel';
+   $WIDGET{$wname}->configure( text => "Axis:", bg => $AxisBoxColor,) if defined $WIDGET{$wname}; 
 
-   $WIDGET{'vertAxisInfo_boldlabel'}->configure ( text => "A\nx\ni\ns",
-                                                  bg => $AxisBoxColor,
-                                               ) if defined $WIDGET{'vertAxisInfo_boldlabel'};
+   #vert axis label
+   $wname = 'vert' . 'Axis_edit_boldlabel';
+   $WIDGET{$wname}->configure ( text => "A\nx\ni\ns",
+                                bg => $AxisBoxColor,
+                              ) if defined $WIDGET{$wname};
 
    $WIDGET{'shared_notebook'}->pageconfigure( 'DFmt', -state => 'normal');
    $WIDGET{'shared_notebook'}->pageconfigure( 'Unit', -state => 'normal');
@@ -1846,24 +1898,19 @@ sub update_fieldtable_view {
        $WIDGET{'shared_notebook'}->raise('Data');
    }
 
-   my $fieldAxis = $arrayObj->getFieldAxis();
-   $COLAXIS = $fieldAxis;
-   $ROWAXIS = $arrayObj->getAxisList()->[1];
+   my $fieldAxis = $CURRENT_HORZ_AXIS; #$arrayObj->getFieldAxis();
 
-   my $axisInfo = $fieldAxis->getName();
-   $axisInfo = "" unless defined $axisInfo;
-   $axisInfo .= " (" . $fieldAxis->getLength() . " fields)";
-   $WIDGET{'horzAxisInfo_boldlabel'}->configure( text => "Field Axis:$axisInfo", 
-                                                 bg => $FieldAxisBoxColor);
+   # horz axis
+   my $axisInfo = &get_axis_title($CURRENT_HORZ_AXIS, 'horz');
+   my $wname = 'horz' . 'Axis_edit_boldlabel';
+   my $color = &get_horzAxisColor();
+   $WIDGET{$wname}->configure( text => $axisInfo, bg => $color);
 
-   my $second_axis = $arrayObj->getAxisList()->[1];
-   $axisInfo = $second_axis->getName();
-   $axisInfo = "" unless defined $axisInfo;
-   $axisInfo = "Axis $axisInfo (" . $second_axis->getLength() . ")";
-   $axisInfo =~ s/(.)/$1\n/g;
-   $WIDGET{'vertAxisInfo_boldlabel'}->configure ( text => $axisInfo,
-                                               bg => $AxisBoxColor,
-                                             );
+   # vert axis
+   $wname = 'vert' . 'Axis_edit_boldlabel';
+   $axisInfo = &get_axis_title($CURRENT_VERT_AXIS, 'vert');
+   $color = &get_vertAxisColor();
+   $WIDGET{$wname}->configure ( text => $axisInfo, bg => $color,);
 
 
 
@@ -1871,7 +1918,7 @@ sub update_fieldtable_view {
 
 
    # we need to change the default iteration order
-   my @axisOrder = ($second_axis, $fieldAxis);
+   my @axisOrder = ($CURRENT_VERT_AXIS, $CURRENT_HORZ_AXIS); # will fail if array has more than 2 axes 
    $LOCATOR->setIterationOrder(\@axisOrder);
 
    my $col = 0;
@@ -1976,6 +2023,25 @@ sub update_fieldtable_view {
    # tie them all together
    $WIDGET{'row_listbox'}->tie('scroll', @LISTBOXES);
 
+}
+
+sub get_axis_title {
+   my ($axisObj, $which) = @_;
+
+   my $axisInfo = $axisObj->getName();
+   $axisInfo = "" unless defined $axisInfo;
+   $axisInfo .= " (" . $axisObj->getLength();
+
+   if (ref($axisObj) eq 'XDF::FieldAxis') {
+     $axisInfo = "Field Axis:" . $axisInfo;
+     $axisInfo .= " fields)";
+   } else { 
+     $axisInfo = "Axis:$axisInfo)";
+   }
+
+   if ($which eq 'vert') { $axisInfo =~ s/(.)/$1\n/g; }
+
+   return $axisInfo;
 }
 
 sub add_horizontal_scrollbar_to_widget {
