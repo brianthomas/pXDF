@@ -42,6 +42,12 @@
         </field>
       </fieldGroup>
       <field name="V-band Flux" fieldId="vmag">
+        <!-- a simple conversion factor for all of the units in this column (not meant to be scientifically relevant! only here for testing/illustration purposes!!) -->
+        <conversion>
+           <add>2.5</add>
+           <multiply>2.5</multiply>
+           <logarithmBase>10</logarithmBase>
+        </conversion>
         <units>
           <unit>magnitude</unit>
         </units>
@@ -79,12 +85,14 @@
       </field>
     </fieldAxis>
     <axis axisId="rows" size="3">
+      <!-- a very complex conversion which should be applied to the indice values of this axis -->
       <conversion>
          <multiply>45</multiply>
          <add>89</add>
          <naturalLogarithm/>
          <multiply>50</multiply>
          <exponentOn>10</exponentOn>
+         <exponent>3</exponent>
       </conversion>
       <unitless/>
       <dataFormat><integer width="1"/></dataFormat>
