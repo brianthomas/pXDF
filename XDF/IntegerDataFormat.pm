@@ -34,7 +34,7 @@ package XDF::IntegerDataFormat;
 # /** SEE ALSO
 # */
 
-
+use XDF::Utility;
 use XDF::DataFormat;
 use Carp;
 
@@ -54,9 +54,10 @@ my @Class_XML_Attributes = qw (
                           );
 my @Class_Attributes = ();
 
-my $Integer_Type_Decimal = 'decimal';
-my $Integer_Type_Hex = 'hexadecimal';
-my $Integer_Type_Octal = 'octal';
+# perhaps saves cpu use to grab once and store.
+my $Integer_Type_Decimal = &XDF::Constants::INTEGER_TYPE_DECIMAL;
+my $Integer_Type_Octal = &XDF::Constants::INTEGER_TYPE_OCTAL;
+my $Integer_Type_Hex = &XDF::Constants::INTEGER_TYPE_HEX;
 
 # Something specific to Perl
 # This is used by the 'decimal' type
@@ -99,24 +100,6 @@ sub classAttributes {
   \@Class_Attributes;
 }
 
-# /** typeHexadecimal
-# Returns the class value for the hexadecimal type. 
-# This method takes no arguments may not be changed. 
-# */
-sub typeHexadecimal { $Integer_Type_Hex; }
- 
-# /** typeOctal
-# Returns the class value for the octal type. 
-# This method takes no arguments may not be changed. 
-# */
-sub typeOctal { $Integer_Type_Octal; }
-
-# /** typeDecimal
-# Returns the class value for the (default) decimal type. 
-# This method takes no arguments may not be changed. 
-# */
-sub typeDecimal { $Integer_Type_Decimal; }
-
 #
 # Get/Set Methods
 #
@@ -148,6 +131,9 @@ sub getType {
 # */
 sub setType {
    my ($self, $value) = @_;
+
+   carp "Cant set type to $value, not allowed \n"
+      unless (&XDF::Utility::isValidIntegerType($value));
    $self->{Type} = $value;
 }
 
@@ -230,6 +216,10 @@ sub _sprintfNotation {
 # Modification History
 #
 # $Log$
+# Revision 1.9  2001/03/09 21:55:50  thomas
+# Moded class data for Integer types to Constants class. Added
+# utility check for isValidIntegertype on set type method.
+#
 # Revision 1.8  2001/02/15 18:27:37  thomas
 # removed fortranNotation from class.
 #
@@ -308,319 +298,11 @@ These methods set the requested attribute if an argument is supplied to the meth
 
 =over 4
 
-=item my $Integer_Type_Decimal = 'decimal';
+=item type
 
  
 
-=item my $Integer_Type_Hex = 'hexadecimal';
-
- 
-
-=item my $Integer_Type_Octal = 'octal';
-
- 
-
-=item # Something specific to Perl
-
- 
-
-=item # This is used by the 'decimal' type
-
- 
-
-=item my $Perl_Sprintf_Field_Integer = 'd';
-
- 
-
-=item # using long octal format. Technically, should be an error
-
- 
-
-=item # to have Octal on Exponent and Fixed formats but we will 
-
- 
-
-=item # return the value as regular number 
-
- 
-
-=item my $Octal_Perl_Sprintf_Field_Integer = 'lo';
-
- 
-
-=item # using long hex format. Should be an error   
-
- 
-
-=item my $Hex_Perl_Sprintf_Field_Integer = 'lx';
-
- 
-
-=item my $Perl_Regex_Field_Integer = '\d';
-
- 
-
-=item # add in class XML attributes
-
- 
-
-=item push @Class_Attributes, @Class_XML_Attributes;
-
- 
-
-=item # add in super class attributes
-
- 
-
-=item push @Class_Attributes, @{&XDF::DataFormat::classAttributes};
-
- 
-
-=item push @Class_XML_Attributes, @{&XDF::DataFormat::getXMLAttributes};
-
- 
-
-=item # Initalization
-
- 
-
-=item # set up object attributes.
-
- 
-
-=item for my $attr ( @Class_Attributes ) { $field{$attr}++; }
-
- 
-
-=item # /** classXMLNodeName
-
- 
-
-=item # This method returns the class node name of XDF::BinaryFloatField.
-
- 
-
-=item # This method takes no arguments may not be changed. 
-
- 
-
-=item # */
-
- 
-
-=item sub classXMLNodeName {
-
- 
-
-=item }
-
- 
-
-=item # /** classAttributes
-
- 
-
-=item #  This method returns a list reference containing the names
-
- 
-
-=item #  of the class attributes of XDF::BinaryFloatField. 
-
- 
-
-=item #  This method takes no arguments may not be changed. 
-
- 
-
-=item # */
-
- 
-
-=item sub classAttributes {
-
- 
-
-=item }
-
- 
-
-=item # /** typeHexadecimal
-
- 
-
-=item # Returns the class value for the hexadecimal type. 
-
- 
-
-=item # This method takes no arguments may not be changed. 
-
- 
-
-=item # */
-
- 
-
-=item sub typeHexadecimal { $Integer_Type_Hex; }
-
- 
-
-=item # /** typeOctal
-
- 
-
-=item # Returns the class value for the octal type. 
-
- 
-
-=item # This method takes no arguments may not be changed. 
-
- 
-
-=item # */
-
- 
-
-=item sub typeOctal { $Integer_Type_Octal; }
-
- 
-
-=item # /** typeDecimal
-
- 
-
-=item # Returns the class value for the (default) decimal type. 
-
- 
-
-=item # This method takes no arguments may not be changed. 
-
- 
-
-=item # */
-
- 
-
-=item sub typeDecimal { $Integer_Type_Decimal; }
-
- 
-
-=item #
-
- 
-
-=item # Get/Set Methods
-
- 
-
-=item #
-
- 
-
-=item # /** getWidth
-
- 
-
-=item # */
-
- 
-
-=item sub getWidth {
-
- 
-
-=item return $self->{Width};
-
- 
-
-=item }
-
- 
-
-=item # /** setWidth
-
- 
-
-=item #     Set the width attribute. 
-
- 
-
-=item # */
-
- 
-
-=item sub setWidth {
-
- 
-
-=item $self->{Width} = $value;
-
- 
-
-=item }
-
- 
-
-=item # /** getType
-
- 
-
-=item # */
-
- 
-
-=item sub getType {
-
- 
-
-=item return $self->{Type};
-
- 
-
-=item }
-
- 
-
-=item # /** setType
-
- 
-
-=item #     Set the type attribute. 
-
- 
-
-=item # */
-
- 
-
-=item sub setType {
-
- 
-
-=item $self->{Type} = $value;
-
- 
-
-=item }
-
- 
-
-=item # /** numOfBytes
-
- 
-
-=item # A convenience method.
-
- 
-
-=item # Return the number of bytes this XDF::BinaryFloatField holds.
-
- 
-
-=item # */
-
- 
-
-=item sub numOfBytes { 
+=item width
 
  
 
@@ -629,18 +311,6 @@ These methods set the requested attribute if an argument is supplied to the meth
 =head2 OTHER Methods
 
 =over 4
-
-=item typeHexadecimal (EMPTY)
-
-Returns the class value for the hexadecimal type. This method takes no arguments may not be changed. 
-
-=item typeOctal (EMPTY)
-
-Returns the class value for the octal type. This method takes no arguments may not be changed. 
-
-=item typeDecimal (EMPTY)
-
-Returns the class value for the (default) decimal type. This method takes no arguments may not be changed. 
 
 =item getWidth (EMPTY)
 
@@ -702,7 +372,7 @@ B<new>, B<clone>, B<update>.
 =over 4
 
 XDF::IntegerDataFormat inherits the following instance methods of L<XDF::DataFormat>:
-B<getLessThanValue>, B<setLessThanValue>, B<getLessThanOrEqualValue>, B<setLessThanOrEqualValue>, B<getGreaterThanValue>, B<setGreaterThanValue>, B<getGreaterThanOrEqualValue>, B<setGreaterThanOrEqualValue>, B<getInfiniteValue>, B<setInfiniteValue>, B<getInfiniteNegativeValue>, B<setInfiniteNegativeValue>, B<getNoDataValue>, B<setNoDataValue>, B<toXMLFileHandle>.
+B<toXMLFileHandle>.
 
 =back
 
@@ -719,7 +389,7 @@ B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLAttributes>, B<setX
 
 =head1 SEE ALSO
 
-L<XDF::DataFormat>
+L<XDF::Utility>, L<XDF::DataFormat>
 
 =back
 
