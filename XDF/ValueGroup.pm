@@ -60,7 +60,7 @@ my @Class_Attributes = ();
 
 # add in super class attributes
 push @Class_Attributes, @{&XDF::Group::classAttributes};
-push @Class_Attributes, @{&XDF::Group::getXMLAttributes};
+push @Class_XML_Attributes, @{&XDF::Group::getXMLAttributes};
 
 # Initalization
 # set up object attributes.
@@ -133,6 +133,9 @@ sub AUTOLOAD {
 # Modification History
 #
 # $Log$
+# Revision 1.10  2001/07/06 18:23:21  thomas
+# bug fix: xmlAttributes not correctly specified.
+#
 # Revision 1.9  2001/06/29 21:07:12  thomas
 # changed public add (and remove) methods to
 # conform to Java API standard: e.g. return boolean
