@@ -48,7 +48,7 @@ use vars qw ($AUTOLOAD %field @ISA);
 # CLASS DATA
 my $Class_XML_Node_Name = "string";
 my @Local_Class_XML_Attributes = qw (
-                             length
+                             width
                           );
 my @Local_Class_Attributes = ();
 my @Class_Attributes;
@@ -102,23 +102,23 @@ sub getClassXMLAttributes {
 # Get/Set Methods
 #
 
-# /** getLength
+# /** getWidth
 # Get the width of this string field in characters.
 # Normally this translates to the number of bytes the object holds,
 # however, note that the encoding of the data is important. When
-# the encoding is UTF-16, then the number of bytes effectively is 2x $obj->length.
+# the encoding is UTF-16, then the number of bytes effectively is 2x $obj->getWidth().
 # */
-sub getLength {
+sub getWidth {
    my ($self) = @_;
-   return $self->{length};
+   return $self->{width};
 }
 
-# /** setLength
-#     Set the length attribute. 
+# /** setWidth
+#     Set the width attribute. 
 # */
-sub setLength {
+sub setWidth {
    my ($self, $value) = @_;
-   $self->{length} = $value;
+   $self->{width} = $value;
 }
 
 # /** numOfBytes
@@ -127,7 +127,7 @@ sub setLength {
 # */
 sub numOfBytes {
   my ($self) = @_;
-  $self->getLength();
+  $self->getWidth();
 }
 
 # /** getXMLAttributes
@@ -148,7 +148,7 @@ sub fortranNotation {
   my ($self) = @_;
 
   my $notation = "A";
-  $notation .= $self->getLength();
+  $notation .= $self->getWidth();
   return $notation;
 }
 
@@ -169,7 +169,7 @@ sub _init {
 
   $self->SUPER::_init();
 
-  $self->setLength(0);
+  $self->setWidth(0);
 
   # adds to ordered list of XML attributes
   $self->_appendAttribsToXMLAttribOrder(\@Local_Class_XML_Attributes);
@@ -189,7 +189,7 @@ sub _outputTemplateNotation {
 sub _regexNotation {
   my ($self) = @_;
 
-  my $width = $self->length;
+  my $width = $self->getWidth();
   my $symbol = $Perl_Regex_Field_String;
 
   my $notation = '(';
@@ -207,7 +207,7 @@ sub _sprintfNotation {
   my ($self) = @_;
 
   my $notation = '%';
-  $notation .= $self->getLength; 
+  $notation .= $self->getWidth; 
   $notation .= $Perl_Sprintf_Field_String;
 
   return $notation;
@@ -266,13 +266,13 @@ The following instance (object) methods are defined for XDF::StringDataFormat.
 
 =over 4
 
-=item getLength (EMPTY)
+=item getWidth (EMPTY)
 
-Get the width of this string field in characters. Normally this translates to the number of bytes the object holds,however, note that the encoding of the data is important. Whenthe encoding is UTF-16, then the number of bytes effectively is 2x $obj->length.  
+Get the width of this string field in characters. Normally this translates to the number of bytes the object holds,however, note that the encoding of the data is important. Whenthe encoding is UTF-16, then the number of bytes effectively is 2x $obj->getWidth().  
 
-=item setLength ($value)
+=item setWidth ($value)
 
-Set the length attribute.  
+Set the width attribute.  
 
 =item numOfBytes (EMPTY)
 
