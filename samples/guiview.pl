@@ -48,7 +48,7 @@ BEGIN {
 
 }
 
-use vars qw/$FILEIMG $FOLDIMG/;
+use vars qw/$STRUCTURE_IMAGE $PLAIN_ARRAY_IMAGE $FIELD_ARRAY_IMAGE/;
 
 # pragmas
 use strict;
@@ -75,6 +75,7 @@ my $COLAXIS;
 my $LOCATOR;
 my $PRETTY_XDF_OUTPUT = 1;
 my $ARRAY_OSTYLE = 'Tagged';
+my $ARRAY_DATAFORMAT = 'String';
 my %XMLDataIOStyle = ( 
                        'XDF::TaggedXMLDataIOStyle' => 'Tagged',
                        'XDF::DelimitedXMLDataIOStyle' => 'Delimited',
@@ -84,15 +85,28 @@ my %XMLDataIOStyleClass = (
                        'Tagged' => 'XDF::TaggedXMLDataIOStyle',
                        'Delimited' => 'XDF::DelimitedXMLDataIOStyle',
                        'FixedWidth' => 'XDF::FormattedXMLDataIOStyle',
+                     ); 
+
+my %DataFormatStyle = ( 
+                        'XDF::StringDataFormat' => 'String',
+                        'XDF::IntegerDataFormat' => 'Integer',
+                        'XDF::FloatDataFormat' => 'Float',
+                        'XDF::BinaryIntegerDataFormat' => 'BinaryInteger',
+                        'XDF::BinaryFloatDataFormat' => 'BinaryFloat',
                      );
 
 my $CURRENT_STRUCTURE;
 my $CURRENT_ITEM; # could be an array or structure that is selected from Hlist
 my $ARRAY_ATTRIB_EDIT_OPEN;
+my $STRUCT_ATTRIB_EDIT_OPEN;
+my @AXIS_ATTRIB_EDIT_OPEN;
 my @ARRAYEDITFRAMES;
+my @AXISEDITFRAMES;
 #my @SHARED_SUBFRAMES;
 my @OSTYLE_SUBFRAMES;
+my @DATAFORMAT_SUBFRAMES;
 my @ArrayAttribList = qw ( Name Description ArrayId AppendTo );
+my @AxisAttribList = @{XDF::Axis->getXMLAttributes()}; #qw ( Name Description ArrayId AppendTo );
 
 # GLOBAL RunTIME Vars
 my $DEBUG = 0;
@@ -106,8 +120,8 @@ $SIG{'QUIT'} = "my_exit";
 # GUI Config
 
 # my wonderfull color defs
-my ( $Red ,$Green, $Blue, $Lite_blue, $Yellow, $Dark_green, $Grey, $Dark_grey, $Medium_grey, $Lite_grey, $White, $Black) =
-   ("#c24","#8e7","#5ac",   "#7df"  , "#eea",  "#181"    ,"#bbb","#555"    ,"#888",   "#bbb",   "#eee", "#000");
+my ( $Red ,$Green, $Blue, $Lite_blue, $Yellow, $Dark_green, $Grey, $Dark_grey, $Medium_grey, $Lite_grey, $White, $Bright_white, $Black) =
+   ("#c24","#8e7","#5ac",   "#7df"  , "#eea",  "#181"    ,"#bbb","#555"    ,"#888",   "#bbb",   "#eee", "#eee", "#000");
 
 my %ListBoxBgColor = (
                         'XDF::StringDataFormat' => $Yellow,
@@ -230,7 +244,7 @@ sub init_gui {
   $toolLabelFrame ->configure ( relief => 'flat', bd => 2, bg => $BaseColor );
   $arrayHeaderFrame ->configure ( relief => 'flat', bd => 2, bg => $ArrayColor);
   $arrayAttribEditFrame->configure ( relief => 'flat', bd => 2, bg => $BaseColor);
-  $structureHeaderFrame ->configure ( relief => 'flat', bd => 2, bg => $StructureColor);
+  $structureAttribEditFrame ->configure ( relief => 'flat', bd => 2, bg => $StructureColor);
   $fileNameFrame ->configure ( relief => 'flat', bd => 2, bg => $BaseColor );
   $sharedFrame->configure( relief => 'flat', bd => 2, bg => $Black);
 
@@ -241,8 +255,9 @@ sub init_gui {
   $WIDGET{'ylist_scroll'} = $listFrame->Scrollbar()->pack(side => 'left', expand => 0, fill => 'y');
   $WIDGET{'xlist_scroll'} = $listFrame->Scrollbar(-orient => 'horizontal')->pack(side => 'bottom', expand => 0, fill => 'x');
 
-  $FILEIMG = $WIDGET{'main'}->Bitmap(-file => Tk->findINC('file.xbm'));
-  $FOLDIMG = $WIDGET{'main'}->Bitmap(-file => Tk->findINC('folder.xbm'));
+  $FIELD_ARRAY_IMAGE = $WIDGET{'main'}->Photo (-data => &field_array_image, -format => 'xpm');
+  $PLAIN_ARRAY_IMAGE = $WIDGET{'main'}->Photo (-data => &array_image, -format => 'xpm');
+  $STRUCTURE_IMAGE = $WIDGET{'main'}->Photo (-data => &structure_image(), -format => 'xpm');
 
   $WIDGET{'xml_hlist'} = $listFrame->HList(
                                             -separator => '/', 
@@ -298,17 +313,22 @@ sub init_gui {
                                                  font => $Font{$DISPLAY_SIZE},
                                                     )->pack(fill => 'both', side=> 'top' );
 
+  &make_widget_highlight_on_mouseover($WIDGET{'struct_attrib_edit_label'});
+  $WIDGET{'struct_attrib_edit_label'}->bind('<Double-Button-1>' => sub { 
+                                              &edit_struct_attribs($structureHeaderFrame); });
+
   $WIDGET{'array_attrib_edit_label'} = $arrayAttribEditFrame->Label( text => $ArrayAttributeTitle . ":[]",
                                                       bg => $BaseColor, fg => $Black,
                                                       bd => 2,
                                                       font => $Font{$DISPLAY_SIZE},
                                                     )->pack(fill => 'both', side=> 'top' );
 
-  $WIDGET{'array_attrib_edit_label'}->bind('<Enter>' => sub { $WIDGET{'array_attrib_edit_label'}->configure(-bg => $EventMouseOverColor); });
-  $WIDGET{'array_attrib_edit_label'}->bind('<Leave>' => sub { $WIDGET{'array_attrib_edit_label'}->configure(-bg => $BaseColor); });
-  $WIDGET{'array_attrib_edit_label'}->bind('<Double-Button-1>' => sub { &edit_array_attribs($arrayHeaderFrame); });
+  &make_widget_highlight_on_mouseover($WIDGET{'array_attrib_edit_label'});
 
-  $WIDGET{'array_edit_label'} = $sharedFrame->Label ( -text => 'Array Edit Functions', 
+  $WIDGET{'array_attrib_edit_label'}->bind('<Double-Button-1>' => 
+                                                   sub { &edit_array_attribs($arrayHeaderFrame); });
+
+  $WIDGET{'array_edit_label'} = $sharedFrame->Label ( -text => 'Array View/Edit Functions', 
                                                       -font => $Font{$DISPLAY_SIZE},
                                                )->pack(fill => 'x', side=> 'top');
 
@@ -324,7 +344,7 @@ sub init_gui {
 
    $WIDGET{'shared_notebook'}->add( 'DFmt', -label => 'DataFormat',
                                     -raisecmd => sub { },
-                                    -createcmd => sub { },
+                                    -createcmd => sub { &init_array_dataformat_gui(@_); },
                                   );
 
    $WIDGET{'shared_notebook'}->add( 'Note', -label => 'Notes',
@@ -350,6 +370,21 @@ sub init_gui {
   $FRAME{'shared'} = $sharedFrame;
 }
 
+sub make_widget_highlight_on_mouseover {
+   my ($widget) = @_;
+
+  $widget->bind('<Enter>' => sub { $widget->configure(-bg => $EventMouseOverColor); });
+  $widget->bind('<Leave>' => sub { $widget->configure(-bg => $BaseColor); });
+
+}
+
+sub make_widget_not_highlight_on_mouseover {
+   my ($widget) = @_;
+
+  $widget->bind('<Enter>' => sub { });
+  $widget->bind('<Leave>' => sub { });
+}
+
 sub init_itemlist_gui {
    my ($what, $frame, $name, $addCodeRef) = @_;
 
@@ -363,9 +398,10 @@ sub init_itemlist_gui {
                                            )->pack();
 
    my $listboxname = $what . '_' . $name . 'list_listbox';
-   $WIDGET{$listboxname} = $subFrame1->Listbox(
-                                            -font => $Font{$DISPLAY_SIZE},
+   $WIDGET{$listboxname} = $subFrame1->Scrolled ( 'Listbox', -scrollbars => 'se', 
                                            )->pack( side => 'top', expand => 1, fill => 'both');
+   $WIDGET{$listboxname}->configure ( -font => $Font{$DISPLAY_SIZE}, ); 
+                                     #      )->pack( side => 'top', expand => 1, fill => 'both');
 
    my $addbuttonname = $what . '_add' . $name . '_button';
    $WIDGET{$addbuttonname} = $subFrame2->Button (
@@ -450,6 +486,85 @@ sub update_array_parameterlist_view {
        my $name = 'Parameter:';
        $name .= $paramObj->getName() if defined $paramObj->getName();
        $listbox->insert('end', $name);
+   }
+
+}
+
+sub init_array_dataformat_gui {
+   my ($frame) = @_;
+
+   $frame->configure( -bg => $BaseColor );
+   my $subFrame0 = $frame->Frame->pack(side => 'top'); 
+   my $subFrame1 = $frame->Frame->pack(side => 'top'); 
+   my $subFrame2 = $frame->Frame->pack(side => 'top'); 
+   $FRAME{'dataformat_edit'} = $frame->Frame->pack(side => 'top');
+
+   $WIDGET{'dataformat_filler1_label'} = $subFrame0->Label( -text => " ",
+                                                        -font => $Font{$DISPLAY_SIZE},
+                                                        -bg => $BaseColor,
+                                                      )->pack();
+
+   $WIDGET{'dataformat_label'} = $subFrame1->Label( -text => " Array DataFormat: ",
+                                                -font => $Font{$DISPLAY_SIZE},
+                                                -bg => $BaseColor,
+                                             )->pack(side => 'left', expand => 0, fill => 'both');
+
+   $WIDGET{'dataformat_browse_optionmenu'} = $subFrame1->Optionmenu (
+                                                    -width => 12,
+                                                    -font => $Font{$DISPLAY_SIZE},
+                                                    -bg => $BaseColor,
+                                                    -variable => \$ARRAY_DATAFORMAT,
+                                                    -activebackground => $EventMouseOverColor,
+                                                    -command => sub { &change_array_dataformat(); },
+                                               )->pack(side=> 'left', expand => 0);
+   my @options;
+   while (my ($key, $value) = each (%DataFormatStyle) ) {
+      push @options, $value;
+   }
+   $WIDGET{'dataformat_browse_optionmenu'}->addOptions(@options);
+
+   $WIDGET{'dataformat_filler2_label'} = $subFrame2->Label( -text => " ",
+                                                        -font => $Font{$DISPLAY_SIZE},
+                                                        -bg => $BaseColor,
+                                                      )->pack();
+
+   &update_dataformat_view();
+
+
+}
+
+sub reset_dataformat_view {
+   while ((my $frame = pop @DATAFORMAT_SUBFRAMES)) { $frame->destroy(); }
+}
+
+sub update_dataformat_view {
+
+   return unless defined $CURRENT_ITEM && $CURRENT_ITEM =~ m/Array/;
+   return unless defined $FRAME{'dataformat_edit'};
+
+   &reset_dataformat_view();
+
+   my $attribEditFrame = $FRAME{'dataformat_edit'}->Frame->pack(side => 'top', fill => 'both');
+   $attribEditFrame->configure( bg => $BaseColor);
+
+   push @DATAFORMAT_SUBFRAMES, $attribEditFrame;
+
+   my $titleFrame1 = $attribEditFrame->Frame(bd => 2, -bg => $Blue)->pack(side => 'top');
+   my $subFrame1 = $attribEditFrame->Frame(bd => 2, -bg => $Blue)->pack(side => 'top');
+
+   $WIDGET{'dataformat_attrib_label'} = $titleFrame1->Label (
+                                                    -text => 'Attributes',
+                                                    -font => $Font{$DISPLAY_SIZE},
+                                                    -bg => $White,
+                                                 )->pack(side => 'top', expand => 0, fill => 'both');
+
+   for (@{XDF::StringDataFormat->getXMLAttributes()}) {
+       my $subFrame = $subFrame1->Frame->pack(side => 'top', fill => 'both', expand => 0);
+       my $labelname = 'dataformat' . $_ . "_label";
+       my $entryname = 'dataformat' . $_ . "_val_label";
+       my $methodname = 'get' . ucfirst ($_);
+       my $val = ""; #$CURRENT_ITEM->getXMLDataIOStyle()->$methodname;
+       &make_label_click_widgets( $_, $subFrame, $labelname, $entryname, $val);
    }
 
 }
@@ -670,6 +785,7 @@ sub init_table_gui {
    $WIDGET{'horzAxisInfo_boldlabel'}->bind('<Enter>' => sub { $WIDGET{'horzAxisInfo_boldlabel'}->configure( -bg => $EventMouseOverColor); } );
    $WIDGET{'horzAxisInfo_boldlabel'}->bind('<Leave>' => 
                                     sub { my $c = &get_horzAxisColor(); $WIDGET{'horzAxisInfo_boldlabel'}->configure(bg => $c); } );
+   $WIDGET{'horzAxisInfo_boldlabel'}->bind('<Double-1>' => sub { &edit_axis_attribs($horzAxisInfoFrame, 0); } );
 
   my $listBoxFrame = $tableFrame->Pane( -sticky => 'nsew'
                                       )->pack( expand => 1, side => 'top', fill => 'both');
@@ -684,6 +800,7 @@ sub init_table_gui {
                                              )->pack( expand => 1, side => 'left', fill => 'y');
    $WIDGET{'vertAxisInfo_boldlabel'}->bind('<Enter>' => sub { $WIDGET{'vertAxisInfo_boldlabel'}->configure( -bg => $EventMouseOverColor); } );
    $WIDGET{'vertAxisInfo_boldlabel'}->bind('<Leave>' => sub { my $c = &get_vertAxisColor(); $WIDGET{'vertAxisInfo_boldlabel'}->configure(bg => $c); } );
+   $WIDGET{'vertAxisInfo_boldlabel'}->bind('<Double-1>' => sub { &edit_axis_attribs($vertAxisInfoFrame, 1); } );
 
   # the 'row' listbox
   $FRAME{'row_listbox'}->configure ( relief => 'flat', bd => 2, bg => 'white'); 
@@ -793,6 +910,7 @@ sub update_view {
    &update_array_parameterlist_view();
    &update_table_view();
    &update_ostyle_view();
+   &update_dataformat_view();
 
    if ($ARRAY_ATTRIB_EDIT_OPEN) {
       &update_array_edit_attrib_val();
@@ -845,20 +963,36 @@ sub show_structure_in_Hlist {
   my ($widget, $structObj, $path, $text) = @_;
 
   $widget->add($path, -text => $text, 
-                      -image => $FOLDIMG,
+                      -image => $STRUCTURE_IMAGE,
                       -data => $structObj);
 
   foreach my $sObj (@{$structObj->getStructList()}) {
-     &show_structure_in_Hlist($widget, $sObj, "$path/$sObj", 'Structure:'.$sObj->getName());
+     #my $name = 'Structure:' . $sObj->getName();
+     my $name = $sObj->getName();
+     $name = "" unless defined $name;
+     &show_structure_in_Hlist($widget, $sObj, "$path/$sObj", $name);
   }
 
   foreach my $arrayObj (@{$XDF->getArrayList()}) {
      my $name = $arrayObj->getName();
-     $name = 'Array:' . $name;
-     $widget->add("$path/$arrayObj", 
-                  -text => $name, -image => $FILEIMG, 
-                  -data => $arrayObj);
+     #$name = 'Array:' . $name;
+     $name = '<' . $name . '>';
+     if (defined $arrayObj->getFieldAxis()) {
+        $widget->add("$path/$arrayObj", 
+                     -text => $name, -image => $FIELD_ARRAY_IMAGE,
+                     -data => $arrayObj);
+     } else {
+        $widget->add("$path/$arrayObj", 
+                     -text => $name, -image => $PLAIN_ARRAY_IMAGE,
+                     -data => $arrayObj);
+     }
   }
+
+}
+
+sub change_array_dataformat {
+
+print STDERR "new obj style is : $ARRAY_DATAFORMAT\n";
 
 }
 
@@ -1306,6 +1440,19 @@ sub select_all_listBox_items {
   }
 }
 
+sub edit_struct_attribs {
+   my ($frame) = @_;
+
+   return unless defined $CURRENT_ITEM && $CURRENT_ITEM =~ m/Structure/;
+
+   if ($STRUCT_ATTRIB_EDIT_OPEN) {
+      $STRUCT_ATTRIB_EDIT_OPEN = 0;
+
+   }
+
+   $STRUCT_ATTRIB_EDIT_OPEN = 1;
+}
+
 sub edit_array_attribs {
    my ($frame) = @_;
 
@@ -1313,12 +1460,17 @@ sub edit_array_attribs {
 
    if ($ARRAY_ATTRIB_EDIT_OPEN) {
       &close_array_attrib_edit();
+      &make_widget_highlight_on_mouseover($WIDGET{'array_attrib_edit_label'});
       return;
    }
 
    $ARRAY_ATTRIB_EDIT_OPEN = 1;
 
-   $WIDGET{'array_attrib_edit_label'}->configure( -text => '<<Click to Close Array Attributes>>');
+   $WIDGET{'array_attrib_edit_label'}->configure( -text => '<<Click to Close Array Attributes>>',
+                                                  -fg => 'white', #$Bright_white,
+                                                  -bg => $ArrayColor,
+                                                );
+   &make_widget_not_highlight_on_mouseover($WIDGET{'array_attrib_edit_label'});
 
    # create widgets
    for (@ArrayAttribList) {
@@ -1331,6 +1483,26 @@ sub edit_array_attribs {
 
    # update value of widgets
    &update_array_edit_attrib_val();
+}
+
+sub edit_axis_attribs {
+  my ($frame, $axisNum) = @_;
+
+   if ($AXIS_ATTRIB_EDIT_OPEN[$axisNum]) {
+#      &close_array_attrib_edit();
+#      &make_widget_highlight_on_mouseover($WIDGET{'array_attrib_edit_label'});
+      return;
+   }
+
+   $AXIS_ATTRIB_EDIT_OPEN[$axisNum] = 1;
+
+   for (@AxisAttribList) {
+       my $subFrame = $frame->Frame->pack(side => 'top', fill => 'both', expand => 0);
+       push @AXISEDITFRAMES, $subFrame;
+       my $labelname = 'axis' . $axisNum . $_ . "_label";
+       my $entryname = 'axis' . $axisNum . $_ . "_val_label";
+       &make_label_click_widgets( $_, $subFrame, $labelname, $entryname);
+   }
 }
 
 sub close_array_attrib_edit {
@@ -1347,7 +1519,10 @@ sub close_array_attrib_edit {
   $arrname = "" unless defined $arrname;
   my $arrTitle = $ArrayAttributeTitle . ":[$arrname]";
 
-  $WIDGET{'array_attrib_edit_label'}->configure( -text => $arrTitle);
+  $WIDGET{'array_attrib_edit_label'}->configure( -text => $arrTitle,
+                                                  -fg => $Black,
+                                                  -bg => $BaseColor,
+                                               );
 
   $ARRAY_ATTRIB_EDIT_OPEN = 0;
   return;
@@ -1804,6 +1979,85 @@ sub about_message {
   push @msg, "GUI might be written to use the Perl XDF package.";
   push @msg, "";
   push @msg, "Author: Brian Thomas";
+  push @msg, "";
+  push @msg, "Licence:";
+  push @msg, "  guiview.pl Copyright (C) 2000 Brian Thomas,";
+  push @msg, "  ADC/GSFC-NASA, Code 631, Greenbelt MD, 20771"; 
+  push @msg, ""; 
+  push @msg, "  This program is free software; it is licensed under the same terms"; 
+  push @msg, "  as Perl itself is. Please refer to the file LICENSE which is contained"; 
+  push @msg, "  in the distribution that this file came in."; 
+  push @msg, ""; 
+  push @msg, "  This program is distributed in the hope that it will be useful,"; 
+  push @msg, "  but WITHOUT ANY WARRANTY; without even the implied warranty of";
+  push @msg, "  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. "; 
+  push @msg, ""; 
+
   return @msg;
+}
+
+sub field_array_image {
+  return '/* XPM */
+static char * fieldarray_xpm[] = {
+"12 12 4 1",
+"       s None  c None",
+".      c #000000000000",
+"X      c #00000000FFFF",
+"o      c #0000FFFF0000",
+"            ",
+" .......... ",
+" .XX.XX.XX. ",
+" .XX.XX.XX. ",
+" .......... ",
+" .oo.oo.oo. ",
+" .oo.oo.oo. ",
+" .......... ",
+" .oo.oo.oo. ",
+" .oo.oo.oo. ",
+" .......... ",
+"            "};';
+} 
+
+sub array_image {
+   my $msg = '/* XPM */
+static char * array_xpm[] = {
+"12 12 3 1",
+"       s None  c None",
+".      c #000000000000",
+"X      c #0000FFFF0000",
+"            ",
+" .......... ",
+" .XX.XX.XX. ",
+" .XX.XX.XX. ",
+" .......... ",
+" .XX.XX.XX. ",
+" .XX.XX.XX. ",
+" .......... ",
+" .XX.XX.XX. ",
+" .XX.XX.XX. ",
+" .......... ",
+"            "};';
+  return $msg;
+}
+
+sub structure_image {
+  return '/* XPM */
+static char * structure_xpm[] = {
+"12 12 3 1",
+"       s None  c None",
+".      c #000000000000",
+"X      c #FFFF00000000",
+"            ",
+" ....       ",
+" .XXX...... ",
+" .XXXXXXXX. ",
+" .XXXXXXXX. ",
+" .XXXXXXXX. ",
+" .XXXXXXXX. ",
+" .XXXXXXXX. ",
+" .XXXXXXXX. ",
+" .XXXXXXXX. ",
+" .......... ",
+"            "};';
 }
 
