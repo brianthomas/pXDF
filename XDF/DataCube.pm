@@ -239,7 +239,7 @@ sub toXMLFileHandle {
   print $fileHandle ">";
 
   # write the data
-  $self->_writeDataToFileHandle($fileHandle, $indent );
+  $self->writeDataToFileHandle($fileHandle, $indent );
 
   # close the tagged data section
   print $fileHandle "</" . $nodeName . ">";
@@ -249,9 +249,9 @@ sub toXMLFileHandle {
 }
 
 # /** writeDataToFileHandle
-# Writes out just the data
+# Writes out just the data to the proscribed filehandle.
 # */
-sub _writeDataToFileHandle {
+sub writeDataToFileHandle {
   my ($self, $fileHandle, $indent) = @_;
 
   my $dontPrintCDATATag = 0;
@@ -813,6 +813,9 @@ sub _build_locator_string {
 # Modification History
 #
 # $Log$
+# Revision 1.13  2001/03/13 16:13:20  thomas
+# made writeDataToFileHandle public method.
+#
 # Revision 1.12  2001/03/12 17:27:48  thomas
 # Removed unneeded debugging line.
 #
