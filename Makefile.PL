@@ -77,27 +77,22 @@ WriteMakefile(
             'XDF/Axis.pm'       => "\$(INST_LIBDIR)/$install_dir/Axis.pm",
             'XDF/BaseObject.pm'     => "\$(INST_LIBDIR)/$install_dir/BaseObject.pm",
             'XDF/BinaryFloatDataFormat.pm'      => "\$(INST_LIBDIR)/$install_dir/BinaryFloatDataFormat.pm",
-            'XDF/BinaryFloatStyle.pm'      => "\$(INST_LIBDIR)/$install_dir/BinaryFloatStyle.pm",
             'XDF/BinaryIntegerDataFormat.pm'      => "\$(INST_LIBDIR)/$install_dir/BinaryIntegerDataFormat.pm",
-            'XDF/BinaryIntegerStyle.pm'      => "\$(INST_LIBDIR)/$install_dir/BinaryIntegerStyle.pm",
             'XDF/DataCube.pm'   => "\$(INST_LIBDIR)/$install_dir/DataCube.pm",
             'XDF/DataFormat.pm'       => "\$(INST_LIBDIR)/$install_dir/DataFormat.pm",
             'XDF/DelimitedXMLDataIOStyle.pm'       => "\$(INST_LIBDIR)/$install_dir/DelimitedXMLDataIOStyle.pm",
             'XDF/ErroredValue.pm'      => "\$(INST_LIBDIR)/$install_dir/ErroredValue.pm",
-            'XDF/ExponentDataFormat.pm'      => "\$(INST_LIBDIR)/$install_dir/ExponentDataFormat.pm",
-            'XDF/ExponentStyle.pm'      => "\$(INST_LIBDIR)/$install_dir/ExponentStyle.pm",
+            'XDF/ExponentialDataFormat.pm'      => "\$(INST_LIBDIR)/$install_dir/ExponentialDataFormat.pm",
             'XDF/Field.pm'      => "\$(INST_LIBDIR)/$install_dir/Field.pm",
             'XDF/FieldAxis.pm'  => "\$(INST_LIBDIR)/$install_dir/FieldAxis.pm",
             'XDF/FieldGroup.pm'      => "\$(INST_LIBDIR)/$install_dir/FieldGroup.pm",
             'XDF/FieldRelation.pm'  => "\$(INST_LIBDIR)/$install_dir/FieldRelation.pm",
             'XDF/FixedDataFormat.pm'      => "\$(INST_LIBDIR)/$install_dir/FixedDataFormat.pm",
-            'XDF/FixedStyle.pm'      => "\$(INST_LIBDIR)/$install_dir/FixedStyle.pm",
             'XDF/FormattedIOCmd.pm'      => "\$(INST_LIBDIR)/$install_dir/FormattedIOCmd.pm",
             'XDF/FormattedXMLDataIOStyle.pm'      => "\$(INST_LIBDIR)/$install_dir/FormattedXMLDataIOStyle.pm",
             'XDF/GenericObject.pm'     => "\$(INST_LIBDIR)/$install_dir/GenericObject.pm",
             'XDF/Group.pm'      => "\$(INST_LIBDIR)/$install_dir/Group.pm",
             'XDF/IntegerDataFormat.pm'      => "\$(INST_LIBDIR)/$install_dir/IntegerDataFormat.pm",
-            'XDF/IntegerStyle.pm'      => "\$(INST_LIBDIR)/$install_dir/IntegerStyle.pm",
             'XDF/Locator.pm'       => "\$(INST_LIBDIR)/$install_dir/Locator.pm",
             'XDF/Note.pm'       => "\$(INST_LIBDIR)/$install_dir/Note.pm",
             'XDF/Parameter.pm'  => "\$(INST_LIBDIR)/$install_dir/Parameter.pm",
@@ -107,7 +102,6 @@ WriteMakefile(
             'XDF/RepeatFormattedIOCmd.pm'     => "\$(INST_LIBDIR)/$install_dir/RepeatFormattedIOCmd.pm",
             'XDF/SkipCharFormattedIOCmd.pm'  => "\$(INST_LIBDIR)/$install_dir/SkipCharFormattedIOCmd.pm",
             'XDF/StringDataFormat.pm'      => "\$(INST_LIBDIR)/$install_dir/StringDataFormat.pm",
-            'XDF/StringStyle.pm'      => "\$(INST_LIBDIR)/$install_dir/StringStyle.pm",
             'XDF/Structure.pm'  => "\$(INST_LIBDIR)/$install_dir/Structure.pm",
             'XDF/TaggedXMLDataIOStyle.pm'       => "\$(INST_LIBDIR)/$install_dir/TaggedXMLDataIOStyle.pm",
             'XDF/Unit.pm'       => "\$(INST_LIBDIR)/$install_dir/Unit.pm",
@@ -124,6 +118,9 @@ WriteMakefile(
 # Modification History
 #
 # $Log$
+# Revision 1.3  2000/12/01 20:02:16  thomas
+# *** empty log message ***
+#
 # Revision 1.2  2000/10/16 17:41:14  thomas
 # Changes to make consistent with BaseObject.pm
 #

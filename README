@@ -33,6 +33,18 @@ To make it, do the standard drill:
 (W32 users substitute NMAKE for 'make' in the above )
 
 
+Problems with Perl Package
+--------------------------
+
+Having said the above, I have noticed that problems will occur
+with the handling of external entities (e.g. they arent currently
+supported) using the libxml-enno validating parser. I have also
+had problems with the recent XML-Parser-2.30 release. I develop
+this package using XML-Parser-2.29. Im interested in trying to 
+use the XML parser that I hear the apache group is developing for
+Perl. More work on that is to come I hope.
+
+
 CVS Repository Access
 ---------------------
 
