@@ -1,11 +1,12 @@
-<!--  myDocument.dtd - Shows how to write a DTD that embeds XDF nodes
+<!--  
+   myDocument.dtd - Shows how to write a DTD that embeds (aggregates) XDF nodes
 -->
 
 <!--  The following introduces all of the XDF DTD into this DTD. -->
 <!ENTITY % XDF_DTD SYSTEM "XDF_018.dtd">
 %XDF_DTD;
 
-<!-- now we put in our own nodes. -->
+<!-- now we create our own nodes. -->
 
 <!ELEMENT document (keyword*, tables)>
 
