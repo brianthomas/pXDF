@@ -18,7 +18,6 @@ samples/read_write_any_xml.pl
 samples/readWriteXDF.pl
 samples/readXDF.pl
 samples/XDF_018.dtd
-samples/XDF_018.dtd.diff
 samples/XDF_sample10.dat.bz2
 samples/XDF_sample10.xml
 samples/XDF_sample11.dat.zip
