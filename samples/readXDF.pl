@@ -33,7 +33,7 @@ my $QUIET = 1;
   my $data_separator = "\t";
   my $file = $ARGV[0];
 
-  print "Reading in XDF object from file: $file \n";
+  print STDERR "Reading in XDF object from file: $file \n";
 
   my %options = ('quiet' => $QUIET, 'debug' => $DEBUG, );
 
@@ -45,7 +45,17 @@ my $QUIET = 1;
   $spec->setPrettyXDFOutput(1);  # use pretty print 
   $spec->setPrettyXDFOutputIndentation("   ");  # use 3 spaces for indentation 
 
-  print STDOUT $XDF->toXMLString(1);
+  # make this safe for writting, change the external 
+  # file name to write out to (should it exist)
+  my $index = 0;
+  foreach my $arrayObj (@{$XDF->getArrayList}) {
+    if (defined $arrayObj->getDataCube()->getHref()) {
+       $arrayObj->getDataCube()->getHref()->setSystemId('table'.$index.'.dat');
+    }
+    $index++;
+  }
+
+  print STDOUT $XDF->toXMLString();
 
   exit 0;
 

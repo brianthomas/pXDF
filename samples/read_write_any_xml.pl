@@ -56,8 +56,21 @@ my $QUIET = 1;
   $spec->setPrettyXDFOutput(1);  # use pretty print 
   $spec->setPrettyXDFOutputIndentation("   ");  # use 3 spaces for indentation 
 
+  # make this safe for writting, change the external
+  # Href Entities files to write out to (should it exist)
+  my $index = 0;
+  foreach my $XDFNode (@xdfNodes) {
+     my $XDFObject = $XDFNode->getXDFObject;
+     foreach my $arrayObj (@{$XDFObject->getArrayList}) {
+        if (defined $arrayObj->getDataCube()->getHref()) {
+           $arrayObj->getDataCube()->getHref()->setSystemId('table'.$index.'.dat');
+        }
+        $index++;
+     }
+  }
+
   # write back out ONLY the XDF portion 
-#  $XDF->toXMLFileHandle(\*STDOUT, 1);
+#  $XDF->toXMLFileHandle(\*STDOUT);
 
   # use this method IF you want the whole document to write 
   # back out again.

@@ -45,7 +45,7 @@ my $QUIET = 1;
   $spec->setPrettyXDFOutput(1);  # use pretty print 
   $spec->setPrettyXDFOutputIndentation("   ");  # use 3 spaces for indentation 
 
-  $XDF->toXMLFileHandle(\*STDOUT,1);
+  $XDF->toXMLFileHandle(\*STDOUT);
 
   exit 0;
 
