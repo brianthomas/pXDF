@@ -1,39 +1,59 @@
 <?xml version="1.0" standalone="no"?>
 <!DOCTYPE XDF SYSTEM "XDF_018.dtd">
 <XDF name="A sample XDF document" description="This shows how to put any data into XDF format">
-      <parameter name="obsdate"><units><unitless/></units><value>01-12-99</value></parameter>
-      <array name="Raw Data">
-          <parameter name="integration time"><units><unit>sec</unit></units>
-              <value>900</value>
-          </parameter>
-          <units><unit>counts</unit><unit power="-1">seconds</unit></units>
-          <dataFormat><float width="5" precision="2"/></dataFormat>
-          <axis name="x" axisId="x-axis">
-             <axisUnits><unit>pixel</unit></axisUnits>
-             <valueList size="10" step="1" start="0" />
-          </axis>
-          <axis name="y" axisId="y-axis">
-             <axisUnits><unit>pixel</unit></axisUnits>
-             <valueList delimiter=" " repeatable="yes">10  9 8 7 6 5 4 3 2 1</valueList>
-          </axis>
-          <dataStyle encoding="ISO-8859-1">
-             <delimited>
-                <delimitedInstruction>
-                   <!-- next line sez: use any number of space characters as the delimiter -->
-                   <delimiter repeatable="yes"><chars value=" "/></delimiter> 
-                   <recordTerminator><newLine/></recordTerminator>
-                </delimitedInstruction>
-                <for axisIdRef="y-axis">
-                   <for axisIdRef="x-axis">
-                      <doInstruction/>
-                   </for>
-                </for>
-             </delimited>
-          </dataStyle>
+  <parameter name="obsdate">
+    <unitless/>
+    <value>01-12-99</value>
+  </parameter>
+  <array name="Raw Data">
+    <parameter name="integration time">
+      <units>
+        <unit>sec</unit>
+      </units>
+      <value>900</value>
+    </parameter>
+    <units>
+      <unit>counts</unit>
+      <unit power="-1">seconds</unit>
+    </units>
+    <dataFormat>
+      <float width="5" precision="2"/>
+    </dataFormat>
+    <axis name="x" axisId="x-axis" size="10">
+      <units>
+        <unit>pixel</unit>
+      </units>
+      <valueList size="10" step="1" start="0"/>
+    </axis>
+    <axis name="y" axisId="y-axis" size="10">
+      <units>
+        <unit>pixel</unit>
+      </units>
+      <valueList delimiter=" " repeatable="yes">10  9 8 7 6 5 4 3 2 1</valueList>
+    </axis>
+    <dataStyle encoding="ISO-8859-1">
+      <delimited>
+        <delimitedInstruction>
+<!-- next line sez: use any number of space characters as the delimiter -->
+          <delimiter repeatable="yes">
+            <chars value=" "/>
+          </delimiter>
+          <recordTerminator>
+            <newLine/>
+          </recordTerminator>
+        </delimitedInstruction>
+        <for axisIdRef="y-axis">
+          <for axisIdRef="x-axis">
+            <doInstruction/>
+          </for>
+        </for>
+      </delimited>
+    </dataStyle>
 <!-- This data should throw an error, as repeatable is set to "no"  e.g. "  2.48"
      indicates 2 values, the first which is "null" and the second which is 2.48, 
      however, the 'arbitrary' newline within the first line is ok. -->
-          <data><![CDATA[76.53 78.75 67.78 32.59 05.97
+    <data>
+<![CDATA[76.53 78.75 67.78 32.59 05.97
 68.77 25.39 51.86  2.48 40.29
 89.37 10.68 82.31 17.85 25.87 64.17 92.64 47.88 44.54 85.05
  7.48  1.09  3.15  8.63 20.26  7.27 24.19 72.09  9.69 69.78
@@ -45,16 +65,15 @@
 18.42 25.19 95.53 95.03 19.62 10.54 91.89 21.31 49.74 60.83
 32.69 58.72  5.22 30.30 16.23 92.81 46.72 28.24 92.40  7.35
 ]]>
-          </data>
-          <notes>
-             <locationOrder>
-                <index axisIdRef="x-axis"/>
-                <index axisIdRef="y-axis"/>
-             </locationOrder>
-             <note>Improper cooling of the camera may have resulted in significant dark current.</note>
-             <note noteId="note2" location="2 6">No data because of a cosmic ray hit</note>
-             <note noteIdRef="note2" location="3 8"/>
-          </notes>
-      </array>
+    </data>
+    <notes>
+      <locationOrder>
+        <index axisIdRef="x-axis"/>
+        <index axisIdRef="y-axis"/>
+      </locationOrder>
+      <note>Improper cooling of the camera may have resulted in significant dark current.</note>
+      <note noteId="note2" location="2 6">No data because of a cosmic ray hit</note>
+      <note noteIdRef="note2" location="3 8"/>
+    </notes>
+  </array>
 </XDF>
-

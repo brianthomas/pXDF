@@ -2,7 +2,7 @@
 <!DOCTYPE XDF SYSTEM "XDF_018.dtd">
 <XDF name="table1" description="First table in v464 p79">
   <array>
-    <fieldAxis axisId="fieldAxis">
+    <fieldAxis axisId="fieldAxis" size="8">
       <field name="CFRS" description="Canada-France Redshift Survey designation" fieldId="field1">
         <units>
           <unit>---</unit>
@@ -68,10 +68,8 @@
         </dataFormat>
       </field>
     </fieldAxis>
-    <axis description="number of rows in table" axisId="Axis2">
-      <axisUnits>
-        <unitless/>
-      </axisUnits>
+    <axis description="number of rows in table" axisId="Axis2" size="143">
+      <unitless/>
       <valueList start="1" size="143"/>
     </axis>
     <dataStyle>
