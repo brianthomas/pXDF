@@ -119,6 +119,17 @@ sub addAxisIdToLocatorOrder {
    return 1;
 }
 
+# have to overload this one to prevent extraneous newline when doesnt print
+sub toXMLFileHandle {
+   my ($self, $fileHandle, $indent, $dontCloseNode, $newNodeNameString, $noChildObjectNodeName) = @_;
+    
+   $self->_basicXMLWriter($fileHandle, $indent, $dontCloseNode, $newNodeNameString, $noChildObjectNodeName);
+
+   if ($#{$self->{locationOrderList}} > -1) {
+      print $fileHandle "\n" if XDF::Specification->getInstance()->isPrettyXDFOutput;
+   }
+}
+
 #
 # Private/Protected Methods
 #
