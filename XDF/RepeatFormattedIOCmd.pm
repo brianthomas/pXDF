@@ -104,7 +104,7 @@ sub numOfBytes {
     return;
   }
 
-  foreach my $obj (@{$self->getCommands()}) {
+  foreach my $obj ($self->getCommands()) {
     if(ref($obj) eq 'XDF::ReadCellFormattedIOCmd') {
       my $readObj = shift @dataFormatList;
       push (@dataFormatList, $readObj); # its a circular list
@@ -131,7 +131,7 @@ sub getCommands () {
   foreach my $obj (@{$self->{FormatCmdList}}) {
      if (ref($obj) eq 'XDF::RepeatFormattedIOCmd') {
        my $count = $obj->getCount();
-       my @repeatCommandList = @{$obj->getCommands()};
+       my @repeatCommandList = $obj->getCommands();
        while ($count-- > 0) {
           push @commandList, @repeatCommandList;
        }
@@ -140,7 +140,7 @@ sub getCommands () {
      }
    }
 
-   return \@commandList;
+   return @commandList;
 }
 
 # /** getXMLAttributes
@@ -327,6 +327,9 @@ sub _sprintfNotation {
 # Modification History
 #
 # $Log$
+# Revision 1.9  2001/03/07 23:11:23  thomas
+# getCommands returns ARRAY rather than ARRAY REF.
+#
 # Revision 1.8  2001/02/15 17:50:30  thomas
 # changed getBytes to numOfBytes method as per
 # java API.
@@ -586,7 +589,7 @@ These methods set the requested attribute if an argument is supplied to the meth
 
  
 
-=item foreach my $obj (@{$self->getCommands()}) {
+=item foreach my $obj ($self->getCommands()) {
 
  
 
