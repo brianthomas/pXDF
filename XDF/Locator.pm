@@ -234,8 +234,8 @@ sub next {
 
   my $outOfDataCells = 1;
 
-  #for (reverse @{$self->{_locationList}}) {
-  for (@{$self->{_locationList}}) {
+  for (reverse @{$self->{_locationList}}) {
+  #for (@{$self->{_locationList}}) {
     if (%{$_}->{'index'} < (%{$_}->{'axis'}->getLength()-1) ) {
       %{$_}->{'index'} += 1;
       $outOfDataCells = 0;
@@ -257,8 +257,8 @@ sub prev {
 
   my $outOfDataCells = 1;
 
-  #for (reverse @{$self->{_locationList}}) {
-  for (@{$self->{_locationList}}) {
+  for (reverse @{$self->{_locationList}}) {
+  #for (@{$self->{_locationList}}) {
     %{$_}->{'index'} -= 1;
     if (%{$_}->{'index'} < 0) {
       %{$_}->{'index'} = %{$_}->{'axis'}->getLength();
@@ -313,6 +313,9 @@ sub _init {
 # Modification History
 #
 # $Log$
+# Revision 1.7  2001/02/23 17:08:54  thomas
+# Undid prior change (!) was correct.
+#
 # Revision 1.6  2001/02/22 19:39:10  thomas
 # changed *AxisLocation method names to *AxisIndex methods.
 # un-reversed axis traversal in next, prev methods. I cant imagine
