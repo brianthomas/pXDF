@@ -185,7 +185,7 @@ my %CURRENT_VALUELIST = ( 'parent_node' => "",
 # ID's (so we can use IDREF mech to reference objects)
 my %AxisObj;
 my %FieldObj;
-my %FormatObj;
+my %XMLDataIOStyleObj;
 my %NoteObj;
 
 # options for running the parser
@@ -834,8 +834,18 @@ sub asciiDelimiter_node_start {
   if ( defined $DataIOStyle_Attrib_Ref) {
     $CURRENT_ARRAY->setXMLDataIOStyle(new XDF::DelimitedXMLDataIOStyle($DataIOStyle_Attrib_Ref));
     $CURRENT_ARRAY->getXMLDataIOStyle->setXMLAttributes(\%attrib_hash);
+
+    my $readId = $CURRENT_ARRAY->getXMLDataIOStyle()->getReadId();
+    if (defined $readId ) {
+       &print_warning( "Danger: More than one read node with readId=\"$readId\", using latest node.\n" )
+           if defined $XMLDataIOStyleObj{$readId};
+       $XMLDataIOStyleObj{$readId} = $CURRENT_ARRAY->getXMLDataIOStyle();
+
+    }
+
     $DataIOStyle_Attrib_Ref = undef;
     push @CURRENT_FORMAT_OBJECT, $CURRENT_ARRAY->getXMLDataIOStyle();
+
   }
 
   push @CURRENT_FORMAT_OBJECT, $CURRENT_ARRAY->getXMLDataIOStyle();
@@ -1033,7 +1043,8 @@ sub data_node_end {
     }
 
     my $locator = $CURRENT_ARRAY->createLocator();
-    @READAXISORDER = reverse @READAXISORDER;
+
+    @READAXISORDER = reverse @READAXISORDER; # this is done for the locator 
     $locator->setIterationOrder(\@READAXISORDER);
     $formatObj->setWriteAxisOrderList(\@READAXISORDER);
     my @dataFormat = $CURRENT_ARRAY->getDataFormatList;
@@ -1303,13 +1314,6 @@ sub floatField_node_start {
 sub for_node_start {              
   my (%attrib_hash) = @_;
 
-  # well, if we see for nodes, we must have untagged data.
-  # lets set the DataIOStyle
-  #if ( defined $DataIOStyle_Attrib_Ref) {
-#    $CURRENT_ARRAY->setXMLDataIOStyle(new XDF::FormattedXMLDataIOStyle($DataIOStyle_Attrib_Ref))
-#  } 
-#  $DataIOStyle_Attrib_Ref = undef;
-
   # for node sets the iteration order for how we will setData
   # in the datacube (important for delimited and formatted reads).
   if (defined (my $id = $attrib_hash{'axisIdRef'})) {
@@ -1320,32 +1324,6 @@ sub for_node_start {
     print STDERR "Error: got for node without axisIdRef, aborting read.\n";
     exit (-1); 
   }
-
-  # well, if we see for nodes, we must have untagged data.
-  # lets set the DataIOStyle
-#  if ( defined $DataIOStyle_Attrib_Ref) {
-#    $CURRENT_ARRAY->setXMLDataIOStyle(new XDF::FormattedXMLDataIOStyle($DataIOStyle_Attrib_Ref))
-#  } else {
-#    die "Weird Reader error! no XMLDataIOStyle attribute reference!\n";
-#  } 
-#  $DataIOStyle_Attrib_Ref = undef;
-
-#  my $readObj = $CURRENT_ARRAY->getXMLDataIOStyle;
-
-  # add the read axis (its what the for node specifies)
-  #$readObj->addReadAxis($attrib_hash{'axisIdRef'});
-  #push @READAXISORDER, $AxisObj{$attrib_hash{'axisIdRef'}};
-
-  # Now for something completely sub-optimal: since there can be 
-  # more than one 'for' node we may do this more than once.
-  # However, wasted CPU cycles are minimized by the fact that there
-  # just arent that many axes (e.g. dimensions) in almost any dataset.
-
-  # set the style of the IO (couldnt this be done in hidden way?)
-#  $readObj->style($UnTagged_Read_Style);
-
-  # set the format object in the current array
-#  $CURRENT_FORMAT_OBJECT[0] = $CURRENT_ARRAY->untaggedReadStyle(new XDF::FormattedReadStyle());
 
 }
 
@@ -1580,16 +1558,43 @@ sub read_node_end {
 sub read_node_start { 
   my (%attrib_hash) = @_;
 
-  # save these for later, when we know what kind of dataIOstyle we got
-  $DataIOStyle_Attrib_Ref = \%attrib_hash;
-
   # zero this out for upcoming read 
   @READAXISORDER = ();
 
   # clear out the format command object array
   # (its used by Formatted reads only, but this is reasonable 
   # spot to do this).
-  @CURRENT_FORMAT_OBJECT = (); 
+  @CURRENT_FORMAT_OBJECT = ();
+
+  # do we have an idREf? if so, copy the object, otherwise we will 
+  # save these for later, when we know what kind of dataIOstyle we got
+  # use reference object, if refId exists 
+  my $readIdRef = $attrib_hash{'readIdRef'};
+  if (defined $readIdRef) {
+
+     # clone from the reference object
+     my $readObj = $XMLDataIOStyleObj{$readIdRef}->clone();
+
+     # override with local values
+     $readObj->setXMLAttributes(\%attrib_hash);
+
+     # set ID attribute to unique name 
+     $readObj->setReadId(&getUniqueIdName($readIdRef, \%XMLDataIOStyleObj));
+     $readObj->setReadIdRef(undef); # unset IDREF attribute 
+
+     $CURRENT_ARRAY->setXMLDataIOStyle($readObj);
+
+     push @CURRENT_FORMAT_OBJECT, $CURRENT_ARRAY->getXMLDataIOStyle();
+
+     # populate readorder. We will have problems if someone specifies
+     # readIdRef AND has child for nodes on the read node. fef.  
+     while ( my ($id, $axisObj) = each %CURRENT_ARRAY_AXES ) {
+       push @READAXISORDER, $axisObj;
+     }
+   
+  } else { 
+     $DataIOStyle_Attrib_Ref = \%attrib_hash;
+  }
 
 }
 
@@ -1600,6 +1605,15 @@ sub readCell_node_start {
   # XMLDataIOStyle object for this array yet, do it now. 
   if ( defined $DataIOStyle_Attrib_Ref) {
     $CURRENT_ARRAY->setXMLDataIOStyle(new XDF::FormattedXMLDataIOStyle($DataIOStyle_Attrib_Ref));
+
+    my $readId = $CURRENT_ARRAY->getXMLDataIOStyle()->getReadId();
+    if (defined $readId ) {
+       &print_warning( "Danger: More than one read node with readId=\"$readId\", using latest node.\n" )          
+           if defined $XMLDataIOStyleObj{$readId};
+       $XMLDataIOStyleObj{$readId} = $CURRENT_ARRAY->getXMLDataIOStyle();
+
+    }
+
     $DataIOStyle_Attrib_Ref = undef;
     push @CURRENT_FORMAT_OBJECT, $CURRENT_ARRAY->getXMLDataIOStyle();
   } 
@@ -1618,6 +1632,15 @@ sub repeat_node_start {
   # XMLDataIOStyle object for this array yet, do it now. 
   if ( defined $DataIOStyle_Attrib_Ref) {
     $CURRENT_ARRAY->setXMLDataIOStyle(new XDF::FormattedXMLDataIOStyle($DataIOStyle_Attrib_Ref));
+
+    my $readId = $CURRENT_ARRAY->getXMLDataIOStyle()->getReadId();
+    if ( defined $readId ) {
+       &print_warning( "Danger: More than one read node with readId=\"$readId\", using latest node.\n" )          
+           if defined $XMLDataIOStyleObj{$readId};
+       $XMLDataIOStyleObj{$readId} = $CURRENT_ARRAY->getXMLDataIOStyle();
+
+    }
+
     $DataIOStyle_Attrib_Ref = undef;
     push @CURRENT_FORMAT_OBJECT, $CURRENT_ARRAY->getXMLDataIOStyle();
   } 
@@ -1648,6 +1671,15 @@ sub skipChar_node_start {
   # XMLDataIOStyle object for this array yet, do it now. 
   if ( defined $DataIOStyle_Attrib_Ref) {
     $CURRENT_ARRAY->setXMLDataIOStyle(new XDF::FormattedXMLDataIOStyle($DataIOStyle_Attrib_Ref));
+
+    my $readId = $CURRENT_ARRAY->getXMLDataIOStyle()->getReadId();
+    if (defined $readId ) {
+       &print_warning( "Danger: More than one read node with readId=\"$readId\", using latest node.\n" )          
+           if defined $XMLDataIOStyleObj{$readId};
+       $XMLDataIOStyleObj{$readId} = $CURRENT_ARRAY->getXMLDataIOStyle();
+
+    }
+
     $DataIOStyle_Attrib_Ref = undef;
     push @CURRENT_FORMAT_OBJECT, $CURRENT_ARRAY->getXMLDataIOStyle();
   }
@@ -1699,8 +1731,18 @@ sub tagToAxis_node_start {
   # well, if we see tagToAxis nodes, must have tagged data, the 
   # default style. No need for initing further. 
   if ( defined $DataIOStyle_Attrib_Ref) {
-    $CURRENT_ARRAY->setXMLDataIOStyle(new XDF::TaggedXMLDataIOStyle($DataIOStyle_Attrib_Ref)) 
+    $CURRENT_ARRAY->setXMLDataIOStyle(new XDF::TaggedXMLDataIOStyle($DataIOStyle_Attrib_Ref));
+
+    my $readId = $CURRENT_ARRAY->getXMLDataIOStyle()->getReadId();
+    if (defined $readId) {
+       &print_warning( "Danger: More than one read node with readId=\"$readId\", using latest node.\n" )          
+           if defined $XMLDataIOStyleObj{$readId};
+       $XMLDataIOStyleObj{$readId} = $CURRENT_ARRAY->getXMLDataIOStyle();
+
+    }
+
   }
+
   $DataIOStyle_Attrib_Ref = undef;
 
   # add in the axis, tag information
@@ -1997,13 +2039,6 @@ sub vector_node_start {
      my $axisObj = &last_axis_obj();
      my $axisValue = $axisObj->addAxisUnitDirection(\%attrib_hash);
 
-     # add in reference object, if it exists
- #    if (exists($attrib_hash{'axisIdRef'})) {
- #         my $axisId = $attrib_hash{'axisIdRef'};
- #         my $refAxisObj = $AxisObj{$axisId};
- #         $axisValue->setObjRef($refAxisObj) if $refAxisObj;
- #    }
-
   } else {
         &print_warning( "$XDF_node_name{'vector'} node not supported for $parent_node yet. Ignoring node.\n");
   }
@@ -2220,6 +2255,10 @@ sub my_fail {
 # Modification History
 #
 # $Log$
+# Revision 1.14  2001/03/12 17:28:30  thomas
+# Added ReadId/IdRef code. Will break in cases where
+# readIdRef AND child for node exists on the read node.
+#
 # Revision 1.13  2001/03/09 21:58:23  thomas
 # Moved $Flag_Decimal, Flag_Octal, etc to use the Constants class. Changed code
 # so that binary reads now conform to the XDF standard (non-native floating point
