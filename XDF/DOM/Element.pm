@@ -173,6 +173,9 @@ sub _init {
 # Modification History
 #
 # $Log$
+# Revision 1.4  2001/08/13 20:56:58  thomas
+# updated documentation via utils/makeDoc.pl for the release.
+#
 # Revision 1.3  2001/08/13 19:52:21  thomas
 # added alias method 'toXMLString'. Fixed toString to
 # *not* add newline at the end of printout.
@@ -265,6 +268,10 @@ Get the XDF object associated with this XDF::Element.
 =item setXDFObject ($value)
 
 Set the XDF object associated with this XDF::Element.  
+
+=item toXMLString (EMPTY)
+
+ 
 
 =back
 

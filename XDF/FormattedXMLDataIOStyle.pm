@@ -401,6 +401,9 @@ sub _sprintfNotation {
 # Modification History
 #
 # $Log$
+# Revision 1.22  2001/08/13 20:56:37  thomas
+# updated documentation via utils/makeDoc.pl for the release.
+#
 # Revision 1.21  2001/08/13 19:48:30  thomas
 # bug fix: use only local XML attributes for appendAttribs in _init
 #
@@ -513,11 +516,11 @@ The following methods are defined for the class XDF::FormattedXMLDataIOStyle.
 
 =over 4
 
-=item classAttributes (EMPTY)
+=item getClassAttributes (EMPTY)
 
-This method takes no arguments may not be changed. This method returns a list reference containing the namesof the class attributes for XDF::Structure;  
+This method returns a list reference containing the namesof the class attributes of XDF::FloatDataFormat. This method takes no arguments may not be changed.  
 
-=item getXMLAttributes (EMPTY)
+=item getClassXMLAttributes (EMPTY)
 
 This method returns the XMLAttributes of this class.  
 
@@ -547,7 +550,7 @@ This convenience method returns the command list (asan ARRAY Ref). Repeat comman
 
 =item addFormatCommand ($obj)
 
- 
+Add a FormattedIOCmd object to the list in this object. These child objects are used to direct how the XDF formatteddata should be read in. Returns 1 on success, 0 on failure.  
 
 =item toXMLFileHandle ($fileHandle, $junk, $indent)
 
@@ -583,7 +586,7 @@ B<new>, B<clone>, B<update>.
 =over 4
 
 XDF::FormattedXMLDataIOStyle inherits the following instance (object) methods of L<XDF::BaseObject>:
-B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLAttributes>, B<toXMLString>, B<toXMLFile>.
+B<getXMLAttributes>, B<setXMLAttributes>, B<setXMLAttribute>, B<addXMLAttribute>, B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<toXMLString>, B<toXMLFile>.
 
 =back
 

@@ -151,6 +151,9 @@ sub AUTOLOAD {
 # Modification History
 #
 # $Log$
+# Revision 1.12  2001/08/13 20:56:37  thomas
+# updated documentation via utils/makeDoc.pl for the release.
+#
 # Revision 1.11  2001/08/13 19:48:30  thomas
 # bug fix: use only local XML attributes for appendAttribs in _init
 #
@@ -232,11 +235,11 @@ The following methods are defined for the class XDF::FieldGroup.
 
 This method returns the class node name for XDF::FieldGroup; This method takes no arguments may not be changed.  
 
-=item classAttributes (EMPTY)
+=item getClassAttributes (EMPTY)
 
 This method returns a list reference containing the namesof the class attributes for XDF::FieldGroup; This method takes no arguments may not be changed.  
 
-=item getXMLAttributes (EMPTY)
+=item getClassXMLAttributes (EMPTY)
 
 This method returns the XMLAttributes of this class.  
 
@@ -248,13 +251,13 @@ The following instance (object) methods are defined for XDF::FieldGroup.
 
 =over 4
 
-=item addFieldGroup ($info)
+=item addFieldGroup ($fieldGroupObj)
 
-Convenience method. Insert a field group object into this object.  
+Convenience method. Insert a field group object into this object. RETURNS: 1 on success, 0 on failure.  
 
 =item removeFieldGroup ($obj)
 
-Convenience method. Removes a field group object from this object.  
+Convenience method. Removes a field group object from this object. RETURNS: 1 on success, 0 on failure.  
 
 =back
 
@@ -286,7 +289,7 @@ B<new>, B<clone>, B<update>.
 =over 4
 
 XDF::FieldGroup inherits the following instance (object) methods of L<XDF::BaseObject>:
-B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLAttributes>, B<toXMLFileHandle>, B<toXMLString>, B<toXMLFile>.
+B<getXMLAttributes>, B<setXMLAttributes>, B<setXMLAttribute>, B<addXMLAttribute>, B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<toXMLFileHandle>, B<toXMLString>, B<toXMLFile>.
 
 =back
 

@@ -240,6 +240,9 @@ sub _init {
 # Modification History
 #
 # $Log$
+# Revision 1.5  2001/08/13 20:56:36  thomas
+# updated documentation via utils/makeDoc.pl for the release.
+#
 # Revision 1.4  2001/08/13 19:58:03  thomas
 # bug fix: use only local XML attributes for appendAttribs in _init
 #
@@ -260,3 +263,92 @@ sub _init {
 
 1;
 
+
+__END__
+
+=head1 NAME
+
+XDF::BaseObjectWithXMLElementsAndValueList - Perl Class for BaseObjectWithXMLElementsAndValueList
+
+=head1 SYNOPSIS
+
+ 
+
+
+...
+
+=head1 DESCRIPTION
+
+ A 'super base object' which can hold XMLElements. 
+
+XDF::BaseObjectWithXMLElementsAndValueList inherits class and attribute methods of L< = (>.
+
+
+=head1 METHODS
+
+=over 4
+
+=head2 CLASS Methods
+
+The following methods are defined for the class XDF::BaseObjectWithXMLElementsAndValueList.
+
+=over 4
+
+=item getClassAttributes (EMPTY)
+
+This method returns a list reference containing the namesof the class attributes for this object;This method takes no arguments may not be changed.  
+
+=item getClassXMLAttributes (EMPTY)
+
+ 
+
+=back
+
+=head2 INSTANCE (Object) Methods
+
+The following instance (object) methods are defined for XDF::BaseObjectWithXMLElementsAndValueList.
+
+=over 4
+
+=item toXMLFileHandle ($fileHandle, $XMLDeclAttribs, $indent, $dontCloseNode, $newNodeNameString, $noChildObjectNodeName)
+
+ 
+
+=back
+
+
+
+=head2 INHERITED Class Methods
+
+=over 4
+
+=back
+
+
+
+=head2 INHERITED INSTANCE Methods
+
+=over 4
+
+=back
+
+=back
+
+=head1 SEE ALSO
+
+
+
+=over 4
+
+L< XDF::Array>, L< XDF::Structure>, L<XDF::BaseObjectWithXMLElements>, L<XDF::BaseObjectWithValueList>
+
+=back
+
+=head1 AUTHOR
+
+    Brian Thomas  (thomas@adc.gsfc.nasa.gov)
+    Astronomical Data Center <http://adc.gsfc.nasa.gov>
+    NASA/Goddard Space Flight Center
+ 
+
+=cut

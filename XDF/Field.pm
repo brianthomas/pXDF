@@ -562,6 +562,9 @@ sub _init {
 # Modification History
 #
 # $Log$
+# Revision 1.17  2001/08/13 20:56:37  thomas
+# updated documentation via utils/makeDoc.pl for the release.
+#
 # Revision 1.16  2001/08/13 19:48:30  thomas
 # bug fix: use only local XML attributes for appendAttribs in _init
 #
@@ -660,17 +663,9 @@ The following methods are defined for the class XDF::Field.
 
 This method returns the class node name of XDF::Field. This method takes no arguments may not be changed.  
 
-=item classAttributes (EMPTY)
+=item getClassAttributes (EMPTY)
 
-This method returns a list reference containing the namesof the class attributes of XDF::Field. This method takes no arguments may not be changed.  
-
-=item getXMLAttributes (EMPTY)
-
-This method returns the XMLAttributes of this class.  
-
-=item addUnit (EMPTY)
-
-Insert an XDF::Unit object into the L<XDF::Units> object (e.g. $obj->units)held in this object. This method takes either a reference to an attribute hash ORobject reference to an existing XDF::Unit asits argument. Attributes in the attribute hash reference shouldcorrespond to attributes of the L<XDF::Unit> object. The attribute/value pairs in the attribute hash reference areused to initialize the new XDF::Unit object. RETURNS : an XDF::Unit object if successfull, undef if not.  
+ 
 
 =back
 
@@ -776,6 +771,38 @@ Set the infiniteNegativeValue attribute.
 
 Set the noDataValue attribute.  
 
+=item getNotANumberValue (EMPTY)
+
+ 
+
+=item setNotANumberValue ($value)
+
+Set the notANumberValue attribute.  
+
+=item getOverFlowValue (EMPTY)
+
+ 
+
+=item setOverFlowValue ($value)
+
+Set the overFlowValue attribute.  
+
+=item getUnderFlowValue (EMPTY)
+
+ 
+
+=item setUnderFlowValue ($value)
+
+Set the underFlowValue attribute.  
+
+=item getDisabledValue (EMPTY)
+
+ 
+
+=item setDisabledValue ($value)
+
+Set the disabledValue attribute.  
+
 =item getUnits{ (EMPTY)
 
  
@@ -808,17 +835,21 @@ Set the relation attribute.
 
 Set the noteList attribute.  
 
-=item addNote ($info)
+=item addNote ($noteObj)
 
-Insert an XDF::Note object into the XDF::Notes object held by this object. This method may optionally take a reference to an attribute hash asits argument. Attributes in the attribute hash shouldcorrespond to attributes of the L<XDF::Note> object. The attribute/value pairs in the attribute hash reference areused to initialize the new XDF::Note object. RETURNS : an XDF::Note object reference on success, undef on failure.  
+Insert an XDF::Note object into the XDF::Notes object held by this object. RETURNS : 1 on success, 0 on failure.  
 
 =item removeNote ($what)
 
-Removes an XDF::Note object from the list of XDF::Note objectsheld within the XDF::Notes object of this object. This method takes either the list index number or an object reference as its argument. RETURNS : 1 on success, undef on failure.  
+Removes an XDF::Note object from the list of XDF::Note objectsheld within the XDF::Notes object of this object. RETURNS : 1 on success, 0 on failure.  
 
-=item removeUnit ($indexOrObjectRef)
+=item addUnit ($unitObj)
 
-Remove an XDF::Unit object from the list of XDF::Units held inthe array units reference object. This method takes either the list index number or an object reference as its argument. RETURNS : 1 on success, undef on failure.  
+Insert an XDF::Unit object into the L<XDF::Units> object (e.g. $obj->units)held in this object. RETURNS : 1 on success, 0 on failure.  
+
+=item removeUnit ($unitObj)
+
+Remove an XDF::Unit object from the list of XDF::Units held inthe array units reference object. RETURNS : 1 on success, 0 on failure.  
 
 =back
 
@@ -850,7 +881,7 @@ B<new>, B<clone>, B<update>.
 =over 4
 
 XDF::Field inherits the following instance (object) methods of L<XDF::BaseObject>:
-B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLAttributes>, B<toXMLString>, B<toXMLFile>.
+B<getXMLAttributes>, B<setXMLAttributes>, B<setXMLAttribute>, B<addXMLAttribute>, B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<toXMLString>, B<toXMLFile>.
 
 =back
 
@@ -859,7 +890,7 @@ B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLAttributes>, B<toXM
 =over 4
 
 XDF::Field inherits the following instance (object) methods of L<XDF::BaseObjectWithXMLElements>:
-B<addXMLElement>, B<removeXMLElement>, B<getXMLElementList>, B<setXMLElementList>, B<toXMLFileHandle>.
+B<getClassXMLAttributes>, B<addXMLElement>, B<removeXMLElement>, B<getXMLElementList>, B<setXMLElementList>, B<toXMLFileHandle>.
 
 =back
 

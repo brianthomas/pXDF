@@ -249,6 +249,9 @@ sub reverse64BitStringByteOrder {
 # Modification History
 #
 # $Log$
+# Revision 1.7  2001/08/13 20:56:37  thomas
+# updated documentation via utils/makeDoc.pl for the release.
+#
 # Revision 1.6  2001/06/21 17:23:49  thomas
 # added isValidLogarithm method.
 #
@@ -334,6 +337,10 @@ Determine if the passed quanity is an allowed value for the role  attribute of t
 =item isValidDataCompression ($value)
 
 Determine if the passed quanity is an allowed value for the compressionattribute on the DataCube object.  
+
+=item isValidLogarithm ($value)
+
+Determine if the passed quanity is an allowed value for the logarithmattribute on the Units object.  
 
 =item isValidFloatBits ($value)
 

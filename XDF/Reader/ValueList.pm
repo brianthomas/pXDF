@@ -213,11 +213,150 @@ sub AUTOLOAD {
 
 1;
 
-#
-# Modification History
-# $Log$
-# Revision 1.2  2001/08/13 19:58:47  thomas
-# bug fix: use only local XML attributes for appendAttribs in _init
-#
-#
-#
+
+__END__
+
+=head1 NAME
+
+XDF::Reader::ValueList - Perl Class for Reader::ValueList
+
+=head1 SYNOPSIS
+
+...
+
+=head1 DESCRIPTION
+
+ This is meant to be a private, internal class of the XDF Reader
+
+XDF::Reader::ValueList inherits class and attribute methods of L<XDF::GenericObject>.
+
+
+=head1 METHODS
+
+=over 4
+
+=head2 CLASS Methods
+
+The following methods are defined for the class XDF::Reader::ValueList.
+
+=over 4
+
+=item new ($attribs_ref)
+
+We use default values for start, step, and size unless they are defined. The other parameters are optional (e.g. noDataValue, infiniteValue, ...)and will remain undefined unless specified by the user.  
+
+=item getStart (EMPTY)
+
+ 
+
+=item getSize (EMPTY)
+
+ 
+
+=item getRepeatable (EMPTY)
+
+ 
+
+=item getInfiniteNegative (EMPTY)
+
+ 
+
+=item getNotANumber (EMPTY)
+
+ 
+
+=item getUnderflow (EMPTY)
+
+ 
+
+=back
+
+=head2 INSTANCE (Object) Methods
+
+The following instance (object) methods are defined for XDF::Reader::ValueList.
+
+=over 4
+
+=item getValueListId (EMPTY)
+
+ 
+
+=item setValueListId ($value)
+
+Set the valueListId attribute.  
+
+=item getValueListIdRef (EMPTY)
+
+ 
+
+=item setValueListIdRef ($value)
+
+Set the valueListIdRef attribute.  
+
+=item getParentNodeName (EMPTY)
+
+ 
+
+=item setParentNodeName ($value)
+
+ 
+
+=item getIsDelimitedCase (EMPTY)
+
+ 
+
+=item setIsDelimitedCase ($value)
+
+ 
+
+=item getAttributes (EMPTY)
+
+This method returns the Attributes of this class as a hash.  
+
+=back
+
+
+
+=head2 INHERITED Class Methods
+
+=over 4
+
+=back
+
+
+
+=head2 INHERITED INSTANCE Methods
+
+=over 4
+
+
+
+=over 4
+
+XDF::Reader::ValueList inherits the following instance (object) methods of L<XDF::GenericObject>:
+B<getClassAttributes>, B<clone>, B<update>.
+
+=back
+
+=back
+
+=back
+
+=head1 SEE ALSO
+
+
+
+=over 4
+
+L<XDF::GenericObject>
+
+=back
+
+=head1 AUTHOR
+
+    Brian Thomas  (thomas@adc.gsfc.nasa.gov)
+    Astronomical Data Center <http://adc.gsfc.nasa.gov>
+    NASA/Goddard Space Flight Center
+ 
+
+=cut

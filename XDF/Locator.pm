@@ -354,6 +354,9 @@ sub _init {
 # Modification History
 #
 # $Log$
+# Revision 1.17  2001/08/13 20:56:37  thomas
+# updated documentation via utils/makeDoc.pl for the release.
+#
 # Revision 1.16  2001/08/13 19:49:49  thomas
 # small change to init: now has "local attribs".
 #
@@ -532,7 +535,7 @@ Reset the locator to the origin.
 =over 4
 
 XDF::Locator inherits the following instance (object) methods of L<XDF::GenericObject>:
-B<clone>, B<update>.
+B<getClassAttributes>, B<clone>, B<update>.
 
 =back
 

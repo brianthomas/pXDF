@@ -259,6 +259,9 @@ sub toXMLFileHandle {
 # Modification History
 #
 # $Log$
+# Revision 1.9  2001/08/13 20:56:36  thomas
+# updated documentation via utils/makeDoc.pl for the release.
+#
 # Revision 1.8  2001/08/13 19:58:03  thomas
 # bug fix: use only local XML attributes for appendAttribs in _init
 #
@@ -327,11 +330,11 @@ The following methods are defined for the class XDF::BaseObjectWithXMLElements.
 
 =over 4
 
-=item classAttributes (EMPTY)
+=item getClassAttributes (EMPTY)
 
 This method returns a list reference containing the namesof the class attributes for this object;This method takes no arguments may not be changed.  
 
-=item getXMLAttributes (EMPTY)
+=item getClassXMLAttributes (EMPTY)
 
  
 
@@ -343,13 +346,13 @@ The following instance (object) methods are defined for XDF::BaseObjectWithXMLEl
 
 =over 4
 
-=item addXMLElement ($xmlElementObjRef)
+=item addXMLElement ($xmlElementObj)
 
- 
+Add a child XMLElement object to this one. Returns 1 on success, 0 on failure.  
 
-=item removeXMLElement ($xmlElementObjRef)
+=item removeXMLElement ($xmlElementObj)
 
- 
+Remove a child XMLElement object to this one. Returns 1 on success, 0 on failure.  
 
 =item getXMLElementList (EMPTY)
 
@@ -359,7 +362,7 @@ The following instance (object) methods are defined for XDF::BaseObjectWithXMLEl
 
  
 
-=item toXMLFileHandle ($fileHandle, $XMLDeclAttribs, $indent, $dontCloseNode, $newNodeNameString, $noChildObjectNodeName, $isRootNode)
+=item toXMLFileHandle ($fileHandle, $XMLDeclAttribs, $indent, $dontCloseNode, $newNodeNameString, $noChildObjectNodeName)
 
  
 
@@ -393,7 +396,7 @@ B<new>, B<clone>, B<update>.
 =over 4
 
 XDF::BaseObjectWithXMLElements inherits the following instance (object) methods of L<XDF::BaseObject>:
-B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLAttributes>, B<toXMLString>, B<toXMLFile>.
+B<getXMLAttributes>, B<setXMLAttributes>, B<setXMLAttribute>, B<addXMLAttribute>, B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<toXMLString>, B<toXMLFile>.
 
 =back
 

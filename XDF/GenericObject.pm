@@ -285,6 +285,9 @@ sub _remove_from_list {
 # Modification History
 #
 # $Log$
+# Revision 1.10  2001/08/13 20:56:37  thomas
+# updated documentation via utils/makeDoc.pl for the release.
+#
 # Revision 1.9  2001/07/23 15:58:07  thomas
 # added ability to add arbitary XML attribute to class.
 # getXMLattributes now an instance method, we
@@ -356,9 +359,9 @@ The following methods are defined for the class XDF::GenericObject.
 
 =over 4
 
-=item classAttributes (EMPTY)
+=item getClassAttributes (EMPTY)
 
-This method returns a list reference containing the namesof the class attributes for this class. This method takes no arguments may not be changed.  
+This method returns a list reference containing the namesof the class attributes of XDF::FloatDataFormat. This method takes no arguments may not be changed.  
 
 =item new ($attribHashRef)
 

@@ -187,6 +187,9 @@ sub _init { }
 # Modification History
 #
 # $Log$
+# Revision 1.6  2001/08/13 20:56:37  thomas
+# updated documentation via utils/makeDoc.pl for the release.
+#
 # Revision 1.5  2001/08/13 19:49:15  thomas
 # bug fix: use only local XML attributes for appendAttribs in _init
 #
@@ -234,6 +237,22 @@ XDF::Href inherits class and attribute methods of L<XDF::GenericObject>.
 =head1 METHODS
 
 =over 4
+
+=head2 CLASS Methods
+
+The following methods are defined for the class XDF::Href.
+
+=over 4
+
+=item getClassAttributes (EMPTY)
+
+This method returns a list reference containing the namesof the class attributes of XDF::FloatDataFormat. This method takes no arguments may not be changed.  
+
+=item getClassXMLAttributes (EMPTY)
+
+This method returns the XMLAttributes of this class.  
+
+=back
 
 =head2 INSTANCE (Object) Methods
 

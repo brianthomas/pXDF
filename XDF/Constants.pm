@@ -222,6 +222,9 @@ sub XDF_NODE_NAMES { (
 # Modification History
 #
 # $Log$
+# Revision 1.15  2001/08/13 20:56:37  thomas
+# updated documentation via utils/makeDoc.pl for the release.
+#
 # Revision 1.14  2001/08/13 19:46:04  thomas
 # removed commented out code.
 #
@@ -393,6 +396,26 @@ The following methods are defined for the class XDF::Constants.
 
  
 
+=item LOGARITHM_NATURAL (EMPTY)
+
+ 
+
+=item LOGARITHM_LIST (EMPTY)
+
+ 
+
+=item DATA_COMPRESSION_GZIP_PATH (EMPTY)
+
+ 
+
+=item DATA_COMPRESSION_COMPRESS_PATH (EMPTY)
+
+ 
+
+=item DATA_COMPRESSION_ZIP_PATH (EMPTY)
+
+ 
+
 =item VALUE_INEQUALITY_LESS_THAN (EMPTY)
 
  
@@ -413,15 +436,23 @@ The following methods are defined for the class XDF::Constants.
 
  
 
+=item VALUE_SPECIAL_OVERFLOW (EMPTY)
+
+ 
+
 =item VALUE_SPECIAL_LIST (EMPTY)
 
  
 
-=item DEFAULT_VALUELIST_STEP (EMPTY)
+=item DEFAULT_VALUELIST_SIZE (EMPTY)
 
  
 
-=item DEFAULT_VALUELIST_REPEATABLE (EMPTY)
+=item DEFAULT_VALUELIST_START (EMPTY)
+
+ 
+
+=item DEFAULT_VALUELIST_DELIMITER (EMPTY)
 
  
 

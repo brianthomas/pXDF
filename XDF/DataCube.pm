@@ -1030,6 +1030,9 @@ sub _build_locator_string {
 # Modification History
 #
 # $Log$
+# Revision 1.31  2001/08/13 20:56:37  thomas
+# updated documentation via utils/makeDoc.pl for the release.
+#
 # Revision 1.30  2001/08/13 19:57:13  thomas
 # fixed compressed file writing.
 # bug fix: use only local XML attributes for appendAttribs in _init
@@ -1188,11 +1191,11 @@ The following methods are defined for the class XDF::DataCube.
 
 This method takes no arguments may not be changed. This method returns the class node name of XDF::DataCube.  
 
-=item classAttributes (EMPTY)
+=item getClassAttributes (EMPTY)
 
 This method returns a list reference containing the namesof the class attributes of XDF::DataCube; This method takes no arguments may not be changed.  
 
-=item getXMLAttributes (EMPTY)
+=item getClassXMLAttributes (EMPTY)
 
 This method returns the XMLAttributes of this class.  
 
@@ -1248,19 +1251,23 @@ Set the encoding attribute.
 
  
 
-=item writeDataToFileHandle ($fileHandle, $indent)
+=item writeDataToFileHandle ($fileHandle, $indent, $compression_type)
 
 Writes out just the data to the proscribed filehandle.  
 
 =item addData ($locator, $data, $no_append)
 
-This routine will append data to a cell unless directed to do otherwise.  
+This routine will append data to a cell unless directed to do otherwise. RETURNS: 1 on success, 0 on failure.  
 
 =item setData ($locator, $datum)
 
-Set the SCALAR value of the requested datacell at indicated location (see LOCATOR REF section). Overwrites existing datacell value if any.  
+Set the value of the requested datacell. Overwrites existing datacell value if already populated with a value.  
 
 =item getData ($locator)
+
+We return whatever is stored in the datacell.  
+
+=item getData_old ($locator)
 
 Retrieve the SCALAR value of the requested datacell.  
 
@@ -1294,7 +1301,7 @@ B<new>, B<clone>, B<update>.
 =over 4
 
 XDF::DataCube inherits the following instance (object) methods of L<XDF::BaseObject>:
-B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLAttributes>, B<toXMLString>, B<toXMLFile>.
+B<getXMLAttributes>, B<setXMLAttributes>, B<setXMLAttribute>, B<addXMLAttribute>, B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<toXMLString>, B<toXMLFile>.
 
 =back
 

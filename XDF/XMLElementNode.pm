@@ -293,6 +293,9 @@ sub toXMLFileHandle {
 # Modification History
 #
 # $Log$
+# Revision 1.2  2001/08/13 20:56:37  thomas
+# updated documentation via utils/makeDoc.pl for the release.
+#
 # Revision 1.1  2001/08/13 19:54:17  thomas
 # from old 'XMLElement' class
 #
@@ -354,7 +357,7 @@ The following methods are defined for the class XDF::XMLElementNode.
 
 =over 4
 
-=item classAttributes (EMPTY)
+=item getClassAttributes (EMPTY)
 
 This method returns a list reference containing the namesof the class attributes of XDF::XMLElementNode. Note that for XDF::XMLElementNode this is an empty list. Any attributesthat this class has are inherited from XML::DOM::Element, a classoutside of the XDF package.  
 
@@ -376,11 +379,11 @@ Similar to the getChildNodes method except that it only returnsthe children whic
 
 =item addXMLElementNode ($xmlElementObjRef)
 
-Aliased to the appendChild method.  
+Aliased to the appendChild method. Returns : 1 on success , 0 on failure.  
 
 =item removeXMLElementNode ($xmlElementObjRef)
 
-Aliased to the removeChild method. Will only remove childXMLElementNode nodes.  
+Aliased to the removeChild method. Will only remove childXMLElementNode nodes. Returns : 1 on success , 0 on failure.  
 
 =item setXMLElementNodeList ($listRef)
 
@@ -393,6 +396,14 @@ May reset the childNode list to that passed. This method will reject any $listRe
 =item appendCData ($text)
 
 Append character data into this node. This is a short cut method,it actually creates a child TEXT_NODE to hold the CDATA and then appends it as a child of the XMLElementNode.  
+
+=item setCData ($text)
+
+Set the character data of this node. This is a short cut method,it actually deletes all existing child TEXT_NODES and then creates a new, single child TEXT_NODE to hold the CDATA within the element.  
+
+=item getXMLAttributes (EMPTY)
+
+ 
 
 =item toXMLFileHandle ($fileHandle, $indent)
 

@@ -215,6 +215,9 @@ sub _parseNodeIntoXDFObject {
 # Modification History
 #
 # $Log$
+# Revision 1.6  2001/08/13 20:56:58  thomas
+# updated documentation via utils/makeDoc.pl for the release.
+#
 # Revision 1.5  2001/08/13 19:53:13  thomas
 # bug fix: parsefile alias method screwing up parser. removed,
 # it should still work out alright anyways. This method was
@@ -251,6 +254,8 @@ XDF::DOM::Parser;  - Perl Class for DOM::Parser;
 
   # note: KeepCDATA not available option for XDF::DOM::Parser
  my %options = ( 
+                 quiet => 0,
+                 debug => 1,
                  NoExpand => 1,
                  ParseParamEnt => 0,
                );
@@ -277,7 +282,9 @@ XDF::DOM::Parser;  - Perl Class for DOM::Parser;
 =head1 DESCRIPTION
 
  XDF::DOM is extends the L<XML::DOM> class and inherits all of its methods and attributes. XDF::DOM allows the reading writing and manipulation of any XML document which embeds XDF within it.  
- Rather than having to manipulate the XDF portion of the DOM with clumsy DOM methods, the XDF portions of the document may be operated on using  XDF methods viz L<XDF::DOM::Element>. 
+ Rather than having to manipulate the XDF portion of the DOM with clumsy DOM methods, the XDF portions of the document may be operated on using  XDF methods viz L<XDF::DOM::Element>.   
+ The options of 'debug' and 'quiet' may be specified to the XDF::DOM::Parser in addtion to those options allowed for the XML::DOM::Parser class.   
+
 
 XDF::DOM::Parser;  inherits class and attribute methods of L<XML::DOM::Parser>.
 
@@ -304,7 +311,7 @@ The following instance (object) methods are defined for XDF::DOM::Parser; .
 
 =over 4
 
-=item parse ($file)
+=item parse ($scalar)
 
  
 

@@ -216,6 +216,9 @@ sub _sprintfNotation {
 # Modification History
 #
 # $Log$
+# Revision 1.16  2001/08/13 20:56:37  thomas
+# updated documentation via utils/makeDoc.pl for the release.
+#
 # Revision 1.15  2001/08/13 19:50:16  thomas
 # bug fix: use only local XML attributes for appendAttribs in _init
 #
@@ -309,11 +312,11 @@ The following methods are defined for the class XDF::StringDataFormat.
 
 This method returns the class XML node name. This method takes no arguments may not be changed.  
 
-=item classAttributes (EMPTY)
+=item getClassAttributes (EMPTY)
 
-This method returns a list containing the namesof the attributes of this class. This method takes no arguments may not be changed.  
+This method returns a list reference containing the namesof the class attributes for this class. This method takes no arguments may not be changed.  
 
-=item getXMLAttributes (EMPTY)
+=item getClassXMLAttributes (EMPTY)
 
 This method returns the XMLAttributes of this class.  
 
@@ -327,7 +330,7 @@ The following instance (object) methods are defined for XDF::StringDataFormat.
 
 =item getLength (EMPTY)
 
- 
+Get the width of this string field in characters. Normally this translates to the number of bytes the object holds,however, note that the encoding of the data is important. Whenthe encoding is UTF-16, then the number of bytes effectively is 2x $obj->length.  
 
 =item setLength ($value)
 
@@ -380,7 +383,7 @@ B<toXMLFileHandle>.
 =over 4
 
 XDF::StringDataFormat inherits the following instance (object) methods of L<XDF::BaseObject>:
-B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLAttributes>, B<toXMLString>, B<toXMLFile>.
+B<getXMLAttributes>, B<setXMLAttributes>, B<setXMLAttribute>, B<addXMLAttribute>, B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<toXMLString>, B<toXMLFile>.
 
 =back
 

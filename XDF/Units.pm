@@ -268,6 +268,9 @@ sub _init {
 # Modification History
 #
 # $Log$
+# Revision 1.14  2001/08/13 20:56:37  thomas
+# updated documentation via utils/makeDoc.pl for the release.
+#
 # Revision 1.13  2001/08/13 19:50:16  thomas
 # bug fix: use only local XML attributes for appendAttribs in _init
 #
@@ -354,11 +357,11 @@ Name of the child node to print in the toXMLFileHandle method when an XDF::Units
 
  
 
-=item classAttributes (EMPTY)
+=item getClassAttributes (EMPTY)
 
- 
+This method returns a list reference containing the namesof the class attributes for this class. This method takes no arguments may not be changed.  
 
-=item getXMLAttributes (EMPTY)
+=item getClassXMLAttributes (EMPTY)
 
 This method returns the XMLAttributes of this class.  
 
@@ -386,6 +389,14 @@ Set the factor attribute.
 
 Set the system attribute.  
 
+=item getLogarithm (EMPTY)
+
+ 
+
+=item setLogarithm ($value)
+
+Set the logarithm attribute.  
+
 =item getUnitList (EMPTY)
 
  
@@ -410,13 +421,13 @@ Set the unitList attribute.
 
 Convience method. Returns an Array of units held within this object.  
 
-=item addUnit ($info)
+=item addUnit ($unitObj)
 
- 
+Add an XDF::Unit Object to the list of units within this XDF::Units object. RETURNS : 1 on success, 0 on failure.  
 
 =item removeUnit ($what)
 
- 
+RETURNS : 1 on success, 0 on failure.  
 
 =item toXMLFileHandle ($fileHandle, $XMLDeclAttribs, $indent, $dontCloseNode)
 
@@ -452,7 +463,7 @@ B<new>, B<clone>, B<update>.
 =over 4
 
 XDF::Units inherits the following instance (object) methods of L<XDF::BaseObject>:
-B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLAttributes>, B<toXMLString>, B<toXMLFile>.
+B<getXMLAttributes>, B<setXMLAttributes>, B<setXMLAttribute>, B<addXMLAttribute>, B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<toXMLString>, B<toXMLFile>.
 
 =back
 
@@ -466,7 +477,7 @@ B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLAttributes>, B<toXM
 
 =over 4
 
-L<XDF::BaseObject>, L<XDF::Unit>
+L<XDF::BaseObject>, L<XDF::Utility>, L<XDF::Unit>
 
 =back
 

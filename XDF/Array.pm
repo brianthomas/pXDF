@@ -995,17 +995,13 @@ The following methods are defined for the class XDF::Array.
 
 This method returns the class node name of XDF::Array; This method takes no arguments may not be changed.  
 
-=item classAttributes (EMPTY)
+=item getClassAttributes (EMPTY)
 
-This method returns a list reference containing the namesof the class attributes of XDF::Array; This method takes no arguments may not be changed.  
+ 
 
-=item getXMLAttributes (EMPTY)
+=item getClassXMLAttributes (EMPTY)
 
-This method returns the XMLAttributes of this class.  
-
-=item addUnit (EMPTY)
-
-Insert an XDF::Unit object into the L<XDF::Units> object (e.g. $obj->units)held in this object. This method takes either a reference to an attribute hash ORobject reference to an existing XDF::Unit asits argument. Attributes in the attribute hash reference shouldcorrespond to attributes of the L<XDF::Unit> object. The attribute/value pairs in the attribute hash reference areused to initialize the new XDF::Unit object. RETURNS : an XDF::Unit object if successfull, undef if not.  
+ 
 
 =back
 
@@ -1103,6 +1099,38 @@ Set the infiniteNegativeValue attribute.
 
 Set the noDataValue attribute.  
 
+=item getNotANumberValue (EMPTY)
+
+ 
+
+=item setNotANumberValue ($value)
+
+Set the notANumberValue attribute.  
+
+=item getOverFlowValue (EMPTY)
+
+ 
+
+=item setOverFlowValue ($value)
+
+Set the overFlowValue attribute.  
+
+=item getUnderFlowValue (EMPTY)
+
+ 
+
+=item setUnderFlowValue ($value)
+
+Set the underFlowValue attribute.  
+
+=item getDisabledValue (EMPTY)
+
+ 
+
+=item setDisabledValue ($value)
+
+Set the disabledValue attribute.  
+
 =item getDataCube (EMPTY)
 
  
@@ -1155,10 +1183,6 @@ Returns the notes object held by this object.
 
  
 
-=item setFieldAxis ($value)
-
-Set the fieldAxis in this array. This will remove an existing field axis if undef is passed.  
-
 =item getFieldAxis (EMPTY)
 
  
@@ -1183,65 +1207,69 @@ Get the dataFormatList for this array. Returns an ARRAY of dataFormat objects.
 
 Create one instance of an L<XDF::Locator> object for this array.  
 
-=item addParamGroup ($objectRefOrAttribHashRef)
+=item addParamGroup ($objectRef)
 
-Insert an XDF::ParameterGroup object into this object. This method takes either a reference to an attribute hash ORobject reference to an existing XDF::ParameterGroup asits argument. Attributes in the attribute hash reference shouldcorrespond to attributes of the L<XDF::ParameterGroup> object. The attribute/value pairs in the attribute hash reference areused to initialize the new XDF::ParameterGroup object. RETURNS : an XDF::ParameterGroup object reference on success, undef on failure.  
+Insert an XDF::ParameterGroup object into this object. This method takes either a reference to an attribute hash ORobject reference to an existing XDF::ParameterGroup asits argument. Attributes in the attribute hash reference shouldcorrespond to attributes of the L<XDF::ParameterGroup> object. The attribute/value pairs in the attribute hash reference areused to initialize the new XDF::ParameterGroup object. returns: 1 on success, 0 on failure.  
 
 =item removeParamGroup ($hashKey)
 
-Remove an XDF::ParameterGroup object from the hash table of XDF::ParameterGroups held within this object. This method takes the hash key its argument. RETURNS : 1 on success, undef on failure.  
+Remove an XDF::ParameterGroup object from the hash table of XDF::ParameterGroups held within this object. This method takes the hash key its argument. RETURNS : 1 on success, 0 on failure.  
 
-=item addAxis ($attribHashRefOrObjectRef)
+=item addAxis ($axisObj)
 
-Insert an XDF::Axis object into this object. This method takes a reference to an attribute hash ORobject reference to an existing XDF::Axis asits argument. Attributes in the attribute hash reference shouldcorrespond to attributes of the L<XDF::Axis> object. The attribute/value pairs in the attribute hash reference areused to initialize the new XDF::Axis object. RETURNS : an XDF::Axis object reference on success, undef on failure.  
+Insert an XDF::Axis object into this object. This method takes a reference to an attribute hash ORobject reference to an existing XDF::Axis asits argument. Attributes in the attribute hash reference shouldcorrespond to attributes of the L<XDF::Axis> object. The attribute/value pairs in the attribute hash reference areused to initialize the new XDF::Axis object. RETURNS : 1 on success, 0 on failure.  
 
-=item removeAxis ($indexOrObjectRef)
+=item removeAxis ($axisObj)
 
-Remove an XDF::Axis object from the list of XDF::Axesheld within this object. This method takes either the list index number or an object reference as its argument. RETURNS : 1 on success, undef on failure.  
+Remove an XDF::Axis object from the list of XDF::Axesheld within this object. This method takes either the list index number or an object reference as its argument. RETURNS : 1 on success, 0 on failure.  
+
+=item addUnit ($unitObj)
+
+Insert an XDF::Unit object into the L<XDF::Units> object (e.g. $obj->units)held in this object. This method takes either a reference to an attribute hash ORobject reference to an existing XDF::Unit asits argument. Attributes in the attribute hash reference shouldcorrespond to attributes of the L<XDF::Unit> object. The attribute/value pairs in the attribute hash reference areused to initialize the new XDF::Unit object. RETURNS : 1 if successfull, 0 if not.  
 
 =item removeUnit ($indexOrObjectRef)
 
-Remove an XDF::Unit object from the list of XDF::Units held inthe array units reference object. This method takes either the list index number or an object reference as its argument. RETURNS : 1 on success, undef on failure.  
+Remove an XDF::Unit object from the list of XDF::Units held inthe array units reference object. This method takes either the list index number or an object reference as its argument. RETURNS : 1 on success, 0 on failure.  
 
-=item addParameter ($attribHashReference)
+=item addParameter ($paramObj)
 
-Insert an XDF::Parameter object into this object. This method may optionally take a reference to an attribute hash asits argument. Attributes in the attribute hash shouldcorrespond to attributes of the L<XDF::Parameter> object. The attribute/value pairs in the attribute hash reference areused to initialize the new XDF::Parameter object. RETURNS : an XDF::Parameter object reference on success, undef on failure.  
+Insert an XDF::Parameter object into this object. This method may optionally take a reference to an attribute hash asits argument. Attributes in the attribute hash shouldcorrespond to attributes of the L<XDF::Parameter> object. The attribute/value pairs in the attribute hash reference areused to initialize the new XDF::Parameter object. RETURNS : 1 on success, 0 on failure.  
 
 =item removeParameter ($indexOrObjectRef)
 
-Remove an XDF::Parameter object from the list of XDF::Parametersheld within this object. This method takes either the list index number or an object reference as its argument. RETURNS : 1 on success, undef on failure.  
+Remove an XDF::Parameter object from the list of XDF::Parametersheld within this object. This method takes either the list index number or an object reference as its argument. RETURNS : 1 on success, 0 on failure.  
 
-=item addNote ($info)
+=item addNote ($noteObj)
 
-Insert an XDF::Note object into the XDF::Notes object held by this object. This method may optionally take a reference to an attribute hash asits argument. Attributes in the attribute hash shouldcorrespond to attributes of the L<XDF::Note> object. The attribute/value pairs in the attribute hash reference areused to initialize the new XDF::Note object. RETURNS : an XDF::Note object reference on success, undef on failure.  
+Insert an XDF::Note object into the XDF::Notes object held by this object. RETURNS : 1 on success, 0 on failure.  
 
 =item removeNote ($what)
 
-Removes an XDF::Note object from the list of XDF::Note objectsheld within the XDF::Notes object of this object. This method takes either the list index number or an object reference as its argument. RETURNS : 1 on success, undef on failure.  
+Removes an XDF::Note object from the list of XDF::Note objectsheld within the XDF::Notes object of this object. This method takes either the list index number or an object reference as its argument. RETURNS : 1 on success, 0 on failure.  
 
 =item addData ($locator, $dataValue)
 
-Append the SCALAR value onto the requested datacell (via L<XDF::DataCube> LOCATOR REF).  
+Append the SCALAR value onto the requested datacell (via L<XDF::DataCube> LOCATOR REF). RETURNS : 1 on success, 0 on failure.  
 
 =item setData ($locator, $dataValue)
 
 Set the SCALAR value of the requested datacell (via L<XDF::DataCube> LOCATOR REF). Overwrites existing datacell value if any.  
 
-=item removeData ($locator, $data)
-
-Remove the requested data from the indicated datacell (via L<XDF::DataCube> LOCATOR REF) in the XDF::DataCube held in this Array. B<NOT CURRENTLY IMPLEMENTED>.  
-
 =item getData ($locator)
 
 Retrieve the SCALAR value of the requested datacell (via L<XDF::DataCube> LOCATOR REF).  
 
-=item addFieldAxis ($attribHashRefOrObjectRef)
+=item addFieldAxis ($fieldAxisObj)
 
-A convenience method (same as $Array->setFieldAxis($fieldAxisObj)). Changes the L<XDF::FieldAxis> object in this Array to the indicated one.  
+Set the Field Axis of this Array. If an undef value is passed,then the field Axis is removed from the array. RETURNS : 1 on success, 0 on failure. Set the Field Axis of this Array. If an undef value is passed,then the field Axis is removed from the array. RETURNS 1 on success, 0 on failure.  
+
+=item setFieldAxis ($fieldAxisObj)
+
+ 
 
 =item removeFieldAxis (EMPTY)
 
-Removes the L<XDF::FieldAxis> object in this Array.  
+Removes the L<XDF::FieldAxis> object in this Array. Returns 1 on success, 0 on failure.  
 
 =back
 
@@ -1273,7 +1301,7 @@ B<new>, B<clone>, B<update>.
 =over 4
 
 XDF::Array inherits the following instance (object) methods of L<XDF::BaseObject>:
-B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLAttributes>, B<toXMLString>, B<toXMLFile>.
+B<getXMLAttributes>, B<setXMLAttributes>, B<setXMLAttribute>, B<addXMLAttribute>, B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<toXMLString>, B<toXMLFile>.
 
 =back
 

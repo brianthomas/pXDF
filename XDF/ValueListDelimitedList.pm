@@ -43,6 +43,7 @@
 package XDF::ValueListDelimitedList;
 
 use XDF::BaseObject;
+use XDF::Value;
 use Carp;
 
 use strict;
@@ -325,6 +326,9 @@ sub AUTOLOAD {
 # Modification History
 #
 # $Log$
+# Revision 1.5  2001/08/13 20:56:37  thomas
+# updated documentation via utils/makeDoc.pl for the release.
+#
 # Revision 1.4  2001/08/13 19:56:29  thomas
 # bug fix: use only local XML attributes for appendAttribs in _init
 #
@@ -346,3 +350,141 @@ sub AUTOLOAD {
 1;
 
 
+__END__
+
+=head1 NAME
+
+XDF::ValueListDelimitedList - Perl Class for ValueListDelimitedList
+
+=head1 SYNOPSIS
+
+ 
+
+
+...
+
+=head1 DESCRIPTION
+
+ ValueListDelimitedList will create a concise description of a list of  values from a passed list of value objects.  The ValueList object may be then passed on and used by other objects to populate the list of values they hold.  A desirable feature of using the ValueList object is that it result in a more compact format for describing the values so added to other objects when they are written out using the toXMLFileHandle method. 
+
+XDF::ValueListDelimitedList inherits class and attribute methods of L<XDF::GenericObject>, L<XDF::BaseObject>.
+
+
+=head1 METHODS
+
+=over 4
+
+=head2 CLASS Methods
+
+The following methods are defined for the class XDF::ValueListDelimitedList.
+
+=over 4
+
+=item classXMLNodeName (EMPTY)
+
+This method takes no arguments may not be changed. This method returns the class node name of XDF::ValueListDelimitedList.  
+
+=item getClassAttributes (EMPTY)
+
+This method returns a list reference containing the namesof the class attributes for this class. This method takes no arguments may not be changed.  
+
+=item getClassXMLAttributes (EMPTY)
+
+This method returns the XMLAttributes of this class.  
+
+=item new ($valueListRef, $delimiter, $noDataValue, $infiniteValue, $infiniteNegativeValue, $notANumberValue, $overflowValue, $underflowValue)
+
+Constructs a valueList object with Values in passed List. Care should be taken that none of the Value objects are setto the same sequence of characters as the passed delimiter (or the default delimiter if no delimiter variable is passed).  
+
+=back
+
+=head2 INSTANCE (Object) Methods
+
+The following instance (object) methods are defined for XDF::ValueListDelimitedList.
+
+=over 4
+
+=item clone ($_parentArray)
+
+Clone a deep copy from this object.  
+
+=item getValueListId (EMPTY)
+
+ 
+
+=item setValueListId ($value)
+
+Set the valueListId attribute.  
+
+=item getValueListIdRef (EMPTY)
+
+ 
+
+=item setValueListIdRef ($value)
+
+Set the valueListIdRef attribute.  
+
+=item getValues (EMPTY)
+
+Return the list of values held in this object.  
+
+=item toXMLFileHandle ($fileHandle, $XMLDeclAttribs, $indent)
+
+ 
+
+=back
+
+
+
+=head2 INHERITED Class Methods
+
+=over 4
+
+=back
+
+
+
+=head2 INHERITED INSTANCE Methods
+
+=over 4
+
+
+
+=over 4
+
+XDF::ValueListDelimitedList inherits the following instance (object) methods of L<XDF::GenericObject>:
+B<update>.
+
+=back
+
+
+
+=over 4
+
+XDF::ValueListDelimitedList inherits the following instance (object) methods of L<XDF::BaseObject>:
+B<getXMLAttributes>, B<setXMLAttributes>, B<setXMLAttribute>, B<addXMLAttribute>, B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<toXMLString>, B<toXMLFile>.
+
+=back
+
+=back
+
+=back
+
+=head1 SEE ALSO
+
+
+
+=over 4
+
+L< XDF::Axis>, L< XDF::Parameter>, L< XDF::ValueListAlgorithm>, L< XDF::Value>, L<XDF::BaseObject>
+
+=back
+
+=head1 AUTHOR
+
+    Brian Thomas  (thomas@adc.gsfc.nasa.gov)
+    Astronomical Data Center <http://adc.gsfc.nasa.gov>
+    NASA/Goddard Space Flight Center
+ 
+
+=cut

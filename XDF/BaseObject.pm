@@ -601,6 +601,9 @@ sub READLINE {
 # Modification History
 #
 # $Log$
+# Revision 1.22  2001/08/13 20:56:36  thomas
+# updated documentation via utils/makeDoc.pl for the release.
+#
 # Revision 1.21  2001/08/13 19:58:03  thomas
 # bug fix: use only local XML attributes for appendAttribs in _init
 #
@@ -727,13 +730,13 @@ The following methods are defined for the class XDF::BaseObject.
 
 =over 4
 
-=item classAttributes (EMPTY)
+=item getClassAttributes (EMPTY)
 
 This method returns a list reference containing the namesof the class attributes for this object;This method takes no arguments may not be changed.  
 
-=item getXMLAttributes (EMPTY)
+=item getClassXMLAttributes (EMPTY)
 
- 
+Return a list ref of the XML attributes for this class.  
 
 =back
 
@@ -743,9 +746,25 @@ The following instance (object) methods are defined for XDF::BaseObject.
 
 =over 4
 
+=item getXMLAttributes (EMPTY)
+
+Return a list reference of the XML attributes held by this object. This list *may* differ from that returned by getClassXMLAttributesas new, user-defined Attributes may have been added to this instance.  
+
+=item setXMLAttributes ($attribHashRef)
+
+Set the XML attributes of this object using a passed Hashtable ref.  
+
+=item setXMLAttribute ($attrib, $value)
+
+ 
+
+=item addXMLAttribute ($attrib, $value)
+
+ 
+
 =item addToGroup ($groupObj)
 
-Add this object as a member of a group.  
+Add this object as a member of a group. Returns : 1 on success, 0 on failure.  
 
 =item removeFromGroup ($groupObj)
 
@@ -755,21 +774,17 @@ Remove this object from membership in a group.
 
 Determine if this object is a member of the reference Group object. Returns 1 if true, undef if false.  
 
-=item setXMLAttributes ($attribHashRef)
+=item toXMLFileHandle ($fileHandle, $XMLDeclAttribs, $indent, $dontCloseNode, $newNodeNameString, $noChildObjectNodeName)
 
-Set the XML attributes of this object using a passed Hashtable ref.  
+Write this structure and all the objects it owns to the supplied filehandle in XML (XDF) format. The first argument is the name of the filehandle and is required.  
 
-=item toXMLFileHandle ($fileHandle, $XMLDeclAttribs, $indent, $dontCloseNode, $newNodeNameString, $noChildObjectNodeName, $isRootNode)
+=item toXMLString ($XMLDeclAttribs, $indent, $dontCloseNode, $newNodeNameString, $noChildObjectNodeName)
 
-Write this structure and all the objects it owns to the supplied filehandle in XML (XDF) format. The first argument is the name of the filehandle and is required. The second, optional, argument indicates whether/how to write out the XML declaration at the beginning of the file. This second argument may either be a string or hash table. As a string is means simply to write the XML declaration and DOCTYPE. As a hash table, the attributes of the XML declaration are arranged in attribute/value pairs, e.g. %XMLDeclAttribs = ( 'version' => "1.0",'standalone => 'no',); 
-
-=item toXMLString ($XMLDeclAttribs, $indent, $dontCloseNode, $newNodeNameString, $noChildObjectNodeName, $isRootNode)
-
-Similar to toXMLFileHandle method, takes the same arguments barring thefirst (e.g. the FileHandle reference) which is not needed for this method. Returns a string XML representation of the object.  
+Print out the XML representation of this object. Similar to toXMLFileHandle method, takes the same arguments barring thefirst (e.g. the FileHandle reference) which is not needed for this method. Returns a string XML representation of the object.  
 
 =item toXMLFile ($file, $XMLDeclAttribs)
 
-This is a convenience method which allows writing of this structure and all the objects it owns to the indicated file in XML (XDF) format. The first argument is the name of the file and is required. The supplied filename will be OVERWRITTEN, not appended to. The second, optional, argument has the same meaning as for toXMLFileHandle.  
+This is a convenience method which allows writing of this object and all the objects it owns to the indicated file in XML (XDF) format. The first argument is the name of the file and is required. The supplied filename will be OVERWRITTEN, not appended to. The second, optional, argument has the same meaning as for toXMLFileHandle.  
 
 =back
 

@@ -247,6 +247,9 @@ sub _sprintfNotation {
 # Modification History
 #
 # $Log$
+# Revision 1.15  2001/08/13 20:56:37  thomas
+# updated documentation via utils/makeDoc.pl for the release.
+#
 # Revision 1.14  2001/08/13 19:47:06  thomas
 # bug fix: use only local XML attributes for appendAttribs in _init
 # Also, printAttributes now fed the *instance* (not class) XML attributes.
@@ -337,11 +340,11 @@ The following methods are defined for the class XDF::DelimitedXMLDataIOStyle.
 
  
 
-=item classAttributes (EMPTY)
+=item getClassAttributes (EMPTY)
 
  
 
-=item getXMLAttributes (EMPTY)
+=item getClassXMLAttributes (EMPTY)
 
 This method returns the XMLAttributes of this class.  
 
@@ -411,7 +414,7 @@ B<new>, B<clone>, B<update>.
 =over 4
 
 XDF::DelimitedXMLDataIOStyle inherits the following instance (object) methods of L<XDF::BaseObject>:
-B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLAttributes>, B<toXMLString>, B<toXMLFile>.
+B<getXMLAttributes>, B<setXMLAttributes>, B<setXMLAttribute>, B<addXMLAttribute>, B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<toXMLString>, B<toXMLFile>.
 
 =back
 

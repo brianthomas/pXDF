@@ -497,6 +497,9 @@ sub _init {
 # Modification History
 #
 # $Log$
+# Revision 1.16  2001/08/13 20:56:37  thomas
+# updated documentation via utils/makeDoc.pl for the release.
+#
 # Revision 1.15  2001/08/13 19:49:15  thomas
 # bug fix: use only local XML attributes for appendAttribs in _init
 #
@@ -557,3 +560,211 @@ sub _init {
 1;
 
 
+__END__
+
+=head1 NAME
+
+XDF::Parameter - Perl Class for Parameter
+
+=head1 SYNOPSIS
+
+
+    my $parameterObj = $dataObj->add_parameter();
+
+    $parameterObj->name('param1');
+    $parameterObj->value(1000);
+
+    my $parameter_name = $parameterObj->name();
+  
+
+
+...
+
+=head1 DESCRIPTION
+
+ An XDF::Parameter describes a scientific parameter assocated with the  L<XDF::Structure> or L<XDF::Array> that it is contained in.  Parameter is a flexible container for holding what is essentially information  about data but is not needed to read/write/manipulate the data in a mathematical sense. 
+
+XDF::Parameter inherits class and attribute methods of L< = (>, L<XDF::BaseObjectWithXMLElementsAndValueList>.
+
+
+=head1 METHODS
+
+=over 4
+
+=head2 CLASS Methods
+
+The following methods are defined for the class XDF::Parameter.
+
+=over 4
+
+=item classXMLNodeName (EMPTY)
+
+This method returns the class node name of XDF::Parameter. This method takes no arguments may not be changed.  
+
+=item getClassAttributes (EMPTY)
+
+This method returns a list reference containing the namesof the class attributes of XDF::FloatDataFormat. This method takes no arguments may not be changed.  
+
+=item getClassXMLAttributes (EMPTY)
+
+This method returns the XMLAttributes of this class.  
+
+=back
+
+=head2 INSTANCE (Object) Methods
+
+The following instance (object) methods are defined for XDF::Parameter.
+
+=over 4
+
+=item getName (EMPTY)
+
+ 
+
+=item setName ($value)
+
+Set the name attribute.  
+
+=item getDescription (EMPTY)
+
+ 
+
+=item setDescription ($value)
+
+ 
+
+=item getParamId (EMPTY)
+
+ 
+
+=item setParamId ($value)
+
+Set the paramId attribute.  
+
+=item getParamIdRef (EMPTY)
+
+ 
+
+=item setParamIdRef ($value)
+
+Set the paramIdRef attribute.  
+
+=item getDatatype (EMPTY)
+
+ 
+
+=item setDatatype ($value)
+
+Set the datatype attribute.  
+
+=item getNoteList (EMPTY)
+
+ 
+
+=item setNoteList ($arrayRefValue)
+
+Set the noteList attribute.  
+
+=item getValueList (EMPTY)
+
+ 
+
+=item setValueList ($arrayOrValueListObjRefValue)
+
+Set the valueList attribute. You may either pass an array of Valueobjects OR a valueList object (either ValueListAlgorithm or ValueListDelimitedList). Using a valueList *object* will result in a more compact description of the passed values when the parameter is printed out.  
+
+=item getUnits (EMPTY)
+
+ 
+
+=item setUnits ($value)
+
+Set the units attribute.  
+
+=item addValueList ($arrayOrValueListObjRefValue)
+
+Append a list of values held by the passed ValueListObject (or Array of Values)into this Parameter object.  
+
+=item resetValues (EMPTY)
+
+Remove (reset the valueList) all Value objects held within this object.  
+
+=item addValueGroup ($valueGroupObj)
+
+Insert a valueGroup object into this object. Returns 1 on success, 0 on failure.  
+
+=item removeValueGroup ($hashKey)
+
+Remove a valueGroup object from this object. Returns 1 on success, 0 on failure.  
+
+=item addValue ($valueObj)
+
+Add an erroredValueObject to this object. Returns 1 on success, 0 on failure.  
+
+=item removeValue ($indexOrObjectRef)
+
+Remove an XDF::Value from the list of values in this parameter object. Takes either an index number or object reference as its argument. Returns 1 on success, 0 on failure.  
+
+=item addNote ($noteObj)
+
+Insert an XDF::Note object into the XDF::Notes object held by this object. RETURNS : 1 on success, 0 on failure.  
+
+=item removeNote ($what)
+
+Removes an XDF::Note object from the list of XDF::Note objectsheld within the XDF::Notes object of this object. This method takes either the list index number or an object reference as its argument. RETURNS : 1 on success, 0 on failure.  
+
+=item addUnit ($unitObj)
+
+Insert an XDF::Unit object into the L<XDF::Units> object (e.g. $obj->units)held in this object. RETURNS : 1 on success, 0 on failure.  
+
+=item removeUnit ($unitObj)
+
+Remove an XDF::Unit object from the list of XDF::Units held inthe array units reference object. RETURNS : 1 on success, 0 on failure.  
+
+=back
+
+
+
+=head2 INHERITED Class Methods
+
+=over 4
+
+=back
+
+
+
+=head2 INHERITED INSTANCE Methods
+
+=over 4
+
+
+
+=over 4
+
+XDF::Parameter inherits the following instance (object) methods of L<XDF::BaseObjectWithXMLElementsAndValueList>:
+B<toXMLFileHandle>.
+
+=back
+
+=back
+
+=back
+
+=head1 SEE ALSO
+
+
+
+=over 4
+
+L< XDF::Array>, L< XDF::ParameterGroup>, L< XDF::Structure>, L<XDF::Utility>, L<XDF::BaseObjectWithXMLElementsAndValueList>, L<XDF::Note>, L<XDF::Units>, L<XDF::ErroredValue>
+
+=back
+
+=head1 AUTHOR
+
+    Brian Thomas  (thomas@adc.gsfc.nasa.gov)
+    Astronomical Data Center <http://adc.gsfc.nasa.gov>
+    NASA/Goddard Space Flight Center
+ 
+
+=cut

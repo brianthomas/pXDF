@@ -313,6 +313,9 @@ sub _sprintfNotation {
 # Modification History
 #
 # $Log$
+# Revision 1.11  2001/08/13 20:56:37  thomas
+# updated documentation via utils/makeDoc.pl for the release.
+#
 # Revision 1.10  2001/08/13 19:48:30  thomas
 # bug fix: use only local XML attributes for appendAttribs in _init
 #
@@ -392,11 +395,11 @@ The following methods are defined for the class XDF::FloatDataFormat.
 
 This method returns the class node name of XDF::FloatDataFormat. This method takes no arguments may not be changed.  
 
-=item classAttributes (EMPTY)
+=item getClassAttributes (EMPTY)
 
 This method returns a list reference containing the namesof the class attributes of XDF::FloatDataFormat. This method takes no arguments may not be changed.  
 
-=item getXMLAttributes (EMPTY)
+=item getClassXMLAttributes (EMPTY)
 
 This method returns the XMLAttributes of this class.  
 
@@ -475,7 +478,7 @@ B<toXMLFileHandle>.
 =over 4
 
 XDF::FloatDataFormat inherits the following instance (object) methods of L<XDF::BaseObject>:
-B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLAttributes>, B<toXMLString>, B<toXMLFile>.
+B<getXMLAttributes>, B<setXMLAttributes>, B<setXMLAttribute>, B<addXMLAttribute>, B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<toXMLString>, B<toXMLFile>.
 
 =back
 
