@@ -17,7 +17,9 @@
        <value>10-22-00</value>
      </parameter>
    </parameterGroup>
+
    <array name="Galaxy Data">
+
       <fieldAxis axisId="fields">
          <field fieldId="gname" name="galaxy name">
              <units><unitless/></units>
@@ -56,12 +58,14 @@
             <relation fieldIdRefs="gname" role="references" />
          </field>
       </fieldAxis>
+
       <axis axisId="rows" axisDatatype="integer">
          <axisUnits><unitless/></axisUnits>
          <valueGroup name="rows"> 
            <valueList delimiter=" " size="3">0 1 2</valueList> 
          </valueGroup> 
       </axis>
+
      <!-- declare the ordering of how to read this in, assoc. of axis to data -->
       <read encoding="UTF-8">
          <for axisIdRef="rows">
@@ -75,11 +79,13 @@
             </for>
          </for>
       </read>
+
       <data><![CDATA[M31      230.1209877 -34.3424911 12.6  0.5 0 1.000E-3 ApJ Ref 1.
-M33      130.094     +36.0000001 14.6  1.5 3  0.10E-1           
+M33      130.094     +36.0000001 14.6  1.5 3  0.100E3           
 M80      230.0442929 +74.2449499 12.8 10.5 8   3.3E33           
 ]]>
       </data>
+
       <notes>
         <locationOrder>
           <index axisIdRef="fields"/>
@@ -90,5 +96,8 @@ M80      230.0442929 +74.2449499 12.8 10.5 8   3.3E33
         <note noteId="note1" location="0 1" >No data because of a cosmic ray hit</note>
         <note noteIdRef="note1" location="0 2" />
     </notes>
+
   </array>
+
 </XDF>
+

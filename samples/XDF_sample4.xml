@@ -5,23 +5,6 @@
      description="This shows how to put any data into XDF format"
 >
 
-<!--
-      <function name="Flat Field" 
-          description="Applies flat field to biased CCD image."
-          functionID="flatFrame"
-          javaClass="flatFieldCCDFrame" 
-          action="append"
-      />
-
-      <function name="Bias Frame" 
-          description="Applies bias frame to Raw CCD image."
-          javaClass="biasCCDFrame" 
-          nextFunction="flatFrame"
-          action="pass"
-      />
--->
-
-
       <parameter name="obsdate"><units><unitless/></units><value>01-12-99</value></parameter>
 
       <array name="Raw Data">
@@ -42,7 +25,7 @@
              <valueList size="10" delimiter=" " repeatable="yes">10  9 8 7 6 5 4 3 2 1</valueList>
           </axis>
 
-             <read>
+             <read readId="readstyle1">
                 <for axisIdRef="y-axis">
                    <for axisIdRef="x-axis">
                        <repeat count="9">
@@ -57,7 +40,7 @@
 
              <!-- note the recursive data node use -->
              <data>
-                <data><![CDATA[76.53  0.02 67.78 32.59  5.97 68.77 25.39 51.86 30.69 29.03
+                <data><![CDATA[76.53 78.75 67.78 32.59  5.97 68.77 25.39 51.86 30.69 29.03
 89.37 10.68 82.31 17.85 25.87 64.17 92.64 47.88  8.03 31.05
 +7.48  1.09 -3.15  8.63 20.26  7.27 24.19 72.09  9.69 21.78
 75.43 86.23 48.53 43.22 18.81 54.50 11.99 44.20  6.37  3.47
@@ -74,12 +57,19 @@
              </data>
 
           <notes>
-             <locationOrder>
-                <index axisIdRef="x-axis"/>
-                <index axisIdRef="y-axis"/>
-             </locationOrder>
-             <note location="0 1">Dead pixel at this location.</note>
              <note>Improper cooling of the camera may have resulted in significant dark current.</note>
+<!--
+             <indexedNote>
+                <index axisIDREF="x-axis">6</index>
+                <index axisIDREF="y-axis">2</index>
+                <note noteID="note2" >No data because of a cosmic ray hit</note>
+             </indexedNote>
+             <indexedNote>
+                <index axisIDREF="x-axis">3</index>
+                <index axisIDREF="y-axis">2</index>
+                <note noteIDREF="note2" />
+             </indexedNote>
+-->
           </notes>
 
       </array>
@@ -88,27 +78,10 @@
           <units><unit>counts</unit><unit power="-1">secs</unit></units>
           <dataFormat><float width="4" precision="2"/></dataFormat>
 
-         <axis name="x" axisId="x-axis-bias" axisDatatype="integer" >
-             <axisUnits><unit>pixel</unit></axisUnits>
-             <valueList size="10" step="1" start="0" />
-          </axis>
-          <axis name="y" axisId="y-axis-bias" axisDatatype="integer" >
-             <axisUnits><unit>pixel</unit></axisUnits>
-             <valueList size="10" delimiter=" " repeatable="yes">10  9 8 7 6 5 4 3 2 1</valueList>
-          </axis>
+          <axis axisIdRef="x-axis" /> 
+          <axis axisIdRef="y-axis" />
 
-             <read> 
-                <for axisIdRef="y-axis-bias">
-                   <for axisIdRef="x-axis-bias">
-                       <repeat count="9">
-                         <readCell />
-                         <skipChars count="1" />
-                       </repeat>
-                       <readCell />
-                       <skipChars count="1" output="&#10;" /> <!-- terminator character --> 
-                   </for>
-                </for>
-             </read>
+             <read readIdRef="readstyle1"/>
 
              <data><![CDATA[0.96 5.06 2.56 4.29 0.69 2.73 2.08 4.91 3.34 1.78
 2.17 5.08 3.00 4.25 1.26 2.55 1.82 2.72 2.99 2.98
@@ -139,21 +112,9 @@
           <units><unit>counts</unit><unit power="-1">sec</unit></units>
           <dataFormat><float width="4" precision="2"/></dataFormat>
 
-          <axis axisIdRef="x-axis" />
-          <axis axisIdRef="y-axis" />
+          <axis axisIdRef="x-axis" /> <axis axisIdRef="y-axis" />
 
-              <read>
-                <for axisIdRef="y-axis">
-                   <for axisIdRef="x-axis">
-                       <repeat count="9">
-                         <readCell />
-                         <skipChars count="1" />
-                       </repeat>
-                       <readCell />
-                       <skipChars count="1" output="&#10;" /> <!-- terminator character --> 
-                   </for>
-                </for>
-             </read>
+             <read readIdRef="readstyle1"/>
 
              <data><![CDATA[0.96 5.06 2.56 4.29 0.69 2.73 2.08 4.91 3.34 1.78
 2.17 5.08 3.00 4.25

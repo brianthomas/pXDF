@@ -5,23 +5,6 @@
      description="This shows how to put any data into XDF format"
 >
 
-<!--
-      <function name="Flat Field" 
-          description="Applies flat field to biased CCD image."
-          functionID="flatFrame"
-          javaClass="flatFieldCCDFrame" 
-          action="append"
-      />
-
-      <function name="Bias Frame" 
-          description="Applies bias frame to Raw CCD image."
-          javaClass="biasCCDFrame" 
-          nextFunction="flatFrame"
-          action="pass"
-      />
--->
-
-
       <parameter name="obsdate"><units><unitless/></units><value>01-12-99</value></parameter>
 
       <array name="Raw Data">

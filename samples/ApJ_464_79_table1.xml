@@ -1,6 +1,6 @@
 <?xml version ="1.0"?>
 <!DOCTYPE XDF SYSTEM "XDF_0.17.dtd">
-<XDF name="/home/thomas/ApJ_464_79_table1" description="">
+<XDF name="table1" description="First table in v464 p79">
   <array>
     <fieldAxis axisId="fieldAxis">
       <field name="CFRS" description="Canada-France Redshift Survey designation" fieldId="field1">
