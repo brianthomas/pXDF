@@ -1,5 +1,5 @@
 <?xml version="1.0" standalone="no"?>
-<!DOCTYPE XDF SYSTEM "XDF_0.17.dtd" [ 
+<!DOCTYPE XDF SYSTEM "XDF_017.dtd" [ 
    <!ENTITY ApJ "&#10;"> 
    <!ENTITY table1 SYSTEM "XDF_sample6.dat" NDATA xdf>
    <!NOTATION xdf PUBLIC "application/xdf">

@@ -6,11 +6,8 @@
 
    - binary IO not well tested (only on Linux so far). 
 
-   - Its possible to write non-valid XDF by adding XMLElements where they dont
-     belong (e.g. on classes other than Structure Array, Axis, Field and FieldAxis).
-     Restriction of this is needed.
-
    - Href stuff only supports files. Need Entity Resolver type behavior ala Java.
+     This may be a bug in libxml-enno that we need to patch.
 
    - readId/readIdRef implemented, however problems will result if readIdRef
      is specified AND the read node has child nodes. We probably need to 
@@ -20,11 +17,11 @@
      output XML. Need attribOrder as in Java (and to fully adopt XMLAttribute
      for holding attribute information).
 
-   - Output of Notes/location stuff is yucky, need to use locator objects in
-     the notes, same as we need to do in Java Package.
+   - Programmer interface for manipulation of notes/notes location is yucky.
+     We need to use locator objects in the notes, same as we need to do in Java Package.
      (e.g. Fix XDF::Note setLocation method related stuff).
 
-   - ID/REF stuff not handled satisfactorily, we are blowing up the storage
+   - ID/REF stuff not handled satisfactorily, but we are blowing up the storage
      requirements for objects using the deep clone operation. Perhaps we
      need to create a half-way cloning? or store interally (via private field)
      the name of the object we idref'd. Hemm..
@@ -32,9 +29,9 @@
    - Review the functionality to attributes on data node.
      -- Href capability (Done for files only)
      -- compression (just stores string, sufficient?)
-     -- checksum (just stores string, sufficient?, whats the def?)
+     -- checksum (just stores string, sufficient?)
 
-   - More effort to bring classes/methods into alignment with the Java package.
+   - Effort still needed to bring classes/methods into alignment with the Java package.
 
    - Need a better treatment of relation node for multiple fields ids. 
 
@@ -46,15 +43,16 @@
      the object they are adding. Needs review!!.
 
    - Identify addtional convience methods that need to be implemented. Any Chaff to be removed?  
+     Probably the set/get "list" methods need to be removed. These may be quite dangerous.
 
    - Problem wi/ External Entities. How to read in DTD to get the
      defaults on the attributes (rather than define them in Objects) 
      (This problem arises fundementally from the Perl XML parser, as parameter and
-      'external' entities arent implemented! We either need to make a bug fix to
-      the Perl code, or use a different Perl parser..apache has a DOM implementation
-      for example). 
+     'external' entities arent implemented! We either need to make a bug fix to
+     the Perl code, or use a different Perl parser..apache has a DOM implementation
+     for example). 
 
-   - Reconstitute ValueList from values when writing to XML (hurm.. not likely).
+   - Reconstitute ValueList from values when writing to XML (using the 'delimited' style).
 
    - Improve the documentation (check spelling! improve descriptions of methods).
 

@@ -1,10 +1,12 @@
 <?xml version="1.0" standalone="no"?>
-<!DOCTYPE XDF SYSTEM "XDF_0.17.dtd" [
+<!DOCTYPE XDF SYSTEM "XDF_017.dtd" [
  <!ENTITY ApJ "
 ">
 ]>
+<!-- This is a document that does not to the XDF DTD, but may
+     be read in by the XDF DOM. 
+  -->
 <document>
-
   <thisnodeisnotXDF>some data for this node</thisnodeisnotXDF>
   <documentnode>
      <anotherdocumentnode>

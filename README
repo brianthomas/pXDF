@@ -6,24 +6,32 @@ INTRODUCTION
 This is the XDF Perl Package courtesy of the Astronomical Data 
 Center (ADC) at NASA/Goddard Space Flight Center.
 XDF is the 'eXtensible Data Format' and is an attempt to make
-XML behave nicely with scientific, mathematical data. This package
-provides the classes for easy manipulation and IO of XDF objects
-(which are written in XML, see our website: http://xml.gsfc.nasa.gov
-and linkage within for more information).
+XML behave nicely with scientific/mathematical data. This package
+provides the classes for easy manipulation and IO of XDF objects. 
+See our website: http://xml.gsfc.nasa.gov and linkage within for 
+more information.
 
+This package is "beta", meaning we have all of the forseen functionality
+incorportated in the code. "beta" also means that many bugs remain.
 Please refer to the TODO list for an idea of what remains to
-be done to bring this package to full featuredom.
+be done to bring this package to full stable reality. One important goal: 
+Im interested in using the Xerces parser that I hear the
+Apache group is developing for Perl (http://xml.apache.org).
+More work on that is to come soon I hope.
 
 A (slightly incomplete) diagram of the XDF object model appears
 in the UML-XDF.gif image. There is addtional information in
 the file-by-file docs. Build the HTML docs using the utility
 contained in utils. 
 
+Refer to the "samples" directory for working code and example XDF files.
+
 
 LICENCE 
 -------
 
-Please refer LICENCE file.
+This package is released under the GNU Public Licence. Please refer LICENCE file
+for the details.
 
 
 INSTALL
@@ -37,16 +45,22 @@ I will look into creatation of a PPD file for this distribution.
 
 You will need to install the following packages:
 
-   XML-Parser 
-   libxml-enno
+   XML-Parser-2.30
+   libxml-enno-1.04pre4 
  
-which you may both get from CPAN. I understand that there are more 
-advanced version of libxml-enno than you can normally get off
-of the CPAN site available from the maintainers website 
-(http://tjmather.com/CPAN). 
+You may get XML-Parser from CPAN. Unfortuneately, libxml-enno-1.04
+is not available there (yet). You can get the libxml-enno from
+the maintainers website at: http://tjmather.com/CPAN. 
 
-After having met the above requirements, make the package
-via the standard Perl drill:
+Now, untar both files. You will need to APPLY A PATCH (in the file
+"DOM.patch") to the libxml-enno distribution if you want Href entities 
+to work properly:
+
+> cd libxml-enno-1.04pre4
+> patch -p0 < <XDFdirectory>/DOM.patch
+
+Now, after having met the above requirements, make the packages 
+(XML-Parser, libxml-enno, then XDF) via the standard Perl drill:
 
 > perl Makefile.PL; make ; make test ; make install
 
@@ -59,11 +73,9 @@ Problems with Perl Package
 
 Having said the above, I have noticed that problems will occur
 with the handling of external entities (e.g. they arent currently
-supported) using the libxml-enno validating parser.
-
-Im interested in trying to use the Xerces parser that I hear the 
-Apache group is developing for Perl (http://xml.apache.org). 
-More work on that is to come I hope.
+supported very well) using the libxml-enno parser. Part of the
+problem seems to be the LWP handler, but Im not 100% sure. Hopefully
+the maintainers can resolve this issue before too long. 
 
 
 CVS Repository Access
