@@ -90,7 +90,7 @@ use XDF::Structure;
 use XDF::ValueListAlgorithm;
 use XDF::ValueListDelimitedList;
 use XDF::XMLDataIOStyle;
-use XDF::XMLElement;
+use XDF::XMLElementNode;
 use XDF::XDF;
 
 use vars qw ($VERSION %field);
@@ -346,7 +346,12 @@ sub parseFileHandle {
     $self->{Options}->{validate} = 0;
   }
 
-  if ($self->{Options}->{validate} ) {
+  unless ($self->{Options}->{validate} ) {
+
+    my $parser = $self->_create_parser();
+    $parser->parse($handle);
+
+  } else {
 
     my $parser = &_create_validating_parser($optionsHashRef);
 
@@ -362,14 +367,9 @@ sub parseFileHandle {
        print "$loc\n"; # print location 
     }
 
-  } else {
+  } 
 
-    my $parser = $self->_create_parser();
-    $parser->parse($handle);
-
-  }
-
-   return $self->{XDF};
+  return $self->{XDF};
 }
 
 # /** parseString
@@ -387,7 +387,12 @@ sub parseString {
     $self->{Options}->{validate} = 0;
   }
 
-  if ($self->{Options}->{validate} ) {
+  unless ($self->{Options}->{validate} ) {
+
+    my $parser = $self->_create_parser();
+    $parser->parse($string);
+
+  } else {
 
     my $parser = &_create_validating_parser($optionsHashRef);
     
@@ -402,11 +407,6 @@ sub parseString {
        print "MSG: $msg\n"; # the error message 
        print "$loc\n"; # print location 
     }
-
-  } else {
-
-    my $parser = $self->_create_parser();
-    $parser->parse($string);
 
   }
 
@@ -550,34 +550,29 @@ sub _handle_xml_decl {
 
 # store these in the entity array
 sub _handle_unparsed {
-  my ($self, $parser_ref, $entity, $base, $sysid, $pubid, $notation) = @_;
+  my ($self, $parser_ref, $name, $base, $sysid, $pubid, $notation) = @_;
 
-   my $msgstring = "H_UNPARSED: $entity";
-   #$self->{UnParsedEntity}->{$entity} = {}; # add a new entry;
-   $self->{Entity}->{$entity} = {}; # add a new entry;
+   my $msgstring = "H_UNPARSED: $name";
+   $self->{Entity}{$name} = {}; # add a new entry;
 
    if (defined $base) {
-      $msgstring .= ", Base:$base";
-      #${$self->{UnParsedEntity}->{$entity}}{'base'} = $base;
-      ${$self->{Entity}->{$entity}}{'base'} = $base;
+      $msgstring .= ", BASE:$base";
+      ${$self->{Entity}{$name}}{'base'} = $base;
    }
 
    if (defined $sysid) {
       $msgstring .= ", SYS:$sysid";
-      #${$self->{UnParsedEntity}->{$entity}}{'sysid'} = $sysid;
-      ${$self->{Entity}->{$entity}}{'sysid'} = $sysid;
+      ${$self->{Entity}{$name}}{'sysid'} = $sysid;
    }
 
    if (defined $pubid) {
-      $msgstring .= " PUB:$pubid";
-      #${$self->{UnParsedEntity}->{$entity}}{'pubid'} = $pubid;
-      ${$self->{Entity}->{$entity}}{'pubid'} = $pubid;
+      $msgstring .= ", PUB:$pubid";
+      ${$self->{Entity}{$name}}{'pubid'} = $pubid;
    }
 
    if (defined $notation) {
       $msgstring .= " NOTATION:$notation";
-      #${$self->{UnParsedEntity}->{$entity}}{'notation'} = $notation;
-      ${$self->{Entity}->{$entity}}{'notation'} = $notation;
+      ${$self->{Entity}{$name}}{'notation'} = $notation;
    }
 
    $msgstring .= "\n";
@@ -760,6 +755,7 @@ sub _handle_cdata_end {
 # things like entity definitions get passed here
 sub _handle_default {
    my ($self, $parser_ref, $string) = @_;
+   return unless defined $string;
    &_printDebug("H_DEFAULT:[$string]\n");
 
    # well, i dont know what else can go here, but for now
@@ -1145,12 +1141,15 @@ sub _data_node_end {
     # reading the XDF node by node we get the fastest last in the array.
     @{$self->{readAxisOrderList}} = reverse @{$self->{readAxisOrderList}}; 
 
-    # needed for the appendTo stuff
+    # need to store this information to make operate properly
+    # when we have read nodes w/ idRef stuff going on.
     my @temparray = @{$self->{readAxisOrderList}};
     $self->{readAxisOrderHash}->{$self->{currentArray}} = \@temparray;
 
     $locator->setIterationOrder(\@{$self->{readAxisOrderList}});
     $formatObj->setWriteAxisOrderList(\@{$self->{readAxisOrderList}});
+
+    #foreach my $axisObj (@{$self->{readAxisOrderList}}) { print STDERR "axisObj: ",$axisObj->getAxisId,"\n"; }
     my @dataFormat = $self->{currentArray}->getDataFormatList;
 
     &_print_extreme_debug("locator[$locator] has axisOrder:[",join ',', @{$self->{readAxisOrderList}},"]\n");
@@ -1234,14 +1233,14 @@ sub _data_node_start {
        my $hrefName = $attrib_hash{'href'};
 
        # this shouldnt happen, but does for unconsidered cases.
-       die "XDF::Reader Internal bug: Href Entity $hrefName is not defined. Aborting parse.\n" 
-           unless exists $self->{Entity}->{$hrefName}; 
+       die "XDF::Reader Internal bug: Href Entity [$hrefName] is not defined. Aborting parse.\n" 
+           unless exists $self->{Entity}{$hrefName}; 
 
        $hrefObj->setName($hrefName);
-       $hrefObj->setSysId(${$self->{Entity}->{$hrefName}}{'sysid'});
-       $hrefObj->setBase(${$self->{Entity}->{$hrefName}}{'base'});
-       $hrefObj->setNdata(${$self->{Entity}->{$hrefName}}{'ndata'});
-       $hrefObj->setPubId(${$self->{Entity}->{$hrefName}}{'pubid'});
+       $hrefObj->setSysId(${$self->{Entity}{$hrefName}}{'sysid'});
+       $hrefObj->setBase(${$self->{Entity}{$hrefName}}{'base'});
+       $hrefObj->setNdata(${$self->{Entity}{$hrefName}}{'ndata'});
+       $hrefObj->setPubId(${$self->{Entity}{$hrefName}}{'pubid'});
        $self->{currentArray}->getDataCube()->setHref($hrefObj);
        delete $attrib_hash{'href'}; # prevent over-writing object with string 
 
@@ -1721,7 +1720,9 @@ sub _read_node_start {
      # populate readorder array. We will have problems if someone specifies
      # readIdRef AND has child for nodes on the read node. fef.  
      my $oldArrayObj = $self->{XMLDataIOStyleObj}{$readIdRef}->{_parentArray}; #shouldnt be allowed to do this 
-     foreach my $oldAxisObj (@{$self->{readAxisOrderHash}{$oldArrayObj}}) {
+     # note: we *must* run in reverse here to simulate it being read in 
+     # by the for nodes, which occur in that reverse ordering.
+     foreach my $oldAxisObj (reverse @{$self->{readAxisOrderHash}{$oldArrayObj}}) {
         my $axisObj = $self->{currentArrayAxes}->{$oldAxisObj->getAxisId};
         if (defined $axisObj) {
           push @{$self->{readAxisOrderList}}, $axisObj; 
@@ -1847,6 +1848,7 @@ sub _skipChar_node_start {
   return unless $formatObj->addFormatCommand($skipCharObj);
 
   return $skipCharObj;
+
 }
 
 sub _stringField_node_start {
@@ -2842,16 +2844,19 @@ sub _create_parser {
   my $nameSpaces = 0;
   my $parseParamEnt = 0;
   my $noExpand = 0;
+  my $expandParamEnt = 1;
   
 #  if (defined $optionsHashRef) {
 #    my %option = %{$optionsHashRef};
     $noExpand = $self->{Option}->{noExpand} if exists $self->{Option}->{noExpand};
     $nameSpaces = $self->{Option}->{namespaces} if exists $self->{Option}->{namespaces};
     $parseParamEnt = $self->{Option}->{parseParamEnt} if exists $self->{Option}->{parseParamEnt};
+    $expandParamEnt = $self->{Option}->{expandParamEnt} if exists $self->{Option}->{expandParamEnt};
 #  }
 
    my $parser = new XML::Parser(  
                                 ParseParamEnt => $parseParamEnt,
+                                ExpandParamEnt => $expandParamEnt,
                                 NoExpand => $noExpand,
                                 Namespaces => $nameSpaces,
                                 Handlers => {
@@ -2886,16 +2891,19 @@ sub _create_validating_parser {
   my $noExpand = 0;
   my $nameSpaces = 0;
   my $parseParamEnt = 0;
+  my $expandParamEnt = 1;
 
   if (defined $optionsHashRef) {
     my %option = %{$optionsHashRef};
     $noExpand = $option{'noExpand'} if exists $option{'noExpand'};
     $nameSpaces = $option{'namespaces'} if exists $option{'namespaces'};
     $parseParamEnt = $option{'parseParamEnt'} if exists $option{'parseParamEnt'};
+    $expandParamEnt = $option{'expandParamEnt'} if exists $option{'expandParamEnt'};
   }
 
    my $parser = new XML::Checker::Parser (
                                 ParseParamEnt => $parseParamEnt,
+                                ExpandParamEnt => $expandParamEnt,
                                 NoExpand => $noExpand,
                                 Namespaces => $nameSpaces,
                                 Handlers => {
@@ -3075,7 +3083,7 @@ sub _default_start_handler {
    # the DTD sez that if we get non-xdf defined nodes, it IS 
    # allowed as long as these are children of the following 
    # XDF defined nodes, OR are children of a non-XDF defined node
-   # (e.g. the child of one of these nodes, which we call 'XDF::XMLElement')
+   # (e.g. the child of one of these nodes, which we call 'XDF::XMLElementNode')
    if( $parentNodeName eq $XDF_node_name{'structure'} 
        || $parentNodeName eq $XDF_node_name{'root'} 
      ) 
@@ -3094,6 +3102,11 @@ sub _default_start_handler {
      $newelement = &_create_new_XMLelement($e, $attrib_hash_ref);
      $self->{currentArray}->getFieldAxis->addXMLElement($newelement);
 
+   } elsif( $parentNodeName eq $XDF_node_name{'parameter'} ) { 
+
+     $newelement = &_create_new_XMLelement($e, $attrib_hash_ref);
+     $self->{lastParamObject}->addXMLElement($newelement);
+
    } elsif( $parentNodeName eq $XDF_node_name{'axis'} ) { 
 
      $newelement = &_create_new_XMLelement($e, $attrib_hash_ref);
@@ -3107,7 +3120,7 @@ sub _default_start_handler {
    } else {
 
       my $lastObj = $self->_lastObj; 
-      if (defined $lastObj && ref($lastObj) eq 'XDF::XMLElement') {
+      if (defined $lastObj && ref($lastObj) eq 'XDF::XMLElementNode') {
 
          $newelement = &_create_new_XMLelement($e, $attrib_hash_ref);
          $lastObj->addXMLElement($newelement);
@@ -3126,7 +3139,7 @@ sub _default_start_handler {
 sub _create_new_XMLelement {
   my ($name, $attrib_hash_ref) = @_;
 
-   my $newelement = new XDF::XMLElement($name);
+   my $newelement = new XDF::XMLElementNode($name);
 #   $newelement->setTagName($name);
    while ( my ($key, $value) = each %{$attrib_hash_ref}) {
 #        my $attribObj = new XDF::XMLAttribute($key);
@@ -3146,7 +3159,7 @@ sub _default_cdata_handler {
    if (!$IGNORE_WHITESPACE_ONLY_DATA || $string !~ m/^\s*$/) {
       my $lastObj = $self->_lastObj();
       if (defined $lastObj) {
-         if (ref($lastObj) eq 'XDF::XMLElement') {
+         if (ref($lastObj) eq 'XDF::XMLElementNode') {
            $lastObj->appendCData($string);
          } else {
             $self->_printWarning("Warning: cant do anything with CDATA:[$string] for ".ref($lastObj).". Ignoring.\n"); 
@@ -3210,12 +3223,12 @@ sub _getHrefData {
        $file = $href->getBase() if $href->getBase();
        $file .= $href->getSysId();
 
-   my $openstatement = $file;
-   my $compression_prog = $self->_getCurrentDataDeCompression;
+       my $openstatement = $file;
+       my $compression_prog = $self->_getCurrentDataDeCompression;
 
-   if (defined $compression_prog) {
-       $openstatement = " $compression_prog $openstatement|";
-   }
+       if (defined $compression_prog) {
+          $openstatement = " $compression_prog $openstatement|";
+       }
 
        undef $/; #input rec separator, once newline, now nothing.
                  # will cause whole file to be read in one whack 
@@ -3405,6 +3418,8 @@ sub _appendArrayToArray {
 #@   
 #@ 'noExpand'   => Don't expand entities in output if true. Default is false. 
 #@
+#@ 'ExpandParamEnt' => Expand parameter entities in output if true. Default is true. 
+#@
 #@ 'nameSpaces' => When this option is given with a true value, then the parser does namespace
 #@                 processing. By default, namespace processing is turned off.
 #@
@@ -3425,6 +3440,11 @@ sub _appendArrayToArray {
 # Modification History
 #
 # $Log$
+# Revision 1.37  2001/08/13 19:55:39  thomas
+# validation now really *is* the default.
+# fixed compressed reading.
+# fixed entity reading (unparsed entities).
+#
 # Revision 1.36  2001/07/23 15:58:07  thomas
 # added ability to add arbitary XML attribute to class.
 # getXMLattributes now an instance method, we
