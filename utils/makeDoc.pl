@@ -101,7 +101,7 @@ while (<FILE>) {
 
    }
 
-   if ($_ =~ m/^my\s\@Class\_Attributes/) {
+   if ($_ =~ m/^my\s\@Class\_XML\_Attributes/) {
      $readAttributes = 1; 
      next;
    }
