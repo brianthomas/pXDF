@@ -150,6 +150,10 @@ sub setSysId {
 # Modification History
 #
 # $Log$
+# Revision 1.2  2001/03/14 21:32:34  thomas
+# Updated perldoc section using new version of
+# makeDoc.pl.
+#
 # Revision 1.1  2000/12/14 22:12:15  thomas
 # First version. -b.t.
 #
@@ -179,79 +183,54 @@ XDF::Href - Perl Class for Href
 XDF::Href inherits class and attribute methods of L<XDF::GenericObject>.
 
 
-=over 4
-
-=head2 ATTRIBUTE Methods
-
-These methods set the requested attribute if an argument is supplied to the method. Whether or not an argument is supplied the current value of the attribute is always returned. Values of these methods are always SCALAR (may be number, string, or reference).
+=head1 METHODS
 
 =over 4
 
-=item name
+=head2 INSTANCE Methods
 
- 
-
-=item base
-
- 
-
-=item sysId
-
- 
-
-=item pubId
-
- 
-
-=item ndata
-
- 
-
-=back
-
-=head2 OTHER Methods
-
+The following instance methods are defined for XDF::Href.
 =over 4
 
 =item getBase (EMPTY)
 
-
+ 
 
 =item setBase ($value)
 
-Set the entity base attribute. 
+Set the entity base attribute.  
 
 =item getName (EMPTY)
 
-
+ 
 
 =item setName ($value)
 
-Set the name attribute. 
+Set the name attribute.  
 
 =item getNdata (EMPTY)
 
-
+ 
 
 =item setNdata ($value)
 
-Set the ndata attribute. 
+Set the ndata attribute.  
 
 =item getPubId (EMPTY)
 
-
+ 
 
 =item setPubId ($value)
 
-Set the pubId attribute. 
+Set the pubId attribute.  
 
 =item getSysId (EMPTY)
 
-
+ 
 
 =item setSysId ($value)
 
-Set the sysId attribute. 
+Set the sysId attribute.  
 
 =back
 
@@ -264,22 +243,20 @@ A change in the value of these attributes will change the functioning of ALL ins
 
 =over 4
 
-=head2 INHERITED Other Methods
+=head2 INHERITED INSTANCE Methods
 
 
 
 =over 4
 
 XDF::Href inherits the following instance methods of L<XDF::GenericObject>:
-B<new>, B<clone>, B<update>.
-
-=back
+B<new>, B<clone>, B<update>. 
 
 =back
 
 =head1 SEE ALSO
 
-L<XDF::GenericObject>
+L<XDF::GenericObject> 
 
 =back
 
@@ -288,6 +265,6 @@ L<XDF::GenericObject>
     Brian Thomas  (thomas@adc.gsfc.nasa.gov)
     Astronomical Data Center <http://adc.gsfc.nasa.gov>
     NASA/Goddard Space Flight Center
-
+ 
 
 =cut

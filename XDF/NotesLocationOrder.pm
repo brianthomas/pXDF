@@ -161,6 +161,10 @@ sub _init {
 # Modification History
 #
 # $Log$
+# Revision 1.3  2001/03/14 21:32:34  thomas
+# Updated perldoc section using new version of
+# makeDoc.pl.
+#
 # Revision 1.2  2000/12/15 22:11:59  thomas
 # Regenerated perlDoc section in files. -b.t.
 #
@@ -188,6 +192,8 @@ XDF::NotesLocationOrder - Perl Class for NotesLocationOrder
 XDF::NotesLocationOrder inherits class and attribute methods of L<XDF::GenericObject>, L<XDF::BaseObject>.
 
 
+=head1 METHODS
+
 =over 4
 
 =head2 CLASS Methods
@@ -206,249 +212,30 @@ A change in the value of these class attributes will change the value for ALL in
 
 =back
 
-=head2 ATTRIBUTE Methods
+=head2 INSTANCE Methods
 
-These methods set the requested attribute if an argument is supplied to the method. Whether or not an argument is supplied the current value of the attribute is always returned. Values of these methods are always SCALAR (may be number, string, or reference).
-
-=over 4
-
-=item # push in XML attributes to class attributes
-
- 
-
-=item push @Class_Attributes, @Class_XML_Attributes;
-
- 
-
-=item # add in super class attributes
-
- 
-
-=item push @Class_Attributes, @{&XDF::BaseObject::classAttributes};
-
- 
-
-=item # Initalization
-
- 
-
-=item # set up object attributes.
-
- 
-
-=item for my $attr ( @Class_Attributes ) { $field{$attr}++; }
-
- 
-
-=item sub classXMLNodeName { 
-
- 
-
-=item }
-
- 
-
-=item sub classAttributes { 
-
- 
-
-=item }
-
- 
-
-=item #
-
- 
-
-=item # Get/Set Methods
-
- 
-
-=item #
-
- 
-
-=item # /** getLocationOrderList
-
- 
-
-=item # */
-
- 
-
-=item sub getLocationOrderList {
-
- 
-
-=item return $self->{LocationOrderList};
-
- 
-
-=item }
-
- 
-
-=item # /** setLocationOrderList
-
- 
-
-=item #     Set the locationOrderList attribute. 
-
- 
-
-=item # */
-
- 
-
-=item sub setLocationOrderList {
-
- 
-
-=item # you must do it this way, or when the arrayRef changes it changes us here!
-
- 
-
-=item my @list = @{$arrayRefValue};
-
- 
-
-=item $self->{LocationOrderList} = \@list;
-
- 
-
-=item }
-
- 
-
-=item # /** getXMLAttributes
-
- 
-
-=item #      This method returns the XMLAttributes of this class. 
-
- 
-
-=item #  */
-
- 
-
-=item sub getXMLAttributes {
-
- 
-
-=item }
-
- 
-
-=item #
-
- 
-
-=item # Other Public Methods
-
- 
-
-=item #
-
- 
-
-=item # /** addAxisIdToLocatorOrder
-
- 
-
-=item # */
-
- 
-
-=item sub addAxisIdToLocatorOrder {
-
- 
-
-=item push @{$self->{LocationOrderList}}, $axisId;
-
- 
-
-=item }
-
- 
-
-=item #/** toXMLFileHandle
-
- 
-
-=item #    Special overloaded method inthis class to allow proper printing.
-
- 
-
-=item # */
-
- 
-
-=item sub toXMLFileHandle {
-
- 
-
-=item $newNodeNameString, $noChildObjectNodeName ) = @_;
-
- 
-
-=item if(!defined $fileHandle) {
-
- 
-
-=item carp "Can't write out object, filehandle not defined.\n";
-
- 
-
-=item return;
-
- 
-
-=item }
-
- 
-
-=item my $Pretty_XDF_Output = $self->Pretty_XDF_Output;
-
- 
-
-=item if (defined $XMLDeclAttribs) {
-
- 
-
-=item $indent = ""; #$Pretty_XDF_Output_Indentation;
-
- 
-
-=item # write the XML && DOCTYPE decl
-
- 
-
-=back
-
-=head2 OTHER Methods
-
+The following instance methods are defined for XDF::NotesLocationOrder.
 =over 4
 
 =item getLocationOrderList (EMPTY)
 
-
+ 
 
 =item setLocationOrderList ($arrayRefValue)
 
-Set the locationOrderList attribute. 
+Set the locationOrderList attribute.  
 
 =item getXMLAttributes (EMPTY)
 
-This method returns the XMLAttributes of this class. 
+This method returns the XMLAttributes of this class.  
 
 =item addAxisIdToLocatorOrder ($axisId)
 
-
+ 
 
 =item toXMLFileHandle (EMPTY)
 
-Special overloaded method inthis class to allow proper printing. 
+Special overloaded method inthis class to allow proper printing.  
 
 =back
 
@@ -462,7 +249,7 @@ A change in the value of these attributes will change the functioning of ALL ins
 =over 4
 
 The following class attribute methods are inherited from L<XDF::BaseObject>:
-B<Pretty_XDF_Output>, B<Pretty_XDF_Output_Indentation>, B<DefaultDataArraySize>.
+B<Pretty_XDF_Output>, B<Pretty_XDF_Output_Indentation>, B<DefaultDataArraySize>. 
 
 =back
 
@@ -470,14 +257,14 @@ B<Pretty_XDF_Output>, B<Pretty_XDF_Output_Indentation>, B<DefaultDataArraySize>.
 
 =over 4
 
-=head2 INHERITED Other Methods
+=head2 INHERITED INSTANCE Methods
 
 
 
 =over 4
 
 XDF::NotesLocationOrder inherits the following instance methods of L<XDF::GenericObject>:
-B<new>, B<clone>, B<update>.
+B<new>, B<clone>, B<update>. 
 
 =back
 
@@ -486,20 +273,18 @@ B<new>, B<clone>, B<update>.
 =over 4
 
 XDF::NotesLocationOrder inherits the following instance methods of L<XDF::BaseObject>:
-B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLAttributes>, B<setXMLNotationHash>, B<toXMLFile>.
-
-=back
+B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLAttributes>, B<setXMLNotationHash>, B<toXMLFile>. 
 
 =back
 
 =head1 SEE ALSO
 
-L<XDF::BaseObject>
+L<XDF::BaseObject> 
 
 =back
 
 =head1 AUTHOR
 
-
+ 
 
 =cut

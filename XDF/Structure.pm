@@ -484,6 +484,10 @@ sub _init {
 # Modification History
 #
 # $Log$
+# Revision 1.7  2001/03/14 21:32:35  thomas
+# Updated perldoc section using new version of
+# makeDoc.pl.
+#
 # Revision 1.6  2001/03/14 16:13:06  thomas
 # Fixed addArray method. Wasnt treating passing an
 # already allocated arrayobject correctly.
@@ -579,6 +583,8 @@ XDF::Structure - Perl Class for Structure
 XDF::Structure inherits class and attribute methods of L<XDF::GenericObject>, L<XDF::BaseObject>.
 
 
+=head1 METHODS
+
 =over 4
 
 =head2 CLASS Methods
@@ -597,105 +603,106 @@ This method takes no arguments may not be changed. This method returns a list re
 
 =back
 
-=head2 OTHER Methods
+=head2 INSTANCE Methods
 
+The following instance methods are defined for XDF::Structure.
 =over 4
 
 =item getName (EMPTY)
 
-
+ 
 
 =item setName ($value)
 
-Set the name attribute. 
+Set the name attribute.  
 
 =item getDescription (EMPTY)
 
-
+ 
 
 =item setDescription ($value)
 
-
+ 
 
 =item getArrayList (EMPTY)
 
-
+ 
 
 =item setArrayList ($arrayRefValue)
 
-
+ 
 
 =item getStructList (EMPTY)
 
-
+ 
 
 =item setStructList ($arrayRefValue)
 
-
+ 
 
 =item getParamList (EMPTY)
 
-
+ 
 
 =item setParamList ($arrayRefValue)
 
-
+ 
 
 =item getNoteList (EMPTY)
 
-
+ 
 
 =item setNoteList ($arrayRefValue)
 
-
+ 
 
 =item getXMLAttributes (EMPTY)
 
-This method returns the XMLAttributes of this class. 
+This method returns the XMLAttributes of this class.  
 
 =item addNote ($info)
 
-Insert an XDF::Note object into the XDF::Notes object held by this object. This method may optionally take a reference to an attribute hash asits argument. Attributes in the attribute hash shouldcorrespond to attributes of the L<XDF::Note> object. The attribute/value pairs in the attribute hash reference areused to initialize the new XDF::Note object. RETURNS : an XDF::Note object reference on success, undef on failure. 
+Insert an XDF::Note object into the XDF::Notes object held by this object. This method may optionally take a reference to an attribute hash asits argument. Attributes in the attribute hash shouldcorrespond to attributes of the L<XDF::Note> object. The attribute/value pairs in the attribute hash reference areused to initialize the new XDF::Note object. RETURNS : an XDF::Note object reference on success, undef on failure.  
 
 =item removeNote ($what)
 
-Removes an XDF::Note object from the list of XDF::Note objectsheld within the XDF::Notes object of this object. This method takes either the list index number or an object reference as its argument. RETURNS : 1 on success, undef on failure. 
+Removes an XDF::Note object from the list of XDF::Note objectsheld within the XDF::Notes object of this object. This method takes either the list index number or an object reference as its argument. RETURNS : 1 on success, undef on failure.  
 
 =item addParameter ($attribHashReference)
 
-Insert an XDF::Parameter object into this object. This method may optionally take a reference to an attribute hash asits argument. Attributes in the attribute hash shouldcorrespond to attributes of the L<XDF::Parameter> object. The attribute/value pairs in the attribute hash reference areused to initialize the new XDF::Parameter object. RETURNS : an XDF::Parameter object reference on success, undef on failure. 
+Insert an XDF::Parameter object into this object. This method may optionally take a reference to an attribute hash asits argument. Attributes in the attribute hash shouldcorrespond to attributes of the L<XDF::Parameter> object. The attribute/value pairs in the attribute hash reference areused to initialize the new XDF::Parameter object. RETURNS : an XDF::Parameter object reference on success, undef on failure.  
 
 =item removeParameter ($indexOrObjectRef)
 
-Remove an XDF::Parameter object from the list of XDF::Parametersheld within this object. This method takes either the list index number or an object reference as its argument. RETURNS : 1 on success, undef on failure. 
+Remove an XDF::Parameter object from the list of XDF::Parametersheld within this object. This method takes either the list index number or an object reference as its argument. RETURNS : 1 on success, undef on failure.  
 
 =item addStructure ($attribHashReference)
 
-Insert an XDF::Structure object into this object. This method may optionally take a reference to an attribute hash asits argument. Attributes in the attribute hash shouldcorrespond to attributes of the L<XDF::Structure> object. The attribute/value pairs in the attribute hash reference areused to initialize the new XDF::Structure object. RETURNS : an XDF::Structure object reference on success, undef on failure. 
+Insert an XDF::Structure object into this object. This method may optionally take a reference to an attribute hash asits argument. Attributes in the attribute hash shouldcorrespond to attributes of the L<XDF::Structure> object. The attribute/value pairs in the attribute hash reference areused to initialize the new XDF::Structure object. RETURNS : an XDF::Structure object reference on success, undef on failure.  
 
 =item removeStructure ($indexOrObjectRef)
 
-Remove an XDF::Structure object from the list of XDF::Structuresheld within this object. This method takes either the list index number or an object reference as its argument. RETURNS : 1 on success, undef on failure. 
+Remove an XDF::Structure object from the list of XDF::Structuresheld within this object. This method takes either the list index number or an object reference as its argument. RETURNS : 1 on success, undef on failure.  
 
-=item addArray ($attribHashReference)
+=item addArray ($attribHashOrObjectReference)
 
-Insert an XDF::Array object into this object. This method may optionally take a reference to an attribute hash asits argument. Attributes in the attribute hash shouldcorrespond to attributes of the L<XDF::Array> object. The attribute/value pairs in the attribute hash reference areused to initialize the new XDF::Array object. RETURNS : an XDF::Array object reference on success, undef on failure. 
+Insert an XDF::Array object into this object. This method may optionally take a reference to an attribute hash asits argument. Attributes in the attribute hash shouldcorrespond to attributes of the L<XDF::Array> object. The attribute/value pairs in the attribute hash reference areused to initialize the new XDF::Array object. RETURNS : an XDF::Array object reference on success, undef on failure.  
 
 =item removeArray ($indexOrObjectRef)
 
-Remove an XDF::Array object from the list of XDF::Arraysheld within this object. This method takes either the list index number or an object reference as its argument. RETURNS : 1 on success, undef on failure. 
+Remove an XDF::Array object from the list of XDF::Arraysheld within this object. This method takes either the list index number or an object reference as its argument. RETURNS : 1 on success, undef on failure.  
 
 =item addParamGroup ($objectRefOrAttribHashRef)
 
-Insert an XDF::ParameterGroup object into this object. This method takes either a reference to an attribute hash ORobject reference to an existing XDF::ParameterGroup asits argument. Attributes in the attribute hash reference shouldcorrespond to attributes of the L<XDF::ParameterGroup> object. The attribute/value pairs in the attribute hash reference areused to initialize the new XDF::ParameterGroup object. RETURNS : an XDF::ParameterGroup object reference on success, undef on failure. 
+Insert an XDF::ParameterGroup object into this object. This method takes either a reference to an attribute hash ORobject reference to an existing XDF::ParameterGroup asits argument. Attributes in the attribute hash reference shouldcorrespond to attributes of the L<XDF::ParameterGroup> object. The attribute/value pairs in the attribute hash reference areused to initialize the new XDF::ParameterGroup object. RETURNS : an XDF::ParameterGroup object reference on success, undef on failure.  
 
 =item removeParamGroup ($hashKey)
 
-Remove an XDF::ParameterGroup object from the hash table of XDF::ParameterGroups held within this object. This method takes the hash key its argument. RETURNS : 1 on success, undef on failure. 
+Remove an XDF::ParameterGroup object from the hash table of XDF::ParameterGroups held within this object. This method takes the hash key its argument. RETURNS : 1 on success, undef on failure.  
 
 =item read ($optionsHashRef, $file)
 
-Read in an XML file using XDF::Reader. Returns the structure read in on success, undef on failure. 
+Read in an XML file using XDF::Reader. Returns the structure read in on success, undef on failure.  
 
 =back
 
@@ -709,7 +716,7 @@ A change in the value of these attributes will change the functioning of ALL ins
 =over 4
 
 The following class attribute methods are inherited from L<XDF::BaseObject>:
-B<Pretty_XDF_Output>, B<Pretty_XDF_Output_Indentation>, B<DefaultDataArraySize>.
+B<Pretty_XDF_Output>, B<Pretty_XDF_Output_Indentation>, B<DefaultDataArraySize>. 
 
 =back
 
@@ -717,14 +724,14 @@ B<Pretty_XDF_Output>, B<Pretty_XDF_Output_Indentation>, B<DefaultDataArraySize>.
 
 =over 4
 
-=head2 INHERITED Other Methods
+=head2 INHERITED INSTANCE Methods
 
 
 
 =over 4
 
 XDF::Structure inherits the following instance methods of L<XDF::GenericObject>:
-B<new>, B<clone>, B<update>.
+B<new>, B<clone>, B<update>. 
 
 =back
 
@@ -733,15 +740,13 @@ B<new>, B<clone>, B<update>.
 =over 4
 
 XDF::Structure inherits the following instance methods of L<XDF::BaseObject>:
-B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLAttributes>, B<setXMLNotationHash>, B<toXMLFileHandle>, B<toXMLFile>.
-
-=back
+B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLAttributes>, B<setXMLNotationHash>, B<toXMLFileHandle>, B<toXMLFile>. 
 
 =back
 
 =head1 SEE ALSO
 
-L<XDF::BaseObject>, L<XDF::Array>, L<XDF::Reader>, L<XDF::Parameter>, L<XDF::ParameterGroup>
+L<XDF::BaseObject>, L<XDF::Array>, L<XDF::Reader>, L<XDF::Parameter>, L<XDF::ParameterGroup> 
 
 =back
 
@@ -750,6 +755,6 @@ L<XDF::BaseObject>, L<XDF::Array>, L<XDF::Reader>, L<XDF::Parameter>, L<XDF::Par
     Brian Thomas  (thomas@adc.gsfc.nasa.gov)
     Astronomical Data Center <http://adc.gsfc.nasa.gov>
     NASA/Goddard Space Flight Center
-
+ 
 
 =cut

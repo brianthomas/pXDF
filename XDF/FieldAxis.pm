@@ -438,6 +438,10 @@ sub _init {
 # Modification History
 #
 # $Log$
+# Revision 1.7  2001/03/14 21:32:34  thomas
+# Updated perldoc section using new version of
+# makeDoc.pl.
+#
 # Revision 1.6  2001/03/14 16:10:36  thomas
 # addField and setField fixed. Previously these where just
 # pushing fields onto the end of the fieldList. The problem is that
@@ -494,6 +498,8 @@ XDF::FieldAxis - Perl Class for FieldAxis
 XDF::FieldAxis inherits class and attribute methods of L<XDF::GenericObject>, L<XDF::BaseObject>.
 
 
+=head1 METHODS
+
 =over 4
 
 =head2 CLASS Methods
@@ -512,97 +518,98 @@ This method returns a list reference containing the namesof the class attributes
 
 =back
 
-=head2 OTHER Methods
+=head2 INSTANCE Methods
 
+The following instance methods are defined for XDF::FieldAxis.
 =over 4
 
 =item getName (EMPTY)
 
-
+ 
 
 =item setName ($value)
 
-Set the name attribute. 
+Set the name attribute.  
 
 =item getDescription (EMPTY)
 
-
+ 
 
 =item setDescription ($value)
 
-
+ 
 
 =item getDataFormatList (EMPTY)
 
-Returns a list of all the dataType objects (see L<XDF::DataFormat>) held by the fields in this field axis. The list is ordered according to the orderof the fields within the field axis. 
+Returns a list of all the dataType objects (see L<XDF::DataFormat>) held by the fields in this field axis. The list is ordered according to the orderof the fields within the field axis.  
 
 =item getAxisId (EMPTY)
 
-
+ 
 
 =item setAxisId ($value)
 
-Set the axisId attribute. 
+Set the axisId attribute.  
 
 =item getAxisIdRef (EMPTY)
 
-
+ 
 
 =item setAxisIdRef ($value)
 
-Set the axisIdRef attribute. 
+Set the axisIdRef attribute.  
 
 =item getAlign (EMPTY)
 
-
+ 
 
 =item setAlign ($value)
 
-Set the align attribute. 
+Set the align attribute.  
 
 =item getFieldList (EMPTY)
 
-
+ 
 
 =item setFieldList ($arrayRefValue)
 
-
+ 
 
 =item getXMLAttributes (EMPTY)
 
-This method returns the XMLAttributes of this class. 
+This method returns the XMLAttributes of this class.  
 
 =item getLength (EMPTY)
 
-return the length of this field axis (eg number of field objects) 
+return the length of this field axis (eg number of field objects)  
 
 =item addField ($attribHashOrObjectRef)
 
-Adds a field to this field Axis. Takes either an attribute HASHreference (the attributes in the hash must correspond to thoseof L<XDF::Field>) or an XDF::Field object reference as its argument. Returns the field object reference on success, undef on failure. 
+Adds a field to this field Axis. Takes either an attribute HASHreference (the attributes in the hash must correspond to thoseof L<XDF::Field>) or an XDF::Field object reference as its argument. Returns the field object reference on success, undef on failure.  
 
 =item getField ($index)
 
-Returns the field object reference at specified index on success, undef on failure. 
+Returns the field object reference at specified index on success, undef on failure.  
 
 =item getFields (EMPTY)
 
-Convenience method that returns ALL field objects held in this field axis. Returns a list of field object references (ordered by field axis index). If there are no fields in this field axis, the returned list is empty. 
+Convenience method that returns ALL field objects held in this field axis. Returns a list of field object references (ordered by field axis index). If there are no fields in this field axis, the returned list is empty.  
 
 =item setField ($fieldObjectRef, $index)
 
-Set the field object at indicated index. Returns the field object onsuccess, undef on failure. 
+Set the field object at indicated index. This method may also be used to 'remove'a field, the user requests that the index location be set to 'undef'. In eithercase this method returns the object that was set at the indicated index. If themethod cannot set the field at the index location, the methodreturns undef on failure.  
 
 =item removeField ($indexOrObjectRef)
 
-Remove a field object from the list of fieldsheld within this object. This method takes either the list index number or an object reference as its argument. RETURNS : 1 on success, undef on failure. 
+Remove a field object from the list of fieldsheld within this object. This method takes either the list index number or an object reference as its argument. RETURNS : 1 on success, undef on failure.  
 
 =item addFieldGroup ($attribHashOrObjectRef)
 
-Insert a fieldGroup object into this object. Returns fieldGroup object on success, undef on failure. 
+Insert a fieldGroup object into this object. Returns fieldGroup object on success, undef on failure.  
 
 =item removeFieldGroup ($hashKey)
 
-Remove a fieldGroup object from this object. 
+Remove a fieldGroup object from this object.  
 
 =back
 
@@ -616,7 +623,7 @@ A change in the value of these attributes will change the functioning of ALL ins
 =over 4
 
 The following class attribute methods are inherited from L<XDF::BaseObject>:
-B<Pretty_XDF_Output>, B<Pretty_XDF_Output_Indentation>, B<DefaultDataArraySize>.
+B<Pretty_XDF_Output>, B<Pretty_XDF_Output_Indentation>, B<DefaultDataArraySize>. 
 
 =back
 
@@ -624,14 +631,14 @@ B<Pretty_XDF_Output>, B<Pretty_XDF_Output_Indentation>, B<DefaultDataArraySize>.
 
 =over 4
 
-=head2 INHERITED Other Methods
+=head2 INHERITED INSTANCE Methods
 
 
 
 =over 4
 
 XDF::FieldAxis inherits the following instance methods of L<XDF::GenericObject>:
-B<new>, B<clone>, B<update>.
+B<new>, B<clone>, B<update>. 
 
 =back
 
@@ -640,15 +647,13 @@ B<new>, B<clone>, B<update>.
 =over 4
 
 XDF::FieldAxis inherits the following instance methods of L<XDF::BaseObject>:
-B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLAttributes>, B<setXMLNotationHash>, B<toXMLFileHandle>, B<toXMLFile>.
-
-=back
+B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLAttributes>, B<setXMLNotationHash>, B<toXMLFileHandle>, B<toXMLFile>. 
 
 =back
 
 =head1 SEE ALSO
 
-L< XDF::Array>, L< XDF::Axis>, L<XDF::BaseObject>, L<XDF::Field>, L<XDF::FieldGroup>
+L< XDF::Array>, L< XDF::Axis>, L<XDF::BaseObject>, L<XDF::Field>, L<XDF::FieldGroup> 
 
 =back
 
@@ -657,6 +662,6 @@ L< XDF::Array>, L< XDF::Axis>, L<XDF::BaseObject>, L<XDF::Field>, L<XDF::FieldGr
     Brian Thomas  (thomas@adc.gsfc.nasa.gov)
     Astronomical Data Center <http://adc.gsfc.nasa.gov>
     NASA/Goddard Space Flight Center
-
+ 
 
 =cut

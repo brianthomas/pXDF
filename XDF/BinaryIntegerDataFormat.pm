@@ -285,6 +285,10 @@ sub _sprintfNotation {
 # Modification History
 #
 # $Log$
+# Revision 1.13  2001/03/14 21:32:34  thomas
+# Updated perldoc section using new version of
+# makeDoc.pl.
+#
 # Revision 1.12  2001/03/09 23:10:52  thomas
 # added convertIntegerToIntegerBits method.
 #
@@ -357,6 +361,8 @@ XDF::BinaryIntegerDataFormat - Perl Class for BinaryIntegerDataFormat
 XDF::BinaryIntegerDataFormat inherits class and attribute methods of L<XDF::GenericObject>, L<XDF::DataFormat>, L<XDF::BaseObject>.
 
 
+=head1 METHODS
+
 =over 4
 
 =head2 CLASS Methods
@@ -375,57 +381,42 @@ This method returns a list containing the namesof the attributes of this class. 
 
 =back
 
-=head2 ATTRIBUTE Methods
+=head2 INSTANCE Methods
 
-These methods set the requested attribute if an argument is supplied to the method. Whether or not an argument is supplied the current value of the attribute is always returned. Values of these methods are always SCALAR (may be number, string, or reference).
-
-=over 4
-
-=item signed
-
-Whether this XDF::BinaryIntegerDataFormat holds signed or unsignedinteger. Takes the values of "yes" or "no".  
-
-=item bits
-
-The number of bits this XDF::BinaryIntegerDataFormat holds.  
-
-=back
-
-=head2 OTHER Methods
-
+The following instance methods are defined for XDF::BinaryIntegerDataFormat.
 =over 4
 
 =item getBits (EMPTY)
 
-
+ 
 
 =item setBits ($value)
 
-Set the (number of) bits attribute. 
+Set the (number of) bits attribute.  
 
 =item getSigned{ (EMPTY)
 
-
+ 
 
 =item setSigned ($value)
 
-Set the signed attribute. 
+Set the signed attribute.  
 
 =item convertBitStringToIntegerBits ($dataEndian, $bitString)
 
-Convert the string representation of bits into the binaryinteger bits as specified by an instance of a BinaryIntegerDataFormat object. The desired endianness must be supplied. The integer bits are returned. 
+Convert the string representation of bits into the binaryinteger bits as specified by an instance of a BinaryIntegerDataFormat object. The desired endianness must be supplied. The integer bits are returned.  
 
 =item convertIntegerToIntegerBits ($dataEndian, $integerValue)
 
-Convert the passed number into binary integer bits as specified by the instance of a BinaryIntegerDataFormat object. The desired endianness of the output data bits must be supplied. The integer bits are returned. 
+Convert the passed number into binary integer bits as specified by the instance of a BinaryIntegerDataFormat object. The desired endianness of the output data bits must be supplied. The integer bits are returned.  
 
 =item numOfBytes (EMPTY)
 
-A convenience method. Return the number of bytes this XDF::BinaryIntegerDataFormat holds. 
+A convenience method. Return the number of bytes this XDF::BinaryIntegerDataFormat holds.  
 
 =item getXMLAttributes (EMPTY)
 
-This method returns the XMLAttributes of this class. 
+This method returns the XMLAttributes of this class.  
 
 =back
 
@@ -439,7 +430,7 @@ A change in the value of these attributes will change the functioning of ALL ins
 =over 4
 
 The following class attribute methods are inherited from L<XDF::BaseObject>:
-B<Pretty_XDF_Output>, B<Pretty_XDF_Output_Indentation>, B<DefaultDataArraySize>.
+B<Pretty_XDF_Output>, B<Pretty_XDF_Output_Indentation>, B<DefaultDataArraySize>. 
 
 =back
 
@@ -447,14 +438,14 @@ B<Pretty_XDF_Output>, B<Pretty_XDF_Output_Indentation>, B<DefaultDataArraySize>.
 
 =over 4
 
-=head2 INHERITED Other Methods
+=head2 INHERITED INSTANCE Methods
 
 
 
 =over 4
 
 XDF::BinaryIntegerDataFormat inherits the following instance methods of L<XDF::GenericObject>:
-B<new>, B<clone>, B<update>.
+B<new>, B<clone>, B<update>. 
 
 =back
 
@@ -463,7 +454,7 @@ B<new>, B<clone>, B<update>.
 =over 4
 
 XDF::BinaryIntegerDataFormat inherits the following instance methods of L<XDF::DataFormat>:
-B<toXMLFileHandle>.
+B<toXMLFileHandle>. 
 
 =back
 
@@ -472,15 +463,13 @@ B<toXMLFileHandle>.
 =over 4
 
 XDF::BinaryIntegerDataFormat inherits the following instance methods of L<XDF::BaseObject>:
-B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLAttributes>, B<setXMLNotationHash>, B<toXMLFile>.
-
-=back
+B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLAttributes>, B<setXMLNotationHash>, B<toXMLFile>. 
 
 =back
 
 =head1 SEE ALSO
 
-L<XDF::Constants>, L<XDF::Utility>, L<XDF::DataFormat>
+L<XDF::Constants>, L<XDF::Utility>, L<XDF::DataFormat> 
 
 =back
 
@@ -489,6 +478,6 @@ L<XDF::Constants>, L<XDF::Utility>, L<XDF::DataFormat>
     Brian Thomas  (thomas@adc.gsfc.nasa.gov)
     Astronomical Data Center <http://adc.gsfc.nasa.gov>
     NASA/Goddard Space Flight Center
-
+ 
 
 =cut

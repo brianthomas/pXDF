@@ -226,6 +226,10 @@ sub _init {
 # Modification History
 #
 # $Log$
+# Revision 1.6  2001/03/14 21:32:35  thomas
+# Updated perldoc section using new version of
+# makeDoc.pl.
+#
 # Revision 1.5  2000/12/15 22:11:58  thomas
 # Regenerated perlDoc section in files. -b.t.
 #
@@ -264,6 +268,8 @@ XDF::Units - Perl Class for Units
 XDF::Units inherits class and attribute methods of L<XDF::GenericObject>, L<XDF::BaseObject>.
 
 
+=head1 METHODS
+
 =over 4
 
 =head2 CLASS Methods
@@ -286,77 +292,66 @@ Name of the child node to print in the toXMLFileHandle method when an XDF::Units
 
 =back
 
-=head2 ATTRIBUTE Methods
+=head2 INSTANCE Methods
 
-These methods set the requested attribute if an argument is supplied to the method. Whether or not an argument is supplied the current value of the attribute is always returned. Values of these methods are always SCALAR (may be number, string, or reference).
-
-=over 4
-
-=item XMLNodeName
-
- 
-
-=back
-
-=head2 OTHER Methods
-
+The following instance methods are defined for XDF::Units.
 =over 4
 
 =item getFactor (EMPTY)
 
-
+ 
 
 =item setFactor ($value)
 
-Set the factor attribute. 
+Set the factor attribute.  
 
 =item getSystem (EMPTY)
 
-
+ 
 
 =item setSystem ($value)
 
-Set the system attribute. 
+Set the system attribute.  
 
 =item getUnitList (EMPTY)
 
-
+ 
 
 =item setUnitList ($arrayRefValue)
 
-Set the unitList attribute. 
+Set the unitList attribute.  
 
 =item getXMLNodeName (EMPTY)
 
-
+ 
 
 =item setXMLNodeName ($val)
 
-
+ 
 
 =item getValue (EMPTY)
 
-
+ 
 
 =item getUnits (EMPTY)
 
-Convience method. Returns an Array of units held within this object. 
+Convience method. Returns an Array of units held within this object.  
 
 =item getXMLAttributes (EMPTY)
 
-This method returns the XMLAttributes of this class. 
+This method returns the XMLAttributes of this class.  
 
 =item addUnit ($info)
 
-
+ 
 
 =item removeUnit ($what)
 
-
+ 
 
 =item toXMLFileHandle ($dontCloseNode, $indent, $XMLDeclAttribs, $fileHandle)
 
-
+ 
 
 =back
 
@@ -370,7 +365,7 @@ A change in the value of these attributes will change the functioning of ALL ins
 =over 4
 
 The following class attribute methods are inherited from L<XDF::BaseObject>:
-B<Pretty_XDF_Output>, B<Pretty_XDF_Output_Indentation>, B<DefaultDataArraySize>.
+B<Pretty_XDF_Output>, B<Pretty_XDF_Output_Indentation>, B<DefaultDataArraySize>. 
 
 =back
 
@@ -378,14 +373,14 @@ B<Pretty_XDF_Output>, B<Pretty_XDF_Output_Indentation>, B<DefaultDataArraySize>.
 
 =over 4
 
-=head2 INHERITED Other Methods
+=head2 INHERITED INSTANCE Methods
 
 
 
 =over 4
 
 XDF::Units inherits the following instance methods of L<XDF::GenericObject>:
-B<new>, B<clone>, B<update>.
+B<new>, B<clone>, B<update>. 
 
 =back
 
@@ -394,20 +389,18 @@ B<new>, B<clone>, B<update>.
 =over 4
 
 XDF::Units inherits the following instance methods of L<XDF::BaseObject>:
-B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLAttributes>, B<setXMLNotationHash>, B<toXMLFile>.
-
-=back
+B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLAttributes>, B<setXMLNotationHash>, B<toXMLFile>. 
 
 =back
 
 =head1 SEE ALSO
 
-L<XDF::BaseObject>, L<XDF::Unit>
+L<XDF::BaseObject>, L<XDF::Unit> 
 
 =back
 
 =head1 AUTHOR
 
-
+ 
 
 =cut

@@ -279,6 +279,10 @@ sub _sprintfNotation {
 # Modification History
 #
 # $Log$
+# Revision 1.5  2001/03/14 21:32:34  thomas
+# Updated perldoc section using new version of
+# makeDoc.pl.
+#
 # Revision 1.4  2001/03/09 21:53:08  thomas
 # Had no documentation. added.
 #
@@ -322,6 +326,8 @@ XDF::FloatDataFormat - Perl Class for FloatDataFormat
 XDF::FloatDataFormat inherits class and attribute methods of L<XDF::GenericObject>, L<XDF::DataFormat>, L<XDF::BaseObject>.
 
 
+=head1 METHODS
+
 =over 4
 
 =head2 CLASS Methods
@@ -340,61 +346,42 @@ This method returns a list reference containing the namesof the class attributes
 
 =back
 
-=head2 ATTRIBUTE Methods
+=head2 INSTANCE Methods
 
-These methods set the requested attribute if an argument is supplied to the method. Whether or not an argument is supplied the current value of the attribute is always returned. Values of these methods are always SCALAR (may be number, string, or reference).
-
-=over 4
-
-=item width
-
-The entire width of this float field, including the 'E'should the 'exponent' attribute be non-zero.  
-
-=item precision
-
-The precision of this float field from the portion to theright of the '.' to the exponent that follows the 'E'.  
-
-=item exponent
-
- 
-
-=back
-
-=head2 OTHER Methods
-
+The following instance methods are defined for XDF::FloatDataFormat.
 =over 4
 
 =item getWidth (EMPTY)
 
-Get the width attribute. Width specifies the widthof the entire float field (e.g. "1.003" has a width of '5'). If the 'exponent' attribute is non-zero then the fieldis to be written in sci. format so that the width includes the 'E' and any '.' (e.g. "10.333E-3" has a width of '9'). 
+Get the width attribute. Width specifies the widthof the entire float field (e.g. "1.003" has a width of '5'). If the 'exponent' attribute is non-zero then the fieldis to be written in sci. format so that the width includes the 'E' and any '.' (e.g. "10.333E-3" has a width of '9').  
 
 =item setWidth ($value)
 
-Set the width attribute. Width specifies the widthof the entire float field (e.g. "1.003" has a width of '5'). If the 'exponent' attribute is non-zero then the fieldis to be written in sci. format so that the width includes the 'E' and any '.' (e.g. "10.333E-3" has a width of '9'). 
+Set the width attribute. Width specifies the widthof the entire float field (e.g. "1.003" has a width of '5'). If the 'exponent' attribute is non-zero then the fieldis to be written in sci. format so that the width includes the 'E' and any '.' (e.g. "10.333E-3" has a width of '9').  
 
 =item getPrecision (EMPTY)
 
-Get the precision attribute. This specifies the widthof the field to the *right* of the '.' (e.g. "10.333E-3" has a precision of '3'; "1.004" has a precision of '3'). 
+Get the precision attribute. This specifies the widthof the field to the *right* of the '.' (e.g. "10.333E-3" has a precision of '3'; "1.004" has a precision of '3').  
 
 =item setPrecision ($value)
 
-Set the precision attribute. This specifies the widthof the field to the *right* of the '.' (e.g. "10.333E-3" has a precision of '3'; "1.004" has a precision of '3'). 
+Set the precision attribute. This specifies the widthof the field to the *right* of the '.' (e.g. "10.333E-3" has a precision of '3'; "1.004" has a precision of '3').  
 
 =item getExponent (EMPTY)
 
-Get the exponent attribute. This specifies the widthof the field to the *right* of the 'E', e.g. "10.333E-3" has an exponent (width) of "2". When the exponent is zero,then the number is to be written as in FORTRAN 'F' formatinstead (e.g. "10.004").  
+Get the exponent attribute. This specifies the widthof the field to the *right* of the 'E', e.g. "10.333E-3" has an exponent (width) of "2". When the exponent is zero,then the number is to be written as in FORTRAN 'F' formatinstead (e.g. "10.004").   
 
 =item setExponent ($value)
 
-Set the exponent attribute. This specifies the widthof the field to the *right* of the 'E', e.g. "10.333E-3" has an exponent (width) of "2". When the exponent is zero,then the number is to be written as in FORTRAN 'F' formatinstead (e.g. "10.004").  
+Set the exponent attribute. This specifies the widthof the field to the *right* of the 'E', e.g. "10.333E-3" has an exponent (width) of "2". When the exponent is zero,then the number is to be written as in FORTRAN 'F' formatinstead (e.g. "10.004").   
 
 =item numOfBytes (EMPTY)
 
-Return the number of bytes this XDF::FloatDataFormat holds. 
+Return the number of bytes this XDF::FloatDataFormat holds.  
 
 =item getXMLAttributes (EMPTY)
 
-This method returns the XMLAttributes of this class. 
+This method returns the XMLAttributes of this class.  
 
 =back
 
@@ -408,7 +395,7 @@ A change in the value of these attributes will change the functioning of ALL ins
 =over 4
 
 The following class attribute methods are inherited from L<XDF::BaseObject>:
-B<Pretty_XDF_Output>, B<Pretty_XDF_Output_Indentation>, B<DefaultDataArraySize>.
+B<Pretty_XDF_Output>, B<Pretty_XDF_Output_Indentation>, B<DefaultDataArraySize>. 
 
 =back
 
@@ -416,14 +403,14 @@ B<Pretty_XDF_Output>, B<Pretty_XDF_Output_Indentation>, B<DefaultDataArraySize>.
 
 =over 4
 
-=head2 INHERITED Other Methods
+=head2 INHERITED INSTANCE Methods
 
 
 
 =over 4
 
 XDF::FloatDataFormat inherits the following instance methods of L<XDF::GenericObject>:
-B<new>, B<clone>, B<update>.
+B<new>, B<clone>, B<update>. 
 
 =back
 
@@ -432,7 +419,7 @@ B<new>, B<clone>, B<update>.
 =over 4
 
 XDF::FloatDataFormat inherits the following instance methods of L<XDF::DataFormat>:
-B<toXMLFileHandle>.
+B<toXMLFileHandle>. 
 
 =back
 
@@ -441,15 +428,13 @@ B<toXMLFileHandle>.
 =over 4
 
 XDF::FloatDataFormat inherits the following instance methods of L<XDF::BaseObject>:
-B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLAttributes>, B<setXMLNotationHash>, B<toXMLFile>.
-
-=back
+B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLAttributes>, B<setXMLNotationHash>, B<toXMLFile>. 
 
 =back
 
 =head1 SEE ALSO
 
-L<XDF::DataFormat>
+L<XDF::DataFormat> 
 
 =back
 
@@ -458,6 +443,6 @@ L<XDF::DataFormat>
     Brian Thomas  (thomas@adc.gsfc.nasa.gov)
     Astronomical Data Center <http://adc.gsfc.nasa.gov>
     NASA/Goddard Space Flight Center
-
+ 
 
 =cut

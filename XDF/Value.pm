@@ -229,6 +229,10 @@ sub AUTOLOAD {
 # Modification History
 #
 # $Log$
+# Revision 1.7  2001/03/14 21:32:35  thomas
+# Updated perldoc section using new version of
+# makeDoc.pl.
+#
 # Revision 1.6  2001/03/09 21:51:09  thomas
 # Updated perldocumentation. added Utility check
 # for seting inequality and special attributes.
@@ -276,6 +280,8 @@ XDF::Value - Perl Class for Value
 XDF::Value inherits class and attribute methods of L<XDF::GenericObject>, L<XDF::BaseObject>.
 
 
+=head1 METHODS
+
 =over 4
 
 =head2 CLASS Methods
@@ -294,85 +300,58 @@ This method takes no arguments may not be changed. This method returns a list re
 
 =back
 
-=head2 ATTRIBUTE Methods
+=head2 INSTANCE Methods
 
-These methods set the requested attribute if an argument is supplied to the method. Whether or not an argument is supplied the current value of the attribute is always returned. Values of these methods are always SCALAR (may be number, string, or reference).
-
-=over 4
-
-=item valueId
-
- 
-
-=item valueIdRef
-
- 
-
-=item special
-
- 
-
-=item inequality
-
- 
-
-=item value
-
- 
-
-=back
-
-=head2 OTHER Methods
-
+The following instance methods are defined for XDF::Value.
 =over 4
 
 =item getValueId{ (EMPTY)
 
-
+ 
 
 =item setValueId ($value)
 
-Set the valueId attribute. 
+Set the valueId attribute.  
 
 =item getValueIdRef (EMPTY)
 
-
+ 
 
 =item setValueIdRef ($value)
 
-Set the valueIdRef attribute. 
+Set the valueIdRef attribute.  
 
 =item getSpecial{ (EMPTY)
 
-
+ 
 
 =item setSpecial ($value)
 
-Set the special attribute. 
+Set the special attribute.  
 
 =item getInequality{ (EMPTY)
 
-
+ 
 
 =item setInequality ($value)
 
-Set the inequality attribute. 
+Set the inequality attribute.  
 
 =item getValue{ (EMPTY)
 
-
+ 
 
 =item setValue ($value)
 
-Set the value attribute. 
+Set the value attribute.  
 
 =item getXMLAttributes (EMPTY)
 
-This method returns the XMLAttributes of this class. 
+This method returns the XMLAttributes of this class.  
 
 =item setXMLAttributes ($info)
 
-XDF::ErrorValue has a special setXMLAttributes method. These objects are so simple they seem to merit special handling. This new setXMLAttributes method takes eitherand attribute Hash reference or a STRING. If the input value is a HASH reference, we construct an object from it, else, we just set its upperErrorValue AND lowerErrorValue attributes to the contents of the passed STRING. 
+XDF::ErrorValue has a special setXMLAttributes method. These objects are so simple they seem to merit special handling. This new setXMLAttributes method takes eitherand attribute Hash reference or a STRING. If the input value is a HASH reference, we construct an object from it, else, we just set its upperErrorValue AND lowerErrorValue attributes to the contents of the passed STRING.  
 
 =back
 
@@ -386,7 +365,7 @@ A change in the value of these attributes will change the functioning of ALL ins
 =over 4
 
 The following class attribute methods are inherited from L<XDF::BaseObject>:
-B<Pretty_XDF_Output>, B<Pretty_XDF_Output_Indentation>, B<DefaultDataArraySize>.
+B<Pretty_XDF_Output>, B<Pretty_XDF_Output_Indentation>, B<DefaultDataArraySize>. 
 
 =back
 
@@ -394,14 +373,14 @@ B<Pretty_XDF_Output>, B<Pretty_XDF_Output_Indentation>, B<DefaultDataArraySize>.
 
 =over 4
 
-=head2 INHERITED Other Methods
+=head2 INHERITED INSTANCE Methods
 
 
 
 =over 4
 
 XDF::Value inherits the following instance methods of L<XDF::GenericObject>:
-B<new>, B<clone>, B<update>.
+B<new>, B<clone>, B<update>. 
 
 =back
 
@@ -410,15 +389,13 @@ B<new>, B<clone>, B<update>.
 =over 4
 
 XDF::Value inherits the following instance methods of L<XDF::BaseObject>:
-B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLNotationHash>, B<toXMLFileHandle>, B<toXMLFile>.
-
-=back
+B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLNotationHash>, B<toXMLFileHandle>, B<toXMLFile>. 
 
 =back
 
 =head1 SEE ALSO
 
-L< XDF::Axis>, L< XDF::ErroredValue>, L< XDF::UnitDirection>, L<XDF::BaseObject>
+L< XDF::Axis>, L< XDF::ErroredValue>, L< XDF::UnitDirection>, L<XDF::BaseObject> 
 
 =back
 
@@ -427,6 +404,6 @@ L< XDF::Axis>, L< XDF::ErroredValue>, L< XDF::UnitDirection>, L<XDF::BaseObject>
     Brian Thomas  (thomas@adc.gsfc.nasa.gov)
     Astronomical Data Center <http://adc.gsfc.nasa.gov>
     NASA/Goddard Space Flight Center
-
+ 
 
 =cut

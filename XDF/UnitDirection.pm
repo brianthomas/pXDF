@@ -159,6 +159,10 @@ sub AUTOLOAD {
 # Modification History
 #
 # $Log$
+# Revision 1.6  2001/03/14 21:32:35  thomas
+# Updated perldoc section using new version of
+# makeDoc.pl.
+#
 # Revision 1.5  2000/12/15 22:12:00  thomas
 # Regenerated perlDoc section in files. -b.t.
 #
@@ -197,6 +201,8 @@ XDF::UnitDirection - Perl Class for UnitDirection
 XDF::UnitDirection inherits class and attribute methods of L<XDF::GenericObject>, L<XDF::BaseObject>.
 
 
+=head1 METHODS
+
 =over 4
 
 =head2 CLASS Methods
@@ -215,385 +221,50 @@ A change in the value of these class attributes will change the value for ALL in
 
 =back
 
-=head2 ATTRIBUTE Methods
+=head2 INSTANCE Methods
 
-These methods set the requested attribute if an argument is supplied to the method. Whether or not an argument is supplied the current value of the attribute is always returned. Values of these methods are always SCALAR (may be number, string, or reference).
-
-=over 4
-
-=item # add in class XML attributes
-
- 
-
-=item push @Class_Attributes, @Class_XML_Attributes;
-
- 
-
-=item # add in super class attributes
-
- 
-
-=item push @Class_Attributes, @{&XDF::BaseObject::classAttributes};
-
- 
-
-=item # Initalization
-
- 
-
-=item # set up object attributes.
-
- 
-
-=item for my $attr ( @Class_Attributes ) { $field{$attr}++; }
-
- 
-
-=item sub classXMLNodeName { 
-
- 
-
-=item }
-
- 
-
-=item sub classAttributes { 
-
- 
-
-=item }
-
- 
-
-=item #
-
- 
-
-=item # Get/Set Methods
-
- 
-
-=item #
-
- 
-
-=item # /** getName
-
- 
-
-=item # */
-
- 
-
-=item sub getName {
-
- 
-
-=item return $self->{Name};
-
- 
-
-=item }
-
- 
-
-=item # /** setName
-
- 
-
-=item #     Set the name attribute. 
-
- 
-
-=item # */
-
- 
-
-=item sub setName {
-
- 
-
-=item $self->{Name} = $value;
-
- 
-
-=item }
-
- 
-
-=item # /** getDescription
-
- 
-
-=item #  */
-
- 
-
-=item sub getDescription {
-
- 
-
-=item return $self->{Description};
-
- 
-
-=item }
-
- 
-
-=item # /** setDescription
-
- 
-
-=item #  */
-
- 
-
-=item sub setDescription {
-
- 
-
-=item $self->{Description} = $value;
-
- 
-
-=item }
-
- 
-
-=item # /** getAxisIdRef
-
- 
-
-=item #  */
-
- 
-
-=item sub getAxisIdRef {
-
- 
-
-=item return $self->{AxisIdRef};
-
- 
-
-=item }
-
- 
-
-=item # /** setAxisIdRef
-
- 
-
-=item #  */
-
- 
-
-=item sub setAxisIdRef {
-
- 
-
-=item $self->{AxisIdRef} = $value;
-
- 
-
-=item }
-
- 
-
-=item # /** getComplex
-
- 
-
-=item #  */
-
- 
-
-=item sub getComplex {
-
- 
-
-=item return $self->{Complex};
-
- 
-
-=item }
-
- 
-
-=item # /** setComplex
-
- 
-
-=item #  */
-
- 
-
-=item sub setComplex {
-
- 
-
-=item $self->{Complex} = $value;
-
- 
-
-=item }
-
- 
-
-=item # Q: what is the (scalar) "value" of this vector?
-
- 
-
-=item # /** value
-
- 
-
-=item # Returns the "value" of this unit direction (and you thought that it
-
- 
-
-=item # would be '1', heh). We assume its value is the axisIdRef IF 
-
- 
-
-=item # thats defined; we use the name or description otherwise.
-
- 
-
-=item # Basically put here to make XDF::AxisUnitDirection have consistent interface
-
- 
-
-=item # with XDF::Value.
-
- 
-
-=item # */
-
- 
-
-=item sub getValue {
-
- 
-
-=item my $value = $self->{AxisIdRef};
-
- 
-
-=item $value = $self->{Name} unless defined $value;
-
- 
-
-=item $value = $self->{Description} unless defined $value;
-
- 
-
-=item return $value;
-
- 
-
-=item }
-
- 
-
-=item # /** getXMLAttributes
-
- 
-
-=item #      This method returns the XMLAttributes of this class. 
-
- 
-
-=item #  */
-
- 
-
-=item sub getXMLAttributes {
-
- 
-
-=item }
-
- 
-
-=item #
-
- 
-
-=item # Private Methods
-
- 
-
-=item #
-
- 
-
-=item # This is called when we cant find any defined method
-
- 
-
-=item # exists already. Used to handle general purpose set/get
-
- 
-
-=item # methods for our attributes (object fields).
-
- 
-
-=item sub AUTOLOAD {
-
- 
-
-=item my ($self,$val) = @_;
-
- 
-
-=back
-
-=head2 OTHER Methods
-
+The following instance methods are defined for XDF::UnitDirection.
 =over 4
 
 =item getName (EMPTY)
 
-
+ 
 
 =item setName ($value)
 
-Set the name attribute. 
+Set the name attribute.  
 
 =item getDescription (EMPTY)
 
-
+ 
 
 =item setDescription ($value)
 
-
+ 
 
 =item getAxisIdRef (EMPTY)
 
-
+ 
 
 =item setAxisIdRef ($value)
 
-
+ 
 
 =item getComplex (EMPTY)
 
-
+ 
 
 =item setComplex ($value)
 
-
+ 
 
 =item getValue (EMPTY)
 
-
+ 
 
 =item getXMLAttributes (EMPTY)
 
-This method returns the XMLAttributes of this class. 
+This method returns the XMLAttributes of this class.  
 
 =back
 
@@ -607,7 +278,7 @@ A change in the value of these attributes will change the functioning of ALL ins
 =over 4
 
 The following class attribute methods are inherited from L<XDF::BaseObject>:
-B<Pretty_XDF_Output>, B<Pretty_XDF_Output_Indentation>, B<DefaultDataArraySize>.
+B<Pretty_XDF_Output>, B<Pretty_XDF_Output_Indentation>, B<DefaultDataArraySize>. 
 
 =back
 
@@ -615,14 +286,14 @@ B<Pretty_XDF_Output>, B<Pretty_XDF_Output_Indentation>, B<DefaultDataArraySize>.
 
 =over 4
 
-=head2 INHERITED Other Methods
+=head2 INHERITED INSTANCE Methods
 
 
 
 =over 4
 
 XDF::UnitDirection inherits the following instance methods of L<XDF::GenericObject>:
-B<new>, B<clone>, B<update>.
+B<new>, B<clone>, B<update>. 
 
 =back
 
@@ -631,20 +302,18 @@ B<new>, B<clone>, B<update>.
 =over 4
 
 XDF::UnitDirection inherits the following instance methods of L<XDF::BaseObject>:
-B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLAttributes>, B<setXMLNotationHash>, B<toXMLFileHandle>, B<toXMLFile>.
-
-=back
+B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLAttributes>, B<setXMLNotationHash>, B<toXMLFileHandle>, B<toXMLFile>. 
 
 =back
 
 =head1 SEE ALSO
 
-
+ 
 
 =back
 
 =head1 AUTHOR
 
-
+ 
 
 =cut

@@ -497,6 +497,10 @@ sub _init {
 # Modification History
 #
 # $Log$
+# Revision 1.7  2001/03/14 21:32:34  thomas
+# Updated perldoc section using new version of
+# makeDoc.pl.
+#
 # Revision 1.6  2001/02/22 19:37:09  thomas
 # Re-insert lessthanvalue, etc in Field class
 # for the time being.
@@ -544,6 +548,8 @@ XDF::Field - Perl Class for Field
 XDF::Field inherits class and attribute methods of L<XDF::GenericObject>, L<XDF::BaseObject>.
 
 
+=head1 METHODS
+
 =over 4
 
 =head2 CLASS Methods
@@ -562,685 +568,158 @@ This method returns a list reference containing the namesof the class attributes
 
 =back
 
-=head2 ATTRIBUTE Methods
+=head2 INSTANCE Methods
 
-These methods set the requested attribute if an argument is supplied to the method. Whether or not an argument is supplied the current value of the attribute is always returned. Values of these methods are always SCALAR (may be number, string, or reference).
-
-=over 4
-
-=item # add in class XML attributes
-
- 
-
-=item push @Class_Attributes, @Class_XML_Attributes;
-
- 
-
-=item # add in super class attributes
-
- 
-
-=item push @Class_Attributes, @{&XDF::BaseObject::classAttributes};
-
- 
-
-=item # Initalization
-
- 
-
-=item # set up object attributes.
-
- 
-
-=item for my $attr ( @Class_Attributes ) { $field{$attr}++; }
-
- 
-
-=item # /** classXMLNodeName
-
- 
-
-=item # This method returns the class node name of XDF::Field.
-
- 
-
-=item # This method takes no arguments may not be changed. 
-
- 
-
-=item # */
-
- 
-
-=item sub classXMLNodeName {
-
- 
-
-=item }
-
- 
-
-=item # /** classAttributes
-
- 
-
-=item #  This method returns a list reference containing the names
-
- 
-
-=item #  of the class attributes of XDF::Field. 
-
- 
-
-=item #  This method takes no arguments may not be changed. 
-
- 
-
-=item # */
-
- 
-
-=item sub classAttributes {
-
- 
-
-=item }
-
- 
-
-=item #
-
- 
-
-=item # Get/Set Methods 
-
- 
-
-=item #
-
- 
-
-=item # /** getName
-
- 
-
-=item # */
-
- 
-
-=item sub getName{
-
- 
-
-=item return $self->{Name};
-
- 
-
-=item }
-
- 
-
-=item # /** setName
-
- 
-
-=item #     Set the name attribute. 
-
- 
-
-=item # */
-
- 
-
-=item sub setName {
-
- 
-
-=item $self->{Name} = $value;
-
- 
-
-=item }
-
- 
-
-=item # /** getDescription
-
- 
-
-=item # */
-
- 
-
-=item sub getDescription{
-
- 
-
-=item return $self->{Description};
-
- 
-
-=item }
-
- 
-
-=item # /** setDescription
-
- 
-
-=item #     Set the description attribute. 
-
- 
-
-=item # */
-
- 
-
-=item sub setDescription {
-
- 
-
-=item $self->{Description} = $value;
-
- 
-
-=item }
-
- 
-
-=item # /** getFieldId
-
- 
-
-=item # */
-
- 
-
-=item sub getFieldId{
-
- 
-
-=item return $self->{FieldId};
-
- 
-
-=item }
-
- 
-
-=item # /** setFieldId
-
- 
-
-=item #     Set the fieldId attribute. 
-
- 
-
-=item # */
-
- 
-
-=item sub setFieldId {
-
- 
-
-=item $self->{FieldId} = $value;
-
- 
-
-=item }
-
- 
-
-=item # /** getFieldIdRef
-
- 
-
-=item # */
-
- 
-
-=item sub getFieldIdRef{
-
- 
-
-=item return $self->{FieldIdRef};
-
- 
-
-=item }
-
- 
-
-=item # /** setFieldIdRef
-
- 
-
-=item #     Set the fieldIdRef attribute. 
-
- 
-
-=item # */
-
- 
-
-=item sub setFieldIdRef {
-
- 
-
-=item $self->{FieldIdRef} = $value;
-
- 
-
-=item }
-
- 
-
-=item # /** getClass
-
- 
-
-=item # */
-
- 
-
-=item sub getClass{
-
- 
-
-=item return $self->{Class};
-
- 
-
-=item }
-
- 
-
-=item # /** setClass
-
- 
-
-=item #     Set the class attribute. 
-
- 
-
-=item # */
-
- 
-
-=item sub setClass {
-
- 
-
-=item $self->{Class} = $value;
-
- 
-
-=item }
-
- 
-
-=item # /** getUnits
-
- 
-
-=item # */
-
- 
-
-=item sub getUnits{
-
- 
-
-=item return $self->{Units};
-
- 
-
-=item }
-
- 
-
-=item # /** setUnits
-
- 
-
-=item #     Set the units attribute. 
-
- 
-
-=item # */
-
- 
-
-=item sub setUnits {
-
- 
-
-=item $self->{Units} = $value;
-
- 
-
-=item }
-
- 
-
-=item # /** getDataFormat
-
- 
-
-=item # */
-
- 
-
-=item sub getDataFormat{
-
- 
-
-=item return $self->{DataFormat};
-
- 
-
-=item }
-
- 
-
-=item # /** setDataFormat
-
- 
-
-=item #     Set the dataFormat attribute. 
-
- 
-
-=item # */
-
- 
-
-=item sub setDataFormat {
-
- 
-
-=item $self->{DataFormat} = $value;
-
- 
-
-=item }
-
- 
-
-=item # /** getRelation
-
- 
-
-=item # */
-
- 
-
-=item sub getRelation{
-
- 
-
-=item return $self->{Relation};
-
- 
-
-=item }
-
- 
-
-=item # /** setRelation
-
- 
-
-=item #     Set the relation attribute. 
-
- 
-
-=item # */
-
- 
-
-=item sub setRelation {
-
- 
-
-=item $self->{Relation} = $value;
-
- 
-
-=item }
-
- 
-
-=item # /** getNoteList
-
- 
-
-=item # */
-
- 
-
-=item sub getNoteList{
-
- 
-
-=item return $self->{NoteList};
-
- 
-
-=item }
-
- 
-
-=item # /** setNoteList
-
- 
-
-=item #     Set the noteList attribute. 
-
- 
-
-=item # */
-
- 
-
-=item sub setNoteList {
-
- 
-
-=item # you must do it this way, or when the arrayRef changes it changes us here!
-
- 
-
-=item my @list = @{$arrayRefValue};
-
- 
-
-=item $self->{NoteList} = \@list;
-
- 
-
-=item }
-
- 
-
-=item # /** getXMLAttributes
-
- 
-
-=item #      This method returns the XMLAttributes of this class. 
-
- 
-
-=item #  */
-
- 
-
-=item sub getXMLAttributes {
-
- 
-
-=item }
-
- 
-
-=item #
-
- 
-
-=item # Other Public Methods
-
- 
-
-=item #
-
- 
-
-=item # /** addNote
-
- 
-
-=item # Insert an XDF::Note object into the XDF::Notes object held by this object.
-
- 
-
-=item # This method may optionally take a reference to an attribute hash as
-
- 
-
-=item # its argument. Attributes in the attribute hash should
-
- 
-
-=item # correspond to attributes of the L<XDF::Note> object. 
-
- 
-
-=item # The attribute/value pairs in the attribute hash reference are
-
- 
-
-=item # used to initialize the new XDF::Note object.
-
- 
-
-=item # RETURNS : an XDF::Note object reference on success, undef on failure.
-
- 
-
-=item # */
-
- 
-
-=item sub addNote {
-
- 
-
-=item my $noteObj;
-
- 
-
-=item if(ref $info && $info =~ m/XDF::Note/) {
-
- 
-
-=back
-
-=head2 OTHER Methods
-
+The following instance methods are defined for XDF::Field.
 =over 4
 
 =item getName{ (EMPTY)
 
-
+ 
 
 =item setName ($value)
 
-Set the name attribute. 
+Set the name attribute.  
 
 =item getDescription{ (EMPTY)
 
-
+ 
 
 =item setDescription ($value)
 
-Set the description attribute. 
+Set the description attribute.  
 
 =item getFieldId{ (EMPTY)
 
-
+ 
 
 =item setFieldId ($value)
 
-Set the fieldId attribute. 
+Set the fieldId attribute.  
 
 =item getFieldIdRef{ (EMPTY)
 
-
+ 
 
 =item setFieldIdRef ($value)
 
-Set the fieldIdRef attribute. 
+Set the fieldIdRef attribute.  
 
-=item getClass{ (EMPTY)
+=item getClass (EMPTY)
 
-
+ 
 
 =item setClass ($value)
 
-Set the class attribute. 
+Set the class attribute.  
+
+=item getLessThanValue (EMPTY)
+
+ 
+
+=item setLessThanValue ($value)
+
+Set the lessThanValue attribute.  
+
+=item getLessThanOrEqualValue (EMPTY)
+
+ 
+
+=item setLessThanOrEqualValue ($value)
+
+Set the lessThanOrEqualValue attribute.  
+
+=item getGreaterThanValue (EMPTY)
+
+ 
+
+=item setGreaterThanValue ($value)
+
+Set the greaterThanValue attribute.  
+
+=item getGreaterThanOrEqualValue (EMPTY)
+
+ 
+
+=item setGreaterThanOrEqualValue ($value)
+
+Set the greaterThanOrEqualValue attribute.  
+
+=item getInfiniteValue (EMPTY)
+
+ 
+
+=item setInfiniteValue ($value)
+
+Set the infiniteValue attribute.  
+
+=item getInfiniteNegativeValue (EMPTY)
+
+ 
+
+=item setInfiniteNegativeValue ($value)
+
+Set the infiniteNegativeValue attribute.  
+
+=item getNoDataValue (EMPTY)
+
+ 
+
+=item setNoDataValue ($value)
+
+Set the noDataValue attribute.  
 
 =item getUnits{ (EMPTY)
 
-
+ 
 
 =item setUnits ($value)
 
-Set the units attribute. 
+Set the units attribute.  
 
 =item getDataFormat{ (EMPTY)
 
-
+ 
 
 =item setDataFormat ($value)
 
-Set the dataFormat attribute. 
+Set the dataFormat attribute.  
 
 =item getRelation{ (EMPTY)
 
-
+ 
 
 =item setRelation ($value)
 
-Set the relation attribute. 
+Set the relation attribute.  
 
 =item getNoteList{ (EMPTY)
 
-
+ 
 
 =item setNoteList ($arrayRefValue)
 
-Set the noteList attribute. 
+Set the noteList attribute.  
 
 =item getXMLAttributes (EMPTY)
 
-This method returns the XMLAttributes of this class. 
+This method returns the XMLAttributes of this class.  
 
 =item addNote ($info)
 
-Insert an XDF::Note object into the XDF::Notes object held by this object. This method may optionally take a reference to an attribute hash asits argument. Attributes in the attribute hash shouldcorrespond to attributes of the L<XDF::Note> object. The attribute/value pairs in the attribute hash reference areused to initialize the new XDF::Note object. RETURNS : an XDF::Note object reference on success, undef on failure. 
+Insert an XDF::Note object into the XDF::Notes object held by this object. This method may optionally take a reference to an attribute hash asits argument. Attributes in the attribute hash shouldcorrespond to attributes of the L<XDF::Note> object. The attribute/value pairs in the attribute hash reference areused to initialize the new XDF::Note object. RETURNS : an XDF::Note object reference on success, undef on failure.  
 
 =item removeNote ($what)
 
-Removes an XDF::Note object from the list of XDF::Note objectsheld within the XDF::Notes object of this object. This method takes either the list index number or an object reference as its argument. RETURNS : 1 on success, undef on failure. 
+Removes an XDF::Note object from the list of XDF::Note objectsheld within the XDF::Notes object of this object. This method takes either the list index number or an object reference as its argument. RETURNS : 1 on success, undef on failure.  
 
 =item addUnit (EMPTY)
 
-Insert an XDF::Unit object into the L<XDF::Units> object (e.g. $obj->units)held in this object. This method takes either a reference to an attribute hash ORobject reference to an existing XDF::Unit asits argument. Attributes in the attribute hash reference shouldcorrespond to attributes of the L<XDF::Unit> object. The attribute/value pairs in the attribute hash reference areused to initialize the new XDF::Unit object. RETURNS : an XDF::Unit object if successfull, undef if not. 
+Insert an XDF::Unit object into the L<XDF::Units> object (e.g. $obj->units)held in this object. This method takes either a reference to an attribute hash ORobject reference to an existing XDF::Unit asits argument. Attributes in the attribute hash reference shouldcorrespond to attributes of the L<XDF::Unit> object. The attribute/value pairs in the attribute hash reference areused to initialize the new XDF::Unit object. RETURNS : an XDF::Unit object if successfull, undef if not.  
 
 =item removeUnit ($indexOrObjectRef)
 
-Remove an XDF::Unit object from the list of XDF::Units held inthe array units reference object. This method takes either the list index number or an object reference as its argument. RETURNS : 1 on success, undef on failure. 
+Remove an XDF::Unit object from the list of XDF::Units held inthe array units reference object. This method takes either the list index number or an object reference as its argument. RETURNS : 1 on success, undef on failure.  
 
 =back
 
@@ -1254,7 +733,7 @@ A change in the value of these attributes will change the functioning of ALL ins
 =over 4
 
 The following class attribute methods are inherited from L<XDF::BaseObject>:
-B<Pretty_XDF_Output>, B<Pretty_XDF_Output_Indentation>, B<DefaultDataArraySize>.
+B<Pretty_XDF_Output>, B<Pretty_XDF_Output_Indentation>, B<DefaultDataArraySize>. 
 
 =back
 
@@ -1262,14 +741,14 @@ B<Pretty_XDF_Output>, B<Pretty_XDF_Output_Indentation>, B<DefaultDataArraySize>.
 
 =over 4
 
-=head2 INHERITED Other Methods
+=head2 INHERITED INSTANCE Methods
 
 
 
 =over 4
 
 XDF::Field inherits the following instance methods of L<XDF::GenericObject>:
-B<new>, B<clone>, B<update>.
+B<new>, B<clone>, B<update>. 
 
 =back
 
@@ -1278,15 +757,13 @@ B<new>, B<clone>, B<update>.
 =over 4
 
 XDF::Field inherits the following instance methods of L<XDF::BaseObject>:
-B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLAttributes>, B<setXMLNotationHash>, B<toXMLFileHandle>, B<toXMLFile>.
-
-=back
+B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLAttributes>, B<setXMLNotationHash>, B<toXMLFileHandle>, B<toXMLFile>. 
 
 =back
 
 =head1 SEE ALSO
 
-L< XDF::FieldAxis>, L< XDF::FieldRelationship;>, L<XDF::BaseObject>, L<XDF::DataFormat>, L<XDF::Units>
+L< XDF::FieldAxis>, L< XDF::FieldRelationship;>, L<XDF::BaseObject>, L<XDF::DataFormat>, L<XDF::Units> 
 
 =back
 
@@ -1295,6 +772,6 @@ L< XDF::FieldAxis>, L< XDF::FieldRelationship;>, L<XDF::BaseObject>, L<XDF::Data
     Brian Thomas  (thomas@adc.gsfc.nasa.gov)
     Astronomical Data Center <http://adc.gsfc.nasa.gov>
     NASA/Goddard Space Flight Center
-
+ 
 
 =cut

@@ -186,6 +186,10 @@ sub _init {
 # Modification History
 #
 # $Log$
+# Revision 1.6  2001/03/14 21:32:34  thomas
+# Updated perldoc section using new version of
+# makeDoc.pl.
+#
 # Revision 1.5  2000/12/15 22:11:58  thomas
 # Regenerated perlDoc section in files. -b.t.
 #
@@ -229,6 +233,8 @@ XDF::Group - Perl Class for Group
 XDF::Group inherits class and attribute methods of L<XDF::GenericObject>, L<XDF::BaseObject>.
 
 
+=head1 METHODS
+
 =over 4
 
 =head2 CLASS Methods
@@ -243,41 +249,42 @@ This method returns a list reference containing the namesof the class attributes
 
 =back
 
-=head2 OTHER Methods
+=head2 INSTANCE Methods
 
+The following instance methods are defined for XDF::Group.
 =over 4
 
 =item getName (EMPTY)
 
-
+ 
 
 =item setName ($value)
 
-Set the name attribute. 
+Set the name attribute.  
 
 =item getDescription (EMPTY)
 
-
+ 
 
 =item setDescription ($value)
 
-
+ 
 
 =item getXMLAttributes (EMPTY)
 
-This method returns the XMLAttributes of this class. 
+This method returns the XMLAttributes of this class.  
 
 =item addMemberObject ($obj)
 
-Add an object to this group. 
+Add an object to this group.  
 
 =item removeMemberObject ($obj)
 
-Remove an object from membership in this group. 
+Remove an object from membership in this group.  
 
 =item hasMemberObj ($obj)
 
-Check if an object belongs to this group. Returns1 if true, undef if false. 
+Check if an object belongs to this group. Returns1 if true, undef if false.  
 
 =back
 
@@ -291,7 +298,7 @@ A change in the value of these attributes will change the functioning of ALL ins
 =over 4
 
 The following class attribute methods are inherited from L<XDF::BaseObject>:
-B<Pretty_XDF_Output>, B<Pretty_XDF_Output_Indentation>, B<DefaultDataArraySize>.
+B<Pretty_XDF_Output>, B<Pretty_XDF_Output_Indentation>, B<DefaultDataArraySize>. 
 
 =back
 
@@ -299,14 +306,14 @@ B<Pretty_XDF_Output>, B<Pretty_XDF_Output_Indentation>, B<DefaultDataArraySize>.
 
 =over 4
 
-=head2 INHERITED Other Methods
+=head2 INHERITED INSTANCE Methods
 
 
 
 =over 4
 
 XDF::Group inherits the following instance methods of L<XDF::GenericObject>:
-B<new>, B<clone>, B<update>.
+B<new>, B<clone>, B<update>. 
 
 =back
 
@@ -315,15 +322,13 @@ B<new>, B<clone>, B<update>.
 =over 4
 
 XDF::Group inherits the following instance methods of L<XDF::BaseObject>:
-B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLAttributes>, B<setXMLNotationHash>, B<toXMLFileHandle>, B<toXMLFile>.
-
-=back
+B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLAttributes>, B<setXMLNotationHash>, B<toXMLFileHandle>, B<toXMLFile>. 
 
 =back
 
 =head1 SEE ALSO
 
-L< XDF::FieldGroup>, L< XDF::ParameterGroup>, L< XDF::ValueGroup>, L<XDF::BaseObject>
+L< XDF::FieldGroup>, L< XDF::ParameterGroup>, L< XDF::ValueGroup>, L<XDF::BaseObject> 
 
 =back
 
@@ -332,6 +337,6 @@ L< XDF::FieldGroup>, L< XDF::ParameterGroup>, L< XDF::ValueGroup>, L<XDF::BaseOb
     Brian Thomas  (thomas@adc.gsfc.nasa.gov)
     Astronomical Data Center <http://adc.gsfc.nasa.gov>
     NASA/Goddard Space Flight Center
-
+ 
 
 =cut

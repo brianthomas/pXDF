@@ -222,6 +222,10 @@ sub _removeAxisTag {
 # Modification History
 #
 # $Log$
+# Revision 1.8  2001/03/14 21:32:35  thomas
+# Updated perldoc section using new version of
+# makeDoc.pl.
+#
 # Revision 1.7  2001/03/02 20:28:16  thomas
 # Last fix not right. Now working for all cases.
 #
@@ -272,6 +276,8 @@ XDF::TaggedXMLDataIOStyle - Perl Class for TaggedXMLDataIOStyle
 XDF::TaggedXMLDataIOStyle inherits class and attribute methods of L<XDF::GenericObject>, L<XDF::BaseObject>, L<XDF::XMLDataIOStyle>.
 
 
+=head1 METHODS
+
 =over 4
 
 =head2 CLASS Methods
@@ -286,25 +292,30 @@ This method returns a list reference containing the namesof the class attributes
 
 =back
 
-=head2 OTHER Methods
+=head2 INSTANCE Methods
 
+The following instance methods are defined for XDF::TaggedXMLDataIOStyle.
 =over 4
 
 =item setAxisTag ($axisId, $tag)
 
-Set an association between an XDF data tag and axis reference. One day we will hopefully be able to support user defined tags, but for the time being you will have to stick to those specified by the XDF DTD(e.g. "d0","d1", ... "d8"). Note that choosing the wrong tag name will break the current XDF DTD, so go with the defaults (e.g. DONT use this method) if you dont know what you are doing here. 
+Set an association between an XDF data tag and axis reference. One day we will hopefully be able to support user defined tags, but for the time being you will have to stick to those specified by the XDF DTD(e.g. "d0","d1", ... "d8"). Note that choosing the wrong tag name will break the current XDF DTD, so go with the defaults (e.g. DONT use this method) if you dont know what you are doing here.  
+
+=item getAxisTag ($axisId)
+
+ 
 
 =item getAxisTags (EMPTY)
 
-
+ 
 
 =item getXMLAttributes (EMPTY)
 
-This method returns the XMLAttributes of this class. 
+This method returns the XMLAttributes of this class.  
 
 =item toXMLFileHandle ($indent, $junk, $fileHandle)
 
-Write this object out to a filehandle in XDF formatted XML. 
+Write this object out to a filehandle in XDF formatted XML.  
 
 =back
 
@@ -318,7 +329,7 @@ A change in the value of these attributes will change the functioning of ALL ins
 =over 4
 
 The following class attribute methods are inherited from L<XDF::BaseObject>:
-B<Pretty_XDF_Output>, B<Pretty_XDF_Output_Indentation>, B<DefaultDataArraySize>.
+B<Pretty_XDF_Output>, B<Pretty_XDF_Output_Indentation>, B<DefaultDataArraySize>. 
 
 =back
 
@@ -326,14 +337,14 @@ B<Pretty_XDF_Output>, B<Pretty_XDF_Output_Indentation>, B<DefaultDataArraySize>.
 
 =over 4
 
-=head2 INHERITED Other Methods
+=head2 INHERITED INSTANCE Methods
 
 
 
 =over 4
 
 XDF::TaggedXMLDataIOStyle inherits the following instance methods of L<XDF::GenericObject>:
-B<new>, B<clone>, B<update>.
+B<new>, B<clone>, B<update>. 
 
 =back
 
@@ -342,7 +353,7 @@ B<new>, B<clone>, B<update>.
 =over 4
 
 XDF::TaggedXMLDataIOStyle inherits the following instance methods of L<XDF::BaseObject>:
-B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLAttributes>, B<setXMLNotationHash>, B<toXMLFile>.
+B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLAttributes>, B<setXMLNotationHash>, B<toXMLFile>. 
 
 =back
 
@@ -351,15 +362,13 @@ B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLAttributes>, B<setX
 =over 4
 
 XDF::TaggedXMLDataIOStyle inherits the following instance methods of L<XDF::XMLDataIOStyle>:
-B<untaggedInstructionNodeName>, B<getReadId{>, B<setReadId>, B<getReadIdRef>, B<setReadIdRef>, B<getEncoding{>, B<setEncoding>, B<getEndian{>, B<setEndian>.
-
-=back
+B<untaggedInstructionNodeName>, B<getReadId{>, B<setReadId>, B<getReadIdRef>, B<setReadIdRef>, B<getEncoding{>, B<setEncoding>, B<getEndian{>, B<setEndian>. 
 
 =back
 
 =head1 SEE ALSO
 
-L<XDF::XMLDataIOStyle>
+L<XDF::XMLDataIOStyle> 
 
 =back
 
@@ -368,6 +377,6 @@ L<XDF::XMLDataIOStyle>
     Brian Thomas  (thomas@adc.gsfc.nasa.gov)
     Astronomical Data Center <http://adc.gsfc.nasa.gov>
     NASA/Goddard Space Flight Center
-
+ 
 
 =cut

@@ -236,6 +236,10 @@ sub AUTOLOAD {
 # Modification History
 #
 # $Log$
+# Revision 1.7  2001/03/14 21:32:34  thomas
+# Updated perldoc section using new version of
+# makeDoc.pl.
+#
 # Revision 1.6  2000/12/18 16:35:54  thomas
 # Fixed Minor problem with getValue/addNote
 # in class. -b.t.
@@ -283,6 +287,8 @@ XDF::Note - Perl Class for Note
 XDF::Note inherits class and attribute methods of L<XDF::GenericObject>, L<XDF::BaseObject>.
 
 
+=head1 METHODS
+
 =over 4
 
 =head2 CLASS Methods
@@ -301,476 +307,66 @@ This method returns a list reference containing the namesof the class attributes
 
 =back
 
-=head2 ATTRIBUTE Methods
+=head2 INSTANCE Methods
 
-These methods set the requested attribute if an argument is supplied to the method. Whether or not an argument is supplied the current value of the attribute is always returned. Values of these methods are always SCALAR (may be number, string, or reference).
-
-=over 4
-
-=item # add in class XML attributes
-
- 
-
-=item push @Class_Attributes, @Class_XML_Attributes;
-
- 
-
-=item # add in super class attributes
-
- 
-
-=item push @Class_Attributes, @{&XDF::BaseObject::classAttributes};
-
- 
-
-=item # Initalization
-
- 
-
-=item # set up object attributes.
-
- 
-
-=item for my $attr ( @Class_Attributes ) { $field{$attr}++; }
-
- 
-
-=item # /** classXMLNodeName
-
- 
-
-=item # This method returns the class node name of XDF::Note.
-
- 
-
-=item # This method takes no arguments may not be changed. 
-
- 
-
-=item # */
-
- 
-
-=item sub classXMLNodeName {
-
- 
-
-=item }
-
- 
-
-=item # /** classAttributes
-
- 
-
-=item #  This method returns a list reference containing the names
-
- 
-
-=item #  of the class attributes of XDF::Note. 
-
- 
-
-=item #  This method takes no arguments may not be changed. 
-
- 
-
-=item # */
-
- 
-
-=item sub classAttributes {
-
- 
-
-=item }
-
- 
-
-=item #
-
- 
-
-=item # Get/Set Methods
-
- 
-
-=item #
-
- 
-
-=item # /** getMark
-
- 
-
-=item # */
-
- 
-
-=item sub getMark {
-
- 
-
-=item return $self->{Mark};
-
- 
-
-=item }
-
- 
-
-=item # /** setMark
-
- 
-
-=item #     Set the mark attribute. 
-
- 
-
-=item # */
-
- 
-
-=item sub setMark {
-
- 
-
-=item $self->{Mark} = $value;
-
- 
-
-=item }
-
- 
-
-=item # /** getNoteId
-
- 
-
-=item # */
-
- 
-
-=item sub getNoteId {
-
- 
-
-=item return $self->{NoteId};
-
- 
-
-=item }
-
- 
-
-=item # /** setNoteId
-
- 
-
-=item #     Set the noteId attribute. 
-
- 
-
-=item # */
-
- 
-
-=item sub setNoteId {
-
- 
-
-=item $self->{NoteId} = $value;
-
- 
-
-=item }
-
- 
-
-=item # /** getNoteIdRef
-
- 
-
-=item # */
-
- 
-
-=item sub getNoteIdRef {
-
- 
-
-=item return $self->{NoteIdRef};
-
- 
-
-=item }
-
- 
-
-=item # /** setNoteIdRef
-
- 
-
-=item #     Set the noteIdRef attribute. 
-
- 
-
-=item # */
-
- 
-
-=item sub setNoteIdRef {
-
- 
-
-=item $self->{NoteIdRef} = $value;
-
- 
-
-=item }
-
- 
-
-=item # /** getLocation
-
- 
-
-=item # */
-
- 
-
-=item sub getLocation {
-
- 
-
-=item return $self->{Location};
-
- 
-
-=item }
-
- 
-
-=item # /** setLocation
-
- 
-
-=item # Set the datacell that this note applies to within
-
- 
-
-=item # an array. Right now this is a space delimited string, HOWEVER,
-
- 
-
-=item # we need to shift this over to accepting a location object. -b.t. 
-
- 
-
-=item # */
-
- 
-
-=item sub setLocation {
-
- 
-
-=item $self->{Location} = $value;
-
- 
-
-=item }
-
- 
-
-=item # /** getValue
-
- 
-
-=item # */
-
- 
-
-=item sub getValue {
-
- 
-
-=item return $self->{Value};
-
- 
-
-=item }
-
- 
-
-=item # /** setValue
-
- 
-
-=item #     Set the value attribute. 
-
- 
-
-=item # */
-
- 
-
-=item sub setValue {
-
- 
-
-=item $self->{Value} = $value;
-
- 
-
-=item }
-
- 
-
-=item # /** getXMLAttributes
-
- 
-
-=item #      This method returns the XMLAttributes of this class. 
-
- 
-
-=item #  */
-
- 
-
-=item sub getXMLAttributes {
-
- 
-
-=item }
-
- 
-
-=item #
-
- 
-
-=item # Other Public Methods
-
- 
-
-=item #
-
- 
-
-=item # /** setXMLAttributes 
-
- 
-
-=item # XDF::Note has a special setXMLAttributes method. 
-
- 
-
-=item # These objects are so simple they seem to merit 
-
- 
-
-=item # special handling. This new setXMLAttributes method takes either
-
- 
-
-=item # and attribute Hash reference or a STRING.
-
- 
-
-=item # If the input value is a HASH reference, we 
-
- 
-
-=item # construct an object from it, else, we 
-
- 
-
-=item # just set its value attribute to the contents of 
-
- 
-
-=item # the passed STRING. 
-
- 
-
-=item sub setXMLAttributes {
-
- 
-
-=item if (defined $attribHashRefOrString) {
-
- 
-
-=item if (ref($attribHashRefOrString) ) {
-
- 
-
-=back
-
-=head2 OTHER Methods
-
+The following instance methods are defined for XDF::Note.
 =over 4
 
 =item getMark (EMPTY)
 
-
+ 
 
 =item setMark ($value)
 
-Set the mark attribute. 
+Set the mark attribute.  
 
 =item getNoteId (EMPTY)
 
-
+ 
 
 =item setNoteId ($value)
 
-Set the noteId attribute. 
+Set the noteId attribute.  
 
 =item getNoteIdRef (EMPTY)
 
-
+ 
 
 =item setNoteIdRef ($value)
 
-Set the noteIdRef attribute. 
+Set the noteIdRef attribute.  
 
 =item getLocation (EMPTY)
 
-
+ 
 
 =item setLocation ($value)
 
-Set the datacell that this note applies to withinan array. Right now this is a space delimited string, HOWEVER,we need to shift this over to accepting a location object. -b.t. 
+Set the datacell that this note applies to withinan array. Right now this is a space delimited string, HOWEVER,we need to shift this over to accepting a location object. -b.t.  
 
 =item getValue (EMPTY)
 
-
+ 
 
 =item setValue ($value)
 
-Set the value attribute. 
+Set the value attribute.  
 
 =item getXMLAttributes (EMPTY)
 
-This method returns the XMLAttributes of this class. 
+This method returns the XMLAttributes of this class.  
 
 =item setXMLAttributes ($attribHashRefOrString)
 
 XDF::Note has a special setXMLAttributes method. These objects are so simple they seem to merit special handling. This new setXMLAttributes method takes eitherand attribute Hash reference or a STRING. If the input value is a HASH reference, we construct an object from it, else, we just set its value attribute to the contents of the passed STRING. Private MethodsThis is called when we cant find any defined methodexists already. Used to handle general purpose set/getmethods for our attributes (object fields). Modification History$Log$
-XDF::Note has a special setXMLAttributes method. These objects are so simple they seem to merit special handling. This new setXMLAttributes method takes eitherand attribute Hash reference or a STRING. If the input value is a HASH reference, we construct an object from it, else, we just set its value attribute to the contents of the passed STRING. Private MethodsThis is called when we cant find any defined methodexists already. Used to handle general purpose set/getmethods for our attributes (object fields). Modification HistoryRevision 1.6  2000/12/18 16:35:54  thomas
-XDF::Note has a special setXMLAttributes method. These objects are so simple they seem to merit special handling. This new setXMLAttributes method takes eitherand attribute Hash reference or a STRING. If the input value is a HASH reference, we construct an object from it, else, we just set its value attribute to the contents of the passed STRING. Private MethodsThis is called when we cant find any defined methodexists already. Used to handle general purpose set/getmethods for our attributes (object fields). Modification HistoryFixed Minor problem with getValue/addNote
-XDF::Note has a special setXMLAttributes method. These objects are so simple they seem to merit special handling. This new setXMLAttributes method takes eitherand attribute Hash reference or a STRING. If the input value is a HASH reference, we construct an object from it, else, we just set its value attribute to the contents of the passed STRING. Private MethodsThis is called when we cant find any defined methodexists already. Used to handle general purpose set/getmethods for our attributes (object fields). Modification Historyin class. -b.t.
-XDF::Note has a special setXMLAttributes method. These objects are so simple they seem to merit special handling. This new setXMLAttributes method takes eitherand attribute Hash reference or a STRING. If the input value is a HASH reference, we construct an object from it, else, we just set its value attribute to the contents of the passed STRING. Private MethodsThis is called when we cant find any defined methodexists already. Used to handle general purpose set/getmethods for our attributes (object fields). Modification History
-XDF::Note has a special setXMLAttributes method. These objects are so simple they seem to merit special handling. This new setXMLAttributes method takes eitherand attribute Hash reference or a STRING. If the input value is a HASH reference, we construct an object from it, else, we just set its value attribute to the contents of the passed STRING. Private MethodsThis is called when we cant find any defined methodexists already. Used to handle general purpose set/getmethods for our attributes (object fields). Modification HistoryRevision 1.5  2000/12/15 22:11:59  thomas
-XDF::Note has a special setXMLAttributes method. These objects are so simple they seem to merit special handling. This new setXMLAttributes method takes eitherand attribute Hash reference or a STRING. If the input value is a HASH reference, we construct an object from it, else, we just set its value attribute to the contents of the passed STRING. Private MethodsThis is called when we cant find any defined methodexists already. Used to handle general purpose set/getmethods for our attributes (object fields). Modification HistoryRegenerated perlDoc section in files. -b.t.
-XDF::Note has a special setXMLAttributes method. These objects are so simple they seem to merit special handling. This new setXMLAttributes method takes eitherand attribute Hash reference or a STRING. If the input value is a HASH reference, we construct an object from it, else, we just set its value attribute to the contents of the passed STRING. Private MethodsThis is called when we cant find any defined methodexists already. Used to handle general purpose set/getmethods for our attributes (object fields). Modification HistoryRevision 1.4  2000/12/14 22:11:25  thomasBig changes to the API. get/set methods, added Href/Entity stuff, deep cloning,added Href, Notes, NotesLocationOrder nodes/classes. Ripped out _enlarge_arrayfrom DataCube (not needed) and fixed problems outputing delimited/formattedread nodes. -b.t. Revision 1.3  2000/12/01 20:03:38  thomasBrought Pod docmentation up to date. Bumped up versionnumber. -b.t. Revision 1.2  2000/10/16 17:37:21  thomasChanged over to BaseObject Class from Object Class. Added in History Modification section. 
+XDF::Note has a special setXMLAttributes method. These objects are so simple they seem to merit special handling. This new setXMLAttributes method takes eitherand attribute Hash reference or a STRING. If the input value is a HASH reference, we construct an object from it, else, we just set its value attribute to the contents of the passed STRING. Private MethodsThis is called when we cant find any defined methodexists already. Used to handle general purpose set/getmethods for our attributes (object fields). Modification HistoryRevision 1.7  2001/03/14 21:32:34  thomas
+XDF::Note has a special setXMLAttributes method. These objects are so simple they seem to merit special handling. This new setXMLAttributes method takes eitherand attribute Hash reference or a STRING. If the input value is a HASH reference, we construct an object from it, else, we just set its value attribute to the contents of the passed STRING. Private MethodsThis is called when we cant find any defined methodexists already. Used to handle general purpose set/getmethods for our attributes (object fields). Modification HistoryUpdated perldoc section using new version of
+XDF::Note has a special setXMLAttributes method. These objects are so simple they seem to merit special handling. This new setXMLAttributes method takes eitherand attribute Hash reference or a STRING. If the input value is a HASH reference, we construct an object from it, else, we just set its value attribute to the contents of the passed STRING. Private MethodsThis is called when we cant find any defined methodexists already. Used to handle general purpose set/getmethods for our attributes (object fields). Modification HistorymakeDoc.pl.
+XDF::Note has a special setXMLAttributes method. These objects are so simple they seem to merit special handling. This new setXMLAttributes method takes eitherand attribute Hash reference or a STRING. If the input value is a HASH reference, we construct an object from it, else, we just set its value attribute to the contents of the passed STRING. Private MethodsThis is called when we cant find any defined methodexists already. Used to handle general purpose set/getmethods for our attributes (object fields). Modification HistoryRevision 1.6  2000/12/18 16:35:54  thomasFixed Minor problem with getValue/addNotein class. -b.t. Revision 1.5  2000/12/15 22:11:59  thomasRegenerated perlDoc section in files. -b.t. Revision 1.4  2000/12/14 22:11:25  thomasBig changes to the API. get/set methods, added Href/Entity stuff, deep cloning,added Href, Notes, NotesLocationOrder nodes/classes. Ripped out _enlarge_arrayfrom DataCube (not needed) and fixed problems outputing delimited/formattedread nodes. -b.t. Revision 1.3  2000/12/01 20:03:38  thomasBrought Pod docmentation up to date. Bumped up versionnumber. -b.t. Revision 1.2  2000/10/16 17:37:21  thomasChanged over to BaseObject Class from Object Class. Added in History Modification section.  
 
 =item addText ($text)
 
-
+ 
 
 =back
 
@@ -784,7 +380,7 @@ A change in the value of these attributes will change the functioning of ALL ins
 =over 4
 
 The following class attribute methods are inherited from L<XDF::BaseObject>:
-B<Pretty_XDF_Output>, B<Pretty_XDF_Output_Indentation>, B<DefaultDataArraySize>.
+B<Pretty_XDF_Output>, B<Pretty_XDF_Output_Indentation>, B<DefaultDataArraySize>. 
 
 =back
 
@@ -792,14 +388,14 @@ B<Pretty_XDF_Output>, B<Pretty_XDF_Output_Indentation>, B<DefaultDataArraySize>.
 
 =over 4
 
-=head2 INHERITED Other Methods
+=head2 INHERITED INSTANCE Methods
 
 
 
 =over 4
 
 XDF::Note inherits the following instance methods of L<XDF::GenericObject>:
-B<new>, B<clone>, B<update>.
+B<new>, B<clone>, B<update>. 
 
 =back
 
@@ -808,15 +404,13 @@ B<new>, B<clone>, B<update>.
 =over 4
 
 XDF::Note inherits the following instance methods of L<XDF::BaseObject>:
-B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLNotationHash>, B<toXMLFileHandle>, B<toXMLFile>.
-
-=back
+B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLNotationHash>, B<toXMLFileHandle>, B<toXMLFile>. 
 
 =back
 
 =head1 SEE ALSO
 
-L<XDF::BaseObject>
+L<XDF::BaseObject> 
 
 =back
 
@@ -825,6 +419,6 @@ L<XDF::BaseObject>
     Brian Thomas  (thomas@adc.gsfc.nasa.gov)
     Astronomical Data Center <http://adc.gsfc.nasa.gov>
     NASA/Goddard Space Flight Center
-
+ 
 
 =cut

@@ -236,6 +236,10 @@ sub reverse64BitStringByteOrder {
 # Modification History
 #
 # $Log$
+# Revision 1.3  2001/03/14 21:32:35  thomas
+# Updated perldoc section using new version of
+# makeDoc.pl.
+#
 # Revision 1.2  2001/03/09 21:49:57  thomas
 # updated perlDocumentation section.
 #
@@ -271,75 +275,78 @@ XDF::Utility - Perl Class for Utility
 
 
 
+=head1 METHODS
+
 =over 4
 
-=head2 OTHER Methods
+=head2 INSTANCE Methods
 
+The following instance methods are defined for XDF::Utility.
 =over 4
 
 =item isValidEndian ($value)
 
-Determine if the passed quanity is an allowed value for the endianattribute of XMLDataIOStyle objects. 
+Determine if the passed quanity is an allowed value for the endianattribute of XMLDataIOStyle objects.  
 
 =item isValidIntegerType ($value)
 
-Determine if the passed quanity is an allowed value for the typeattribute of the IntegerDataFormat object. 
+Determine if the passed quanity is an allowed value for the typeattribute of the IntegerDataFormat object.  
 
 =item isValidIOEncoding ($value)
 
-Determine if the passed quanity is an allowed value for the encodingattribute of XMLDataIOStyle objects. 
+Determine if the passed quanity is an allowed value for the encodingattribute of XMLDataIOStyle objects.  
 
 =item isValidDatatype ($value)
 
-Determine if the passed quanity is an allowed value for the datatypeattribute of the Parameter object and the axisDatatype attribute ofthe Axis object. 
+Determine if the passed quanity is an allowed value for the datatypeattribute of the Parameter object and the axisDatatype attribute ofthe Axis object.  
 
 =item isValidDataEncoding ($value)
 
-Determine if the passed quanity is an allowed value for the encodingattribute of the DataCube object. 
+Determine if the passed quanity is an allowed value for the encodingattribute of the DataCube object.  
 
 =item isValidRelationRole ($value)
 
-Determine if the passed quanity is an allowed value for the role  attribute of the FieldRelation object. 
+Determine if the passed quanity is an allowed value for the role  attribute of the FieldRelation object.  
 
 =item isValidDataCompression ($value)
 
-Determine if the passed quanity is an allowed value for the compressionattribute on the DataCube object. 
+Determine if the passed quanity is an allowed value for the compressionattribute on the DataCube object.  
 
 =item isValidFloatBits ($value)
 
-Determine if the passed quanity is an allowed value for the bits attributeof the BinaryFloatDataFormat object. 
+Determine if the passed quanity is an allowed value for the bits attributeof the BinaryFloatDataFormat object.  
 
 =item isValidIntegerBits ($value)
 
-Determine if the passed quanity is an allowed value for the bits attributeof the BinaryIntegerDataFormat object. 
+Determine if the passed quanity is an allowed value for the bits attributeof the BinaryIntegerDataFormat object.  
 
 =item isValidBinaryIntegerSigned ($value)
 
-Determine if the passed quanity is an allowed value for the signed attributeof the BinaryIntegerDataFormat object. 
+Determine if the passed quanity is an allowed value for the signed attributeof the BinaryIntegerDataFormat object.  
 
 =item isValidValueSpecial ($value)
 
-Determine if the passed quanity is an allowed value for the special attributeof the Value object. 
+Determine if the passed quanity is an allowed value for the special attributeof the Value object.  
 
 =item isValidValueInequality ($value)
 
-Determine if the passed quanity is an allowed value for the inequality attributeof the Value object. 
+Determine if the passed quanity is an allowed value for the inequality attributeof the Value object.  
 
 =item reverseBitStringByteOrder ($numOfBits, $bitString)
 
-Reverses the *byte* ordering of the passed bit string. Returns revsersed bitstring. 
+Reverses the *byte* ordering of the passed bit string. Returns revsersed bitstring.  
 
 =item reverse16BitStringByteOrder ($bitString)
 
-Reverses the *byte* ordering of the passed 16 bit string. Returns revsersed bitstring. 
+Reverses the *byte* ordering of the passed 16 bit string. Returns revsersed bitstring.  
 
 =item reverse32BitStringByteOrder ($bitString)
 
-Reverses the *byte* ordering of the passed 32 bit string. Returns revsersed bitstring. 
+Reverses the *byte* ordering of the passed 32 bit string. Returns revsersed bitstring.  
 
 =item reverse64BitStringByteOrder ($bitString)
 
-Reverses the *byte* ordering of the passed 64 bit string. Returns revsersed bitstring. 
+Reverses the *byte* ordering of the passed 64 bit string. Returns revsersed bitstring.  
 
 =back
 
@@ -352,13 +359,11 @@ A change in the value of these attributes will change the functioning of ALL ins
 
 =over 4
 
-=head2 INHERITED Other Methods
-
-=back
+=head2 INHERITED INSTANCE Methods
 
 =head1 SEE ALSO
 
-L<XDF::Constants>
+L<XDF::Constants> 
 
 =back
 
@@ -367,6 +372,6 @@ L<XDF::Constants>
     Brian Thomas  (thomas@adc.gsfc.nasa.gov)
     Astronomical Data Center <http://adc.gsfc.nasa.gov>
     NASA/Goddard Space Flight Center
-
+ 
 
 =cut

@@ -327,6 +327,10 @@ sub _sprintfNotation {
 # Modification History
 #
 # $Log$
+# Revision 1.10  2001/03/14 21:32:35  thomas
+# Updated perldoc section using new version of
+# makeDoc.pl.
+#
 # Revision 1.9  2001/03/07 23:11:23  thomas
 # getCommands returns ARRAY rather than ARRAY REF.
 #
@@ -381,6 +385,8 @@ XDF::RepeatFormattedIOCmd - Perl Class for RepeatFormattedIOCmd
 XDF::RepeatFormattedIOCmd inherits class and attribute methods of L<XDF::GenericObject>, L<XDF::FormattedIOCmd>, L<XDF::BaseObject>.
 
 
+=head1 METHODS
+
 =over 4
 
 =head2 CLASS Methods
@@ -399,245 +405,42 @@ A change in the value of these class attributes will change the value for ALL in
 
 =back
 
-=head2 ATTRIBUTE Methods
+=head2 INSTANCE Methods
 
-These methods set the requested attribute if an argument is supplied to the method. Whether or not an argument is supplied the current value of the attribute is always returned. Values of these methods are always SCALAR (may be number, string, or reference).
-
-=over 4
-
-=item # add in class XML attributes
-
- 
-
-=item push @Class_Attributes, @Class_XML_Attributes;
-
- 
-
-=item # add in super class attributes
-
- 
-
-=item push @Class_Attributes, @{&XDF::FormattedIOCmd::classAttributes};
-
- 
-
-=item push @Class_XML_Attributes, @{&XDF::FormattedIOCmd::getXMLAttributes};
-
- 
-
-=item # Initalization
-
- 
-
-=item # set up object attributes.
-
- 
-
-=item for my $attr ( @Class_Attributes ) { $field{$attr}++; }
-
- 
-
-=item sub classXMLNodeName { 
-
- 
-
-=item }
-
- 
-
-=item sub classAttributes { 
-
- 
-
-=item }
-
- 
-
-=item #
-
- 
-
-=item # Get/Set Methods
-
- 
-
-=item #
-
- 
-
-=item # /** getCount
-
- 
-
-=item # */
-
- 
-
-=item sub getCount {
-
- 
-
-=item return $self->{Count};
-
- 
-
-=item }
-
- 
-
-=item # /** setCount
-
- 
-
-=item #     Set the count attribute. 
-
- 
-
-=item # */
-
- 
-
-=item sub setCount {
-
- 
-
-=item $self->{Count} = $value;
-
- 
-
-=item }
-
- 
-
-=item # /** getFormatCmdList
-
- 
-
-=item # */
-
- 
-
-=item sub getFormatCmdList {
-
- 
-
-=item return $self->{FormatCmdList};
-
- 
-
-=item }
-
- 
-
-=item # /** setFormatCmdList
-
- 
-
-=item #     Set the formatCmdList attribute. 
-
- 
-
-=item # */
-
- 
-
-=item sub setFormatCmdList {
-
- 
-
-=item # you must do it this way, or when the arrayRef changes it changes us here!
-
- 
-
-=item my @list = @{$arrayRefValue};
-
- 
-
-=item $self->{FormatCmdList} = \@list;
-
- 
-
-=item }
-
- 
-
-=item sub numOfBytes {
-
- 
-
-=item my $bytes = 0;
-
- 
-
-=item my @dataFormatList = @{$dataFormatListRef};
-
- 
-
-=item if (!@dataFormatList or $#dataFormatList < 0) {
-
- 
-
-=item carp "Error: cant read Formatted ReadStyle w/o defined dataFormat\n";
-
- 
-
-=item return;
-
- 
-
-=item }
-
- 
-
-=item foreach my $obj ($self->getCommands()) {
-
- 
-
-=item if(ref($obj) eq 'XDF::ReadCellFormattedIOCmd') {
-
- 
-
-=item my $readObj = shift @dataFormatList;
-
- 
-
-=back
-
-=head2 OTHER Methods
-
+The following instance methods are defined for XDF::RepeatFormattedIOCmd.
 =over 4
 
 =item getCount (EMPTY)
 
-
+ 
 
 =item setCount ($value)
 
-Set the count attribute. 
+Set the count attribute.  
 
 =item getFormatCmdList (EMPTY)
 
-
+ 
 
 =item setFormatCmdList ($arrayRefValue)
 
-Set the formatCmdList attribute. 
+Set the formatCmdList attribute.  
 
 =item numOfBytes ($dataFormatListRef)
 
-
+ 
 
 =item getCommands (EMPTY)
 
-
+ 
 
 =item getXMLAttributes (EMPTY)
 
-This method returns the XMLAttributes of this class. 
+This method returns the XMLAttributes of this class.  
 
 =item addFormatCommand ($obj)
 
-
+ 
 
 =back
 
@@ -651,7 +454,7 @@ A change in the value of these attributes will change the functioning of ALL ins
 =over 4
 
 The following class attribute methods are inherited from L<XDF::BaseObject>:
-B<Pretty_XDF_Output>, B<Pretty_XDF_Output_Indentation>, B<DefaultDataArraySize>.
+B<Pretty_XDF_Output>, B<Pretty_XDF_Output_Indentation>, B<DefaultDataArraySize>. 
 
 =back
 
@@ -659,14 +462,14 @@ B<Pretty_XDF_Output>, B<Pretty_XDF_Output_Indentation>, B<DefaultDataArraySize>.
 
 =over 4
 
-=head2 INHERITED Other Methods
+=head2 INHERITED INSTANCE Methods
 
 
 
 =over 4
 
 XDF::RepeatFormattedIOCmd inherits the following instance methods of L<XDF::GenericObject>:
-B<new>, B<clone>, B<update>.
+B<new>, B<clone>, B<update>. 
 
 =back
 
@@ -675,20 +478,18 @@ B<new>, B<clone>, B<update>.
 =over 4
 
 XDF::RepeatFormattedIOCmd inherits the following instance methods of L<XDF::BaseObject>:
-B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLAttributes>, B<setXMLNotationHash>, B<toXMLFileHandle>, B<toXMLFile>.
-
-=back
+B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLAttributes>, B<setXMLNotationHash>, B<toXMLFileHandle>, B<toXMLFile>. 
 
 =back
 
 =head1 SEE ALSO
 
-L<XDF::FormattedIOCmd>
+L<XDF::FormattedIOCmd> 
 
 =back
 
 =head1 AUTHOR
 
-
+ 
 
 =cut

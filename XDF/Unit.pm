@@ -173,6 +173,10 @@ sub AUTOLOAD {
 # Modification History
 #
 # $Log$
+# Revision 1.6  2001/03/14 21:32:35  thomas
+# Updated perldoc section using new version of
+# makeDoc.pl.
+#
 # Revision 1.5  2000/12/15 22:11:59  thomas
 # Regenerated perlDoc section in files. -b.t.
 #
@@ -216,6 +220,8 @@ XDF::Unit - Perl Class for Unit
 XDF::Unit inherits class and attribute methods of L<XDF::GenericObject>, L<XDF::BaseObject>.
 
 
+=head1 METHODS
+
 =over 4
 
 =head2 CLASS Methods
@@ -234,353 +240,34 @@ This method returns a list reference containing the namesof the class attributes
 
 =back
 
-=head2 ATTRIBUTE Methods
+=head2 INSTANCE Methods
 
-These methods set the requested attribute if an argument is supplied to the method. Whether or not an argument is supplied the current value of the attribute is always returned. Values of these methods are always SCALAR (may be number, string, or reference).
-
-=over 4
-
-=item # add in class XML attributes
-
- 
-
-=item push @Class_Attributes, @Class_XML_Attributes;
-
- 
-
-=item # /** power
-
- 
-
-=item # The power of this unit. Takes a SCALAR number value.
-
- 
-
-=item # */ 
-
- 
-
-=item # /** value
-
- 
-
-=item # The value of this unit (e.g. "m" or "cm" or "km", etc)
-
- 
-
-=item # */
-
- 
-
-=item # add in super class attributes
-
- 
-
-=item push @Class_Attributes, @{&XDF::BaseObject::classAttributes};
-
- 
-
-=item # Initalization
-
- 
-
-=item # set up object attributes.
-
- 
-
-=item for my $attr ( @Class_Attributes ) { $field{$attr}++; }
-
- 
-
-=item # /** classXMLNodeName
-
- 
-
-=item # This method returns the class node name of XDF::Unit.
-
- 
-
-=item # This method takes no arguments may not be changed. 
-
- 
-
-=item # */
-
- 
-
-=item sub classXMLNodeName {
-
- 
-
-=item }
-
- 
-
-=item # /** classAttributes
-
- 
-
-=item #  This method returns a list reference containing the names
-
- 
-
-=item #  of the class attributes of XDF::Unit. 
-
- 
-
-=item #  This method takes no arguments may not be changed. 
-
- 
-
-=item # */
-
- 
-
-=item sub classAttributes {
-
- 
-
-=item \@Class_Attributes;
-
- 
-
-=item }
-
- 
-
-=item #
-
- 
-
-=item # Get/Set Methods
-
- 
-
-=item #
-
- 
-
-=item # /** getPower
-
- 
-
-=item # */
-
- 
-
-=item sub getPower {
-
- 
-
-=item return $self->{Power};
-
- 
-
-=item }
-
- 
-
-=item # /** setPower
-
- 
-
-=item #     Set the power attribute. 
-
- 
-
-=item # */
-
- 
-
-=item sub setPower {
-
- 
-
-=item $self->{Power} = $value;
-
- 
-
-=item }
-
- 
-
-=item # /** getValue
-
- 
-
-=item # */
-
- 
-
-=item sub getValue {
-
- 
-
-=item return $self->{Value};
-
- 
-
-=item }
-
- 
-
-=item # /** setValue
-
- 
-
-=item #     Set the value attribute. 
-
- 
-
-=item # */
-
- 
-
-=item sub setValue {
-
- 
-
-=item $self->{Value} = $value;
-
- 
-
-=item }
-
- 
-
-=item # /** getXMLAttributes
-
- 
-
-=item #      This method returns the XMLAttributes of this class. 
-
- 
-
-=item #  */
-
- 
-
-=item sub getXMLAttributes { 
-
- 
-
-=item }
-
- 
-
-=item #
-
- 
-
-=item # other Public methods
-
- 
-
-=item #
-
- 
-
-=item # Override XDF::BaseObject::setXMLAttributes. Special new method for Value objects.
-
- 
-
-=item # /** setXMLAttributes
-
- 
-
-=item # XDF::Unit has a special setXMLAttributes method. 
-
- 
-
-=item # These objects are so simple they seem to merit 
-
- 
-
-=item # special handling. This new setXMLAttributes method takes either
-
- 
-
-=item # and attribute Hash reference or a STRING.
-
- 
-
-=item # If the input value is a HASH reference, we 
-
- 
-
-=item # construct an object from it, else, we 
-
- 
-
-=item # just set its value attribute to the contents of 
-
- 
-
-=item # the passed STRING. 
-
- 
-
-=item # */
-
- 
-
-=item sub setXMLAttributes {
-
- 
-
-=item # these objects are so simple they seem to merit 
-
- 
-
-=item # special handling. If $info is a reference, we assume
-
- 
-
-=item # it is an attribute hash (as per other objects). Else,
-
- 
-
-=item # we assume its a string, and the value of the note.
-
- 
-
-=item if (defined $info) {
-
- 
-
-=item if (ref($info) ) {
-
- 
-
-=back
-
-=head2 OTHER Methods
-
+The following instance methods are defined for XDF::Unit.
 =over 4
 
 =item getPower (EMPTY)
 
-
+ 
 
 =item setPower ($value)
 
-Set the power attribute. 
+Set the power attribute.  
 
 =item getValue (EMPTY)
 
-
+ 
 
 =item setValue ($value)
 
-Set the value attribute. 
+Set the value attribute.  
 
 =item getXMLAttributes (EMPTY)
 
-This method returns the XMLAttributes of this class. 
+This method returns the XMLAttributes of this class.  
 
 =item setXMLAttributes ($info)
 
-XDF::Unit has a special setXMLAttributes method. These objects are so simple they seem to merit special handling. This new setXMLAttributes method takes eitherand attribute Hash reference or a STRING. If the input value is a HASH reference, we construct an object from it, else, we just set its value attribute to the contents of the passed STRING. 
+XDF::Unit has a special setXMLAttributes method. These objects are so simple they seem to merit special handling. This new setXMLAttributes method takes eitherand attribute Hash reference or a STRING. If the input value is a HASH reference, we construct an object from it, else, we just set its value attribute to the contents of the passed STRING.  
 
 =back
 
@@ -594,7 +281,7 @@ A change in the value of these attributes will change the functioning of ALL ins
 =over 4
 
 The following class attribute methods are inherited from L<XDF::BaseObject>:
-B<Pretty_XDF_Output>, B<Pretty_XDF_Output_Indentation>, B<DefaultDataArraySize>.
+B<Pretty_XDF_Output>, B<Pretty_XDF_Output_Indentation>, B<DefaultDataArraySize>. 
 
 =back
 
@@ -602,14 +289,14 @@ B<Pretty_XDF_Output>, B<Pretty_XDF_Output_Indentation>, B<DefaultDataArraySize>.
 
 =over 4
 
-=head2 INHERITED Other Methods
+=head2 INHERITED INSTANCE Methods
 
 
 
 =over 4
 
 XDF::Unit inherits the following instance methods of L<XDF::GenericObject>:
-B<new>, B<clone>, B<update>.
+B<new>, B<clone>, B<update>. 
 
 =back
 
@@ -618,15 +305,13 @@ B<new>, B<clone>, B<update>.
 =over 4
 
 XDF::Unit inherits the following instance methods of L<XDF::BaseObject>:
-B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLNotationHash>, B<toXMLFileHandle>, B<toXMLFile>.
-
-=back
+B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLNotationHash>, B<toXMLFileHandle>, B<toXMLFile>. 
 
 =back
 
 =head1 SEE ALSO
 
-L<XDF::BaseObject>
+L<XDF::BaseObject> 
 
 =back
 
@@ -635,6 +320,6 @@ L<XDF::BaseObject>
     Brian Thomas  (thomas@adc.gsfc.nasa.gov)
     Astronomical Data Center <http://adc.gsfc.nasa.gov>
     NASA/Goddard Space Flight Center
-
+ 
 
 =cut

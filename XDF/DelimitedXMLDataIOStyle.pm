@@ -255,6 +255,10 @@ sub _sprintfNotation {
 # Modification History
 #
 # $Log$
+# Revision 1.7  2001/03/14 21:32:34  thomas
+# Updated perldoc section using new version of
+# makeDoc.pl.
+#
 # Revision 1.6  2001/03/14 16:36:11  thomas
 # No changes, just line layout changed.
 #
@@ -298,6 +302,8 @@ XDF::DelimitedXMLDataIOStyle - Perl Class for DelimitedXMLDataIOStyle
 XDF::DelimitedXMLDataIOStyle inherits class and attribute methods of L<XDF::GenericObject>, L<XDF::BaseObject>, L<XDF::XMLDataIOStyle>.
 
 
+=head1 METHODS
+
 =over 4
 
 =head2 CLASS Methods
@@ -316,53 +322,50 @@ A change in the value of these class attributes will change the value for ALL in
 
 =back
 
-=head2 ATTRIBUTE Methods
+=head2 INSTANCE Methods
 
-These methods set the requested attribute if an argument is supplied to the method. Whether or not an argument is supplied the current value of the attribute is always returned. Values of these methods are always SCALAR (may be number, string, or reference).
-
-=over 4
-
-=item writeAxisOrderList
-
- 
-
-=back
-
-=head2 OTHER Methods
-
+The following instance methods are defined for XDF::DelimitedXMLDataIOStyle.
 =over 4
 
 =item getDelimiter (EMPTY)
 
-
+ 
 
 =item setDelimiter ($value)
 
-Set the delimiter attribute. 
+Set the delimiter attribute.  
 
 =item getRepeatable (EMPTY)
 
-
+ 
 
 =item setRepeatable ($value)
 
-Set the repeatable attribute. 
+Set the repeatable attribute.  
 
 =item getRecordTerminator (EMPTY)
 
-
+ 
 
 =item setRecordTerminator ($value)
 
-Set the recordTerminator attribute. 
+Set the recordTerminator attribute.  
+
+=item getWriteAxisOrderList (EMPTY)
+
+This method sets the ordering of the fastest to slowest axis forwriting out delimited data. The default is to use the parent arrayaxisList ordering.  
+
+=item setWriteAxisOrderList ($arrayRefValue)
+
+This method sets the ordering of the fastest to slowest axis forwriting out delimited data. The fastest axis is the last inthe array.  
 
 =item getXMLAttributes (EMPTY)
 
-This method returns the XMLAttributes of this class. 
+This method returns the XMLAttributes of this class.  
 
 =item toXMLFileHandle ($indent, $junk, $fileHandle)
 
-
+ 
 
 =back
 
@@ -376,7 +379,7 @@ A change in the value of these attributes will change the functioning of ALL ins
 =over 4
 
 The following class attribute methods are inherited from L<XDF::BaseObject>:
-B<Pretty_XDF_Output>, B<Pretty_XDF_Output_Indentation>, B<DefaultDataArraySize>.
+B<Pretty_XDF_Output>, B<Pretty_XDF_Output_Indentation>, B<DefaultDataArraySize>. 
 
 =back
 
@@ -384,14 +387,14 @@ B<Pretty_XDF_Output>, B<Pretty_XDF_Output_Indentation>, B<DefaultDataArraySize>.
 
 =over 4
 
-=head2 INHERITED Other Methods
+=head2 INHERITED INSTANCE Methods
 
 
 
 =over 4
 
 XDF::DelimitedXMLDataIOStyle inherits the following instance methods of L<XDF::GenericObject>:
-B<new>, B<clone>, B<update>.
+B<new>, B<clone>, B<update>. 
 
 =back
 
@@ -400,7 +403,7 @@ B<new>, B<clone>, B<update>.
 =over 4
 
 XDF::DelimitedXMLDataIOStyle inherits the following instance methods of L<XDF::BaseObject>:
-B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLAttributes>, B<setXMLNotationHash>, B<toXMLFile>.
+B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLAttributes>, B<setXMLNotationHash>, B<toXMLFile>. 
 
 =back
 
@@ -409,20 +412,18 @@ B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLAttributes>, B<setX
 =over 4
 
 XDF::DelimitedXMLDataIOStyle inherits the following instance methods of L<XDF::XMLDataIOStyle>:
-B<untaggedInstructionNodeName>, B<getReadId{>, B<setReadId>, B<getReadIdRef>, B<setReadIdRef>, B<getEncoding{>, B<setEncoding>, B<getEndian{>, B<setEndian>.
-
-=back
+B<untaggedInstructionNodeName>, B<getReadId{>, B<setReadId>, B<getReadIdRef>, B<setReadIdRef>, B<getEncoding{>, B<setEncoding>, B<getEndian{>, B<setEndian>. 
 
 =back
 
 =head1 SEE ALSO
 
-L<XDF::XMLDataIOStyle>
+L<XDF::XMLDataIOStyle> 
 
 =back
 
 =head1 AUTHOR
 
-
+ 
 
 =cut

@@ -279,6 +279,10 @@ sub _remove_from_list {
 # Modification History
 #
 # $Log$
+# Revision 1.5  2001/03/14 21:32:34  thomas
+# Updated perldoc section using new version of
+# makeDoc.pl.
+#
 # Revision 1.4  2000/12/15 22:11:58  thomas
 # Regenerated perlDoc section in files. -b.t.
 #
@@ -319,6 +323,8 @@ XDF::GenericObject - Perl Class for GenericObject
 
 
 
+=head1 METHODS
+
 =over 4
 
 =head2 CLASS Methods
@@ -333,121 +339,22 @@ This method returns a list reference containing the namesof the class attributes
 
 =back
 
-=head2 ATTRIBUTE Methods
+=head2 INSTANCE Methods
 
-These methods set the requested attribute if an argument is supplied to the method. Whether or not an argument is supplied the current value of the attribute is always returned. Values of these methods are always SCALAR (may be number, string, or reference).
-
-=over 4
-
-=item # Initalization
-
- 
-
-=item # set up object attributes.
-
- 
-
-=item for my $attr ( @Class_Attributes ) { $field{$attr}++; }
-
- 
-
-=item # /** classAttributes
-
- 
-
-=item #  This method returns a list reference containing the names
-
- 
-
-=item #  of the class attributes for this class.
-
- 
-
-=item #  This method takes no arguments may not be changed. 
-
- 
-
-=item # */
-
- 
-
-=item sub classAttributes { 
-
- 
-
-=item }
-
- 
-
-=item #
-
- 
-
-=item # Methods ..
-
- 
-
-=item #
-
- 
-
-=item sub AUTOLOAD {
-
- 
-
-=item my ($self, $val, $attr, $field_ref) = @_;
-
- 
-
-=item # subst. to rip off leading class name
-
- 
-
-=item $attr =~ s/.*:://; 
-
- 
-
-=item return unless $attr =~ m/[^A-Z]/; # skip all-cap methods (e.g. DESTROY)
-
- 
-
-=item # safety check
-
- 
-
-=item croak "invalid attribute method: $self->$attr()" unless defined %{$field_ref}->{$attr};
-
- 
-
-=item # We use the local value, if it exists, otherwise we go to 
-
- 
-
-=item # the reference object, if it exists
-
- 
-
-=item #  if (!defined $self->{ucfirst $attr} && $attr ne '_objRef' && $self->_objRef() ) {
-
- 
-
-=back
-
-=head2 OTHER Methods
-
+The following instance methods are defined for XDF::GenericObject.
 =over 4
 
 =item new ($attribHashRef)
 
-Create a new object. Returns the new object if successfull. It takes an optional argument of an attribute HASH Referenceto initialize the object.  
+Create a new object. Returns the new object if successfull. It takes an optional argument of an attribute HASH Referenceto initialize the object.   
 
 =item clone ($_parentArray)
 
-Clone a deep copy from this object. 
+Clone a deep copy from this object.  
 
 =item update (EMPTY)
 
-Update the attributes of this object from the passed attribute HASH Reference. This method is depreciated. 
+Update the attributes of this object from the passed attribute HASH Reference. This method is depreciated.  
 
 =back
 
@@ -460,13 +367,11 @@ A change in the value of these attributes will change the functioning of ALL ins
 
 =over 4
 
-=head2 INHERITED Other Methods
-
-=back
+=head2 INHERITED INSTANCE Methods
 
 =head1 SEE ALSO
 
-
+ 
 
 =back
 
@@ -475,6 +380,6 @@ A change in the value of these attributes will change the functioning of ALL ins
     Brian Thomas  (thomas@adc.gsfc.nasa.gov)
     Astronomical Data Center <http://adc.gsfc.nasa.gov>
     NASA/Goddard Space Flight Center
-
+ 
 
 =cut

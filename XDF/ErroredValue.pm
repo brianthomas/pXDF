@@ -163,6 +163,10 @@ sub AUTOLOAD {
 # Modification History
 #
 # $Log$
+# Revision 1.6  2001/03/14 21:32:34  thomas
+# Updated perldoc section using new version of
+# makeDoc.pl.
+#
 # Revision 1.5  2000/12/15 22:11:58  thomas
 # Regenerated perlDoc section in files. -b.t.
 #
@@ -206,6 +210,8 @@ XDF::ErroredValue - Perl Class for ErroredValue
 XDF::ErroredValue inherits class and attribute methods of L<XDF::GenericObject>, L<XDF::BaseObject>, L<XDF::Value>.
 
 
+=head1 METHODS
+
 =over 4
 
 =head2 CLASS Methods
@@ -220,225 +226,38 @@ This method returns a list reference containing the namesof the class attributes
 
 =back
 
-=head2 ATTRIBUTE Methods
+=head2 INSTANCE Methods
 
-These methods set the requested attribute if an argument is supplied to the method. Whether or not an argument is supplied the current value of the attribute is always returned. Values of these methods are always SCALAR (may be number, string, or reference).
-
-=over 4
-
-=item # add in class XML attributes
-
- 
-
-=item push @Class_Attributes, @Class_XML_Attributes;
-
- 
-
-=item # add in super class attributes
-
- 
-
-=item push @Class_Attributes, @{&XDF::Value::classAttributes};
-
- 
-
-=item push @Class_XML_Attributes, @{&XDF::Value::getXMLAttributes};
-
- 
-
-=item # Initalization
-
- 
-
-=item # set up object attributes.
-
- 
-
-=item for my $attr ( @Class_Attributes ) { $field{$attr}++; }
-
- 
-
-=item # /** classAttributes
-
- 
-
-=item #  This method returns a list reference containing the names
-
- 
-
-=item #  of the class attributes of XDF::Value. 
-
- 
-
-=item #  This method takes no arguments may not be changed. 
-
- 
-
-=item # */
-
- 
-
-=item sub classAttributes {
-
- 
-
-=item }
-
- 
-
-=item #
-
- 
-
-=item # SET/GET Methods
-
- 
-
-=item #
-
- 
-
-=item # /** getUpperErrorValue
-
- 
-
-=item # */
-
- 
-
-=item sub getUpperErrorValue{
-
- 
-
-=item return $self->{UpperErrorValue};
-
- 
-
-=item }
-
- 
-
-=item # /** setUpperErrorValue
-
- 
-
-=item #     Set the upperErrorValue attribute. 
-
- 
-
-=item # */
-
- 
-
-=item sub setUpperErrorValue {
-
- 
-
-=item $self->{UpperErrorValue} = $value;
-
- 
-
-=item }
-
- 
-
-=item # /** getLowerErrorValue
-
- 
-
-=item # */
-
- 
-
-=item sub getLowerErrorValue {
-
- 
-
-=item return $self->{LowerErrorValue};
-
- 
-
-=item }
-
- 
-
-=item # /** setLowerErrorValue
-
- 
-
-=item #     Set the lowerErrorValue attribute. 
-
- 
-
-=item # */
-
- 
-
-=item sub setLowerErrorValue {
-
- 
-
-=item $self->{LowerErrorValue} = $value;
-
- 
-
-=item }
-
- 
-
-=item # /** getErrorValues
-
- 
-
-=item #   A convience method which returns an array reference holding 
-
- 
-
-=item #   the value of the lowerErrorValue and upperErrorValue attributes. 
-
- 
-
-=item # */
-
- 
-
-=item sub getErrorValues {
-
- 
-
-=back
-
-=head2 OTHER Methods
-
+The following instance methods are defined for XDF::ErroredValue.
 =over 4
 
 =item getUpperErrorValue{ (EMPTY)
 
-
+ 
 
 =item setUpperErrorValue ($value)
 
-Set the upperErrorValue attribute. 
+Set the upperErrorValue attribute.  
 
 =item getLowerErrorValue (EMPTY)
 
-
+ 
 
 =item setLowerErrorValue ($value)
 
-Set the lowerErrorValue attribute. 
+Set the lowerErrorValue attribute.  
 
 =item getErrorValues (EMPTY)
 
-A convience method which returns an array reference holding the value of the lowerErrorValue and upperErrorValue attributes. 
+A convience method which returns an array reference holding the value of the lowerErrorValue and upperErrorValue attributes.  
 
 =item setErrorValue ($value)
 
-Sets the value of both the upperErrorValue and lowerErrorValueattributes to the passed value. 
+Sets the value of both the upperErrorValue and lowerErrorValueattributes to the passed value.  
 
 =item getXMLAttributes (EMPTY)
 
-This method returns the XMLAttributes of this class. 
+This method returns the XMLAttributes of this class.  
 
 =back
 
@@ -452,7 +271,7 @@ A change in the value of these attributes will change the functioning of ALL ins
 =over 4
 
 The following class attribute methods are inherited from L<XDF::BaseObject>:
-B<Pretty_XDF_Output>, B<Pretty_XDF_Output_Indentation>, B<DefaultDataArraySize>.
+B<Pretty_XDF_Output>, B<Pretty_XDF_Output_Indentation>, B<DefaultDataArraySize>. 
 
 =back
 
@@ -460,14 +279,14 @@ B<Pretty_XDF_Output>, B<Pretty_XDF_Output_Indentation>, B<DefaultDataArraySize>.
 
 =over 4
 
-=head2 INHERITED Other Methods
+=head2 INHERITED INSTANCE Methods
 
 
 
 =over 4
 
 XDF::ErroredValue inherits the following instance methods of L<XDF::GenericObject>:
-B<new>, B<clone>, B<update>.
+B<new>, B<clone>, B<update>. 
 
 =back
 
@@ -476,7 +295,7 @@ B<new>, B<clone>, B<update>.
 =over 4
 
 XDF::ErroredValue inherits the following instance methods of L<XDF::BaseObject>:
-B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLNotationHash>, B<toXMLFileHandle>, B<toXMLFile>.
+B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLNotationHash>, B<toXMLFileHandle>, B<toXMLFile>. 
 
 =back
 
@@ -485,15 +304,13 @@ B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLNotationHash>, B<to
 =over 4
 
 XDF::ErroredValue inherits the following instance methods of L<XDF::Value>:
-B<getValueId{>, B<setValueId>, B<getValueIdRef>, B<setValueIdRef>, B<getSpecial{>, B<setSpecial>, B<getInequality{>, B<setInequality>, B<getValue{>, B<setValue>, B<setXMLAttributes>.
-
-=back
+B<getValueId{>, B<setValueId>, B<getValueIdRef>, B<setValueIdRef>, B<getSpecial{>, B<setSpecial>, B<getInequality{>, B<setInequality>, B<getValue{>, B<setValue>, B<setXMLAttributes>. 
 
 =back
 
 =head1 SEE ALSO
 
-L< XDF::Value>, L< XDF::Parameter>, L<XDF::Value>
+L< XDF::Value>, L< XDF::Parameter>, L<XDF::Value> 
 
 =back
 
@@ -502,6 +319,6 @@ L< XDF::Value>, L< XDF::Parameter>, L<XDF::Value>
     Brian Thomas  (thomas@adc.gsfc.nasa.gov)
     Astronomical Data Center <http://adc.gsfc.nasa.gov>
     NASA/Goddard Space Flight Center
-
+ 
 
 =cut

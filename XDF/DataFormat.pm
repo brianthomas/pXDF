@@ -277,6 +277,10 @@ sub AUTOLOAD {
 # Modification History
 #
 # $Log$
+# Revision 1.9  2001/03/14 21:32:34  thomas
+# Updated perldoc section using new version of
+# makeDoc.pl.
+#
 # Revision 1.8  2001/02/22 19:36:48  thomas
 # Yanked lessthanvalue, etc from class
 # for the time being. These attributes temp
@@ -333,6 +337,8 @@ XDF::DataFormat - Perl Class for DataFormat
 XDF::DataFormat inherits class and attribute methods of L<XDF::GenericObject>, L<XDF::BaseObject>.
 
 
+=head1 METHODS
+
 =over 4
 
 =head2 CLASS Methods
@@ -351,625 +357,22 @@ This method takes no arguments may not be changed. This method returns a list re
 
 =back
 
-=head2 ATTRIBUTE Methods
+=head2 INSTANCE Methods
 
-These methods set the requested attribute if an argument is supplied to the method. Whether or not an argument is supplied the current value of the attribute is always returned. Values of these methods are always SCALAR (may be number, string, or reference).
-
+The following instance methods are defined for XDF::DataFormat.
 =over 4
-
-=item # add in class XML attributes
-
- 
-
-=item push @Class_Attributes, @Class_XML_Attributes;
-
- 
-
-=item # add in super class attributes
-
- 
-
-=item push @Class_Attributes, @{&XDF::BaseObject::classAttributes};
-
- 
-
-=item # Initalization -- set up object attributes.
-
- 
-
-=item for my $attr ( @Class_Attributes ) { $field{$attr}++; }
-
- 
-
-=item # /** lessThanValue
-
- 
-
-=item # The STRING value which indicates the less than symbol ("<") within the data cube.
-
- 
-
-=item # */
-
- 
-
-=item # /** lessThanOrEqualValue
-
- 
-
-=item # The STRING value which indicates the less than equal symbol ("=<") within the data cube.
-
- 
-
-=item # */
-
- 
-
-=item # /** greaterThanValue
-
- 
-
-=item # The STRING value which indicates the greater than symbol (">") within the data cube.
-
- 
-
-=item # */
-
- 
-
-=item # /** greaterThanOrEqualValue
-
- 
-
-=item # The STRING value which indicates the greater than equal symbol (">=") within the data cube.
-
- 
-
-=item # */
-
- 
-
-=item # /** infiniteValue
-
- 
-
-=item # The STRING value which indicates the infinite value within the data cube.
-
- 
-
-=item # */
-
- 
-
-=item # /** infiniteNegativeValue
-
- 
-
-=item # The STRING value which indicates the negative infinite value within the data cube.
-
- 
-
-=item # */
-
- 
-
-=item # /** noDataValue
-
- 
-
-=item # The STRING value which indicates the no data value within the data cube.
-
- 
-
-=item # */
-
- 
-
-=item # /** classXMLNodeName
-
- 
-
-=item # This method returns the class node name for this class.
-
- 
-
-=item # This method takes no arguments may not be changed. 
-
- 
-
-=item # */
-
- 
-
-=item sub classXMLNodeName { 
-
- 
-
-=item }
-
- 
-
-=item # /** classAttributes
-
- 
-
-=item #  This method takes no arguments may not be changed. 
-
- 
-
-=item #  This method returns a list reference containing the names
-
- 
-
-=item #  of the class attributes of XDF::BinaryFloatField. 
-
- 
-
-=item # */
-
- 
-
-=item sub classAttributes {
-
- 
-
-=item }
-
- 
-
-=item # 
-
- 
-
-=item # SET/GET Methods
-
- 
-
-=item #
-
- 
-
-=item # /** getLessThanValue
-
- 
-
-=item # */
-
- 
-
-=item sub getLessThanValue {
-
- 
-
-=item return $self->{LessThanValue};
-
- 
-
-=item }
-
- 
-
-=item # /** setLessThanValue
-
- 
-
-=item #     Set the lessThanValue attribute. 
-
- 
-
-=item # */
-
- 
-
-=item sub setLessThanValue {
-
- 
-
-=item $self->{LessThanValue} = $value;
-
- 
-
-=item }
-
- 
-
-=item # /** getLessThanOrEqualValue
-
- 
-
-=item # */
-
- 
-
-=item sub getLessThanOrEqualValue {
-
- 
-
-=item return $self->{LessThanOrEqualValue};
-
- 
-
-=item }
-
- 
-
-=item # /** setLessThanOrEqualValue
-
- 
-
-=item #     Set the lessThanOrEqualValue attribute. 
-
- 
-
-=item # */
-
- 
-
-=item sub setLessThanOrEqualValue {
-
- 
-
-=item $self->{LessThanOrEqualValue} = $value;
-
- 
-
-=item }
-
- 
-
-=item sub getGreaterThanValue {
-
- 
-
-=item return $self->{GreaterThanValue};
-
- 
-
-=item }
-
- 
-
-=item # /** setGreaterThanValue
-
- 
-
-=item #     Set the greaterThanValue attribute. 
-
- 
-
-=item # */
-
- 
-
-=item sub setGreaterThanValue {
-
- 
-
-=item $self->{GreaterThanValue} = $value;
-
- 
-
-=item }
-
- 
-
-=item # /** getGreaterThanOrEqualValue
-
- 
-
-=item # */
-
- 
-
-=item sub getGreaterThanOrEqualValue {
-
- 
-
-=item return $self->{GreaterThanOrEqualValue};
-
- 
-
-=item }
-
- 
-
-=item # /** setGreaterThanOrEqualValue
-
- 
-
-=item #     Set the greaterThanOrEqualValue attribute. 
-
- 
-
-=item # */
-
- 
-
-=item sub setGreaterThanOrEqualValue {
-
- 
-
-=item $self->{GreaterThanOrEqualValue} = $value;
-
- 
-
-=item }
-
- 
-
-=item # /** getInfiniteValue
-
- 
-
-=item # */
-
- 
-
-=item sub getInfiniteValue {
-
- 
-
-=item return $self->{InfiniteValue};
-
- 
-
-=item }
-
- 
-
-=item # /** setInfiniteValue
-
- 
-
-=item #     Set the infiniteValue attribute. 
-
- 
-
-=item # */
-
- 
-
-=item sub setInfiniteValue {
-
- 
-
-=item $self->{InfiniteValue} = $value;
-
- 
-
-=item }
-
- 
-
-=item # /** getInfiniteNegativeValue
-
- 
-
-=item # */
-
- 
-
-=item sub getInfiniteNegativeValue {
-
- 
-
-=item return $self->{InfiniteNegativeValue};
-
- 
-
-=item }
-
- 
-
-=item # /** setInfiniteNegativeValue
-
- 
-
-=item #     Set the infiniteNegativeValue attribute. 
-
- 
-
-=item # */
-
- 
-
-=item sub setInfiniteNegativeValue {
-
- 
-
-=item $self->{InfiniteNegativeValue} = $value;
-
- 
-
-=item }
-
- 
-
-=item # /** getNoDataValue
-
- 
-
-=item # */
-
- 
-
-=item sub getNoDataValue {
-
- 
-
-=item return $self->{NoDataValue};
-
- 
-
-=item }
-
- 
-
-=item # /** setNoDataValue
-
- 
-
-=item #     Set the noDataValue attribute. 
-
- 
-
-=item # */
-
- 
-
-=item sub setNoDataValue {
-
- 
-
-=item $self->{NoDataValue} = $value;
-
- 
-
-=item }
-
- 
-
-=item # /** getXMLAttributes
-
- 
-
-=item #      This method returns the XMLAttributes of this class. 
-
- 
-
-=item #  */
-
- 
-
-=item sub getXMLAttributes {
-
- 
-
-=item }
-
- 
-
-=item # /** numOfBytes
-
- 
-
-=item # This returns the number of bytes this object describes.
-
- 
-
-=item # Undef is returned if not successfull.
-
- 
-
-=item # */
-
- 
-
-=item sub numOfBytes {
-
- 
-
-=item undef;
-
- 
-
-=item }
-
- 
-
-=item #
-
- 
-
-=item # Other Public Methods 
-
- 
-
-=item #
-
- 
-
-=item sub toXMLFileHandle {
-
- 
-
-=item $newNodeNameString, $noChildObjectNodeName ) = @_;
-
- 
-
-=back
-
-=head2 OTHER Methods
-
-=over 4
-
-=item getLessThanValue (EMPTY)
-
-
-
-=item setLessThanValue ($value)
-
-Set the lessThanValue attribute. 
-
-=item getLessThanOrEqualValue (EMPTY)
-
-
-
-=item setLessThanOrEqualValue ($value)
-
-Set the lessThanOrEqualValue attribute. 
-
-=item getGreaterThanValue (EMPTY)
-
-
-
-=item setGreaterThanValue ($value)
-
-Set the greaterThanValue attribute. 
-
-=item getGreaterThanOrEqualValue (EMPTY)
-
-
-
-=item setGreaterThanOrEqualValue ($value)
-
-Set the greaterThanOrEqualValue attribute. 
-
-=item getInfiniteValue (EMPTY)
-
-
-
-=item setInfiniteValue ($value)
-
-Set the infiniteValue attribute. 
-
-=item getInfiniteNegativeValue (EMPTY)
-
-
-
-=item setInfiniteNegativeValue ($value)
-
-Set the infiniteNegativeValue attribute. 
-
-=item getNoDataValue (EMPTY)
-
-
-
-=item setNoDataValue ($value)
-
-Set the noDataValue attribute. 
 
 =item getXMLAttributes (EMPTY)
 
-This method returns the XMLAttributes of this class. 
+This method returns the XMLAttributes of this class.  
 
 =item numOfBytes (EMPTY)
 
-This returns the number of bytes this object describes. Undef is returned if not successfull. 
+This returns the number of bytes this object describes. Undef is returned if not successfull.  
 
 =item toXMLFileHandle (EMPTY)
 
-
+ 
 
 =back
 
@@ -983,7 +386,7 @@ A change in the value of these attributes will change the functioning of ALL ins
 =over 4
 
 The following class attribute methods are inherited from L<XDF::BaseObject>:
-B<Pretty_XDF_Output>, B<Pretty_XDF_Output_Indentation>, B<DefaultDataArraySize>.
+B<Pretty_XDF_Output>, B<Pretty_XDF_Output_Indentation>, B<DefaultDataArraySize>. 
 
 =back
 
@@ -991,14 +394,14 @@ B<Pretty_XDF_Output>, B<Pretty_XDF_Output_Indentation>, B<DefaultDataArraySize>.
 
 =over 4
 
-=head2 INHERITED Other Methods
+=head2 INHERITED INSTANCE Methods
 
 
 
 =over 4
 
 XDF::DataFormat inherits the following instance methods of L<XDF::GenericObject>:
-B<new>, B<clone>, B<update>.
+B<new>, B<clone>, B<update>. 
 
 =back
 
@@ -1007,15 +410,13 @@ B<new>, B<clone>, B<update>.
 =over 4
 
 XDF::DataFormat inherits the following instance methods of L<XDF::BaseObject>:
-B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLAttributes>, B<setXMLNotationHash>, B<toXMLFile>.
-
-=back
+B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLAttributes>, B<setXMLNotationHash>, B<toXMLFile>. 
 
 =back
 
 =head1 SEE ALSO
 
-L< XDF::Array>, L< XDF::Field>, L< XDF::BinaryFloatDataFormat>, L< XDF::BinaryIntegerDataFormat>, L< XDF::FloatDataFormat>, L< XDF::IntegerDataFormat>, L< XDF::StringDataFormat>, L<XDF::BaseObject>
+L< XDF::Array>, L< XDF::Field>, L< XDF::BinaryFloatDataFormat>, L< XDF::BinaryIntegerDataFormat>, L< XDF::FloatDataFormat>, L< XDF::IntegerDataFormat>, L< XDF::StringDataFormat>, L<XDF::BaseObject> 
 
 =back
 
@@ -1024,6 +425,6 @@ L< XDF::Array>, L< XDF::Field>, L< XDF::BinaryFloatDataFormat>, L< XDF::BinaryIn
     Brian Thomas  (thomas@adc.gsfc.nasa.gov)
     Astronomical Data Center <http://adc.gsfc.nasa.gov>
     NASA/Goddard Space Flight Center
-
+ 
 
 =cut

@@ -141,6 +141,10 @@ sub AUTOLOAD {
 # Modification History
 #
 # $Log$
+# Revision 1.6  2001/03/14 21:32:34  thomas
+# Updated perldoc section using new version of
+# makeDoc.pl.
+#
 # Revision 1.5  2000/12/15 22:11:59  thomas
 # Regenerated perlDoc section in files. -b.t.
 #
@@ -184,6 +188,8 @@ XDF::ParameterGroup - Perl Class for ParameterGroup
 XDF::ParameterGroup inherits class and attribute methods of L<XDF::GenericObject>, L<XDF::BaseObject>, L<XDF::Group>.
 
 
+=head1 METHODS
+
 =over 4
 
 =head2 CLASS Methods
@@ -202,21 +208,22 @@ This method returns a list reference containing the namesof the class attributes
 
 =back
 
-=head2 OTHER Methods
+=head2 INSTANCE Methods
 
+The following instance methods are defined for XDF::ParameterGroup.
 =over 4
 
 =item getXMLAttributes (EMPTY)
 
-This method returns the XMLAttributes of this class. 
+This method returns the XMLAttributes of this class.  
 
 =item addParamGroup ($info)
 
-
+ 
 
 =item removeParamGroup (EMPTY)
 
-
+ 
 
 =back
 
@@ -230,7 +237,7 @@ A change in the value of these attributes will change the functioning of ALL ins
 =over 4
 
 The following class attribute methods are inherited from L<XDF::BaseObject>:
-B<Pretty_XDF_Output>, B<Pretty_XDF_Output_Indentation>, B<DefaultDataArraySize>.
+B<Pretty_XDF_Output>, B<Pretty_XDF_Output_Indentation>, B<DefaultDataArraySize>. 
 
 =back
 
@@ -238,14 +245,14 @@ B<Pretty_XDF_Output>, B<Pretty_XDF_Output_Indentation>, B<DefaultDataArraySize>.
 
 =over 4
 
-=head2 INHERITED Other Methods
+=head2 INHERITED INSTANCE Methods
 
 
 
 =over 4
 
 XDF::ParameterGroup inherits the following instance methods of L<XDF::GenericObject>:
-B<new>, B<clone>, B<update>.
+B<new>, B<clone>, B<update>. 
 
 =back
 
@@ -254,7 +261,7 @@ B<new>, B<clone>, B<update>.
 =over 4
 
 XDF::ParameterGroup inherits the following instance methods of L<XDF::BaseObject>:
-B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLAttributes>, B<setXMLNotationHash>, B<toXMLFileHandle>, B<toXMLFile>.
+B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLAttributes>, B<setXMLNotationHash>, B<toXMLFileHandle>, B<toXMLFile>. 
 
 =back
 
@@ -263,15 +270,13 @@ B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLAttributes>, B<setX
 =over 4
 
 XDF::ParameterGroup inherits the following instance methods of L<XDF::Group>:
-B<getName>, B<setName>, B<getDescription>, B<setDescription>, B<addMemberObject>, B<removeMemberObject>, B<hasMemberObj>.
-
-=back
+B<getName>, B<setName>, B<getDescription>, B<setDescription>, B<addMemberObject>, B<removeMemberObject>, B<hasMemberObj>. 
 
 =back
 
 =head1 SEE ALSO
 
-L< XDF::FieldGroup >, L< XDF::Parameter>, L< XDF::ValueGroup>, L<XDF::Group>
+L< XDF::FieldGroup >, L< XDF::Parameter>, L< XDF::ValueGroup>, L<XDF::Group> 
 
 =back
 
@@ -280,6 +285,6 @@ L< XDF::FieldGroup >, L< XDF::Parameter>, L< XDF::ValueGroup>, L<XDF::Group>
     Brian Thomas  (thomas@adc.gsfc.nasa.gov)
     Astronomical Data Center <http://adc.gsfc.nasa.gov>
     NASA/Goddard Space Flight Center
-
+ 
 
 =cut

@@ -126,6 +126,10 @@ sub AUTOLOAD {
 # Modification History
 #
 # $Log$
+# Revision 1.7  2001/03/14 21:32:34  thomas
+# Updated perldoc section using new version of
+# makeDoc.pl.
+#
 # Revision 1.6  2001/03/09 21:52:41  thomas
 # Added Utility check on role attribute.
 #
@@ -167,6 +171,8 @@ XDF::FieldRelation - Perl Class for FieldRelation
 XDF::FieldRelation inherits class and attribute methods of L<XDF::GenericObject>, L<XDF::BaseObject>.
 
 
+=head1 METHODS
+
 =over 4
 
 =head2 CLASS Methods
@@ -185,261 +191,34 @@ A change in the value of these class attributes will change the value for ALL in
 
 =back
 
-=head2 ATTRIBUTE Methods
+=head2 INSTANCE Methods
 
-These methods set the requested attribute if an argument is supplied to the method. Whether or not an argument is supplied the current value of the attribute is always returned. Values of these methods are always SCALAR (may be number, string, or reference).
-
-=over 4
-
-=item # add in class XML attributes
-
- 
-
-=item push @Class_Attributes, @Class_XML_Attributes;
-
- 
-
-=item # add in super class attributes
-
- 
-
-=item push @Class_Attributes, @{&XDF::BaseObject::classAttributes};
-
- 
-
-=item # Initalization
-
- 
-
-=item # set up object attributes.
-
- 
-
-=item for my $attr ( @Class_Attributes ) { $field{$attr}++; }
-
- 
-
-=item sub classXMLNodeName { 
-
- 
-
-=item }
-
- 
-
-=item sub classAttributes { 
-
- 
-
-=item }
-
- 
-
-=item #
-
- 
-
-=item # Get/Set Methods 
-
- 
-
-=item #
-
- 
-
-=item # /** getFieldIdRefs 
-
- 
-
-=item # */
-
- 
-
-=item sub getFieldIdRefs {
-
- 
-
-=item return $self->{FieldIdRefs};
-
- 
-
-=item }
-
- 
-
-=item # /** setFieldIdRefs 
-
- 
-
-=item #     Set the fieldIdRefs attribute. 
-
- 
-
-=item # */
-
- 
-
-=item sub setFieldIdRefs {
-
- 
-
-=item $self->{FieldIdRefs} = $value;
-
- 
-
-=item }
-
- 
-
-=item # /** getRole 
-
- 
-
-=item # */
-
- 
-
-=item sub getRole {
-
- 
-
-=item return $self->{Role};
-
- 
-
-=item }
-
- 
-
-=item # /** setRole 
-
- 
-
-=item #     Set the role attribute. 
-
- 
-
-=item # */
-
- 
-
-=item sub setRole {
-
- 
-
-=item $self->{Role} = $value;
-
- 
-
-=item }
-
- 
-
-=item # /** getXMLAttributes
-
- 
-
-=item #      This method returns the XMLAttributes of this class. 
-
- 
-
-=item #  */
-
- 
-
-=item sub getXMLAttributes {
-
- 
-
-=item }
-
- 
-
-=item # /** getRelatedFieldIdRefs
-
- 
-
-=item # Convience method which returns an array of related fieldIdRefs.    
-
- 
-
-=item # */
-
- 
-
-=item sub getRelatedFieldIdRefs {
-
- 
-
-=item return split / /, $self->{FieldIdRefs};
-
- 
-
-=item }
-
- 
-
-=item #
-
- 
-
-=item # Private Methods 
-
- 
-
-=item #
-
- 
-
-=item # This is called when we cant find any defined method
-
- 
-
-=item # exists already. Used to handle general purpose set/get
-
- 
-
-=item # methods for our attributes (object fields).
-
- 
-
-=item sub AUTOLOAD {
-
- 
-
-=item my ($self,$val) = @_;
-
- 
-
-=back
-
-=head2 OTHER Methods
-
+The following instance methods are defined for XDF::FieldRelation.
 =over 4
 
 =item getFieldIdRefs (EMPTY)
 
-
+ 
 
 =item setFieldIdRefs ($value)
 
-Set the fieldIdRefs attribute. 
+Set the fieldIdRefs attribute.  
 
 =item getRole (EMPTY)
 
-
+ 
 
 =item setRole ($value)
 
-Set the role attribute. 
+Set the role attribute.  
 
 =item getXMLAttributes (EMPTY)
 
-This method returns the XMLAttributes of this class. 
+This method returns the XMLAttributes of this class.  
 
 =item getRelatedFieldIdRefs (EMPTY)
 
-Convience method which returns an array of related fieldIdRefs.    
+Convience method which returns an array of related fieldIdRefs.     
 
 =back
 
@@ -453,7 +232,7 @@ A change in the value of these attributes will change the functioning of ALL ins
 =over 4
 
 The following class attribute methods are inherited from L<XDF::BaseObject>:
-B<Pretty_XDF_Output>, B<Pretty_XDF_Output_Indentation>, B<DefaultDataArraySize>.
+B<Pretty_XDF_Output>, B<Pretty_XDF_Output_Indentation>, B<DefaultDataArraySize>. 
 
 =back
 
@@ -461,14 +240,14 @@ B<Pretty_XDF_Output>, B<Pretty_XDF_Output_Indentation>, B<DefaultDataArraySize>.
 
 =over 4
 
-=head2 INHERITED Other Methods
+=head2 INHERITED INSTANCE Methods
 
 
 
 =over 4
 
 XDF::FieldRelation inherits the following instance methods of L<XDF::GenericObject>:
-B<new>, B<clone>, B<update>.
+B<new>, B<clone>, B<update>. 
 
 =back
 
@@ -477,20 +256,18 @@ B<new>, B<clone>, B<update>.
 =over 4
 
 XDF::FieldRelation inherits the following instance methods of L<XDF::BaseObject>:
-B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLAttributes>, B<setXMLNotationHash>, B<toXMLFileHandle>, B<toXMLFile>.
-
-=back
+B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLAttributes>, B<setXMLNotationHash>, B<toXMLFileHandle>, B<toXMLFile>. 
 
 =back
 
 =head1 SEE ALSO
 
-L<XDF::BaseObject>
+L<XDF::BaseObject> 
 
 =back
 
 =head1 AUTHOR
 
-
+ 
 
 =cut

@@ -194,6 +194,10 @@ sub _sprintfNotation {
 # Modification History
 #
 # $Log$
+# Revision 1.9  2001/03/14 21:32:35  thomas
+# Updated perldoc section using new version of
+# makeDoc.pl.
+#
 # Revision 1.8  2001/02/15 18:27:37  thomas
 # removed fortranNotation from class.
 #
@@ -248,6 +252,8 @@ XDF::StringDataFormat - Perl Class for StringDataFormat
 XDF::StringDataFormat inherits class and attribute methods of L<XDF::GenericObject>, L<XDF::DataFormat>, L<XDF::BaseObject>.
 
 
+=head1 METHODS
+
 =over 4
 
 =head2 CLASS Methods
@@ -266,229 +272,30 @@ This method returns a list containing the namesof the attributes of this class. 
 
 =back
 
-=head2 ATTRIBUTE Methods
+=head2 INSTANCE Methods
 
-These methods set the requested attribute if an argument is supplied to the method. Whether or not an argument is supplied the current value of the attribute is always returned. Values of these methods are always SCALAR (may be number, string, or reference).
-
-=over 4
-
-=item # add in class XML attributes
-
- 
-
-=item push @Class_Attributes, @Class_XML_Attributes;
-
- 
-
-=item # /** length
-
- 
-
-=item # The width of this string field in characters.
-
- 
-
-=item # Normally this translates to the number of bytes the object holds,
-
- 
-
-=item # however, note that the encoding of the data is important. When
-
- 
-
-=item # the encoding is UTF-16, then the number of bytes effectively is 2x $obj->length.
-
- 
-
-=item # */
-
- 
-
-=item # add in super class attributes
-
- 
-
-=item push @Class_Attributes, @{&XDF::DataFormat::classAttributes};
-
- 
-
-=item push @Class_XML_Attributes, @{&XDF::DataFormat::getXMLAttributes};
-
- 
-
-=item # Something specific to Perl
-
- 
-
-=item my $Perl_Sprintf_Field_String = 's';
-
- 
-
-=item my $Perl_Regex_Field_String = '.';
-
- 
-
-=item # Initalization
-
- 
-
-=item # set up object attributes.
-
- 
-
-=item for my $attr ( @Class_Attributes ) { $field{$attr}++; }
-
- 
-
-=item # /** classXMLNodeName
-
- 
-
-=item # This method returns the class XML node name.
-
- 
-
-=item # This method takes no arguments may not be changed. 
-
- 
-
-=item # */
-
- 
-
-=item sub classXMLNodeName {
-
- 
-
-=item }
-
- 
-
-=item # /** classAttributes
-
- 
-
-=item #  This method returns a list containing the names
-
- 
-
-=item #  of the attributes of this class.
-
- 
-
-=item #  This method takes no arguments may not be changed. 
-
- 
-
-=item # */
-
- 
-
-=item sub classAttributes {
-
- 
-
-=item }
-
- 
-
-=item #
-
- 
-
-=item # Get/Set Methods
-
- 
-
-=item #
-
- 
-
-=item # /** getLength
-
- 
-
-=item # */
-
- 
-
-=item sub getLength {
-
- 
-
-=item return $self->{Length};
-
- 
-
-=item }
-
- 
-
-=item # /** setLength
-
- 
-
-=item #     Set the length attribute. 
-
- 
-
-=item # */
-
- 
-
-=item sub setLength {
-
- 
-
-=item $self->{Length} = $value;
-
- 
-
-=item }
-
- 
-
-=item # /** numOfBytes
-
- 
-
-=item # A convenience method.
-
- 
-
-=item # Return the number of bytes this XDF::StringDataFormat holds.
-
- 
-
-=item # */
-
- 
-
-=item sub numOfBytes {
-
- 
-
-=back
-
-=head2 OTHER Methods
-
+The following instance methods are defined for XDF::StringDataFormat.
 =over 4
 
 =item getLength (EMPTY)
 
-
+ 
 
 =item setLength ($value)
 
-Set the length attribute. 
+Set the length attribute.  
 
 =item numOfBytes (EMPTY)
 
-A convenience method. Return the number of bytes this XDF::StringDataFormat holds. 
+A convenience method. Return the number of bytes this XDF::StringDataFormat holds.  
 
 =item getXMLAttributes (EMPTY)
 
-This method returns the XMLAttributes of this class. 
+This method returns the XMLAttributes of this class.  
+
+=item fortranNotation (EMPTY)
+
+The fortran style notation for this object.  
 
 =back
 
@@ -502,7 +309,7 @@ A change in the value of these attributes will change the functioning of ALL ins
 =over 4
 
 The following class attribute methods are inherited from L<XDF::BaseObject>:
-B<Pretty_XDF_Output>, B<Pretty_XDF_Output_Indentation>, B<DefaultDataArraySize>.
+B<Pretty_XDF_Output>, B<Pretty_XDF_Output_Indentation>, B<DefaultDataArraySize>. 
 
 =back
 
@@ -510,14 +317,14 @@ B<Pretty_XDF_Output>, B<Pretty_XDF_Output_Indentation>, B<DefaultDataArraySize>.
 
 =over 4
 
-=head2 INHERITED Other Methods
+=head2 INHERITED INSTANCE Methods
 
 
 
 =over 4
 
 XDF::StringDataFormat inherits the following instance methods of L<XDF::GenericObject>:
-B<new>, B<clone>, B<update>.
+B<new>, B<clone>, B<update>. 
 
 =back
 
@@ -526,7 +333,7 @@ B<new>, B<clone>, B<update>.
 =over 4
 
 XDF::StringDataFormat inherits the following instance methods of L<XDF::DataFormat>:
-B<getLessThanValue>, B<setLessThanValue>, B<getLessThanOrEqualValue>, B<setLessThanOrEqualValue>, B<getGreaterThanValue>, B<setGreaterThanValue>, B<getGreaterThanOrEqualValue>, B<setGreaterThanOrEqualValue>, B<getInfiniteValue>, B<setInfiniteValue>, B<getInfiniteNegativeValue>, B<setInfiniteNegativeValue>, B<getNoDataValue>, B<setNoDataValue>, B<toXMLFileHandle>.
+B<toXMLFileHandle>. 
 
 =back
 
@@ -535,15 +342,13 @@ B<getLessThanValue>, B<setLessThanValue>, B<getLessThanOrEqualValue>, B<setLessT
 =over 4
 
 XDF::StringDataFormat inherits the following instance methods of L<XDF::BaseObject>:
-B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLAttributes>, B<setXMLNotationHash>, B<toXMLFile>.
-
-=back
+B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLAttributes>, B<setXMLNotationHash>, B<toXMLFile>. 
 
 =back
 
 =head1 SEE ALSO
 
-L<XDF::DataFormat>
+L<XDF::DataFormat> 
 
 =back
 
@@ -552,6 +357,6 @@ L<XDF::DataFormat>
     Brian Thomas  (thomas@adc.gsfc.nasa.gov)
     Astronomical Data Center <http://adc.gsfc.nasa.gov>
     NASA/Goddard Space Flight Center
-
+ 
 
 =cut

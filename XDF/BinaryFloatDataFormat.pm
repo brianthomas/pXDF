@@ -262,6 +262,10 @@ sub _sprintfNotation {
 # Modification History
 #
 # $Log$
+# Revision 1.14  2001/03/14 21:32:34  thomas
+# Updated perldoc section using new version of
+# makeDoc.pl.
+#
 # Revision 1.13  2001/03/14 21:30:01  thomas
 # Removed extraneous debugging line.
 #
@@ -338,6 +342,8 @@ XDF::BinaryFloatDataFormat - Perl Class for BinaryFloatDataFormat
 XDF::BinaryFloatDataFormat inherits class and attribute methods of L<XDF::GenericObject>, L<XDF::DataFormat>, L<XDF::BaseObject>.
 
 
+=head1 METHODS
+
 =over 4
 
 =head2 CLASS Methods
@@ -356,45 +362,34 @@ This method returns a list containing the namesof the attributes of this class. 
 
 =back
 
-=head2 ATTRIBUTE Methods
+=head2 INSTANCE Methods
 
-These methods set the requested attribute if an argument is supplied to the method. Whether or not an argument is supplied the current value of the attribute is always returned. Values of these methods are always SCALAR (may be number, string, or reference).
-
-=over 4
-
-=item bits
-
-The number of bits this XDF::BinaryFloatDataFormat holds.  
-
-=back
-
-=head2 OTHER Methods
-
+The following instance methods are defined for XDF::BinaryFloatDataFormat.
 =over 4
 
 =item getBits (EMPTY)
 
-
+ 
 
 =item setBits ($value)
 
-Set the (number of) bits attribute. 
+Set the (number of) bits attribute.  
 
 =item numOfBytes (EMPTY)
 
-A convenience method. Return the number of bytes this XDF::BinaryFloatDataFormat holds. 
+A convenience method. Return the number of bytes this XDF::BinaryFloatDataFormat holds.  
 
 =item getXMLAttributes (EMPTY)
 
-This method returns the XMLAttributes of this class. 
+This method returns the XMLAttributes of this class.  
 
 =item convertBitStringToFloatBits ($dataEndian, $bitString)
 
-Convert the string representation of bits into the binaryfloat bits as specified by an instance of the BinaryFloatDataFormat object. The desired endianness of the output data bits must be supplied. The actual float bits are returned. 
+Convert the string representation of bits into the binaryfloat bits as specified by an instance of the BinaryFloatDataFormat object. The desired endianness of the output data bits must be supplied. The actual float bits are returned.  
 
 =item convertFloatToFloatBits ($dataEndian, $floatValue)
 
-Convert the passed number into binary float bits as specified by the instance of a BinaryFloatDataFormat object. The desired endianness of the output data bits must be supplied. The resulting float bits of the transform are returned. @ Note 1: An implicit assumption of this method is that the native formatconforms to the IEEE-Standard for Binary Floating Point Arithmetic. Both big and little endian platforms are supported, but if a machinedeviates from IEEE, garbage will be created. @ Note 2: 32 bit machines are implicitly supported. This algorthim may fail on 64 bit machines. @ Note 3: Perl stores all floating point as double precision. Using the32 bit size will result in a rounding of the value (and subsequent lossof information). Use 64 bit binary floats for data integrity when usingthe Perl XDF package.  
+Convert the passed number into binary float bits as specified by the instance of a BinaryFloatDataFormat object. The desired endianness of the output data bits must be supplied. The resulting float bits of the transform are returned. @ Note 1: An implicit assumption of this method is that the native formatconforms to the IEEE-Standard for Binary Floating Point Arithmetic. Both big and little endian platforms are supported, but if a machinedeviates from IEEE, garbage will be created. @ Note 2: 32 bit machines are implicitly supported. This algorthim may fail on 64 bit machines. @ Note 3: Perl stores all floating point as double precision. Using the32 bit size will result in a rounding of the value (and subsequent lossof information). Use 64 bit binary floats for data integrity when usingthe Perl XDF package.   
 
 =back
 
@@ -408,7 +403,7 @@ A change in the value of these attributes will change the functioning of ALL ins
 =over 4
 
 The following class attribute methods are inherited from L<XDF::BaseObject>:
-B<Pretty_XDF_Output>, B<Pretty_XDF_Output_Indentation>, B<DefaultDataArraySize>.
+B<Pretty_XDF_Output>, B<Pretty_XDF_Output_Indentation>, B<DefaultDataArraySize>. 
 
 =back
 
@@ -416,14 +411,14 @@ B<Pretty_XDF_Output>, B<Pretty_XDF_Output_Indentation>, B<DefaultDataArraySize>.
 
 =over 4
 
-=head2 INHERITED Other Methods
+=head2 INHERITED INSTANCE Methods
 
 
 
 =over 4
 
 XDF::BinaryFloatDataFormat inherits the following instance methods of L<XDF::GenericObject>:
-B<new>, B<clone>, B<update>.
+B<new>, B<clone>, B<update>. 
 
 =back
 
@@ -432,7 +427,7 @@ B<new>, B<clone>, B<update>.
 =over 4
 
 XDF::BinaryFloatDataFormat inherits the following instance methods of L<XDF::DataFormat>:
-B<toXMLFileHandle>.
+B<toXMLFileHandle>. 
 
 =back
 
@@ -441,15 +436,13 @@ B<toXMLFileHandle>.
 =over 4
 
 XDF::BinaryFloatDataFormat inherits the following instance methods of L<XDF::BaseObject>:
-B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLAttributes>, B<setXMLNotationHash>, B<toXMLFile>.
-
-=back
+B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLAttributes>, B<setXMLNotationHash>, B<toXMLFile>. 
 
 =back
 
 =head1 SEE ALSO
 
-L<XDF::Utility>, L<XDF::DataFormat>
+L<XDF::Utility>, L<XDF::DataFormat> 
 
 =back
 
@@ -458,6 +451,6 @@ L<XDF::Utility>, L<XDF::DataFormat>
     Brian Thomas  (thomas@adc.gsfc.nasa.gov)
     Astronomical Data Center <http://adc.gsfc.nasa.gov>
     NASA/Goddard Space Flight Center
-
+ 
 
 =cut

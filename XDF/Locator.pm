@@ -349,6 +349,10 @@ sub _init {
 # Modification History
 #
 # $Log$
+# Revision 1.10  2001/03/14 21:32:34  thomas
+# Updated perldoc section using new version of
+# makeDoc.pl.
+#
 # Revision 1.9  2001/03/14 16:12:04  thomas
 # re-enabled setAxisIndexByAxisValue. added the java
 # method getAxisValue.
@@ -412,55 +416,66 @@ XDF::Locator - Perl Class for Locator
 XDF::Locator inherits class and attribute methods of L<XDF::GenericObject>.
 
 
+=head1 METHODS
+
 =over 4
 
-=head2 OTHER Methods
+=head2 INSTANCE Methods
 
+The following instance methods are defined for XDF::Locator.
 =over 4
 
 =item new ($parentArray)
 
-
+ 
 
 =item setAxisIndex ($index, $axisObjOrAxisId)
 
-
+ 
 
 =item getAxisIndex ($axisObj)
 
+ 
 
+=item getAxisValue ($axisObj)
+
+Returns the current axis value if successful, null if no such Axis exists in this locator.  
 
 =item getAxisIndices (EMPTY)
 
-
+Returns a list of the current indices (present locator position in the dataCube) arranged in the axis iteration order.  
 
 =item getIterationOrder (EMPTY)
 
-
+ 
 
 =item setIterationOrder ($axisOrderListRef)
 
-This will also result in a resetting the current (axis) indices to the originlocation. The last axis is considered the 'fastest' axis in the traversal. 
+This will also result in a resetting the current (axis) indices to the originlocation. The last axis is considered the 'fastest' axis in the traversal.  
+
+=item setAxisIndexByAxisValue ($axisValueOrValueObj, $axisObj)
+
+Set the index of an axis to the index of a valuealong that axis 
 
 =item hasNext (EMPTY)
 
-
+ 
 
 =item next (EMPTY)
 
-Change the locator coordinates to the next datacell asdetermined from the locator iteration order. Returns '0' if it must cycle back to the first datacellto set a new 'next' location. 
+Change the locator coordinates to the next datacell asdetermined from the locator iteration order. Returns '0' if it must cycle back to the first datacellto set a new 'next' location.  
 
 =item prev (EMPTY)
 
-Change the locator coordinates to the previous datacell asdetermined from the locator iteration order. Returns '0' if it must cycle to the last datacell. 
+Change the locator coordinates to the previous datacell asdetermined from the locator iteration order. Returns '0' if it must cycle to the last datacell.  
 
 =item reset (EMPTY)
 
-Reset the locator to the origin. 
+Reset the locator to the origin.  
 
 =item toXMLFileHandle (EMPTY)
 
-
+ 
 
 =back
 
@@ -473,22 +488,20 @@ A change in the value of these attributes will change the functioning of ALL ins
 
 =over 4
 
-=head2 INHERITED Other Methods
+=head2 INHERITED INSTANCE Methods
 
 
 
 =over 4
 
 XDF::Locator inherits the following instance methods of L<XDF::GenericObject>:
-B<clone>, B<update>.
-
-=back
+B<clone>, B<update>. 
 
 =back
 
 =head1 SEE ALSO
 
-L<XDF::GenericObject>
+L<XDF::GenericObject> 
 
 =back
 
@@ -497,6 +510,6 @@ L<XDF::GenericObject>
     Brian Thomas  (thomas@adc.gsfc.nasa.gov)
     Astronomical Data Center <http://adc.gsfc.nasa.gov>
     NASA/Goddard Space Flight Center
-
+ 
 
 =cut

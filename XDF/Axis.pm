@@ -545,6 +545,10 @@ sub _init {
 # Modification History
 #
 # $Log$
+# Revision 1.8  2001/03/14 21:32:33  thomas
+# Updated perldoc section using new version of
+# makeDoc.pl.
+#
 # Revision 1.7  2001/03/14 16:09:37  thomas
 # getIndexFromAxisValue method now returns -1 if it cant find
 # the corresponding index (as per Java method). Also, will take
@@ -614,6 +618,8 @@ XDF::Axis - Perl Class for Axis
 XDF::Axis inherits class and attribute methods of L<XDF::GenericObject>, L<XDF::BaseObject>.
 
 
+=head1 METHODS
+
 =over 4
 
 =head2 CLASS Methods
@@ -632,125 +638,126 @@ This method returns a list reference containing the namesof the class attributes
 
 =back
 
-=head2 OTHER Methods
+=head2 INSTANCE Methods
 
+The following instance methods are defined for XDF::Axis.
 =over 4
 
 =item getName (EMPTY)
 
-
+ 
 
 =item setName ($value)
 
-Set the name attribute. 
+Set the name attribute.  
 
 =item getDescription (EMPTY)
 
-
+ 
 
 =item setDescription ($value)
 
-
+ 
 
 =item getAxisDatatype (EMPTY)
 
-
+ 
 
 =item setAxisDatatype ($value)
 
-Set the axisDatatype attribute. 
+Set the axisDatatype attribute.  
 
 =item getAxisUnits (EMPTY)
 
-
+ 
 
 =item setAxisUnits ($value)
 
-Set the axisUnits attribute. 
+Set the axisUnits attribute.  
 
 =item getAxisId (EMPTY)
 
-
+ 
 
 =item setAxisId ($value)
 
-Set the axisId attribute. 
+Set the axisId attribute.  
 
 =item getAxisIdRef (EMPTY)
 
-
+ 
 
 =item setAxisIdRef ($value)
 
-Set the axisIdRef attribute. 
+Set the axisIdRef attribute.  
 
 =item getAlign (EMPTY)
 
-
+ 
 
 =item setAlign ($value)
 
-Set the align attribute. 
+Set the align attribute.  
 
 =item getValueList (EMPTY)
 
-
+ 
 
 =item setValueList ($arrayRefValue)
 
-
+ 
 
 =item getXMLAttributes (EMPTY)
 
-This method returns the XMLAttributes of this class. 
+This method returns the XMLAttributes of this class.  
 
 =item getLength (EMPTY)
 
-Get the length of this axis (eg number of axis value objects) 
+Get the length of this axis (eg number of axis value objects)  
 
 =item addAxisValue ($value)
 
-Add an XDF::AxisValue object to this axis. 
+Add an XDF::AxisValue object to this axis.  
 
 =item setAxisValue ($valueOrValueObjRef, $index)
 
-Set the value of this axis at the given index. 
+Set the value of this axis at the given index.  
 
 =item addAxisUnitDirection ($attribHashRef)
 
-Add an XDF::UnitDirection object to this axis. 
+Add an XDF::UnitDirection object to this axis.  
 
 =item removeAxisValue ($what)
 
-Remove either an XDF::Value or XDF::UnitDirection object from this axis. $what may either be an index value or object reference. 
+Remove either an XDF::Value or XDF::UnitDirection object from this axis. $what may either be an index value or object reference.  
 
 =item getAxisValue ($index)
 
-Returns the axis XDF::Value object at the specified index. 
+Returns the axis XDF::Value object at the specified index.  
 
 =item getAxisValues (EMPTY)
 
-This is a convenience method which returns all of the values (as strings) on this axis. 
+This is a convenience method which returns all of the values (as strings) on this axis.  
 
 =item addUnit (EMPTY)
 
-Add an XDF::Unit object to the XDF::Units object contained in this axis. 
+Add an XDF::Unit object to the XDF::Units object contained in this axis.  
 
 =item removeUnit ($indexOrObjectRef)
 
-Remove an XDF::Unit object from the XDF::Units object contained in this axis. 
+Remove an XDF::Unit object from the XDF::Units object contained in this axis.  
 
 =item addValueGroup ($attribHashRefOrObjectRef)
 
-Insert a ValueGroup object into this object to group the axisValues. 
+Insert a ValueGroup object into this object to group the axisValues.  
 
 =item removeValueGroup ($hashKey)
 
-Remove a ValueGroup object from this object 
+Remove a ValueGroup object from this object  
 
-=item getIndexFromAxisValue ($value)
+=item getIndexFromAxisValue ($valueOrValueObj)
 
-
+Return the axis index for the given (scalar) value. Does not currently work for unitDirection objects that resideon an axis. Returns -1 if it cant find an index for the given value.  
 
 =back
 
@@ -764,7 +771,7 @@ A change in the value of these attributes will change the functioning of ALL ins
 =over 4
 
 The following class attribute methods are inherited from L<XDF::BaseObject>:
-B<Pretty_XDF_Output>, B<Pretty_XDF_Output_Indentation>, B<DefaultDataArraySize>.
+B<Pretty_XDF_Output>, B<Pretty_XDF_Output_Indentation>, B<DefaultDataArraySize>. 
 
 =back
 
@@ -772,14 +779,14 @@ B<Pretty_XDF_Output>, B<Pretty_XDF_Output_Indentation>, B<DefaultDataArraySize>.
 
 =over 4
 
-=head2 INHERITED Other Methods
+=head2 INHERITED INSTANCE Methods
 
 
 
 =over 4
 
 XDF::Axis inherits the following instance methods of L<XDF::GenericObject>:
-B<new>, B<clone>, B<update>.
+B<new>, B<clone>, B<update>. 
 
 =back
 
@@ -788,15 +795,13 @@ B<new>, B<clone>, B<update>.
 =over 4
 
 XDF::Axis inherits the following instance methods of L<XDF::BaseObject>:
-B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLAttributes>, B<setXMLNotationHash>, B<toXMLFileHandle>, B<toXMLFile>.
-
-=back
+B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLAttributes>, B<setXMLNotationHash>, B<toXMLFileHandle>, B<toXMLFile>. 
 
 =back
 
 =head1 SEE ALSO
 
-L<XDF::BaseObject>, L<XDF::UnitDirection>, L<XDF::ValueGroup>, L<XDF::Units>, L<XDF::Value>
+L<XDF::BaseObject>, L<XDF::UnitDirection>, L<XDF::ValueGroup>, L<XDF::Units>, L<XDF::Utility>, L<XDF::Value> 
 
 =back
 
@@ -805,6 +810,6 @@ L<XDF::BaseObject>, L<XDF::UnitDirection>, L<XDF::ValueGroup>, L<XDF::Units>, L<
     Brian Thomas  (thomas@adc.gsfc.nasa.gov)
     Astronomical Data Center <http://adc.gsfc.nasa.gov>
     NASA/Goddard Space Flight Center
-
+ 
 
 =cut

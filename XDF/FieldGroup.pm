@@ -138,6 +138,10 @@ sub AUTOLOAD {
 # Modification History
 #
 # $Log$
+# Revision 1.6  2001/03/14 21:32:34  thomas
+# Updated perldoc section using new version of
+# makeDoc.pl.
+#
 # Revision 1.5  2000/12/15 22:11:59  thomas
 # Regenerated perlDoc section in files. -b.t.
 #
@@ -181,6 +185,8 @@ XDF::FieldGroup - Perl Class for FieldGroup
 XDF::FieldGroup inherits class and attribute methods of L<XDF::GenericObject>, L<XDF::BaseObject>, L<XDF::Group>.
 
 
+=head1 METHODS
+
 =over 4
 
 =head2 CLASS Methods
@@ -199,189 +205,22 @@ This method returns a list reference containing the namesof the class attributes
 
 =back
 
-=head2 ATTRIBUTE Methods
+=head2 INSTANCE Methods
 
-These methods set the requested attribute if an argument is supplied to the method. Whether or not an argument is supplied the current value of the attribute is always returned. Values of these methods are always SCALAR (may be number, string, or reference).
-
-=over 4
-
-=item # add in super class attributes
-
- 
-
-=item push @Class_Attributes, @{&XDF::Group::classAttributes};
-
- 
-
-=item push @Class_XML_Attributes, @{&XDF::Group::getXMLAttributes};
-
- 
-
-=item # /** classXMLNodeName
-
- 
-
-=item # This method returns the class node name for XDF::FieldGroup; 
-
- 
-
-=item # This method takes no arguments may not be changed. 
-
- 
-
-=item # */
-
- 
-
-=item sub classXMLNodeName {
-
- 
-
-=item }
-
- 
-
-=item # /** classAttributes
-
- 
-
-=item #  This method returns a list reference containing the names
-
- 
-
-=item #  of the class attributes for XDF::FieldGroup; 
-
- 
-
-=item #  This method takes no arguments may not be changed. 
-
- 
-
-=item # */
-
- 
-
-=item sub classAttributes {
-
- 
-
-=item }
-
- 
-
-=item # Initalization
-
- 
-
-=item # set up object attributes.
-
- 
-
-=item for my $attr ( @Class_Attributes ) { $field{$attr}++; }
-
- 
-
-=item #
-
- 
-
-=item # Get/Set Methods
-
- 
-
-=item #
-
- 
-
-=item # /** getXMLAttributes
-
- 
-
-=item #      This method returns the XMLAttributes of this class. 
-
- 
-
-=item #  */
-
- 
-
-=item sub getXMLAttributes { 
-
- 
-
-=item }
-
- 
-
-=item #
-
- 
-
-=item # Other Public Methods
-
- 
-
-=item #
-
- 
-
-=item # /** addFieldGroup 
-
- 
-
-=item # Convenience method.
-
- 
-
-=item # Insert a field group object into this object.
-
- 
-
-=item # */ 
-
- 
-
-=item sub addFieldGroup {
-
- 
-
-=item return unless defined $info && ref $info;
-
- 
-
-=item my $groupObj;
-
- 
-
-=item if ($info =~ m/XDF::FieldGroup/) {
-
- 
-
-=item $groupObj = $info;
-
- 
-
-=item } else {
-
- 
-
-=back
-
-=head2 OTHER Methods
-
+The following instance methods are defined for XDF::FieldGroup.
 =over 4
 
 =item getXMLAttributes (EMPTY)
 
-This method returns the XMLAttributes of this class. 
+This method returns the XMLAttributes of this class.  
 
 =item addFieldGroup ($info)
 
-Convenience method. Insert a field group object into this object. 
+Convenience method. Insert a field group object into this object.  
 
 =item removeFieldGroup ($obj)
 
-Convenience method. Removes a field group object from this object. 
+Convenience method. Removes a field group object from this object.  
 
 =back
 
@@ -395,7 +234,7 @@ A change in the value of these attributes will change the functioning of ALL ins
 =over 4
 
 The following class attribute methods are inherited from L<XDF::BaseObject>:
-B<Pretty_XDF_Output>, B<Pretty_XDF_Output_Indentation>, B<DefaultDataArraySize>.
+B<Pretty_XDF_Output>, B<Pretty_XDF_Output_Indentation>, B<DefaultDataArraySize>. 
 
 =back
 
@@ -403,14 +242,14 @@ B<Pretty_XDF_Output>, B<Pretty_XDF_Output_Indentation>, B<DefaultDataArraySize>.
 
 =over 4
 
-=head2 INHERITED Other Methods
+=head2 INHERITED INSTANCE Methods
 
 
 
 =over 4
 
 XDF::FieldGroup inherits the following instance methods of L<XDF::GenericObject>:
-B<new>, B<clone>, B<update>.
+B<new>, B<clone>, B<update>. 
 
 =back
 
@@ -419,7 +258,7 @@ B<new>, B<clone>, B<update>.
 =over 4
 
 XDF::FieldGroup inherits the following instance methods of L<XDF::BaseObject>:
-B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLAttributes>, B<setXMLNotationHash>, B<toXMLFileHandle>, B<toXMLFile>.
+B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLAttributes>, B<setXMLNotationHash>, B<toXMLFileHandle>, B<toXMLFile>. 
 
 =back
 
@@ -428,15 +267,13 @@ B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLAttributes>, B<setX
 =over 4
 
 XDF::FieldGroup inherits the following instance methods of L<XDF::Group>:
-B<getName>, B<setName>, B<getDescription>, B<setDescription>, B<addMemberObject>, B<removeMemberObject>, B<hasMemberObj>.
-
-=back
+B<getName>, B<setName>, B<getDescription>, B<setDescription>, B<addMemberObject>, B<removeMemberObject>, B<hasMemberObj>. 
 
 =back
 
 =head1 SEE ALSO
 
-L< XDF::Field>, L< XDF::ParameterGroup>, L< XDF::ValueGroup>, L<XDF::Group>
+L< XDF::Field>, L< XDF::ParameterGroup>, L< XDF::ValueGroup>, L<XDF::Group> 
 
 =back
 
@@ -445,6 +282,6 @@ L< XDF::Field>, L< XDF::ParameterGroup>, L< XDF::ValueGroup>, L<XDF::Group>
     Brian Thomas  (thomas@adc.gsfc.nasa.gov)
     Astronomical Data Center <http://adc.gsfc.nasa.gov>
     NASA/Goddard Space Flight Center
-
+ 
 
 =cut

@@ -221,6 +221,10 @@ sub _init {
 # Modification History
 #
 # $Log$
+# Revision 1.8  2001/03/14 21:32:35  thomas
+# Updated perldoc section using new version of
+# makeDoc.pl.
+#
 # Revision 1.7  2001/03/09 21:44:57  thomas
 # removed getBigEndian, getLittleEndian methods.
 # Right way to do it is via Constants class, as it
@@ -274,6 +278,8 @@ XDF::XMLDataIOStyle - Perl Class for XMLDataIOStyle
 XDF::XMLDataIOStyle inherits class and attribute methods of L<XDF::GenericObject>, L<XDF::BaseObject>.
 
 
+=head1 METHODS
+
 =over 4
 
 =head2 CLASS Methods
@@ -292,49 +298,50 @@ This method returns a list reference containing the namesof the class attributes
 
 =back
 
-=head2 OTHER Methods
+=head2 INSTANCE Methods
 
+The following instance methods are defined for XDF::XMLDataIOStyle.
 =over 4
 
 =item untaggedInstructionNodeName (EMPTY)
 
-
+ 
 
 =item getReadId{ (EMPTY)
 
-
+ 
 
 =item setReadId ($value)
 
-Set the readId attribute. 
+Set the readId attribute.  
 
 =item getReadIdRef (EMPTY)
 
-
+ 
 
 =item setReadIdRef ($value)
 
-Set the readIdRef attribute. 
+Set the readIdRef attribute.  
 
 =item getEncoding{ (EMPTY)
 
-
+ 
 
 =item setEncoding ($value)
 
-Set the encoding attribute. 
+Set the encoding attribute.  
 
 =item getEndian{ (EMPTY)
 
-
+ 
 
 =item setEndian ($value)
 
-Set the endian attribute. 
+Set the endian attribute.  
 
 =item getXMLAttributes (EMPTY)
 
-This method returns the XMLAttributes of this class. 
+This method returns the XMLAttributes of this class.  
 
 =back
 
@@ -348,7 +355,7 @@ A change in the value of these attributes will change the functioning of ALL ins
 =over 4
 
 The following class attribute methods are inherited from L<XDF::BaseObject>:
-B<Pretty_XDF_Output>, B<Pretty_XDF_Output_Indentation>, B<DefaultDataArraySize>.
+B<Pretty_XDF_Output>, B<Pretty_XDF_Output_Indentation>, B<DefaultDataArraySize>. 
 
 =back
 
@@ -356,14 +363,14 @@ B<Pretty_XDF_Output>, B<Pretty_XDF_Output_Indentation>, B<DefaultDataArraySize>.
 
 =over 4
 
-=head2 INHERITED Other Methods
+=head2 INHERITED INSTANCE Methods
 
 
 
 =over 4
 
 XDF::XMLDataIOStyle inherits the following instance methods of L<XDF::GenericObject>:
-B<new>, B<clone>, B<update>.
+B<new>, B<clone>, B<update>. 
 
 =back
 
@@ -372,15 +379,13 @@ B<new>, B<clone>, B<update>.
 =over 4
 
 XDF::XMLDataIOStyle inherits the following instance methods of L<XDF::BaseObject>:
-B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLAttributes>, B<setXMLNotationHash>, B<toXMLFileHandle>, B<toXMLFile>.
-
-=back
+B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLAttributes>, B<setXMLNotationHash>, B<toXMLFileHandle>, B<toXMLFile>. 
 
 =back
 
 =head1 SEE ALSO
 
-L< XDF::TaggedXMLDataIOStyle>, L< XDF::FormattedXMLDataIOStyle>, L< XDF::DelimitedXMLDataIOStyle>, L<XDF::BaseObject>
+L< XDF::TaggedXMLDataIOStyle>, L< XDF::FormattedXMLDataIOStyle>, L< XDF::DelimitedXMLDataIOStyle>, L<XDF::BaseObject> 
 
 =back
 
@@ -389,6 +394,6 @@ L< XDF::TaggedXMLDataIOStyle>, L< XDF::FormattedXMLDataIOStyle>, L< XDF::Delimit
     Brian Thomas  (thomas@adc.gsfc.nasa.gov)
     Astronomical Data Center <http://adc.gsfc.nasa.gov>
     NASA/Goddard Space Flight Center
-
+ 
 
 =cut

@@ -589,6 +589,10 @@ sub _find_All_child_Href_Objects {
 # Modification History
 #
 # $Log$
+# Revision 1.7  2001/03/14 21:32:33  thomas
+# Updated perldoc section using new version of
+# makeDoc.pl.
+#
 # Revision 1.6  2001/03/14 21:29:45  thomas
 # Minor documentation change.
 #
@@ -646,6 +650,8 @@ XDF::BaseObject - Perl Class for BaseObject
 XDF::BaseObject inherits class and attribute methods of L<XDF::GenericObject>.
 
 
+=head1 METHODS
+
 =over 4
 
 =head2 CLASS Methods
@@ -656,57 +662,58 @@ A change in the value of these class attributes will change the value for ALL in
 
 =item classAttributes (EMPTY)
 
-This method returns a list reference containing the namesof the class attributes for XDF::BaseObject;This method takes no arguments may not be changed.  
+This method returns a list reference containing the namesof the class attributes for this object;This method takes no arguments may not be changed.  
 
 =back
 
-=head2 OTHER Methods
+=head2 INSTANCE Methods
 
+The following instance methods are defined for XDF::BaseObject.
 =over 4
 
 =item getXMLAttributes (EMPTY)
 
-
+ 
 
 =item addToGroup ($groupObj)
 
-Add this object as a member of a group. 
+Add this object as a member of a group.  
 
 =item removeFromGroup ($groupObj)
 
-Remove this object from membership in a group. 
+Remove this object from membership in a group.  
 
 =item isGroupMember ($groupObj)
 
-Determine if this object is a member of the reference Group object. Returns 1 if true, undef if false. 
+Determine if this object is a member of the reference Group object. Returns 1 if true, undef if false.  
 
 =item setXMLAttributes ($attribHashRef)
 
-Set the XML attributes of this object using a passed Hashtable ref. 
+Set the XML attributes of this object using a passed Hashtable ref.  
 
 =item setXMLNotationHash ($attribHashRef)
 
-Set the baseobject class field NotationHash. This will be printed out with other XMLDeclarations in a toXMLFileHandle call. 
+Set the baseobject class field NotationHash. This will be printed out with other XMLDeclarations in a toXMLFileHandle call.  
 
 =item Pretty_XDF_Output ($value)
 
-If a non-zero value is supplied then pretty XDF output format will be used when the toXMLFileHandle/toXMLFile methods are called. @The default setting is 0. 
+If a non-zero value is supplied then pretty XDF output format will be used when the toXMLFileHandle/toXMLFile methods are called. @The default setting is 0.  
 
 =item Pretty_XDF_Output_Indentation ($value)
 
-This sets value of the indentation to use if pretty XDF output format is turned on. @The default setting is 2 spaces. 
+This sets value of the indentation to use if pretty XDF output format is turned on. @The default setting is 2 spaces.  
 
 =item DefaultDataArraySize ($value)
 
-
+ 
 
 =item toXMLFileHandle (EMPTY)
 
-Write this structure and all the objects it owns to the supplied filehandle in XML (XDF) format. The first argument is the name of the filehandle and is required. The second, optional, argument indicates whether/how to write out the XML declaration at the beginning of the file. This second argument may either be a string or hash table. As a string is means simply to write the XML declaration and DOCTYPE. As a hash table, the attributes of the XML declaration are arranged in attribute/value pairs, e.g. %XMLDeclAttribs = ( 'version' => "1.0",'standalone => 'no',);
+Write this structure and all the objects it owns to the supplied filehandle in XML (XDF) format. The first argument is the name of the filehandle and is required. The second, optional, argument indicates whether/how to write out the XML declaration at the beginning of the file. This second argument may either be a string or hash table. As a string is means simply to write the XML declaration and DOCTYPE. As a hash table, the attributes of the XML declaration are arranged in attribute/value pairs, e.g. %XMLDeclAttribs = ( 'version' => "1.0",'standalone => 'no',); 
 
 =item toXMLFile ($XMLDeclAttribs, $file)
 
-This is a convenience method which allows writing of this structure and all the objects it owns to the indicated file in XML (XDF) format. The first argument is the name of the file and is required. The supplied filename will be OVERWRITTEN, not appended to. The second, optional, argument has the same meaning as for toXMLFileHandle. 
+This is a convenience method which allows writing of this structure and all the objects it owns to the indicated file in XML (XDF) format. The first argument is the name of the file and is required. The supplied filename will be OVERWRITTEN, not appended to. The second, optional, argument has the same meaning as for toXMLFileHandle.  
 
 =back
 
@@ -719,22 +726,20 @@ A change in the value of these attributes will change the functioning of ALL ins
 
 =over 4
 
-=head2 INHERITED Other Methods
+=head2 INHERITED INSTANCE Methods
 
 
 
 =over 4
 
 XDF::BaseObject inherits the following instance methods of L<XDF::GenericObject>:
-B<new>, B<clone>, B<update>.
-
-=back
+B<new>, B<clone>, B<update>. 
 
 =back
 
 =head1 SEE ALSO
 
-L< XDF::Array>, L< XDF::Axis>, L< XDF::DataCube>, L< XDF::FieldAxis>, L<XDF::GenericObject>
+L< XDF::Array>, L< XDF::Axis>, L< XDF::DataCube>, L< XDF::FieldAxis>, L<XDF::GenericObject> 
 
 =back
 
@@ -743,6 +748,6 @@ L< XDF::Array>, L< XDF::Axis>, L< XDF::DataCube>, L< XDF::FieldAxis>, L<XDF::Gen
     Brian Thomas  (thomas@adc.gsfc.nasa.gov)
     Astronomical Data Center <http://adc.gsfc.nasa.gov>
     NASA/Goddard Space Flight Center
-
+ 
 
 =cut

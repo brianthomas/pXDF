@@ -147,6 +147,10 @@ sub _sprintfNotation {
 # Modification History
 #
 # $Log$
+# Revision 1.7  2001/03/14 21:32:35  thomas
+# Updated perldoc section using new version of
+# makeDoc.pl.
+#
 # Revision 1.6  2001/02/15 17:50:30  thomas
 # changed getBytes to numOfBytes method as per
 # java API.
@@ -189,6 +193,8 @@ XDF::SkipCharFormattedIOCmd - Perl Class for SkipCharFormattedIOCmd
 XDF::SkipCharFormattedIOCmd inherits class and attribute methods of L<XDF::GenericObject>, L<XDF::FormattedIOCmd>, L<XDF::BaseObject>.
 
 
+=head1 METHODS
+
 =over 4
 
 =head2 CLASS Methods
@@ -207,253 +213,34 @@ A change in the value of these class attributes will change the value for ALL in
 
 =back
 
-=head2 ATTRIBUTE Methods
+=head2 INSTANCE Methods
 
-These methods set the requested attribute if an argument is supplied to the method. Whether or not an argument is supplied the current value of the attribute is always returned. Values of these methods are always SCALAR (may be number, string, or reference).
-
-=over 4
-
-=item # add in class XML attributes
-
- 
-
-=item push @Class_Attributes, @Class_XML_Attributes;
-
- 
-
-=item # add in super class attributes
-
- 
-
-=item push @Class_Attributes, @{&XDF::FormattedIOCmd::classAttributes};
-
- 
-
-=item push @Class_XML_Attributes, @{&XDF::FormattedIOCmd::getXMLAttributes};
-
- 
-
-=item # Initalization
-
- 
-
-=item # set up object attributes.
-
- 
-
-=item for my $attr ( @Class_Attributes ) { $field{$attr}++; }
-
- 
-
-=item sub classXMLNodeName { 
-
- 
-
-=item }
-
- 
-
-=item sub classAttributes { 
-
- 
-
-=item }
-
- 
-
-=item #
-
- 
-
-=item # Get/Set Methods
-
- 
-
-=item # 
-
- 
-
-=item # /** getCount
-
- 
-
-=item # */
-
- 
-
-=item sub getCount {
-
- 
-
-=item return $self->{Count};
-
- 
-
-=item }
-
- 
-
-=item # /** setCount
-
- 
-
-=item #     Set the count attribute. 
-
- 
-
-=item # */
-
- 
-
-=item sub setCount {
-
- 
-
-=item $self->{Count} = $value;
-
- 
-
-=item }
-
- 
-
-=item # /** getOutput
-
- 
-
-=item # */
-
- 
-
-=item sub getOutput {
-
- 
-
-=item return $self->{Output};
-
- 
-
-=item }
-
- 
-
-=item # /** setOutput
-
- 
-
-=item #     Set the output attribute. 
-
- 
-
-=item # */
-
- 
-
-=item sub setOutput {
-
- 
-
-=item $self->{Output} = $value;
-
- 
-
-=item }
-
- 
-
-=item sub numOfBytes { 
-
- 
-
-=item return $self->{Count}; 
-
- 
-
-=item }
-
- 
-
-=item # /** getXMLAttributes
-
- 
-
-=item #      This method returns the XMLAttributes of this class. 
-
- 
-
-=item #  */
-
- 
-
-=item sub getXMLAttributes {
-
- 
-
-=item }
-
- 
-
-=item #
-
- 
-
-=item # Private Methods
-
- 
-
-=item #
-
- 
-
-=item # This is called when we cant find any defined method
-
- 
-
-=item # exists already. Used to handle general purpose set/get
-
- 
-
-=item # methods for our attributes (object fields).
-
- 
-
-=item sub AUTOLOAD {
-
- 
-
-=item my ($self,$val) = @_;
-
- 
-
-=back
-
-=head2 OTHER Methods
-
+The following instance methods are defined for XDF::SkipCharFormattedIOCmd.
 =over 4
 
 =item getCount (EMPTY)
 
-
+ 
 
 =item setCount ($value)
 
-Set the count attribute. 
+Set the count attribute.  
 
 =item getOutput (EMPTY)
 
-
+ 
 
 =item setOutput ($value)
 
-Set the output attribute. 
+Set the output attribute.  
 
 =item numOfBytes (EMPTY)
 
-
+ 
 
 =item getXMLAttributes (EMPTY)
 
-This method returns the XMLAttributes of this class. 
+This method returns the XMLAttributes of this class.  
 
 =back
 
@@ -467,7 +254,7 @@ A change in the value of these attributes will change the functioning of ALL ins
 =over 4
 
 The following class attribute methods are inherited from L<XDF::BaseObject>:
-B<Pretty_XDF_Output>, B<Pretty_XDF_Output_Indentation>, B<DefaultDataArraySize>.
+B<Pretty_XDF_Output>, B<Pretty_XDF_Output_Indentation>, B<DefaultDataArraySize>. 
 
 =back
 
@@ -475,14 +262,14 @@ B<Pretty_XDF_Output>, B<Pretty_XDF_Output_Indentation>, B<DefaultDataArraySize>.
 
 =over 4
 
-=head2 INHERITED Other Methods
+=head2 INHERITED INSTANCE Methods
 
 
 
 =over 4
 
 XDF::SkipCharFormattedIOCmd inherits the following instance methods of L<XDF::GenericObject>:
-B<new>, B<clone>, B<update>.
+B<new>, B<clone>, B<update>. 
 
 =back
 
@@ -491,20 +278,18 @@ B<new>, B<clone>, B<update>.
 =over 4
 
 XDF::SkipCharFormattedIOCmd inherits the following instance methods of L<XDF::BaseObject>:
-B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLAttributes>, B<setXMLNotationHash>, B<toXMLFileHandle>, B<toXMLFile>.
-
-=back
+B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLAttributes>, B<setXMLNotationHash>, B<toXMLFileHandle>, B<toXMLFile>. 
 
 =back
 
 =head1 SEE ALSO
 
-L<XDF::FormattedIOCmd>
+L<XDF::FormattedIOCmd> 
 
 =back
 
 =head1 AUTHOR
 
-
+ 
 
 =cut

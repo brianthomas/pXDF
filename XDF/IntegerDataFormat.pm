@@ -216,6 +216,10 @@ sub _sprintfNotation {
 # Modification History
 #
 # $Log$
+# Revision 1.10  2001/03/14 21:32:34  thomas
+# Updated perldoc section using new version of
+# makeDoc.pl.
+#
 # Revision 1.9  2001/03/09 21:55:50  thomas
 # Moded class data for Integer types to Constants class. Added
 # utility check for isValidIntegertype on set type method.
@@ -274,6 +278,8 @@ XDF::IntegerDataFormat - Perl Class for IntegerDataFormat
 XDF::IntegerDataFormat inherits class and attribute methods of L<XDF::GenericObject>, L<XDF::DataFormat>, L<XDF::BaseObject>.
 
 
+=head1 METHODS
+
 =over 4
 
 =head2 CLASS Methods
@@ -292,49 +298,34 @@ This method returns a list reference containing the namesof the class attributes
 
 =back
 
-=head2 ATTRIBUTE Methods
+=head2 INSTANCE Methods
 
-These methods set the requested attribute if an argument is supplied to the method. Whether or not an argument is supplied the current value of the attribute is always returned. Values of these methods are always SCALAR (may be number, string, or reference).
-
-=over 4
-
-=item type
-
- 
-
-=item width
-
- 
-
-=back
-
-=head2 OTHER Methods
-
+The following instance methods are defined for XDF::IntegerDataFormat.
 =over 4
 
 =item getWidth (EMPTY)
 
-
+ 
 
 =item setWidth ($value)
 
-Set the width attribute. 
+Set the width attribute.  
 
 =item getType (EMPTY)
 
-
+ 
 
 =item setType ($value)
 
-Set the type attribute. 
+Set the type attribute.  
 
 =item numOfBytes (EMPTY)
 
-A convenience method. Return the number of bytes this XDF::BinaryFloatField holds. 
+A convenience method. Return the number of bytes this XDF::BinaryFloatField holds.  
 
 =item getXMLAttributes (EMPTY)
 
-This method returns the XMLAttributes of this class. 
+This method returns the XMLAttributes of this class.  
 
 =back
 
@@ -348,7 +339,7 @@ A change in the value of these attributes will change the functioning of ALL ins
 =over 4
 
 The following class attribute methods are inherited from L<XDF::BaseObject>:
-B<Pretty_XDF_Output>, B<Pretty_XDF_Output_Indentation>, B<DefaultDataArraySize>.
+B<Pretty_XDF_Output>, B<Pretty_XDF_Output_Indentation>, B<DefaultDataArraySize>. 
 
 =back
 
@@ -356,14 +347,14 @@ B<Pretty_XDF_Output>, B<Pretty_XDF_Output_Indentation>, B<DefaultDataArraySize>.
 
 =over 4
 
-=head2 INHERITED Other Methods
+=head2 INHERITED INSTANCE Methods
 
 
 
 =over 4
 
 XDF::IntegerDataFormat inherits the following instance methods of L<XDF::GenericObject>:
-B<new>, B<clone>, B<update>.
+B<new>, B<clone>, B<update>. 
 
 =back
 
@@ -372,7 +363,7 @@ B<new>, B<clone>, B<update>.
 =over 4
 
 XDF::IntegerDataFormat inherits the following instance methods of L<XDF::DataFormat>:
-B<toXMLFileHandle>.
+B<toXMLFileHandle>. 
 
 =back
 
@@ -381,15 +372,13 @@ B<toXMLFileHandle>.
 =over 4
 
 XDF::IntegerDataFormat inherits the following instance methods of L<XDF::BaseObject>:
-B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLAttributes>, B<setXMLNotationHash>, B<toXMLFile>.
-
-=back
+B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLAttributes>, B<setXMLNotationHash>, B<toXMLFile>. 
 
 =back
 
 =head1 SEE ALSO
 
-L<XDF::Utility>, L<XDF::DataFormat>
+L<XDF::Utility>, L<XDF::DataFormat> 
 
 =back
 
@@ -398,6 +387,6 @@ L<XDF::Utility>, L<XDF::DataFormat>
     Brian Thomas  (thomas@adc.gsfc.nasa.gov)
     Astronomical Data Center <http://adc.gsfc.nasa.gov>
     NASA/Goddard Space Flight Center
-
+ 
 
 =cut

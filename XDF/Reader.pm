@@ -2477,6 +2477,10 @@ sub _appendArrayToArray {
 # Modification History
 #
 # $Log$
+# Revision 1.17  2001/03/14 21:32:35  thomas
+# Updated perldoc section using new version of
+# makeDoc.pl.
+#
 # Revision 1.16  2001/03/14 17:13:25  thomas
 # Wherent updating the global ID/IDFEF object
 # tables properly, as a result not generating
@@ -2579,19 +2583,22 @@ XDF::Reader - Perl Class for Reader
 
 
 
+=head1 METHODS
+
 =over 4
 
-=head2 OTHER Methods
+=head2 INSTANCE Methods
 
+The following instance methods are defined for XDF::Reader.
 =over 4
 
 =item createXDFObjectFromFile ($optionsHashRef, $file)
 
-Reads in the given file and returns a full XDF Perl object (an L<XDF::Structure>with at least one L<XDF::Array>). A second HASH argument may be supplied to specify runtime options for the XDF::Reader. 
+Reads in the given file and returns a full XDF Perl object (an L<XDF::Structure>with at least one L<XDF::Array>). A second HASH argument may be supplied to specify runtime options for the XDF::Reader.  
 
 =item createXDFObjectFromFileHandle ($optionsHashRef, $handle)
 
-Similar to createXDFObjectFromFile but takes an open filehandle as an argument (so you can parse ANY open fileHandle, e.g. files, sockets, etc. Whatever Perl supports.). 
+Similar to createXDFObjectFromFile but takes an open filehandle as an argument (so you can parse ANY open fileHandle, e.g. files, sockets, etc. Whatever Perl supports.).  
 
 =back
 
@@ -2604,9 +2611,7 @@ A change in the value of these attributes will change the functioning of ALL ins
 
 =over 4
 
-=head2 INHERITED Other Methods
-
-=back
+=head2 INHERITED INSTANCE Methods
 
 
 
@@ -2642,13 +2647,13 @@ A change in the value of these attributes will change the functioning of ALL ins
   'maxWarning" => Change the maximum allowed number of warnings before the XDF::Reader
                   will halt its parse of the input file/fileHandle. 
   
-
+ 
 
 =back
 
 =head1 SEE ALSO
 
-L<XDF::Array>, L<XDF::BinaryFloatDataFormat>, L<XDF::BinaryIntegerDataFormat>, L<XDF::DelimitedXMLDataIOStyle>, L<XDF::Field>, L<XDF::FieldRelation>, L<XDF::FloatDataFormat>, L<XDF::FormattedXMLDataIOStyle>, L<XDF::Href>, L<XDF::IntegerDataFormat>, L<XDF::Parameter>, L<XDF::RepeatFormattedIOCmd>, L<XDF::ReadCellFormattedIOCmd>, L<XDF::SkipCharFormattedIOCmd>, L<XDF::StringDataFormat>, L<XDF::Structure>, L<XDF::XMLDataIOStyle>
+L<XDF::Array>, L<XDF::BinaryFloatDataFormat>, L<XDF::BinaryIntegerDataFormat>, L<XDF::Constants>, L<XDF::DelimitedXMLDataIOStyle>, L<XDF::Field>, L<XDF::FieldRelation>, L<XDF::FloatDataFormat>, L<XDF::FormattedXMLDataIOStyle>, L<XDF::Href>, L<XDF::IntegerDataFormat>, L<XDF::Parameter>, L<XDF::RepeatFormattedIOCmd>, L<XDF::ReadCellFormattedIOCmd>, L<XDF::SkipCharFormattedIOCmd>, L<XDF::StringDataFormat>, L<XDF::Structure>, L<XDF::XMLDataIOStyle> 
 
 =back
 
@@ -2657,6 +2662,6 @@ L<XDF::Array>, L<XDF::BinaryFloatDataFormat>, L<XDF::BinaryIntegerDataFormat>, L
     Brian Thomas  (thomas@adc.gsfc.nasa.gov)
     Astronomical Data Center <http://adc.gsfc.nasa.gov>
     NASA/Goddard Space Flight Center
-
+ 
 
 =cut

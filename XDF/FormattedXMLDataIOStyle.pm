@@ -399,6 +399,10 @@ sub _sprintfNotation {
 # Modification History
 #
 # $Log$
+# Revision 1.13  2001/03/14 21:32:34  thomas
+# Updated perldoc section using new version of
+# makeDoc.pl.
+#
 # Revision 1.12  2001/03/14 21:30:21  thomas
 # Removed getFormatCommands.
 #
@@ -463,6 +467,8 @@ XDF::FormattedXMLDataIOStyle - Perl Class for FormattedXMLDataIOStyle
 XDF::FormattedXMLDataIOStyle inherits class and attribute methods of L<XDF::GenericObject>, L<XDF::BaseObject>, L<XDF::XMLDataIOStyle>.
 
 
+=head1 METHODS
+
 =over 4
 
 =head2 CLASS Methods
@@ -477,47 +483,46 @@ This method takes no arguments may not be changed. This method returns a list re
 
 =back
 
-=head2 ATTRIBUTE Methods
+=head2 INSTANCE Methods
 
-These methods set the requested attribute if an argument is supplied to the method. Whether or not an argument is supplied the current value of the attribute is always returned. Values of these methods are always SCALAR (may be number, string, or reference).
-
-=over 4
-
-=item writeAxisOrderList
-
- 
-
-=back
-
-=head2 OTHER Methods
-
+The following instance methods are defined for XDF::FormattedXMLDataIOStyle.
 =over 4
 
 =item getFormatCmdList (EMPTY)
 
-
+ 
 
 =item setFormatCmdList ($arrayRefValue)
 
+ 
+
+=item getWriteAxisOrderList (EMPTY)
+
+This method sets the ordering of the fastest to slowest axis forwriting out formatted data. The default is to use the parent arrayaxisList ordering.  
+
+=item setWriteAxisOrderList ($arrayRefValue)
+
+This method sets the ordering of the fastest to slowest axis forwriting out formatted data. The fastest axis is the last inthe array.  
 
 =item getCommands (EMPTY)
 
-This convenience method returns the command list (asan ARRAY Ref). Repeat commands are expanded into their component parts.  
+This convenience method returns the command list (asan ARRAY Ref). Repeat commands are expanded into their component parts.   
 
 =item numOfBytes (EMPTY)
 
-
+ 
 
 =item getXMLAttributes (EMPTY)
 
-This method returns the XMLAttributes of this class. 
+This method returns the XMLAttributes of this class.  
 
 =item addFormatCommand ($obj)
 
+ 
 
 =item toXMLFileHandle ($indent, $junk, $fileHandle)
 
-
+ 
 
 =back
 
@@ -531,7 +536,7 @@ A change in the value of these attributes will change the functioning of ALL ins
 =over 4
 
 The following class attribute methods are inherited from L<XDF::BaseObject>:
-B<Pretty_XDF_Output>, B<Pretty_XDF_Output_Indentation>, B<DefaultDataArraySize>.
+B<Pretty_XDF_Output>, B<Pretty_XDF_Output_Indentation>, B<DefaultDataArraySize>. 
 
 =back
 
@@ -539,14 +544,14 @@ B<Pretty_XDF_Output>, B<Pretty_XDF_Output_Indentation>, B<DefaultDataArraySize>.
 
 =over 4
 
-=head2 INHERITED Other Methods
+=head2 INHERITED INSTANCE Methods
 
 
 
 =over 4
 
 XDF::FormattedXMLDataIOStyle inherits the following instance methods of L<XDF::GenericObject>:
-B<new>, B<clone>, B<update>.
+B<new>, B<clone>, B<update>. 
 
 =back
 
@@ -555,7 +560,7 @@ B<new>, B<clone>, B<update>.
 =over 4
 
 XDF::FormattedXMLDataIOStyle inherits the following instance methods of L<XDF::BaseObject>:
-B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLAttributes>, B<setXMLNotationHash>, B<toXMLFile>.
+B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLAttributes>, B<setXMLNotationHash>, B<toXMLFile>. 
 
 =back
 
@@ -564,15 +569,13 @@ B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLAttributes>, B<setX
 =over 4
 
 XDF::FormattedXMLDataIOStyle inherits the following instance methods of L<XDF::XMLDataIOStyle>:
-B<untaggedInstructionNodeName>, B<getReadId{>, B<setReadId>, B<getReadIdRef>, B<setReadIdRef>, B<getEncoding{>, B<setEncoding>, B<getEndian{>, B<setEndian>.
-
-=back
+B<untaggedInstructionNodeName>, B<getReadId{>, B<setReadId>, B<getReadIdRef>, B<setReadIdRef>, B<getEncoding{>, B<setEncoding>, B<getEndian{>, B<setEndian>. 
 
 =back
 
 =head1 SEE ALSO
 
-L< XDF::XMLDataIOStyle>, L<XDF::BaseObject>
+L< XDF::XMLDataIOStyle>, L<XDF::BaseObject> 
 
 =back
 
@@ -581,6 +584,6 @@ L< XDF::XMLDataIOStyle>, L<XDF::BaseObject>
     Brian Thomas  (thomas@adc.gsfc.nasa.gov)
     Astronomical Data Center <http://adc.gsfc.nasa.gov>
     NASA/Goddard Space Flight Center
-
+ 
 
 =cut

@@ -120,6 +120,10 @@ sub VALUE_SPECIAL_LIST { ( &VALUE_SPECIAL_INFINITE,  &VALUE_SPECIAL_INFINITE_NEG
 # Modification History
 #
 # $Log$
+# Revision 1.3  2001/03/14 21:32:34  thomas
+# Updated perldoc section using new version of
+# makeDoc.pl.
+#
 # Revision 1.2  2001/03/09 21:49:57  thomas
 # updated perlDocumentation section.
 #
@@ -153,115 +157,118 @@ XDF::Constants - Perl Class for Constants
 
 
 
+=head1 METHODS
+
 =over 4
 
-=head2 OTHER Methods
+=head2 INSTANCE Methods
 
+The following instance methods are defined for XDF::Constants.
 =over 4
 
 =item BIG_ENDIAN (EMPTY)
 
-
+ 
 
 =item ENDIAN_LIST (EMPTY)
 
-
+ 
 
 =item INTEGER_TYPE_DECIMAL (EMPTY)
 
-
+ 
 
 =item INTEGER_TYPE_OCTAL (EMPTY)
 
-
+ 
 
 =item PLATFORM_ENDIAN (EMPTY)
 
-
+ 
 
 =item FLOATING_POINT_BITS_LIST (EMPTY)
 
-
+ 
 
 =item INTEGER_BITS_LIST (EMPTY)
 
-
+ 
 
 =item IO_ENCODING_UTF_8 (EMPTY)
 
-
+ 
 
 =item IO_ENCODING_ISO_8859_1 (EMPTY)
 
-
+ 
 
 =item IO_ENCODINGS_LIST (EMPTY)
 
-
+ 
 
 =item RELATION_ROLE_LIST (EMPTY)
 
-
+ 
 
 =item DATATYPE_INTEGER (EMPTY)
 
-
+ 
 
 =item DATATYPE_STRING (EMPTY)
 
-
+ 
 
 =item DATATYPE_LIST (EMPTY)
 
-
+ 
 
 =item DATA_ENCODING_UUENCODED (EMPTY)
 
-
+ 
 
 =item DATA_ENCODING_LIST (EMPTY)
 
-
+ 
 
 =item DATA_COMPRESSION_ZIP (EMPTY)
 
-
+ 
 
 =item DATA_COMPRESSION_BZIP2 (EMPTY)
 
-
+ 
 
 =item DATA_COMPRESSION_COMPRESS (EMPTY)
 
-
+ 
 
 =item DATA_COMPRESSION_LIST (EMPTY)
 
-
+ 
 
 =item VALUE_INEQUALITY_LESS_THAN (EMPTY)
 
-
+ 
 
 =item VALUE_INEQUALITY_GREATER_THAN (EMPTY)
 
-
+ 
 
 =item VALUE_INEQUALITY_LIST (EMPTY)
 
-
+ 
 
 =item VALUE_SPECIAL_INFINITE (EMPTY)
 
-
+ 
 
 =item VALUE_SPECIAL_NODATA{ (EMPTY)
 
-
+ 
 
 =item VALUE_SPECIAL_LIST (EMPTY)
 
-
+ 
 
 =back
 
@@ -274,13 +281,11 @@ A change in the value of these attributes will change the functioning of ALL ins
 
 =over 4
 
-=head2 INHERITED Other Methods
-
-=back
+=head2 INHERITED INSTANCE Methods
 
 =head1 SEE ALSO
 
-
+ 
 
 =back
 
@@ -289,6 +294,6 @@ A change in the value of these attributes will change the functioning of ALL ins
     Brian Thomas  (thomas@adc.gsfc.nasa.gov)
     Astronomical Data Center <http://adc.gsfc.nasa.gov>
     NASA/Goddard Space Flight Center
-
+ 
 
 =cut
