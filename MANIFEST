@@ -10,6 +10,8 @@ XDF/Array.pm
 XDF/Axis.pm
 XDF/BaseObject.pm
 XDF/BaseObjectWithXMLElements.pm
+XDF/BaseObjectWithValueList.pm
+XDF/BaseObjectWithXMLElementsAndValueList.pm
 XDF/BinaryFloatDataFormat.pm
 XDF/BinaryIntegerDataFormat.pm
 XDF/Constants.pm
@@ -55,9 +57,11 @@ XDF/Value.pm
 XDF/ValueListAlgorithm.pm
 XDF/ValueListDelimitedList.pm
 XDF/ValueGroup.pm
-XDF/XMLElement.pm
+XDF/XMLElementNode.pm
 XDF/XMLDataIOStyle.pm
-t/runXDF.t
+t/00BasicLoad.t
+t/01ReadWriteXDF.t
+t/02ReadWriteDOM.t
 samples/XDF_017.dtd
 samples/guiview.pl
 samples/read.pl

@@ -36,18 +36,18 @@ Some important terms/concepts associated with XDF:
 
 "axisValue" : A unique point on an axis; internal indices of a datacube
               are whole numbers with the origin numbered "0", however, 
-              this internal number is never used by the scientist. 
+              this internal number is not necessarily used by the scientist. 
               Rather, a value is ascribed to each indice; ascribed values can
-              be in any arbitrary ordering but each must be unique to
-              only one indice on the axis. Units may be ascribed
-              to all axis values along a given axis. Units of the
-              data are described either by fields (see below) or
-              in an array object (above).
+              be in any arbitrary ordering but each *should* be unique to
+              only one indice on the axis (in the case they are not, internal
+              axis indices are available). Units may be ascribed to all axis 
+              values along a given axis. Units of the data are described 
+              either by fields (see below) or in an array object (above).
 
 "field"     : Fields may exist at each index on the fieldAxis.
-              Fields objects may have units that describe the units of *the data*
-              that occur within a data slice through the datacube at the indice 
-              where the given field occurs.
+              Fields objects may have unique dataFormat/units that describe the 
+              data format/units of *the data* that occur within the slice the field
+              makes through the datacube.
 
 "datacell"  : A unique address within the datacube that holds a single-valued 
               scalar or vector datum.  More complex data may be stored by adding
@@ -55,32 +55,64 @@ Some important terms/concepts associated with XDF:
 
 
 Here is a diagram showing the inter-relations between these components
-of the XDF in a 2 - dimensional dataset with no fields.
+of the XDF in a 2 - dimensional dataset with no fields. (more explanation here); 
 
-     axisValue -----> "9" "8" "7" "6" "5" "A"  .   .  "?"
-     axisIndex ----->  0   1   2   3   4   5   .   .   n
+  axisValue -----> "9" "8" "7" "6" "5" "A"  .   .  "?"
+  axisIndex ----->  0   1   2   3   4   5   .   .   n
 
-                       |   |   |   |   |   |   |   |   |
-     axisIndex--\      |   |   |   |   |   |   |   |   |
-                |      |   |   |   |   |   |   |   |   |
-     axisValue  |      V   V   V   V   V   V   V   V   V
-         |      |
-         V      V      |   |   |   |   |   |   |   |   |
-       "star 1" 0 --> -====================================> axis 0
-       "star 2" 1 --> -|          8.1
-       "star 3" 2 --> -|
-       "star 4" 3 --> -|
-       "star 5" 4 --> -|
-       "star 6" 5 --> -|       7
-          .     . --> -|
-          .     . --> -|
-          .     . --> -|
-        "??"    m --> -|
-                       |
-                       v
-                     axis 1
+                    |   |   |   |   |   |   |   |   |
+  axisIndex--\      |   |   |   |   |   |   |   |   |
+             |      |   |   |   |   |   |   |   |   |
+  axisValue  |      V   V   V   V   V   V   V   V   V
+      |      |
+      V      V      |   |   |   |   |   |   |   |   |
+    "star 1" 0 --> -====================================> axis 0
+    "star 2" 1 --> -|          8.1
+    "star 3" 2 --> -|
+    "star 4" 3 --> -|
+    "star 5" 4 --> -|
+    "star 6" 5 --> -|       7
+       .     . --> -|
+       .     . --> -|
+       .     . --> -|
+     "??"    m --> -|
+                    |
+                    v
+                  axis 1
 
 
-   (explanation; another example with fieldAxis/fields)
+Here is a diagram showing the inter-relations between components
+in an XDF with 1 "plain" axis and a field Axis. In this example
+a hypothetical astronomical observation log is shown. Notice that
+AxisValues (on axis 1) do not need to be ordered in any manner 
+(relative to the internal Indices, which as above, start with '0').
+Also, the field Axis allows data with varying dataformats to be held (name
+fields are "string" while ""Right Ascen." and "Declination" are 
+double precision a sub-type of "float"). Only a portion of the table 
+is shown (and no, these are not scientifically meaningful numbers either). 
+
+ fieldName ------> "galaxy name" "Right Ascen." "Declination" .. "?"
+ fieldUnits------>   -unitless-    -unitless-     -unitless-  ..  ?
+ fieldDataFormat->    -string-      -float-        -float-    ..  ?
+ axisIndex ------>       0             1              2       ..  n
+
+                         |             |              |           |   
+  axisIndex--\           |             |              |           |   
+             |           |             |              |           |  
+  axisValue  |           V             V              V           V  
+      |      |
+      V      V           |             |              |           |   
+                    ================================================> fieldAxis 0
+    "obs  2" 0 --> -|   M30        230.1209877    -34.3424911     .. 
+    "obs  3" 2 --> -|   M80         89.110203      +0.0123231     ..
+    "obs  0" 3 --> -|   M33        130.094        +36.0000001     ..
+    "obs  1" 4 --> -|   M81        230.0442929    +74.2449499     ..
+       .     . --> -|   ..             ..              ..         ..  
+       .     . --> -|   ..             ..              ..         ..  
+     "??"    m --> -|   ..             ..              ..         .. 
+                    |
+                    v
+                  axis 1
+
 
 

@@ -90,6 +90,8 @@ WriteMakefile(
             'XDF/Axis.pm'       => "\$(INST_LIBDIR)/$install_dir/Axis.pm",
             'XDF/BaseObject.pm'     => "\$(INST_LIBDIR)/$install_dir/BaseObject.pm",
             'XDF/BaseObjectWithXMLElements.pm'     => "\$(INST_LIBDIR)/$install_dir/BaseObjectWithXMLElements.pm",
+            'XDF/BaseObjectWithValueList.pm'     => "\$(INST_LIBDIR)/$install_dir/BaseObjectWithValueList.pm",
+            'XDF/BaseObjectWithXMLElementsAndValueList.pm'     => "\$(INST_LIBDIR)/$install_dir/BaseObjectWithXMLElementsAndValueList.pm",
             'XDF/BinaryFloatDataFormat.pm'      => "\$(INST_LIBDIR)/$install_dir/BinaryFloatDataFormat.pm",
             'XDF/BinaryIntegerDataFormat.pm'      => "\$(INST_LIBDIR)/$install_dir/BinaryIntegerDataFormat.pm",
             'XDF/Constants.pm'      => "\$(INST_LIBDIR)/$install_dir/Constants.pm",
@@ -133,7 +135,7 @@ WriteMakefile(
             'XDF/Value.pm'      => "\$(INST_LIBDIR)/$install_dir/Value.pm",
             'XDF/ValueGroup.pm'      => "\$(INST_LIBDIR)/$install_dir/ValueGroup.pm",
             'XDF/XMLDataIOStyle.pm'      => "\$(INST_LIBDIR)/$install_dir/XMLDataIOStyle.pm",
-            'XDF/XMLElement.pm'      => "\$(INST_LIBDIR)/$install_dir/XMLElement.pm",
+            'XDF/XMLElementNode.pm'      => "\$(INST_LIBDIR)/$install_dir/XMLElementNode.pm",
           },
     @extras
 
@@ -142,6 +144,9 @@ WriteMakefile(
 # Modification History
 #
 # $Log$
+# Revision 1.11  2001/08/13 19:58:17  thomas
+# *** empty log message ***
+#
 # Revision 1.10  2001/07/09 16:50:10  thomas
 # *** empty log message ***
 #

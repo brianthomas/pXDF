@@ -30,7 +30,7 @@ my $QUIET = 1;
   # test file for reading in XDF files.
   my $file = $ARGV[0];
 
-  print "Reading in XDF object from file: $file \n";
+  print STDERR "Reading in XDF object from file: $file \n";
 
   my %options = ('quiet' => $QUIET, 'debug' => $DEBUG, );
 
@@ -63,7 +63,6 @@ my $QUIET = 1;
   # back out again.
   print STDOUT $XDF_DOM->toString;
 
- 
   my $arrayObj = @{$XDF->getArrayList()}->[0];
 
   my $axis0 = @{$arrayObj->getAxisList()}->[0];
@@ -78,23 +77,23 @@ my $QUIET = 1;
 
   # a little example of how to deal with notes
   foreach my $noteObj (@{$arrayObj->getNoteList}) {
-     print "NOTE: ";
+     print STDERR "NOTE: ";
   
      if ( $noteObj->getValue() ) { # note has text in value
 
-        print $noteObj->getValue();
+        print STDERR $noteObj->getValue();
 
      } elsif ($noteObj->refNoteObject()) { # note has refObj which holds the text 
 
-        print $noteObj->refNoteObject()->value();
+        print STDERR $noteObj->refNoteObject()->value();
 
      } else { # EMPTY!! yikes, a wasted note node. 
 
-        print "** EMPTY TEXT **";
+        print STDERR "** EMPTY TEXT **";
 
      }
 
-     print "\n";
+     print STDERR "\n";
   }
 
   exit 0;
