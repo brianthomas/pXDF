@@ -468,6 +468,7 @@ are expected to be read or written as E-format.  One can not mix E and F-format.
 <!ELEMENT string EMPTY>
 <!ATTLIST string
 	length NMTOKEN #REQUIRED
+        noDataValue CDATA #IMPLIED
 >
 <!ELEMENT binaryInteger EMPTY>
 <!ATTLIST binaryInteger
