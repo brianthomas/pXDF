@@ -164,6 +164,7 @@ sub AUTOLOAD {
 sub _init {
   my ($self) = @_;
 
+  $self->SUPER::_init();
   $self->{LocationOrder} = new XDF::NotesLocationOrder();
   $self->{NoteList} = [];
 
@@ -172,6 +173,9 @@ sub _init {
 # Modification History
 #
 # $Log$
+# Revision 1.5  2001/04/17 18:52:09  thomas
+# Properly calling superclass init now
+#
 # Revision 1.4  2001/03/16 19:54:57  thomas
 # Documentation updated and improved, re-ran makeDoc on file.
 #

@@ -237,6 +237,8 @@ sub AUTOLOAD {
 sub _init {
   my ($self) = @_;
 
+  $self->SUPER::_init();
+
   $self->{Bits} = $Def_BinaryInteger_Bits;
   $self->{Signed} = $Def_BinaryInteger_Signed;
   $self->_updateTemplate;
@@ -285,6 +287,9 @@ sub _sprintfNotation {
 # Modification History
 #
 # $Log$
+# Revision 1.15  2001/04/17 18:53:02  thomas
+# Properly calling superclass init now
+#
 # Revision 1.14  2001/03/16 19:54:56  thomas
 # Documentation updated and improved, re-ran makeDoc on file.
 #

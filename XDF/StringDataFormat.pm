@@ -155,6 +155,7 @@ sub AUTOLOAD {
 
 sub _init {
   my ($self)  = @_;
+  $self->SUPER::_init();
   $self->setLength(0);
 
 }
@@ -194,6 +195,9 @@ sub _sprintfNotation {
 # Modification History
 #
 # $Log$
+# Revision 1.11  2001/04/17 18:55:20  thomas
+# Properly calling superclass init now
+#
 # Revision 1.10  2001/03/16 19:54:57  thomas
 # Documentation updated and improved, re-ran makeDoc on file.
 #

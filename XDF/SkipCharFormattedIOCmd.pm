@@ -116,6 +116,7 @@ sub AUTOLOAD {
 
 sub _init { 
   my ($self) = @_;
+  $self->SUPER::_init();
   $self->{Count} = $Def_Count;
   $self->{Output} = $Def_Output_Char;
 }
@@ -147,6 +148,9 @@ sub _sprintfNotation {
 # Modification History
 #
 # $Log$
+# Revision 1.9  2001/04/17 18:55:20  thomas
+# Properly calling superclass init now
+#
 # Revision 1.8  2001/03/16 19:54:57  thomas
 # Documentation updated and improved, re-ran makeDoc on file.
 #

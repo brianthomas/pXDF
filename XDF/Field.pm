@@ -489,6 +489,8 @@ sub AUTOLOAD {
 sub _init {
   my ($self) = @_;
 
+  $self->SUPER::_init();
+
   # initialize lists
   $self->{NoteList} = [];
   $self->{Units} = new XDF::Units();
@@ -497,6 +499,9 @@ sub _init {
 # Modification History
 #
 # $Log$
+# Revision 1.10  2001/04/17 18:52:31  thomas
+# Properly calling superclass init now
+#
 # Revision 1.9  2001/03/21 20:19:23  thomas
 # Fixed documentation to show addXMLElement, etc. methods in perldoc
 #

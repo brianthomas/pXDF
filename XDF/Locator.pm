@@ -340,6 +340,7 @@ sub AUTOLOAD {
 # private method called from XDF::GenericObject->new
 sub _init {
   my ($self, $parentArray) = @_;
+  $self->SUPER::_init();
   $self->{_parentArray} = $parentArray;
   $self->setIterationOrder($parentArray->getAxisList());
   $self->{_hasNext} = 1;
@@ -349,6 +350,9 @@ sub _init {
 # Modification History
 #
 # $Log$
+# Revision 1.13  2001/04/17 18:54:43  thomas
+# Properly calling superclass init now
+#
 # Revision 1.12  2001/03/26 18:11:43  thomas
 # Documentation was wrong (!). Fixed.
 #
