@@ -119,6 +119,7 @@ my @Class_Attributes = qw (
                               currentParamGroupList
                               currentDataTagLevel
                               dataTagLevel
+                              hrefLocator
                               DoctypeObjectAttributes
                               Notation
                               UnParsedEntity
@@ -1223,35 +1224,61 @@ sub _data_node_end {
 sub _data_node_start {
   my ($self, %attrib_hash) = @_;
 
-  # we only need to do this for the first time we enter
-  if ($self->{dataNodeLevel} == 0) { 
+  my $hrefObj;
+  my $readObj = $self->{currentArray}->getXMLDataIOStyle();
 
-    # href is special
-    if (exists $attrib_hash{'href'}) { 
+  # href is special
+  if (exists $attrib_hash{'href'}) { 
+    my $hrefName = $attrib_hash{'href'};
 
-       my $hrefObj = new XDF::Entity(); 
-       my $hrefName = $attrib_hash{'href'};
+    # this shouldnt happen, but does for unconsidered cases.
+    die "XDF::Reader Internal bug: Href Entity [$hrefName] is not defined. Aborting parse.\n" 
+        unless exists $self->{Entity}{$hrefName}; 
 
-       # this shouldnt happen, but does for unconsidered cases.
-       die "XDF::Reader Internal bug: Href Entity [$hrefName] is not defined. Aborting parse.\n" 
-           unless exists $self->{Entity}{$hrefName}; 
+    # create the new Href object
+    $hrefObj = new XDF::Entity(); 
+    $hrefObj->setName($hrefName);
+    $hrefObj->setSystemId(${$self->{Entity}{$hrefName}}{'sysid'});
+    $hrefObj->setBase(${$self->{Entity}{$hrefName}}{'base'});
+    $hrefObj->setNdata(${$self->{Entity}{$hrefName}}{'ndata'});
+    $hrefObj->setPublicId(${$self->{Entity}{$hrefName}}{'pubid'});
 
-       $hrefObj->setName($hrefName);
-       $hrefObj->setSystemId(${$self->{Entity}{$hrefName}}{'sysid'});
-       $hrefObj->setBase(${$self->{Entity}{$hrefName}}{'base'});
-       $hrefObj->setNdata(${$self->{Entity}{$hrefName}}{'ndata'});
-       $hrefObj->setPublicId(${$self->{Entity}{$hrefName}}{'pubid'});
+    delete $attrib_hash{'href'}; # prevent over-writing object with string 
+
+    # we only set the Href once for the dataCube.
+    # now, while we may be able to read from other files
+    # and combine, we are not going to be able to write back
+    # out to so many files. Throw a warning here for the user.
+    if (defined $self->{currentArray}->getDataCube()->getHref()) {
+
+       my $oldHrefName = $self->{currentArray}->getDataCube()->getHref()->getName();
+       $self->_printWarning("Warning: There is already one href defined for this Array ($oldHrefName), reading data for $hrefName but ignoring setting new href value in array. Be carefull you dont write a file you dont want on output!\n") unless $self->{Options}->{quiet};
+
+    } else {
+
        $self->{currentArray}->getDataCube()->setHref($hrefObj);
-       delete $attrib_hash{'href'}; # prevent over-writing object with string 
+
+       # re-init the locator for this array
+       $self->{hrefLocator} = $self->{currentArray}->createLocator();
+  
+       # this is done because we read these in the reverse order in which
+       # the API demands the axes, e.g. first axis is the 'fast' one, whereas
+       # reading the XDF node by node we get the fastest last in the array.
+       @{$self->{readAxisOrderList}} = reverse @{$self->{readAxisOrderList}};
+  
+       # need to store this information to make operate properly
+       # when we have read nodes w/ idRef stuff going on.
+       my @temparray = @{$self->{readAxisOrderList}};
+       $self->{readAxisOrderHash}->{$self->{currentArray}} = \@temparray;
+       $self->{hrefLocator}->setIterationOrder(\@{$self->{readAxisOrderList}});
+       $readObj->setWriteAxisOrderList(\@{$self->{readAxisOrderList}});
 
     }
 
-    # update the array dataCube with XML attributes
-    $self->{currentArray}->getDataCube()->setXMLAttributes(\%attrib_hash);
-
   }
 
-  my $readObj = $self->{currentArray}->getXMLDataIOStyle();
+  # update the array dataCube with XML attributes
+  $self->{currentArray}->getDataCube()->setXMLAttributes(\%attrib_hash);
 
   # these days, this should always be defined.
   if (defined $readObj) {
@@ -1264,9 +1291,9 @@ sub _data_node_start {
        $self->{dataBlock} = "" if $self->{dataNodeLevel} == 0; 
      }
        
-     if (defined (my $href = $self->{currentArray}->getDataCube()->getHref())) {
-        # add to the datablock
-        $self->_getHrefData($href);
+     if (defined $hrefObj) {
+        # add to the data into the array now.
+        $self->_getHrefData($hrefObj);
      }
 
      # this declares we are now reading data, 
@@ -3388,21 +3415,11 @@ sub _read_formatted_data_from_fileHandle {
   # gather general information
   my $data_has_special_integers = &_arrayHasSpecialIntegers($self->{currentArray});
   my $data_has_binary_values = &_arrayHasBinaryData($self->{currentArray});
-  my $locator = $self->{currentArray}->createLocator();
+  #my $locator = $self->{currentArray}->createLocator();
 
-  # this is done because we read these in the reverse order in which
-  # the API demands the axes, e.g. first axis is the 'fast' one, whereas
-  # reading the XDF node by node we get the fastest last in the array.
-  @{$self->{readAxisOrderList}} = reverse @{$self->{readAxisOrderList}};
+  &_print_extreme_debug("locator[".$self->{hrefLocator}."] has axisOrder:[",join ',', @{$self->{readAxisOrderList}},"]\n");
 
-  # need to store this information to make operate properly
-  # when we have read nodes w/ idRef stuff going on.
-  my @temparray = @{$self->{readAxisOrderList}};
-  $self->{readAxisOrderHash}->{$self->{currentArray}} = \@temparray;
-  $locator->setIterationOrder(\@{$self->{readAxisOrderList}});
-  $formatObj->setWriteAxisOrderList(\@{$self->{readAxisOrderList}});
-
-  &_print_extreme_debug("locator[$locator] has axisOrder:[",join ',', @{$self->{readAxisOrderList}},"]\n");
+  # $self->{hrefLocator}->_dumpLocation();
 
   my $endian = $formatObj->getEndian();
   my $template  = $formatObj->_templateNotation(1);
@@ -3455,9 +3472,11 @@ sub _read_formatted_data_from_fileHandle {
         @data = &_deal_with_special_integer_data(\@dataFormat, \@data)
            if $data_has_special_integers;
 
-        $self->{currentArray}->setRecords($locator, \@data);
 
-#        for (@data) { $self->{currentArray}->setData($locator, $_); $locator->next(); }
+        &_printDebug("ADDING DATA : [".@data."]\n");
+
+        $self->{currentArray}->setRecords($self->{hrefLocator}, \@data);
+        #$self->{hrefLocator}->forward($#data+1);
 
    } else {
 #        my $line = join ' ', @data;
@@ -3499,10 +3518,10 @@ sub _read_formatted_data_from_string {
         @data = &_deal_with_special_integer_data(\@dataFormat, \@data)
            if $data_has_special_integers;
 
-        for (@data) {
-#          &_printDebug("ADDING DATA [$locator]($self->{currentArray}) : [".$_."]\n");
-    #      &_printDebug("ADDING DATA : [".$_."]\n");
-          $self->{currentArray}->setData($locator, $_);
+        foreach my $datum (@data) {
+#          &_printDebug("ADDING DATA [$locator]($self->{currentArray}) : [".$datum."]\n");
+#          &_printDebug("ADDING DATA : [".$datum."]\n");
+          $self->{currentArray}->setData($locator, $datum);
           $locator->next();
         }
 
@@ -3510,7 +3529,6 @@ sub _read_formatted_data_from_string {
 
         my $line = join ' ', @data;
         $self->_printWarning( "Unable to get data! Template:[$template] failed on Line: [$line]\n");
-        print STDERR "BLOCK: ",$self->{dataBlock},"\n";
 
       }
 
