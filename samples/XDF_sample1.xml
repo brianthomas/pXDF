@@ -7,9 +7,13 @@
   </parameter>
   <array name="Raw Data">
     <parameter name="integration time">
+      <!-- parameter is in units of 10 sec so we need this conversion factor -->
+      <conversion>
+           <multiply>10</multiply>
+      </conversion>
       <units><unit>sec</unit></units>
       <dataFormat><integer width="3"/></dataFormat>
-      <value>900</value>
+      <value>900</value> <!-- e.g. this is "9000 sec or 900 * 10 sec" --> 
     </parameter>
     <units>
       <unit>counts</unit>
