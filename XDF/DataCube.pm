@@ -252,7 +252,7 @@ sub toXMLFileHandle {
   }
   if (defined $self->{Href}) {
      print $fileHandle " href=\"";
-     print $self->{Href}->getName();
+     print $fileHandle $self->{Href}->getName();
      print $fileHandle "\"";
   }
   print $fileHandle ">";
@@ -837,6 +837,10 @@ sub _build_locator_string {
 # Modification History
 #
 # $Log$
+# Revision 1.19  2001/04/10 22:07:09  thomas
+# minor but important bug fix, wasnt printing
+# out href attrib upon output correctly.
+#
 # Revision 1.18  2001/03/26 18:09:21  thomas
 # bug fix: use writeAxisOrderList to find the fastest
 # axis in toXMLFileHandle.
