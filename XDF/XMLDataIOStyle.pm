@@ -248,6 +248,7 @@ sub AUTOLOAD {
 sub _init { 
   my ($self) = @_; 
 
+  $self->SUPER::_init();
   $self->{Encoding} = $Def_Encoding;
   $self->{Endian} = $Def_Endian;
 
@@ -258,6 +259,9 @@ sub _init {
 # Modification History
 #
 # $Log$
+# Revision 1.13  2001/04/17 18:51:16  thomas
+# properly calling superclass init now
+#
 # Revision 1.12  2001/03/26 22:26:03  thomas
 # changed name of writeAxisOrderList to be 'private'
 #

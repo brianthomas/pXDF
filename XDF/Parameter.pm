@@ -388,6 +388,7 @@ sub AUTOLOAD {
 sub _init {
   my ($self) = @_;
 
+  $self->SUPER::_init();
   # initialize objects
   $self->setUnits(new XDF::Units());
 
@@ -401,6 +402,9 @@ sub _init {
 # Modification History
 #
 # $Log$
+# Revision 1.10  2001/04/17 18:51:16  thomas
+# properly calling superclass init now
+#
 # Revision 1.9  2001/03/16 19:54:57  thomas
 # Documentation updated and improved, re-ran makeDoc on file.
 #
