@@ -267,6 +267,7 @@ sub _init {
 
 1;
 
+
 __END__
 
 =head1 NAME
@@ -372,10 +373,6 @@ Add an XDF::Unit Object to the list of units within this XDF::Units object. RETU
 
 RETURNS : 1 on success, 0 on failure.  
 
-=item toXMLFileHandle ($fileHandle, $indent, $dontCloseNode)
-
- 
-
 =back
 
 
@@ -406,7 +403,7 @@ B<new>, B<clone>, B<update>.
 =over 4
 
 XDF::Units inherits the following instance (object) methods of L<XDF::BaseObject>:
-B<getXMLAttributes>, B<setXMLAttributes>, B<setXMLAttribute>, B<addXMLAttribute>, B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<toXMLString>, B<toXMLFile>.
+B<getXMLAttributes>, B<setXMLAttributes>, B<setXMLAttribute>, B<addXMLAttribute>, B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<toXMLFileHandle>, B<toXMLString>, B<toXMLFile>.
 
 =back
 

@@ -230,7 +230,7 @@ Set the count attribute.
 
  
 
-=item setOutput ($value)
+=item setOutput ($object)
 
 Set the output attribute.  
 
@@ -282,7 +282,7 @@ B<getXMLAttributes>, B<setXMLAttributes>, B<setXMLAttribute>, B<addXMLAttribute>
 
 =over 4
 
-L<XDF::FormattedIOCmd>
+L<XDF::FormattedIOCmd>, L<XDF::Chars>
 
 =back
 

@@ -243,3 +243,158 @@ sub _basicXMLWriter {
 
 1;
 
+
+__END__
+
+=head1 NAME
+
+XDF::Entity - Perl Class for Entity
+
+=head1 SYNOPSIS
+
+
+
+
+...
+
+=head1 DESCRIPTION
+
+ The Entity class is nothing more than a simple object that holds information  concerning the href and its associated (XML) ENTITY reference. 
+
+XDF::Entity inherits class and attribute methods of L<XDF::GenericObject>, L<XDF::BaseObject>.
+
+
+=head1 METHODS
+
+=over 4
+
+=head2 CLASS Methods
+
+The following methods are defined for the class XDF::Entity.
+
+=over 4
+
+=item classXMLNodeName (EMPTY)
+
+ 
+
+=item getClassAttributes (EMPTY)
+
+This method returns a list reference containing the namesof the class attributes of XDF::FloatDataFormat. This method takes no arguments may not be changed.  
+
+=item getClassXMLAttributes (EMPTY)
+
+This method returns the XMLAttributes of this class.  
+
+=back
+
+=head2 INSTANCE (Object) Methods
+
+The following instance (object) methods are defined for XDF::Entity.
+
+=over 4
+
+=item getBase (EMPTY)
+
+ 
+
+=item setBase ($value)
+
+Set the entity base attribute.  
+
+=item getName (EMPTY)
+
+ 
+
+=item setName ($value)
+
+Set the name attribute.  
+
+=item getValue (EMPTY)
+
+ 
+
+=item setValue ($value)
+
+Set the value of this entity 
+
+=item getNdata (EMPTY)
+
+ 
+
+=item setNdata ($value)
+
+Set the ndata attribute.  
+
+=item getPublicId (EMPTY)
+
+ 
+
+=item setPublicId ($value)
+
+Set the pubId attribute.  
+
+=item getSystemId (EMPTY)
+
+ 
+
+=item setSystemId ($value)
+
+Set the sysId attribute.  
+
+=back
+
+
+
+=head2 INHERITED Class Methods
+
+=over 4
+
+=back
+
+
+
+=head2 INHERITED INSTANCE Methods
+
+=over 4
+
+
+
+=over 4
+
+XDF::Entity inherits the following instance (object) methods of L<XDF::GenericObject>:
+B<new>, B<clone>, B<update>.
+
+=back
+
+
+
+=over 4
+
+XDF::Entity inherits the following instance (object) methods of L<XDF::BaseObject>:
+B<getXMLAttributes>, B<setXMLAttributes>, B<setXMLAttribute>, B<addXMLAttribute>, B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<toXMLFileHandle>, B<toXMLString>, B<toXMLFile>.
+
+=back
+
+=back
+
+=back
+
+=head1 SEE ALSO
+
+
+
+=over 4
+
+L<XDF::BaseObject>
+
+=back
+
+=head1 AUTHOR
+
+    Brian Thomas  (thomas@adc.gsfc.nasa.gov)
+    Astronomical Data Center <http://adc.gsfc.nasa.gov>
+    NASA/Goddard Space Flight Center
+ 
+
+=cut

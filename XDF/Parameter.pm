@@ -495,6 +495,7 @@ sub _init {
 
 1;
 
+
 __END__
 
 =head1 NAME
@@ -671,15 +672,6 @@ Remove an XDF::Unit object from the list of XDF::Units held inthe array units re
 =head2 INHERITED INSTANCE Methods
 
 =over 4
-
-
-
-=over 4
-
-XDF::Parameter inherits the following instance (object) methods of L<XDF::BaseObjectWithXMLElementsAndValueList>:
-B<toXMLFileHandle>.
-
-=back
 
 =back
 

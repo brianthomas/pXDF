@@ -267,3 +267,154 @@ sub _init {
 
 1;
 
+
+__END__
+
+=head1 NAME
+
+XDF::XMLDataIOStyle - Perl Class for XMLDataIOStyle
+
+=head1 SYNOPSIS
+
+ 
+
+
+...
+
+=head1 DESCRIPTION
+
+ This abstract class indicates how records are to be read/written  back out into XDF formatted XML files. 
+
+XDF::XMLDataIOStyle inherits class and attribute methods of L<XDF::GenericObject>, L<XDF::BaseObject>.
+
+
+=head1 METHODS
+
+=over 4
+
+=head2 CLASS Methods
+
+The following methods are defined for the class XDF::XMLDataIOStyle.
+
+=over 4
+
+=item classXMLNodeName (EMPTY)
+
+This method returns the class node name of this class. This method takes no arguments may not be changed.  
+
+=item getClassAttributes (EMPTY)
+
+This method returns a list reference containing the namesof the class attributes for this class. This method takes no arguments may not be changed.  
+
+=item getClassXMLAttributes (EMPTY)
+
+This method returns the XMLAttributes of this class.  
+
+=item untaggedInstructionNodeName (EMPTY)
+
+ 
+
+=back
+
+=head2 INSTANCE (Object) Methods
+
+The following instance (object) methods are defined for XDF::XMLDataIOStyle.
+
+=over 4
+
+=item getDataStyleId{ (EMPTY)
+
+ 
+
+=item setDataStyleId ($value)
+
+Set the dataStyleId attribute.  
+
+=item getDataStyleIdRef (EMPTY)
+
+ 
+
+=item setDataStyleIdRef ($value)
+
+Set the dataStyleIdRef attribute.  
+
+=item getEncoding{ (EMPTY)
+
+ 
+
+=item setEncoding ($value)
+
+Set the encoding attribute.  
+
+=item getEndian{ (EMPTY)
+
+ 
+
+=item setEndian ($value)
+
+Set the endian attribute.  
+
+=item getWriteAxisOrderList (EMPTY)
+
+This method sets the ordering of the fastest to slowest axis forwriting out data. The default is to use the parent arrayaxisList ordering (field axis first, if it exists, followed by allother axes in the order in which they were declared).  
+
+=item setWriteAxisOrderList ($arrayRefValue)
+
+This method sets the ordering of the fastest to slowest axis forwriting out formatted data. The fastest axis is the last inthe array. Setting the writeAxisOrderList will effect how the documentis written out. For the Formatted and Delimited styles, this means howthe 'for' nodes will appear. There is no effect on Tagged data (at thistime) for setting the axis order list in any different way.  
+
+=back
+
+
+
+=head2 INHERITED Class Methods
+
+=over 4
+
+=back
+
+
+
+=head2 INHERITED INSTANCE Methods
+
+=over 4
+
+
+
+=over 4
+
+XDF::XMLDataIOStyle inherits the following instance (object) methods of L<XDF::GenericObject>:
+B<new>, B<clone>, B<update>.
+
+=back
+
+
+
+=over 4
+
+XDF::XMLDataIOStyle inherits the following instance (object) methods of L<XDF::BaseObject>:
+B<getXMLAttributes>, B<setXMLAttributes>, B<setXMLAttribute>, B<addXMLAttribute>, B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<toXMLFileHandle>, B<toXMLString>, B<toXMLFile>.
+
+=back
+
+=back
+
+=back
+
+=head1 SEE ALSO
+
+
+
+=over 4
+
+L< XDF::TaggedXMLDataIOStyle>, L< XDF::FormattedXMLDataIOStyle>, L< XDF::DelimitedXMLDataIOStyle>, L<XDF::BaseObject>
+
+=back
+
+=head1 AUTHOR
+
+    Brian Thomas  (thomas@adc.gsfc.nasa.gov)
+    Astronomical Data Center <http://adc.gsfc.nasa.gov>
+    NASA/Goddard Space Flight Center
+ 
+
+=cut

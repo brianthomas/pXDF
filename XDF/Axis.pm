@@ -937,15 +937,6 @@ Return the axis index for the given (scalar) value. Does not currently work for 
 
 =over 4
 
-
-
-=over 4
-
-XDF::Axis inherits the following instance (object) methods of L<XDF::BaseObjectWithXMLElementsAndValueList>:
-B<toXMLFileHandle>.
-
-=back
-
 =back
 
 =back

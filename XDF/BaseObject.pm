@@ -666,7 +666,7 @@ Write this structure and all the objects it owns to the supplied filehandle in X
 
 =item toXMLString ($indent, $dontCloseNode, $newNodeNameString, $noChildObjectNodeName)
 
-Print out the XML representation of this object. Similar to toXMLFileHandle method, takes the same arguments barring thefirst (e.g. the FileHandle reference) which is not needed for this method. Returns a string XML representation of the object.  
+Print out the XML representation of this object. Similar to toXMLFileHandle method, takes the same arguments barring thefirst (e.g. the FileHandle reference) which is not needed for this method. Caution: IF you ask for the string reprentation of an XDF object that hasHref Entities (e.g. data nodes which point to external files) you will onlyget the meta-data, not the (external) data. IF you want the data, then youwill have to manipulate the XDF object *before* using this method to removethe Href Entities, and thereby force the data back into the XML representation. Returns a string XML representation of the object.  
 
 =item toXMLFile ($file)
 

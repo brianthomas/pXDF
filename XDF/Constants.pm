@@ -242,6 +242,7 @@ sub XDF_NODE_NAMES { (
 
 1;
 
+
 __END__
 
 =head1 NAME
@@ -418,6 +419,14 @@ The following methods are defined for the class XDF::Constants.
  
 
 =item DEFAULT_VALUELIST_DELIMITER (EMPTY)
+
+ 
+
+=item XDF_NOTATION_NAME (EMPTY)
+
+ 
+
+=item XDF_NOTATION_PUBLICID (EMPTY)
 
  
 

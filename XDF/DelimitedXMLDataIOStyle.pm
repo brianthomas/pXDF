@@ -250,3 +250,129 @@ sub _sprintfNotation {
 
 1;
 
+
+__END__
+
+=head1 NAME
+
+XDF::DelimitedXMLDataIOStyle - Perl Class for DelimitedXMLDataIOStyle
+
+=head1 SYNOPSIS
+
+...
+
+=head1 DESCRIPTION
+
+ XDF::DelimitedDataIOStyle is a class that indicates how delimited ASCII  records are to be read in. 
+
+XDF::DelimitedXMLDataIOStyle inherits class and attribute methods of L<XDF::GenericObject>, L<XDF::BaseObject>, L<XDF::XMLDataIOStyle>.
+
+
+=head1 METHODS
+
+=over 4
+
+=head2 CLASS Methods
+
+The following methods are defined for the class XDF::DelimitedXMLDataIOStyle.
+
+=over 4
+
+=item classXMLNodeName (EMPTY)
+
+ 
+
+=item getClassAttributes (EMPTY)
+
+ 
+
+=item getClassXMLAttributes (EMPTY)
+
+This method returns the XMLAttributes of this class.  
+
+=back
+
+=head2 INSTANCE (Object) Methods
+
+The following instance (object) methods are defined for XDF::DelimitedXMLDataIOStyle.
+
+=over 4
+
+=item getDelimiter (EMPTY)
+
+ 
+
+=item setDelimiter ($value)
+
+Set the delimiter attribute.  
+
+=item getRecordTerminator (EMPTY)
+
+ 
+
+=item setRecordTerminator ($value)
+
+Set the recordTerminator attribute.  
+
+=back
+
+
+
+=head2 INHERITED Class Methods
+
+=over 4
+
+=back
+
+
+
+=head2 INHERITED INSTANCE Methods
+
+=over 4
+
+
+
+=over 4
+
+XDF::DelimitedXMLDataIOStyle inherits the following instance (object) methods of L<XDF::GenericObject>:
+B<new>, B<clone>, B<update>.
+
+=back
+
+
+
+=over 4
+
+XDF::DelimitedXMLDataIOStyle inherits the following instance (object) methods of L<XDF::BaseObject>:
+B<getXMLAttributes>, B<setXMLAttributes>, B<setXMLAttribute>, B<addXMLAttribute>, B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<toXMLFileHandle>, B<toXMLString>, B<toXMLFile>.
+
+=back
+
+
+
+=over 4
+
+XDF::DelimitedXMLDataIOStyle inherits the following instance (object) methods of L<XDF::XMLDataIOStyle>:
+B<untaggedInstructionNodeName>, B<getDataStyleId{>, B<setDataStyleId>, B<getDataStyleIdRef>, B<setDataStyleIdRef>, B<getEncoding{>, B<setEncoding>, B<getEndian{>, B<setEndian>, B<getWriteAxisOrderList>, B<setWriteAxisOrderList>.
+
+=back
+
+=back
+
+=back
+
+=head1 SEE ALSO
+
+
+
+=over 4
+
+L<XDF::XMLDataIOStyle>
+
+=back
+
+=head1 AUTHOR
+
+ 
+
+=cut

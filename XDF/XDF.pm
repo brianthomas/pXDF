@@ -281,3 +281,195 @@ sub _init {
 
 1;
 
+
+__END__
+
+=head1 NAME
+
+XDF::XDF - Perl Class for XDF
+
+=head1 SYNOPSIS
+
+
+    use XDF::XDF;
+  
+    my %attributes = ( 
+                       'name' => 'A default name',
+                       'paramList' => @paramObjRefList,
+                       'arrayList' => @arrayRefList,
+                     );
+
+    # initialize new object w/ attribute hash
+    my $xdfObj = XDF::XDF->new(%attributes);
+
+    # overwrite the name attribute w/ new value, set the description 
+    $xdfObj->setName("My XDF");
+    $xdfObj->setDescription("This data was found under under a cabinet. It looks important.");
+
+    # add an XDF::Array object to the XDF structure
+    $xdfObj->addArray($arrayObj);
+
+    ...
+
+    # several ways to create an XDF from a file
+
+    my $XDFObj = new XDF::XDF();
+
+    # read method makes a call to XDF::Reader. %options
+    # has same meaning here as for createXDFObjectfromFile 
+    # method in XDF::Reader.
+
+    my $newXDFObj = $XDFObj->loadFromXDFFile($file, \%options);
+
+    # create a structure from a file (alternative method) 
+
+    my $reader = new XDF::Reader();
+    my $XDFObj2 = $reader->parseFile($file, \%options);
+
+
+
+...
+
+=head1 DESCRIPTION
+
+ XDF is the eXtensible Data XDF, which is an XML format designed to contain n-dimensional scientific/mathematical data.  For more background information on XDF see the XDF homepage at  http://xml.gsfc.nasa.gov/XDF/XDF_home.html .     
+    
+ The XDF can hold both tagged and untagged data and may serve as a wrapper around many kinds of legacy data.     
+    
+ XDF::XDF inherits from XDF::Structure, and is itself the top level structure in any XDF object. 
+
+XDF::XDF inherits class and attribute methods of L<XDF::GenericObject>, L<XDF::BaseObject>, L<XDF::BaseObjectWithXMLElements>, L<XDF::Structure>.
+
+
+=head1 METHODS
+
+=over 4
+
+=head2 CLASS Methods
+
+The following methods are defined for the class XDF::XDF.
+
+=over 4
+
+=item classXMLNodeName (EMPTY)
+
+This method takes no arguments may not be changed. This method returns the class node name for XDF::XDF;  
+
+=item getClassAttributes (EMPTY)
+
+This method returns a list reference containing the namesof the class attributes for this class. This method takes no arguments may not be changed.  
+
+=item getClassXMLAttributes (EMPTY)
+
+This method returns the XMLAttributes of this class.  
+
+=back
+
+=head2 INSTANCE (Object) Methods
+
+The following instance (object) methods are defined for XDF::XDF.
+
+=over 4
+
+=item getDocumentType (EMPTY)
+
+ 
+
+=item setDocumentType ($docType)
+
+ 
+
+=item getType (EMPTY)
+
+ 
+
+=item setType ($value)
+
+ 
+
+=item getXMLDeclaration (EMPTY)
+
+ 
+
+=item setXMLDeclaration ($xmlDecl)
+
+ 
+
+=item loadFromXDFFile ($file, $optionsHashRef)
+
+Read in an XML file into this XDF object. The current XDF object, if it has any components, is overrided and lost.  
+
+=back
+
+
+
+=head2 INHERITED Class Methods
+
+=over 4
+
+=back
+
+
+
+=head2 INHERITED INSTANCE Methods
+
+=over 4
+
+
+
+=over 4
+
+XDF::XDF inherits the following instance (object) methods of L<XDF::GenericObject>:
+B<new>, B<clone>, B<update>.
+
+=back
+
+
+
+=over 4
+
+XDF::XDF inherits the following instance (object) methods of L<XDF::BaseObject>:
+B<getXMLAttributes>, B<setXMLAttributes>, B<setXMLAttribute>, B<addXMLAttribute>, B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<toXMLFileHandle>, B<toXMLString>, B<toXMLFile>.
+
+=back
+
+
+
+=over 4
+
+XDF::XDF inherits the following instance (object) methods of L<XDF::BaseObjectWithXMLElements>:
+B<addXMLElement>, B<removeXMLElement>, B<getXMLElementList>, B<setXMLElementList>.
+
+=back
+
+
+
+=over 4
+
+XDF::XDF inherits the following instance (object) methods of L<XDF::Structure>:
+B<getName>, B<setName>, B<getDescription>, B<setDescription>, B<getArrayList>, B<setArrayList>, B<getStructList>, B<setStructList>, B<getParamList>, B<setParamList>, B<getNoteList>, B<setNoteList>, B<addNote>, B<removeNote>, B<addParameter>, B<removeParameter>, B<addStructure>, B<removeStructure>, B<addArray>, B<removeArray>, B<addParamGroup>, B<removeParamGroup>.
+
+=back
+
+=back
+
+=back
+
+=head1 SEE ALSO
+
+
+
+=over 4
+
+L<XDF::Structure>, L<XDF::Reader>
+
+=back
+
+=head1 AUTHOR
+
+    Brian Thomas  (thomas@adc.gsfc.nasa.gov)
+    Astronomical Data Center <http://adc.gsfc.nasa.gov>
+    NASA/Goddard Space Flight Center
+ 
+
+=cut

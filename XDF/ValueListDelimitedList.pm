@@ -319,6 +319,7 @@ sub AUTOLOAD {
 
 1;
 
+
 __END__
 
 =head1 NAME
@@ -397,10 +398,6 @@ Set the valueListIdRef attribute.
 
 Return the list of values held in this object.  
 
-=item toXMLFileHandle ($fileHandle, $indent)
-
- 
-
 =back
 
 
@@ -431,7 +428,7 @@ B<update>.
 =over 4
 
 XDF::ValueListDelimitedList inherits the following instance (object) methods of L<XDF::BaseObject>:
-B<getXMLAttributes>, B<setXMLAttributes>, B<setXMLAttribute>, B<addXMLAttribute>, B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<toXMLString>, B<toXMLFile>.
+B<getXMLAttributes>, B<setXMLAttributes>, B<setXMLAttribute>, B<addXMLAttribute>, B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<toXMLFileHandle>, B<toXMLString>, B<toXMLFile>.
 
 =back
 
@@ -445,7 +442,7 @@ B<getXMLAttributes>, B<setXMLAttributes>, B<setXMLAttribute>, B<addXMLAttribute>
 
 =over 4
 
-L< XDF::Axis>, L< XDF::Parameter>, L< XDF::ValueListAlgorithm>, L< XDF::Value>, L<XDF::BaseObject>
+L< XDF::Axis>, L< XDF::Parameter>, L< XDF::ValueListAlgorithm>, L<XDF::BaseObject>, L<XDF::Value>
 
 =back
 

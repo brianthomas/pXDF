@@ -288,26 +288,6 @@ This value indicates the initial size of each L<XDF::Axis>/L<XDF::FieldAxis> (th
 
 Whatever new value is set currently only applies to objects created *after* this method is called.  
 
-=item getXMLNotationHash (EMPTY)
-
-Get the output XML NotationHash for all XDF objects. Returns a reference to a Hash object.  
-
-=item setXMLNotationHash ($attribHashRef)
-
-Set the output XML NotationHash for all XDF objects. This will be printed out with other XMLDeclarations in a toXMLFileHandle call.  
-
-=item getXMLSpecVersion (EMPTY)
-
-Get the XML version of this package. This cooresponds to the XML spec version that this packageuses to write out XDF. This method should probably be in XDF::Constants class instead as user shouldnt be able to change.  
-
-=item getXDFRootNodeName (EMPTY)
-
- 
-
-=item getXDFDTDName (EMPTY)
-
- 
-
 =back
 
 

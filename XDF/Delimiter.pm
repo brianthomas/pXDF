@@ -170,3 +170,130 @@ sub AUTOLOAD {
 
 1;
 
+
+__END__
+
+=head1 NAME
+
+XDF::Delimiter - Perl Class for Delimiter
+
+=head1 SYNOPSIS
+
+  
+
+
+...
+
+=head1 DESCRIPTION
+
+ This class handles the delimiter information for delimited IO 
+
+XDF::Delimiter inherits class and attribute methods of L<XDF::GenericObject>, L<XDF::BaseObject>.
+
+
+=head1 METHODS
+
+=over 4
+
+=head2 CLASS Methods
+
+The following methods are defined for the class XDF::Delimiter.
+
+=over 4
+
+=item classXMLNodeName (EMPTY)
+
+This method returns the class node name for this class. This method takes no arguments may not be changed.  
+
+=item getClassAttributes (EMPTY)
+
+This method takes no arguments may not be changed. This method returns a list reference containing the namesof the class attributes of XDF::BinaryFloatField.  
+
+=item getClassXMLAttributes (EMPTY)
+
+This method returns the XMLAttributes of this class.  
+
+=back
+
+=head2 INSTANCE (Object) Methods
+
+The following instance (object) methods are defined for XDF::Delimiter.
+
+=over 4
+
+=item getRepeatable (EMPTY)
+
+ 
+
+=item setRepeatable ($value)
+
+Set the repeatable attribute.  
+
+=item setValue ($valueObj)
+
+Set the value (with either Chars or NewLine object) of this delimiter.  
+
+=item getValue (EMPTY)
+
+ 
+
+=item getStringValue (EMPTY)
+
+return the String representation of the delimiter of this object.  
+
+=back
+
+
+
+=head2 INHERITED Class Methods
+
+=over 4
+
+=back
+
+
+
+=head2 INHERITED INSTANCE Methods
+
+=over 4
+
+
+
+=over 4
+
+XDF::Delimiter inherits the following instance (object) methods of L<XDF::GenericObject>:
+B<new>, B<clone>, B<update>.
+
+=back
+
+
+
+=over 4
+
+XDF::Delimiter inherits the following instance (object) methods of L<XDF::BaseObject>:
+B<getXMLAttributes>, B<setXMLAttributes>, B<setXMLAttribute>, B<addXMLAttribute>, B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<toXMLFileHandle>, B<toXMLString>, B<toXMLFile>.
+
+=back
+
+=back
+
+=back
+
+=head1 SEE ALSO
+
+
+
+=over 4
+
+L<XDF::BaseObject>, L<XDF::Chars>
+
+=back
+
+=head1 AUTHOR
+
+    Brian Thomas  (thomas@adc.gsfc.nasa.gov)
+    Astronomical Data Center <http://adc.gsfc.nasa.gov>
+    NASA/Goddard Space Flight Center
+ 
+
+=cut

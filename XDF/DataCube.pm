@@ -1110,10 +1110,6 @@ This method returns a list reference containing the namesof the class attributes
 
 This method returns the XMLAttributes of this class.  
 
-=item toXMLFileHandle (EMPTY)
-
-We overwrite the toXMLFileHandle method supplied by L<XDF::BaseObject> to have some special handling for the XDF::DataCube. The interface for thismethod remains the same however.  
-
 =item removeData (EMPTY)
 
 Data held within the requested datacell is removed. The value of the datacell is set to undef. B<NOT CURRENTLY IMPLEMENTED>.  
@@ -1133,6 +1129,14 @@ The following instance (object) methods are defined for XDF::DataCube.
 =item setChecksum ($value)
 
 Set the checksum attribute.  
+
+=item getEndByte (EMPTY)
+
+ 
+
+=item setEndByte ($endByte)
+
+Set the endByte attribute.  
 
 =item getHref (EMPTY)
 
@@ -1161,6 +1165,14 @@ Set the encoding attribute.
 =item getDimension (EMPTY)
 
  
+
+=item getStartByte (EMPTY)
+
+ 
+
+=item setStartByte ($startByte)
+
+Set the startByte attribute.  
 
 =item writeDataToFileHandle ($fileHandle, $indent, $compression_type)
 
@@ -1212,7 +1224,7 @@ B<new>, B<clone>, B<update>.
 =over 4
 
 XDF::DataCube inherits the following instance (object) methods of L<XDF::BaseObject>:
-B<getXMLAttributes>, B<setXMLAttributes>, B<setXMLAttribute>, B<addXMLAttribute>, B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<toXMLString>, B<toXMLFile>.
+B<getXMLAttributes>, B<setXMLAttributes>, B<setXMLAttribute>, B<addXMLAttribute>, B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<toXMLFileHandle>, B<toXMLString>, B<toXMLFile>.
 
 =back
 

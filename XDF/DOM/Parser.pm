@@ -238,3 +238,115 @@ sub _parseNodeIntoXDFObject {
 1;
 
 
+__END__
+
+=head1 NAME
+
+XDF::DOM::Parser;  - Perl Class for DOM::Parser; 
+
+=head1 SYNOPSIS
+
+
+ use XDF::DOM::Parser;
+
+  # note: KeepCDATA not available option for XDF::DOM::Parser
+ my %options = ( 
+                 quiet => 0,
+                 debug => 1,
+                 NoExpand => 1,
+                 ParseParamEnt => 0,
+               );
+
+ my $obj = new XDF::DOM::Parser(%options);
+ my $document = $obj->parsefile($ARGV[0]);
+
+ my $xdfElements = $document->getElementsByTagName('XDF');
+ my $size = $xdfElements->getLength;
+
+    for (my $i = 0; $i < $size; $i++)
+    {
+        my $node = $xdfElements->item ($i);
+        my $obj = $node->getXDFObject;
+        print STDERR $node, ' ', $obj, "\n";
+        print STDERR $obj->toXMLString(), "\n";
+    }
+ 
+
+
+
+...
+
+=head1 DESCRIPTION
+
+ XDF::DOM is extends the L<XML::DOM> class and inherits all of its methods and attributes. XDF::DOM allows the reading writing and manipulation of any XML document which embeds XDF within it.  
+ Rather than having to manipulate the XDF portion of the DOM with clumsy DOM methods, the XDF portions of the document may be operated on using  XDF methods viz L<XDF::DOM::Element>.   
+ The options of 'debug' and 'quiet' may be specified to the XDF::DOM::Parser in addtion to those options allowed for the XML::DOM::Parser class.   
+
+
+XDF::DOM::Parser;  inherits class and attribute methods of L<XML::DOM::Parser>.
+
+
+=head1 METHODS
+
+=over 4
+
+=head2 CLASS Methods
+
+The following methods are defined for the class XDF::DOM::Parser; .
+
+=over 4
+
+=item new (%args)
+
+ 
+
+=back
+
+=head2 INSTANCE (Object) Methods
+
+The following instance (object) methods are defined for XDF::DOM::Parser; .
+
+=over 4
+
+=item parse ($scalar)
+
+ 
+
+=back
+
+
+
+=head2 INHERITED Class Methods
+
+=over 4
+
+=back
+
+
+
+=head2 INHERITED INSTANCE Methods
+
+=over 4
+
+=back
+
+=back
+
+=head1 SEE ALSO
+
+
+
+=over 4
+
+L<XDF::DOM>, L<XDF::DOM::Element>, L<XDF::Reader; >
+
+=back
+
+=head1 AUTHOR
+
+    Brian Thomas  (thomas@adc.gsfc.nasa.gov)
+    Astronomical Data Center <http://adc.gsfc.nasa.gov>
+    NASA/Goddard Space Flight Center
+ 
+
+=cut

@@ -388,7 +388,7 @@ B<getXMLAttributes>, B<setXMLAttribute>, B<addXMLAttribute>, B<addToGroup>, B<re
 
 =over 4
 
-L< XDF::Axis>, L< XDF::ErroredValue>, L< XDF::UnitDirection>, L<XDF::BaseObject>
+L< XDF::Axis>, L< XDF::ErroredValue>, L< XDF::ValueListAlgorithm>, L< XDF::ValueListDelimitedList>, L< XDF::UnitDirection>, L<XDF::BaseObject>
 
 =back
 

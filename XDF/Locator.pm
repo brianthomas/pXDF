@@ -348,6 +348,7 @@ sub _init {
 
 1;
 
+
 __END__
 
 =head1 NAME
@@ -437,10 +438,6 @@ Change the locator coordinates to the previous datacell asdetermined from the lo
 =item reset (EMPTY)
 
 Reset the locator to the origin.  
-
-=item toXMLFileHandle (EMPTY)
-
- 
 
 =back
 

@@ -316,6 +316,10 @@ Determine if the passed quanity is an allowed value for the endianattribute of X
 
 Determine if the passed quanity is an allowed value for the typeattribute of the IntegerDataFormat object.  
 
+=item isValidCharOutput ($obj)
+
+ 
+
 =item isValidIOEncoding ($value)
 
 Determine if the passed quanity is an allowed value for the encodingattribute of XMLDataIOStyle objects.  
@@ -351,6 +355,10 @@ Determine if the passed quanity is an allowed value for the bits attributeof the
 =item isValidBinaryIntegerSigned ($value)
 
 Determine if the passed quanity is an allowed value for the signed attributeof the BinaryIntegerDataFormat object.  
+
+=item isValidXMLStandalone ($value)
+
+Determine if the passed quanity is an allowed value for the XMLDeclarationstandalone attribute.  
 
 =item isValidValueSpecial ($value)
 

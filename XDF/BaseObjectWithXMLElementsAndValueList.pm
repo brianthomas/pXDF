@@ -271,18 +271,6 @@ This method returns a list reference containing the namesof the class attributes
 
 =back
 
-=head2 INSTANCE (Object) Methods
-
-The following instance (object) methods are defined for XDF::BaseObjectWithXMLElementsAndValueList.
-
-=over 4
-
-=item toXMLFileHandle ($fileHandle, $indent, $dontCloseNode, $newNodeNameString, $noChildObjectNodeName)
-
- 
-
-=back
-
 
 
 =head2 INHERITED Class Methods
