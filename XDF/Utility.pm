@@ -236,6 +236,9 @@ sub reverse64BitStringByteOrder {
 # Modification History
 #
 # $Log$
+# Revision 1.2  2001/03/09 21:49:57  thomas
+# updated perlDocumentation section.
+#
 # Revision 1.1  2001/03/09 21:07:52  thomas
 # Initial version. Copied from Java package.
 #
@@ -344,15 +347,12 @@ Reverses the *byte* ordering of the passed 64 bit string. Returns revsersed bits
 
 =head2 INHERITED Class Methods
 
-  No inherited class methods. 
-
+A change in the value of these attributes will change the functioning of ALL instances of these objects that inherit from the indicated super class.
 =back
 
 =over 4
 
 =head2 INHERITED Other Methods
-
-  No inherited other methods. 
 
 =back
 

@@ -120,6 +120,9 @@ sub VALUE_SPECIAL_LIST { ( &VALUE_SPECIAL_INFINITE,  &VALUE_SPECIAL_INFINITE_NEG
 # Modification History
 #
 # $Log$
+# Revision 1.2  2001/03/09 21:49:57  thomas
+# updated perlDocumentation section.
+#
 # Revision 1.1  2001/03/09 21:07:52  thomas
 # Initial version. Copied from Java package.
 #
@@ -149,9 +152,10 @@ XDF::Constants - Perl Class for Constants
  An XDF::Constants provides various constants as defined in the  XDF DTD. This class should never be instanciated as it only holds class data. 
 
 
+
 =over 4
 
-=head2 OTHER (Static) Methods
+=head2 OTHER Methods
 
 =over 4
 
@@ -261,7 +265,21 @@ XDF::Constants - Perl Class for Constants
 
 =back
 
+=over 4
+
+=head2 INHERITED Class Methods
+
+A change in the value of these attributes will change the functioning of ALL instances of these objects that inherit from the indicated super class.
+=back
+
+=over 4
+
+=head2 INHERITED Other Methods
+
+=back
+
 =head1 SEE ALSO
+
 
 
 =back
