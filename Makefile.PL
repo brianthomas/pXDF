@@ -82,12 +82,11 @@ WriteMakefile(
             'XDF/DataFormat.pm'       => "\$(INST_LIBDIR)/$install_dir/DataFormat.pm",
             'XDF/DelimitedXMLDataIOStyle.pm'       => "\$(INST_LIBDIR)/$install_dir/DelimitedXMLDataIOStyle.pm",
             'XDF/ErroredValue.pm'      => "\$(INST_LIBDIR)/$install_dir/ErroredValue.pm",
-            'XDF/ExponentialDataFormat.pm'      => "\$(INST_LIBDIR)/$install_dir/ExponentialDataFormat.pm",
             'XDF/Field.pm'      => "\$(INST_LIBDIR)/$install_dir/Field.pm",
             'XDF/FieldAxis.pm'  => "\$(INST_LIBDIR)/$install_dir/FieldAxis.pm",
             'XDF/FieldGroup.pm'      => "\$(INST_LIBDIR)/$install_dir/FieldGroup.pm",
             'XDF/FieldRelation.pm'  => "\$(INST_LIBDIR)/$install_dir/FieldRelation.pm",
-            'XDF/FixedDataFormat.pm'      => "\$(INST_LIBDIR)/$install_dir/FixedDataFormat.pm",
+            'XDF/FloatDataFormat.pm'      => "\$(INST_LIBDIR)/$install_dir/FloatDataFormat.pm",
             'XDF/FormattedIOCmd.pm'      => "\$(INST_LIBDIR)/$install_dir/FormattedIOCmd.pm",
             'XDF/FormattedXMLDataIOStyle.pm'      => "\$(INST_LIBDIR)/$install_dir/FormattedXMLDataIOStyle.pm",
             'XDF/GenericObject.pm'     => "\$(INST_LIBDIR)/$install_dir/GenericObject.pm",
@@ -121,6 +120,10 @@ WriteMakefile(
 # Modification History
 #
 # $Log$
+# Revision 1.5  2001/02/15 17:48:27  thomas
+# Added FloatDataFormat, removed ExponentialDataFormat and
+# FixedDataFormat. -b.t.
+#
 # Revision 1.4  2000/12/14 22:11:25  thomas
 # Big changes to the API. get/set methods, added Href/Entity stuff, deep cloning,
 # added Href, Notes, NotesLocationOrder nodes/classes. Ripped out _enlarge_array

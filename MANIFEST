@@ -16,12 +16,11 @@ XDF/DataCube.pm
 XDF/DataFormat.pm
 XDF/DelimitedXMLDataIOStyle.pm
 XDF/ErroredValue.pm
-XDF/ExponentialDataFormat.pm
+XDF/FloatDataFormat.pm
 XDF/Field.pm
 XDF/FieldAxis.pm
 XDF/FieldGroup.pm
 XDF/FieldRelation.pm
-XDF/FixedDataFormat.pm
 XDF/FormattedIOCmd.pm
 XDF/FormattedXMLDataIOStyle.pm
 XDF/GenericObject.pm
