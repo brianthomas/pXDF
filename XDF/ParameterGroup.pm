@@ -52,11 +52,17 @@ use vars qw ($AUTOLOAD %field @ISA);
 
 # CLASS DATA
 my $Class_XML_Node_Name = "parameterGroup";
+my @Class_XML_Attributes = qw ( 
+                          );
 my @Class_Attributes = qw ( 
                           );
 
+# add in class XML attributes
+push @Class_Attributes, @Class_XML_Attributes;
+
 # add in super class attributes
 push @Class_Attributes, @{&XDF::Group::classAttributes};
+push @Class_Attributes, @{&XDF::Group::getXMLAttributes};
 
 # Initalization
 # set up object attributes.
@@ -67,7 +73,6 @@ for my $attr ( @Class_Attributes ) { $field{$attr}++; }
 # This method takes no arguments may not be changed. 
 # */
 sub classXMLNodeName {
-
   $Class_XML_Node_Name;
 }
 
@@ -77,17 +82,23 @@ sub classXMLNodeName {
 #  This method takes no arguments may not be changed. 
 # */
 sub classAttributes {
-
   \@Class_Attributes;
 }
 
-# This is called when we cant find any defined method
-# exists already. Used to handle general purpose set/get
-# methods for our attributes (object fields).
-sub AUTOLOAD {
-  my ($self,$val) = @_;
-  &XDF::GenericObject::AUTOLOAD($self, $val, $AUTOLOAD, \%field );
+#
+# SET/GET MEthods 
+#
+
+# /** getXMLAttributes
+#      This method returns the XMLAttributes of this class. 
+#  */
+sub getXMLAttributes {
+  return \@Class_XML_Attributes;
 }
+
+#
+# Other Public Methods
+#
 
 # /** 
 # Convenience method.
@@ -114,9 +125,28 @@ sub addParamGroup {
 # */
 sub removeParamGroup { my ($self, $obj) = @_; $self->removeMemberObject($obj); }
 
+#
+# Private Methods 
+#
+
+# This is called when we cant find any defined method
+# exists already. Used to handle general purpose set/get
+# methods for our attributes (object fields).
+sub AUTOLOAD {
+  my ($self,$val) = @_;
+  &XDF::GenericObject::AUTOLOAD($self, $val, $AUTOLOAD, \%field );
+}
+
+
 # Modification History
 #
 # $Log$
+# Revision 1.4  2000/12/14 22:11:26  thomas
+# Big changes to the API. get/set methods, added Href/Entity stuff, deep cloning,
+# added Href, Notes, NotesLocationOrder nodes/classes. Ripped out _enlarge_array
+# from DataCube (not needed) and fixed problems outputing delimited/formatted
+# read nodes. -b.t.
+#
 # Revision 1.3  2000/12/01 20:03:38  thomas
 # Brought Pod docmentation up to date. Bumped up version
 # number. -b.t.
@@ -173,6 +203,10 @@ This method returns a list reference containing the namesof the class attributes
 
 =over 4
 
+=item getXMLAttributes (EMPTY)
+
+This method returns the XMLAttributes of this class. 
+
 =item addParamGroup ($info)
 
 
@@ -208,7 +242,7 @@ B<Pretty_XDF_Output>, B<Pretty_XDF_Output_Indentation>, B<DefaultDataArraySize>.
 =over 4
 
 XDF::ParameterGroup inherits the following instance methods of L<XDF::GenericObject>:
-B<new>, B<clone>, B<update>, B<setObjRef>.
+B<new>, B<clone>, B<update>.
 
 =back
 
@@ -217,7 +251,7 @@ B<new>, B<clone>, B<update>, B<setObjRef>.
 =over 4
 
 XDF::ParameterGroup inherits the following instance methods of L<XDF::BaseObject>:
-B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<toXMLFileHandle>, B<toXMLFile>.
+B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLAttributes>, B<toXMLFileHandle>, B<toXMLFile>.
 
 =back
 
@@ -226,7 +260,7 @@ B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<toXMLFileHandle>, B<toXML
 =over 4
 
 XDF::ParameterGroup inherits the following instance methods of L<XDF::Group>:
-B<addMemberObject>, B<removeMemberObject>, B<hasMemberObj>.
+B<getName>, B<setName>, B<getDescription>, B<setDescription>, B<addMemberObject>, B<removeMemberObject>, B<hasMemberObj>.
 
 =back
 

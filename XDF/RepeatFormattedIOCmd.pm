@@ -31,13 +31,18 @@ use vars qw ($AUTOLOAD %field @ISA);
 # CLASS DATA
 my $Def_Count = 1;
 my $Class_XML_Node_Name = "repeat";
-my @Class_Attributes = qw (
+my @Class_XML_Attributes = qw (
                              count
                              formatCmdList
                           );
+my @Class_Attributes = ();
+
+# add in class XML attributes
+push @Class_Attributes, @Class_XML_Attributes;
 
 # add in super class attributes
 push @Class_Attributes, @{&XDF::FormattedIOCmd::classAttributes};
+push @Class_XML_Attributes, @{&XDF::FormattedIOCmd::getXMLAttributes};
 
 # Initalization
 # set up object attributes.
@@ -51,54 +56,41 @@ sub classAttributes {
   \@Class_Attributes; 
 }
 
-# This is called when we cant find any defined method
-# exists already. Used to handle general purpose set/get
-# methods for our attributes (object fields).
-sub AUTOLOAD {
-  my ($self,$val) = @_;
-  &XDF::GenericObject::AUTOLOAD($self, $val, $AUTOLOAD, \%field );
-}
+#
+# Get/Set Methods
+#
 
-sub _init {
-   my ($self) = @_;
-   $self->formatCmdList([]);
-   $self->count($Def_Count);
-}
-
-sub addFormatCommand {
-  my ($self, $obj) = @_;
-
-  return unless defined $obj && ref $obj;
-
-  # push into our array
-  push @{$self->formatCmdList}, $obj;
-
-  return $obj;
-}
-
-# /** Convenience method that returns the command list. Repeat
-#    commands are expanded into their component parts. 
+# /** getCount
 # */
-sub getCommands () {
-  my ($self) = @_;
-
-  my @commandList = ();
-
-  foreach my $obj (@{$self->formatCmdList}) {
-     if (ref($obj) eq 'XDF::RepeatFormattedIOCmd') {
-       my $count = $obj->count();
-       while ($count-- > 0) {
-          push @commandList, $obj->getCommands();
-       }
-     } else {
-        push @commandList, $obj;
-     }
-   }
-
-   return @commandList;
+sub getCount {
+   my ($self) = @_;
+   return $self->{Count};
 }
 
-sub bytes {
+# /** setCount
+#     Set the count attribute. 
+# */
+sub setCount {
+   my ($self, $value) = @_;
+   $self->{Count} = $value;
+}
+
+# /** getFormatCmdList
+# */
+sub getFormatCmdList {
+   my ($self) = @_;
+   return $self->{FormatCmdList};
+}
+
+# /** setFormatCmdList
+#     Set the formatCmdList attribute. 
+# */
+sub setFormatCmdList {
+   my ($self, $value) = @_;
+   $self->{FormatCmdList} = $value;
+}
+
+sub getBytes {
   my ($self, $dataFormatListRef ) = @_;
 
   my $bytes = 0;
@@ -110,13 +102,13 @@ sub bytes {
     return;
   }
 
-  foreach my $obj ($self->getCommands()) {
+  foreach my $obj (@{$self->getCommands()}) {
     if(ref($obj) eq 'XDF::ReadCellFormattedIOCmd') {
       my $readObj = shift @dataFormatList;
       push (@dataFormatList, $readObj); # its a circular list
-      $bytes += $readObj->bytes;
+      $bytes += $readObj->getBytes();
     } elsif (ref($obj) eq 'XDF::SkipCharFormattedIOCmd') {
-      $bytes += $obj->bytes;
+      $bytes += $obj->getBytes();
     } else {
       # everything else, which nothing right now, so throw an error
       warn "Got weird formattedIOCmd in $self : $obj , ignoring it.\n";
@@ -126,6 +118,68 @@ sub bytes {
   return ($bytes, \@dataFormatList);
 }
 
+# /** Convenience method that returns the command list. Repeat
+#    commands are expanded into their component parts. 
+# */
+sub getCommands () {
+  my ($self) = @_;
+
+  my @commandList = ();
+
+  foreach my $obj (@{$self->{FormatCmdList}}) {
+     if (ref($obj) eq 'XDF::RepeatFormattedIOCmd') {
+       my $count = $obj->getCount();
+       my @repeatCommandList = @{$obj->getCommands()};
+       while ($count-- > 0) {
+          push @commandList, @repeatCommandList;
+       }
+     } else {
+        push @commandList, $obj;
+     }
+   }
+
+   return \@commandList;
+}
+
+# /** getXMLAttributes
+#      This method returns the XMLAttributes of this class. 
+#  */
+sub getXMLAttributes {
+  return \@Class_XML_Attributes;
+}
+
+#
+# Other Public MEthods
+#
+
+sub addFormatCommand {
+  my ($self, $obj) = @_;
+
+  return unless defined $obj && ref $obj;
+
+  # push into our array
+  push @{$self->{FormatCmdList}}, $obj;
+
+  return $obj;
+}
+
+#
+# Private Methods
+#
+
+# This is called when we cant find any defined method
+# exists already. Used to handle general purpose set/get
+# methods for our attributes (object fields).
+sub AUTOLOAD {
+  my ($self,$val) = @_;
+  &XDF::GenericObject::AUTOLOAD($self, $val, $AUTOLOAD, \%field );
+}
+
+sub _init {
+   my ($self) = @_;
+   $self->setFormatCmdList([]);
+   $self->setCount($Def_Count);
+}
 
 # this is only called from dataCube
 sub _outputSkipCharArray {        
@@ -140,7 +194,7 @@ sub _outputSkipCharArray {
     return;
   }
 
-  foreach my $obj (@{$self->formatCmdList}) {
+  foreach my $obj (@{$self->{FormatCmdList}}) {
     if(ref($obj) eq 'XDF::ReadCellFormattedIOCmd') {
       my $readObj = shift @dataFormatList;
       push (@dataFormatList, $readObj); # its a circular list
@@ -150,14 +204,14 @@ sub _outputSkipCharArray {
       @dataFormatList = @{$dataListRef};
       push @outArray, @{$arr_ref};
     } elsif (ref($obj) eq 'XDF::SkipCharFormattedIOCmd') {
-      push @outArray, $obj->output;
+      push @outArray, $obj->getOutput();
     } else {
       warn "Unknown format cmd in $self : $obj\n";
     }
   }
   
   my @repeat_array = @outArray;
-  for (1 .. ($self->count - 1)) { push @outArray, @repeat_array; }
+  for (1 .. ($self->getCount - 1)) { push @outArray, @repeat_array; }
 
   return (\@outArray, \@dataFormatList);
 }
@@ -176,7 +230,7 @@ sub _templateNotation {
   }
   
 
-  foreach my $obj (@{$self->formatCmdList}) {
+  foreach my $obj (@{$self->{FormatCmdList}}) {
     if(ref($obj) eq 'XDF::ReadCellFormattedIOCmd') {
       my $readObj = shift @dataFormatList;
       push (@dataFormatList, $readObj); # its a circular list
@@ -194,7 +248,7 @@ print STDERR "Repeat add notation:[".$readObj->_templateNotation($endian,$encodi
   }
 
   my $repeat_notation = $notation;
-  for (1 .. ($self->count - 1)) { $notation .= $repeat_notation; }
+  for (1 .. ($self->getCount() - 1)) { $notation .= $repeat_notation; }
 
 print STDERR "Repeat gets notation:[".$notation."]\n"; 
   return ($notation, \@dataFormatList);
@@ -211,7 +265,7 @@ sub _regexNotation {
     return;
   }
 
-  foreach my $obj (@{$self->formatCmdList}) { 
+  foreach my $obj (@{$self->{FormatCmdList}}) { 
     if(ref($obj) eq 'XDF::ReadCellFormattedIOCmd') {
       my $readObj = shift @dataFormatList;
       push (@dataFormatList, $readObj); # its a circular list
@@ -228,7 +282,7 @@ sub _regexNotation {
   }
 
   my $repeat_notation = $notation;
-  for (1 .. ($self->count - 1)) { $notation .= $repeat_notation; }
+  for (1 .. ($self->getCount() - 1)) { $notation .= $repeat_notation; }
 
   return ($notation, \@dataFormatList);
 
@@ -245,7 +299,7 @@ sub _sprintfNotation {
     return;
   }
   
-  foreach my $obj (@{$self->formatCmdList}) {
+  foreach my $obj (@{$self->{FormatCmdList}}) {
     if(ref($obj) eq 'XDF::ReadCellFormattedIOCmd') {
       my $readObj = shift @dataFormatList;
       push (@dataFormatList, $readObj); # its a circular list
@@ -262,7 +316,7 @@ sub _sprintfNotation {
   }
 
   my $repeat_notation = $notation;
-  for (1 .. ($self->count - 1)) { $notation .= $repeat_notation; }
+  for (1 .. ($self->getCount() - 1)) { $notation .= $repeat_notation; }
 
   return ($notation, \@dataFormatList);
 
@@ -271,6 +325,12 @@ sub _sprintfNotation {
 # Modification History
 #
 # $Log$
+# Revision 1.5  2000/12/14 22:11:26  thomas
+# Big changes to the API. get/set methods, added Href/Entity stuff, deep cloning,
+# added Href, Notes, NotesLocationOrder nodes/classes. Ripped out _enlarge_array
+# from DataCube (not needed) and fixed problems outputing delimited/formatted
+# read nodes. -b.t.
+#
 # Revision 1.4  2000/12/01 20:03:38  thomas
 # Brought Pod docmentation up to date. Bumped up version
 # number. -b.t.
@@ -328,11 +388,191 @@ These methods set the requested attribute if an argument is supplied to the meth
 
 =over 4
 
-=item count
+=item # add in class XML attributes
 
  
 
-=item formatCmdList
+=item push @Class_Attributes, @Class_XML_Attributes;
+
+ 
+
+=item # add in super class attributes
+
+ 
+
+=item push @Class_Attributes, @{&XDF::FormattedIOCmd::classAttributes};
+
+ 
+
+=item push @Class_XML_Attributes, @{&XDF::FormattedIOCmd::getXMLAttributes};
+
+ 
+
+=item # Initalization
+
+ 
+
+=item # set up object attributes.
+
+ 
+
+=item for my $attr ( @Class_Attributes ) { $field{$attr}++; }
+
+ 
+
+=item sub classXMLNodeName { 
+
+ 
+
+=item }
+
+ 
+
+=item sub classAttributes { 
+
+ 
+
+=item }
+
+ 
+
+=item #
+
+ 
+
+=item # Get/Set Methods
+
+ 
+
+=item #
+
+ 
+
+=item # /** getCount
+
+ 
+
+=item # */
+
+ 
+
+=item sub getCount {
+
+ 
+
+=item return $self->{Count};
+
+ 
+
+=item }
+
+ 
+
+=item # /** setCount
+
+ 
+
+=item #     Set the count attribute. 
+
+ 
+
+=item # */
+
+ 
+
+=item sub setCount {
+
+ 
+
+=item $self->{Count} = $value;
+
+ 
+
+=item }
+
+ 
+
+=item # /** getFormatCmdList
+
+ 
+
+=item # */
+
+ 
+
+=item sub getFormatCmdList {
+
+ 
+
+=item return $self->{FormatCmdList};
+
+ 
+
+=item }
+
+ 
+
+=item # /** setFormatCmdList
+
+ 
+
+=item #     Set the formatCmdList attribute. 
+
+ 
+
+=item # */
+
+ 
+
+=item sub setFormatCmdList {
+
+ 
+
+=item $self->{FormatCmdList} = $value;
+
+ 
+
+=item }
+
+ 
+
+=item sub getBytes {
+
+ 
+
+=item my $bytes = 0;
+
+ 
+
+=item my @dataFormatList = @{$dataFormatListRef};
+
+ 
+
+=item if (!@dataFormatList or $#dataFormatList < 0) {
+
+ 
+
+=item carp "Error: cant read Formatted ReadStyle w/o defined dataFormat\n";
+
+ 
+
+=item return;
+
+ 
+
+=item }
+
+ 
+
+=item foreach my $obj (@{$self->getCommands()}) {
+
+ 
+
+=item if(ref($obj) eq 'XDF::ReadCellFormattedIOCmd') {
+
+ 
+
+=item my $readObj = shift @dataFormatList;
 
  
 
@@ -342,7 +582,23 @@ These methods set the requested attribute if an argument is supplied to the meth
 
 =over 4
 
-=item addFormatCommand ($obj)
+=item getCount (EMPTY)
+
+
+
+=item setCount ($value)
+
+Set the count attribute. 
+
+=item getFormatCmdList (EMPTY)
+
+
+
+=item setFormatCmdList ($value)
+
+Set the formatCmdList attribute. 
+
+=item getBytes ($dataFormatListRef)
 
 
 
@@ -350,7 +606,11 @@ These methods set the requested attribute if an argument is supplied to the meth
 
 
 
-=item bytes ($dataFormatListRef)
+=item getXMLAttributes (EMPTY)
+
+This method returns the XMLAttributes of this class. 
+
+=item addFormatCommand ($obj)
 
 
 
@@ -381,7 +641,7 @@ B<Pretty_XDF_Output>, B<Pretty_XDF_Output_Indentation>, B<DefaultDataArraySize>.
 =over 4
 
 XDF::RepeatFormattedIOCmd inherits the following instance methods of L<XDF::GenericObject>:
-B<new>, B<clone>, B<update>, B<setObjRef>.
+B<new>, B<clone>, B<update>.
 
 =back
 
@@ -390,7 +650,7 @@ B<new>, B<clone>, B<update>, B<setObjRef>.
 =over 4
 
 XDF::RepeatFormattedIOCmd inherits the following instance methods of L<XDF::BaseObject>:
-B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<toXMLFileHandle>, B<toXMLFile>.
+B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLAttributes>, B<toXMLFileHandle>, B<toXMLFile>.
 
 =back
 

@@ -33,12 +33,17 @@ use vars qw ($AUTOLOAD %field @ISA);
 my $Unit_Devide_Symbol = '/';
 my $Class_No_Unit_Child_Node_Name = "unitless";
 my $Class_XML_Node_Name = "units";
-my @Class_Attributes = qw (
+my @Class_XML_Attributes = qw (
                              factor
                              system
                              unitList
-                             _xmlNodeName
                           );
+my @Class_Attributes = qw (
+                             XMLNodeName
+                          );
+
+# push in XML attributes to class attributes
+push @Class_Attributes, @Class_XML_Attributes;
 
 # add in super class attributes
 push @Class_Attributes, @{&XDF::BaseObject::classAttributes};
@@ -63,18 +68,108 @@ sub classAttributes {
   \@Class_Attributes; 
 }
 
-# This is called when we cant find any defined method
-# exists already. Used to handle general purpose set/get
-# methods for our attributes (object fields).
-sub AUTOLOAD {
-  my ($self,$val) = @_;
-  &XDF::GenericObject::AUTOLOAD($self, $val, $AUTOLOAD, \%field );
+#
+# Get/Set Methods
+#
+
+# /** getFactor
+# */
+sub getFactor {
+   my ($self) = @_;
+   return $self->{Factor};
 }
 
-sub _init { 
-  my ($self) = @_; $self->unitList([]); 
-  $self->_xmlNodeName($Class_XML_Node_Name);
+# /** setFactor
+#     Set the factor attribute. 
+# */
+sub setFactor {
+   my ($self, $value) = @_;
+   $self->{Factor} = $value;
 }
+
+# /** getSystem
+# */
+sub getSystem {
+   my ($self) = @_;
+   return $self->{System};
+}
+
+# /** setSystem
+#     Set the system attribute. 
+# */
+sub setSystem {
+   my ($self, $value) = @_;
+   $self->{System} = $value;
+}
+
+# /** getUnitList
+# */
+sub getUnitList {
+   my ($self) = @_;
+   return $self->{UnitList};
+}
+
+# /** setUnitList
+#     Set the unitList attribute. 
+# */
+sub setUnitList {
+   my ($self, $value) = @_;
+   $self->{UnitList} = $value;
+}
+
+# /** getXMLNodeName
+# */
+sub getXMLNodeName {
+   my ($self) = @_;
+   return $self->{XMLNodeName};
+}
+
+# /** setXmlNodeName
+# Change the xml node name for this object.
+# */ 
+sub setXMLNodeName {
+  my ($self, $val) = @_;
+  $self->{XMLNodeName} = $val;
+}
+
+# assemble all of the all the units in my lists and return it as a string.
+# Yes, its flakey. I put here as convenience method.
+sub getValue {
+  my ($self) = @_;
+
+  my $string;
+
+  $string .= $self->getFactor() if defined $self->getFactor();
+
+  foreach my $unitObj (@{$self->{UnitList}}) {
+    $string .= $unitObj->getValue();
+    $string .= "**" . $unitObj->getPower() if ref($unitObj) !~ m/Unitless/ and defined $unitObj->getPower();
+    $string .= " ";
+  }
+
+  chomp $string if $string;
+
+  return $string;
+}
+
+#/** getUnits
+# Convience method. Returns an Array of units held within this object. 
+# */
+sub getUnits {
+  my ($self) = @_;
+  return @{$self->{UnitList}};
+}
+
+# /** getXMLAttributes
+#      This method returns the XMLAttributes of this class. 
+#  */
+sub getXMLAttributes {
+  return \@Class_XML_Attributes;
+}
+
+#
+# Other Public Methods
+#
 
 sub addUnit {
   my ($self, $info ) = @_;
@@ -90,7 +185,7 @@ sub addUnit {
   }
 
   # add it to our list
-  push @{$self->unitList()}, $unitObj;
+  push @{$self->{UnitList}}, $unitObj;
 
   return $unitObj;
 
@@ -98,54 +193,43 @@ sub addUnit {
 
 sub removeUnit {
   my ($self, $what) = @_;
-  $self->_remove_from_list($what, $self->unitList(), 'unitList');
-}
-
-# /** setXmlNodeName
-# Change the xml node name for this object.
-# Returns the new name if successfull, undef if it fails.
-# */ 
-sub setXMLNodeName {
-  my ($self, $val) = @_;
-  return unless defined $val;
-  $self->_xmlNodeName($val);
-}
-
-# assemble all of the all the units in my lists and return it as a string.
-# Yes, its flakey. I put here as convenience method.
-sub value {
-  my ($self) = @_;
-
-  my $string;
-
-  $string .= $self->factor() if defined $self->factor();
-
-  foreach my $unitObj (@{$self->unitList()}) {
-    $string .= $unitObj->value();
-    $string .= "**" . $unitObj->power() if ref($unitObj) !~ m/Unitless/ and defined $unitObj->power();
-    $string .= " ";
-  }
-
-  chomp $string if $string;
-
-  return $string;
+  $self->_remove_from_list($what, $self->{UnitList}, 'unitList');
 }
 
 sub toXMLFileHandle {
   my ($self, $fileHandle, $XMLDeclAttribs, $indent, $dontCloseNode ) = @_;
   $self->SUPER::toXMLFileHandle($fileHandle, $XMLDeclAttribs, $indent, 
-                                $dontCloseNode, $self->_xmlNodeName, 
+                                $dontCloseNode, $self->{XMLNodeName}, 
                                 $Class_No_Unit_Child_Node_Name);
 }
 
-sub getUnits {
+#
+# Private Methods
+# 
+
+# This is called when we cant find any defined method
+# exists already. Used to handle general purpose set/get
+# methods for our attributes (object fields).
+sub AUTOLOAD {
+  my ($self,$val) = @_;
+  &XDF::GenericObject::AUTOLOAD($self, $val, $AUTOLOAD, \%field );
+}
+
+sub _init {
   my ($self) = @_;
-  return @{$self->unitList};
+  $self->{UnitList} = [];
+  $self->{XMLNodeName} = $Class_XML_Node_Name;
 }
 
 # Modification History
 #
 # $Log$
+# Revision 1.4  2000/12/14 22:11:26  thomas
+# Big changes to the API. get/set methods, added Href/Entity stuff, deep cloning,
+# added Href, Notes, NotesLocationOrder nodes/classes. Ripped out _enlarge_array
+# from DataCube (not needed) and fixed problems outputing delimited/formatted
+# read nodes. -b.t.
+#
 # Revision 1.3  2000/12/01 20:03:38  thomas
 # Brought Pod docmentation up to date. Bumped up version
 # number. -b.t.
@@ -203,15 +287,7 @@ These methods set the requested attribute if an argument is supplied to the meth
 
 =over 4
 
-=item factor
-
- 
-
-=item system
-
- 
-
-=item unitList
+=item XMLNodeName
 
  
 
@@ -221,6 +297,50 @@ These methods set the requested attribute if an argument is supplied to the meth
 
 =over 4
 
+=item getFactor (EMPTY)
+
+
+
+=item setFactor ($value)
+
+Set the factor attribute. 
+
+=item getSystem (EMPTY)
+
+
+
+=item setSystem ($value)
+
+Set the system attribute. 
+
+=item getUnitList (EMPTY)
+
+
+
+=item setUnitList ($value)
+
+Set the unitList attribute. 
+
+=item getXMLNodeName (EMPTY)
+
+
+
+=item setXMLNodeName ($val)
+
+
+
+=item getValue (EMPTY)
+
+
+
+=item getUnits (EMPTY)
+
+Convience method. Returns an Array of units held within this object. 
+
+=item getXMLAttributes (EMPTY)
+
+This method returns the XMLAttributes of this class. 
+
 =item addUnit ($info)
 
 
@@ -229,19 +349,7 @@ These methods set the requested attribute if an argument is supplied to the meth
 
 
 
-=item setXMLNodeName ($val)
-
-
-
-=item value (EMPTY)
-
-
-
 =item toXMLFileHandle ($dontCloseNode, $indent, $XMLDeclAttribs, $fileHandle)
-
-
-
-=item getUnits (EMPTY)
 
 
 
@@ -272,7 +380,7 @@ B<Pretty_XDF_Output>, B<Pretty_XDF_Output_Indentation>, B<DefaultDataArraySize>.
 =over 4
 
 XDF::Units inherits the following instance methods of L<XDF::GenericObject>:
-B<new>, B<clone>, B<update>, B<setObjRef>.
+B<new>, B<clone>, B<update>.
 
 =back
 
@@ -281,7 +389,7 @@ B<new>, B<clone>, B<update>, B<setObjRef>.
 =over 4
 
 XDF::Units inherits the following instance methods of L<XDF::BaseObject>:
-B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<toXMLFile>.
+B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLAttributes>, B<toXMLFile>.
 
 =back
 

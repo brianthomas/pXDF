@@ -47,9 +47,13 @@ use vars qw ($AUTOLOAD %field @ISA);
 
 # CLASS DATA
 my $Class_XML_Node_Name = "string";
-my @Class_Attributes = qw (
+my @Class_XML_Attributes = qw (
                              length
                           );
+my @Class_Attributes = ();
+
+# add in class XML attributes
+push @Class_Attributes, @Class_XML_Attributes;
 
 # /** length
 # The width of this string field in characters.
@@ -60,6 +64,7 @@ my @Class_Attributes = qw (
 
 # add in super class attributes
 push @Class_Attributes, @{&XDF::DataFormat::classAttributes};
+push @Class_XML_Attributes, @{&XDF::DataFormat::getXMLAttributes};
 
 # Something specific to Perl
 my $Perl_Sprintf_Field_String = 's';
@@ -86,6 +91,60 @@ sub classAttributes {
   \@Class_Attributes;
 }
 
+#
+# Get/Set Methods
+#
+
+# /** getLength
+# */
+sub getLength {
+   my ($self) = @_;
+   return $self->{Length};
+}
+
+# /** setLength
+#     Set the length attribute. 
+# */
+sub setLength {
+   my ($self, $value) = @_;
+   $self->{Length} = $value;
+}
+
+# /** getBytes
+# A convenience method.
+# Return the number of bytes this XDF::StringDataFormat holds.
+# */
+sub getBytes {
+  my ($self) = @_;
+  $self->getLength();
+}
+
+# /** getXMLAttributes
+#      This method returns the XMLAttributes of this class. 
+#  */
+sub getXMLAttributes { 
+  return \@Class_XML_Attributes;
+}
+
+# 
+# Other Public Methods
+#
+
+# /** fortranNotation
+# The fortran style notation for this object.
+# */
+sub fortranNotation {
+  my ($self) = @_;
+
+  my $notation = "A";
+  $notation .= $self->getLength();
+  return $notation;
+}
+
+#
+# Private Methods
+# 
+
 # This is called when we cant find any defined method
 # exists already. Used to handle general purpose set/get
 # methods for our attributes (object fields).
@@ -96,22 +155,13 @@ sub AUTOLOAD {
 
 sub _init {
   my ($self)  = @_;
-  $self->length(0);
+  $self->setLength(0);
 
-}
-
-# /** bytes
-# A convenience method.
-# Return the number of bytes this XDF::StringDataFormat holds.
-# */
-sub bytes { 
-  my ($self) = @_; 
-  $self->length; 
 }
 
 sub _templateNotation {
   my ($self) = @_;
-  return "A" . $self->bytes;
+  return "A" . $self->getBytes();
 }
 
 sub _regexNotation {
@@ -135,26 +185,21 @@ sub _sprintfNotation {
   my ($self) = @_;
 
   my $notation = '%';
-  $notation .= $self->length; 
+  $notation .= $self->getLength; 
   $notation .= $Perl_Sprintf_Field_String;
 
-  return $notation;
-}
-
-# /** fortranNotation
-# The fortran style notation for this object.
-# */
-sub fortranNotation {
-  my ($self) = @_;
-
-  my $notation = "A";
-  $notation .= $self->length;
   return $notation;
 }
 
 # Modification History
 #
 # $Log$
+# Revision 1.5  2000/12/14 22:11:26  thomas
+# Big changes to the API. get/set methods, added Href/Entity stuff, deep cloning,
+# added Href, Notes, NotesLocationOrder nodes/classes. Ripped out _enlarge_array
+# from DataCube (not needed) and fixed problems outputing delimited/formatted
+# read nodes. -b.t.
+#
 # Revision 1.4  2000/12/01 20:03:38  thomas
 # Brought Pod docmentation up to date. Bumped up version
 # number. -b.t.
@@ -217,9 +262,201 @@ These methods set the requested attribute if an argument is supplied to the meth
 
 =over 4
 
-=item length
+=item # add in class XML attributes
 
-The width of this string field in characters. Normally this translates to the number of bytes the object holds,however, note that the encoding of the data is important. Whenthe encoding is UTF-16, then the number of bytes effectively is 2x $obj->length.  
+ 
+
+=item push @Class_Attributes, @Class_XML_Attributes;
+
+ 
+
+=item # /** length
+
+ 
+
+=item # The width of this string field in characters.
+
+ 
+
+=item # Normally this translates to the number of bytes the object holds,
+
+ 
+
+=item # however, note that the encoding of the data is important. When
+
+ 
+
+=item # the encoding is UTF-16, then the number of bytes effectively is 2x $obj->length.
+
+ 
+
+=item # */
+
+ 
+
+=item # add in super class attributes
+
+ 
+
+=item push @Class_Attributes, @{&XDF::DataFormat::classAttributes};
+
+ 
+
+=item push @Class_XML_Attributes, @{&XDF::DataFormat::getXMLAttributes};
+
+ 
+
+=item # Something specific to Perl
+
+ 
+
+=item my $Perl_Sprintf_Field_String = 's';
+
+ 
+
+=item my $Perl_Regex_Field_String = '.';
+
+ 
+
+=item # Initalization
+
+ 
+
+=item # set up object attributes.
+
+ 
+
+=item for my $attr ( @Class_Attributes ) { $field{$attr}++; }
+
+ 
+
+=item # /** classXMLNodeName
+
+ 
+
+=item # This method returns the class XML node name.
+
+ 
+
+=item # This method takes no arguments may not be changed. 
+
+ 
+
+=item # */
+
+ 
+
+=item sub classXMLNodeName {
+
+ 
+
+=item }
+
+ 
+
+=item # /** classAttributes
+
+ 
+
+=item #  This method returns a list containing the names
+
+ 
+
+=item #  of the attributes of this class.
+
+ 
+
+=item #  This method takes no arguments may not be changed. 
+
+ 
+
+=item # */
+
+ 
+
+=item sub classAttributes {
+
+ 
+
+=item }
+
+ 
+
+=item #
+
+ 
+
+=item # Get/Set Methods
+
+ 
+
+=item #
+
+ 
+
+=item # /** getLength
+
+ 
+
+=item # */
+
+ 
+
+=item sub getLength {
+
+ 
+
+=item return $self->{Length};
+
+ 
+
+=item }
+
+ 
+
+=item # /** setLength
+
+ 
+
+=item #     Set the length attribute. 
+
+ 
+
+=item # */
+
+ 
+
+=item sub setLength {
+
+ 
+
+=item $self->{Length} = $value;
+
+ 
+
+=item }
+
+ 
+
+=item # /** getBytes
+
+ 
+
+=item # A convenience method.
+
+ 
+
+=item # Return the number of bytes this XDF::StringDataFormat holds.
+
+ 
+
+=item # */
+
+ 
+
+=item sub getBytes {
+
+ 
 
 =back
 
@@ -227,9 +464,21 @@ The width of this string field in characters. Normally this translates to the nu
 
 =over 4
 
-=item bytes (EMPTY)
+=item getLength (EMPTY)
+
+
+
+=item setLength ($value)
+
+Set the length attribute. 
+
+=item getBytes (EMPTY)
 
 A convenience method. Return the number of bytes this XDF::StringDataFormat holds. 
+
+=item getXMLAttributes (EMPTY)
+
+This method returns the XMLAttributes of this class. 
 
 =item fortranNotation (EMPTY)
 
@@ -262,7 +511,7 @@ B<Pretty_XDF_Output>, B<Pretty_XDF_Output_Indentation>, B<DefaultDataArraySize>.
 =over 4
 
 XDF::StringDataFormat inherits the following instance methods of L<XDF::GenericObject>:
-B<new>, B<clone>, B<update>, B<setObjRef>.
+B<new>, B<clone>, B<update>.
 
 =back
 
@@ -271,7 +520,7 @@ B<new>, B<clone>, B<update>, B<setObjRef>.
 =over 4
 
 XDF::StringDataFormat inherits the following instance methods of L<XDF::DataFormat>:
-B<toXMLFileHandle>.
+B<getLessThanValue>, B<setLessThanValue>, B<getLessThanOrEqualValue>, B<setLessThanOrEqualValue>, B<getGreaterThanValue>, B<setGreaterThanValue>, B<getGreaterThanOrEqualValue>, B<setGreaterThanOrEqualValue>, B<getInfiniteValue>, B<setInfiniteValue>, B<getInfiniteNegativeValue>, B<setInfiniteNegativeValue>, B<getNoDataValue>, B<setNoDataValue>, B<toXMLFileHandle>.
 
 =back
 
@@ -280,7 +529,7 @@ B<toXMLFileHandle>.
 =over 4
 
 XDF::StringDataFormat inherits the following instance methods of L<XDF::BaseObject>:
-B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<toXMLFile>.
+B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLAttributes>, B<toXMLFile>.
 
 =back
 

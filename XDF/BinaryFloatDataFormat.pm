@@ -48,12 +48,19 @@ use vars qw ($AUTOLOAD %field @ISA);
 # CLASS DATA
 my $Def_BinaryFloat_Bits = 32;
 my $Class_XML_Node_Name = "binaryFloat";
-my @Class_Attributes = qw (
+my @Class_XML_Attributes = qw (
                              bits
                           );
+my @Class_Attributes = ();
+
+# add in XML attributes
+push @Class_Attributes, @Class_XML_Attributes;
 
 # add in super class attributes
 push @Class_Attributes, @{&XDF::DataFormat::classAttributes};
+
+# add in super class XML attributes
+push @Class_XML_Attributes, @{&XDF::DataFormat::getXMLAttributes};
 
 # /** bits
 # The number of bits this XDF::BinaryFloatDataFormat holds.
@@ -86,6 +93,46 @@ sub classAttributes {
   \@Class_Attributes;
 }
 
+#
+# GET/SET methods 
+#
+
+
+# /** getBits
+# */
+sub getBits {
+   my ($self) = @_;
+   return $self->{Bits};
+}
+
+# /** setBits
+#     Set the (number of) bits attribute. 
+# */
+sub setBits {
+   my ($self, $value) = @_;
+   $self->{Bits} = $value;
+}
+
+# /** getBytes
+# A convenience method.
+# Return the number of bytes this XDF::BinaryFloatDataFormat holds.
+# */
+sub getBytes { 
+  my ($self) = @_; 
+  return int($self->{Bits}/8); 
+}
+
+# /** getXMLAttributes
+#      This method returns the XMLAttributes of this class. 
+#  */
+sub getXMLAttributes {
+  return \@Class_XML_Attributes;
+}
+
+#
+# Private/Protected Methods 
+#
+
 # This is called when we cant find any defined method
 # exists already. Used to handle general purpose set/get
 # methods for our attributes (object fields).
@@ -96,22 +143,13 @@ sub AUTOLOAD {
 
 sub _init {
   my ($self) = @_;
-  $self->bits($Def_BinaryFloat_Bits);
-}
-
-# /** bytes
-# A convenience method.
-# Return the number of bytes this XDF::BinaryFloatDataFormat holds.
-# */
-sub bytes { 
-  my ($self) = @_; 
-  return int($self->bits/8); 
+  $self->{Bits} = $Def_BinaryFloat_Bits;
 }
 
 sub _templateNotation {
   my ($self, $endian, $encoding) = @_;
 
-  my $width = $self->bytes/4; 
+  my $width = $self->getBytes()/4; 
 
   # we have 64 bit numbers as upper limit on size
   die "XDF::BinaryFloatDataFormat cant handle > 64 bit Numbers\n" unless ($width <= 2);
@@ -125,7 +163,7 @@ sub _templateNotation {
 sub _regexNotation {
   my ($self) = @_;
 
-  my $width = $self->bytes;
+  my $width = $self->getBytes();
   my $symbol = $Perl_Regex_Field_BinaryFloat;
 
   my $notation = '(';
@@ -145,7 +183,7 @@ sub _sprintfNotation {
   my $notation = '%';
   my $field_symbol = $Perl_Sprintf_Field_BinaryFloat;
 
-  $notation .= $self->bytes;
+  $notation .= $self->getBytes();
   $notation .= $field_symbol;
 
   return $notation;
@@ -162,6 +200,12 @@ sub fortranNotation {
 # Modification History
 #
 # $Log$
+# Revision 1.5  2000/12/14 22:11:26  thomas
+# Big changes to the API. get/set methods, added Href/Entity stuff, deep cloning,
+# added Href, Notes, NotesLocationOrder nodes/classes. Ripped out _enlarge_array
+# from DataCube (not needed) and fixed problems outputing delimited/formatted
+# read nodes. -b.t.
+#
 # Revision 1.4  2000/12/01 20:03:37  thomas
 # Brought Pod docmentation up to date. Bumped up version
 # number. -b.t.
@@ -224,9 +268,197 @@ These methods set the requested attribute if an argument is supplied to the meth
 
 =over 4
 
-=item bits
+=item # add in XML attributes
 
-The number of bits this XDF::BinaryFloatDataFormat holds.  
+ 
+
+=item push @Class_Attributes, @Class_XML_Attributes;
+
+ 
+
+=item # add in super class attributes
+
+ 
+
+=item push @Class_Attributes, @{&XDF::DataFormat::classAttributes};
+
+ 
+
+=item # add in super class XML attributes
+
+ 
+
+=item push @Class_XML_Attributes, @{&XDF::DataFormat::getXMLAttributes};
+
+ 
+
+=item # /** bits
+
+ 
+
+=item # The number of bits this XDF::BinaryFloatDataFormat holds.
+
+ 
+
+=item # */
+
+ 
+
+=item # Something specific to Perl
+
+ 
+
+=item # We use the "string" stuff here
+
+ 
+
+=item my $Perl_Sprintf_Field_BinaryFloat = 's';
+
+ 
+
+=item my $Perl_Regex_Field_BinaryFloat = '\.';
+
+ 
+
+=item # Initalization
+
+ 
+
+=item # set up object attributes.
+
+ 
+
+=item for my $attr ( @Class_Attributes ) { $field{$attr}++; }
+
+ 
+
+=item # /** classXMLNodeName
+
+ 
+
+=item # This method returns the class XML node name.
+
+ 
+
+=item # This method takes no arguments may not be changed. 
+
+ 
+
+=item # */
+
+ 
+
+=item sub classXMLNodeName {
+
+ 
+
+=item }
+
+ 
+
+=item # /** classAttributes
+
+ 
+
+=item #  This method returns a list containing the names
+
+ 
+
+=item #  of the attributes of this class.
+
+ 
+
+=item #  This method takes no arguments may not be changed. 
+
+ 
+
+=item # */
+
+ 
+
+=item sub classAttributes {
+
+ 
+
+=item }
+
+ 
+
+=item #
+
+ 
+
+=item # GET/SET methods 
+
+ 
+
+=item #
+
+ 
+
+=item # /** getBits
+
+ 
+
+=item # */
+
+ 
+
+=item sub getBits {
+
+ 
+
+=item return $self->{Bits};
+
+ 
+
+=item }
+
+ 
+
+=item # /** setBits
+
+ 
+
+=item #     Set the (number of) bits attribute. 
+
+ 
+
+=item # */
+
+ 
+
+=item sub setBits {
+
+ 
+
+=item $self->{Bits} = $value;
+
+ 
+
+=item }
+
+ 
+
+=item # /** getBytes
+
+ 
+
+=item # A convenience method.
+
+ 
+
+=item # Return the number of bytes this XDF::BinaryFloatDataFormat holds.
+
+ 
+
+=item # */
+
+ 
+
+=item sub getBytes { 
+
+ 
 
 =back
 
@@ -234,9 +466,21 @@ The number of bits this XDF::BinaryFloatDataFormat holds.
 
 =over 4
 
-=item bytes (EMPTY)
+=item getBits (EMPTY)
+
+
+
+=item setBits ($value)
+
+Set the (number of) bits attribute. 
+
+=item getBytes (EMPTY)
 
 A convenience method. Return the number of bytes this XDF::BinaryFloatDataFormat holds. 
+
+=item getXMLAttributes (EMPTY)
+
+This method returns the XMLAttributes of this class. 
 
 =item fortranNotation (EMPTY)
 
@@ -269,7 +513,7 @@ B<Pretty_XDF_Output>, B<Pretty_XDF_Output_Indentation>, B<DefaultDataArraySize>.
 =over 4
 
 XDF::BinaryFloatDataFormat inherits the following instance methods of L<XDF::GenericObject>:
-B<new>, B<clone>, B<update>, B<setObjRef>.
+B<new>, B<clone>, B<update>.
 
 =back
 
@@ -278,7 +522,7 @@ B<new>, B<clone>, B<update>, B<setObjRef>.
 =over 4
 
 XDF::BinaryFloatDataFormat inherits the following instance methods of L<XDF::DataFormat>:
-B<toXMLFileHandle>.
+B<getLessThanValue>, B<setLessThanValue>, B<getLessThanOrEqualValue>, B<setLessThanOrEqualValue>, B<getGreaterThanValue>, B<setGreaterThanValue>, B<getGreaterThanOrEqualValue>, B<setGreaterThanOrEqualValue>, B<getInfiniteValue>, B<setInfiniteValue>, B<getInfiniteNegativeValue>, B<setInfiniteNegativeValue>, B<getNoDataValue>, B<setNoDataValue>, B<toXMLFileHandle>.
 
 =back
 
@@ -287,7 +531,7 @@ B<toXMLFileHandle>.
 =over 4
 
 XDF::BinaryFloatDataFormat inherits the following instance methods of L<XDF::BaseObject>:
-B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<toXMLFile>.
+B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLAttributes>, B<toXMLFile>.
 
 =back
 

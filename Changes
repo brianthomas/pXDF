@@ -3,3 +3,12 @@ Revision history for Perl extension XDF.
 0.01  Fri Jun 16 10:50:06 2000
 	- original version; created by h2xs 1.19
 
+0.17l Mon Dec 16 02:51:36 2000
+	- Added correct href functionality for files.
+          Other URL types not currently enabled.
+        - Changed method invocation to Java style, e.g.
+          get/set. There is compatability mode for older
+          attribute access (for now).
+        - Fixed deep cloning (finally!). Removed silly
+          setRef stuff from BaseObject class as a result.
+          

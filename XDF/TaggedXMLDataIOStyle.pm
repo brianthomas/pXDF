@@ -47,12 +47,14 @@ use vars qw ($AUTOLOAD %field @ISA);
 
 # CLASS DATA
 my $Tag_To_Axis_Node_Name = "tagToAxis";
+my @Class_XML_Attributes = ();
 my @Class_Attributes = qw (
                              _tagHash
                           );
 
 # add in super class attributes
 push @Class_Attributes, @{&XDF::XMLDataIOStyle::classAttributes};
+push @Class_XML_Attributes, @{&XDF::XMLDataIOStyle::getXMLAttributes};
 
 # Initalization - set up object attributes.
 for my $attr ( @Class_Attributes ) { $field{$attr}++; }
@@ -66,23 +68,9 @@ sub classAttributes {
   \@Class_Attributes;
 }
 
-# This is called when we cant find any defined method
-# exists already. Used to handle general purpose set/get
-# methods for our attributes (object fields).
-sub AUTOLOAD {
-  my ($self,$val) = @_;
-  &XDF::GenericObject::AUTOLOAD($self, $val, $AUTOLOAD, \%field );
-}
-
-sub _init { 
-  my ($self) = @_; 
-
-  $self->SUPER::_init(@_);
-  $self->_tagHash({}); 
-
-  return $self;
-
-}
+#
+# Get/Set Methods
+#
 
 # /** setAxisTag
 # Set an association between an XDF data tag and axis reference.
@@ -101,17 +89,8 @@ sub setAxisTag {
   }
 
   # insert in hash table, return tag value
-  return %{$self->_tagHash}->{"$axisId"} = $tag;
+  return %{$self->{_tagHash}}->{"$axisId"} = $tag;
 
-}
-
-# /** _removeAxisTag
-# Remove an axis tag from the tag hash. This should be PROTECTED
-# and occur only when axis is being removed (ie available to array obj only).
-# */
-sub _removeAxisTag {
-  my ($self, $axisId) = @_;
-  delete %{$self->_tagHash}->{"$axisId"};
 }
 
 # /** getXMLDataIOStyleTags
@@ -121,18 +100,29 @@ sub getAxisTags {
   my ($self) = @_;
 
   my @tags;
-  my $counter = $#{$self->_parentArray->axisList};
-  foreach my $axisObj (@{$self->_parentArray->axisList}) {
-    my $axisId = $axisObj->axisId;
+  my $counter = $#{$self->{_parentArray}->getAxisList()};
+  foreach my $axisObj (@{$self->{_parentArray}->getAxisList()}) {
+    my $axisId = $axisObj->getAxisId();
     my $tag = 'd' . $counter--; # the default 
     # should it exist, we use whats in the tag hash.
     # otherwize we go w/ the default (as assigned above)
-    $tag = %{$self->_tagHash}->{$axisId} if exists %{$self->_tagHash}->{$axisId};
+    $tag = %{$self->{_tagHash}}->{$axisId} if exists %{$self->{_tagHash}}->{$axisId};
     push @tags, $tag;
   }
   return @tags;
 
 }
+
+# /** getXMLAttributes
+#      This method returns the XMLAttributes of this class. 
+#  */
+sub getXMLAttributes { 
+  return \@Class_XML_Attributes;
+}
+
+#
+# Other Public MEthods
+#
 
 # /** toXMLFileHandle
 # Write this object out to a filehandle in XDF formatted XML.
@@ -164,8 +154,8 @@ sub toXMLFileHandle {
   print $fileHandle "\n" if $niceOutput;
 
   my @tags = $self->getAxisTags;
-  foreach my $axisObj ( @{$self->_parentArray->axisList} ) {
-    my $axisId = $axisObj->axisId;
+  foreach my $axisObj ( @{$self->{_parentArray}->getAxisList()} ) {
+    my $axisId = $axisObj->getAxisId();
     my $tag = shift @tags;
     print $fileHandle "$more_indent" if $niceOutput;
     print $fileHandle "<$Tag_To_Axis_Node_Name axisIdRef=\"$axisId\" tag=\"" . $tag . "\" />";
@@ -179,9 +169,47 @@ sub toXMLFileHandle {
 
 }
 
+#
+# Private Methods
+#
+
+# This is called when we cant find any defined method
+# exists already. Used to handle general purpose set/get
+# methods for our attributes (object fields).
+sub AUTOLOAD {
+  my ($self,$val) = @_;
+  &XDF::GenericObject::AUTOLOAD($self, $val, $AUTOLOAD, \%field );
+}
+
+sub _init {
+  my ($self) = @_;
+
+  $self->SUPER::_init(@_);
+  $self->{_tagHash} = {};
+
+  return $self;
+
+}
+
+# /** _removeAxisTag
+# Remove an axis tag from the tag hash. This should be PROTECTED
+# and occur only when axis is being removed (ie available to array obj only).
+# */
+sub _removeAxisTag {
+  my ($self, $axisId) = @_;
+  delete %{$self->{_tagHash}}->{"$axisId"};
+}
+
+
 # Modification History
 #
 # $Log$
+# Revision 1.4  2000/12/14 22:11:26  thomas
+# Big changes to the API. get/set methods, added Href/Entity stuff, deep cloning,
+# added Href, Notes, NotesLocationOrder nodes/classes. Ripped out _enlarge_array
+# from DataCube (not needed) and fixed problems outputing delimited/formatted
+# read nodes. -b.t.
+#
 # Revision 1.3  2000/12/01 20:03:38  thomas
 # Brought Pod docmentation up to date. Bumped up version
 # number. -b.t.
@@ -242,6 +270,10 @@ Set an association between an XDF data tag and axis reference. One day we will h
 
 
 
+=item getXMLAttributes (EMPTY)
+
+This method returns the XMLAttributes of this class. 
+
 =item toXMLFileHandle ($indent, $junk, $fileHandle)
 
 Write this object out to a filehandle in XDF formatted XML. 
@@ -273,7 +305,7 @@ B<Pretty_XDF_Output>, B<Pretty_XDF_Output_Indentation>, B<DefaultDataArraySize>.
 =over 4
 
 XDF::TaggedXMLDataIOStyle inherits the following instance methods of L<XDF::GenericObject>:
-B<new>, B<clone>, B<update>, B<setObjRef>.
+B<new>, B<clone>, B<update>.
 
 =back
 
@@ -282,7 +314,16 @@ B<new>, B<clone>, B<update>, B<setObjRef>.
 =over 4
 
 XDF::TaggedXMLDataIOStyle inherits the following instance methods of L<XDF::BaseObject>:
-B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<toXMLFile>.
+B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLAttributes>, B<toXMLFile>.
+
+=back
+
+
+
+=over 4
+
+XDF::TaggedXMLDataIOStyle inherits the following instance methods of L<XDF::XMLDataIOStyle>:
+B<untaggedInstructionNodeName>, B<getReadId{>, B<setReadId>, B<getReadIdRef>, B<setReadIdRef>, B<getEncoding{>, B<setEncoding>, B<getEndian{>, B<setEndian>.
 
 =back
 

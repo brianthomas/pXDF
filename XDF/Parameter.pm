@@ -93,7 +93,7 @@ use vars qw ($AUTOLOAD %field @ISA);
 # a SCALAR (ARRAY REF) of the list of L<XDF::Value> objects held within in this parameter.
 # */
 my $Class_XML_Node_Name = "parameter";
-my @Class_Attributes = qw (
+my @Class_XML_Attributes = qw (
                       name
                       description
                       paramId
@@ -103,6 +103,10 @@ my @Class_Attributes = qw (
                       valueList
                       noteList
                           );
+my @Class_Attributes = ();
+
+# add in class XML attributes
+push @Class_Attributes, @Class_XML_Attributes;
 
 # add in super class attributes
 push @Class_Attributes, @{&XDF::BaseObject::classAttributes};
@@ -125,29 +129,159 @@ sub classXMLNodeName {
 #  This method takes no arguments may not be changed. 
 # */
 sub classAttributes {
-
   \@Class_Attributes;
 }
 
-# This is called when we cant find any defined method
-# exists already. Used to handle general purpose set/get
-# methods for our attributes (object fields).
-sub AUTOLOAD {
-  my ($self,$val) = @_;
-  &XDF::GenericObject::AUTOLOAD($self, $val, $AUTOLOAD, \%field );
+#
+# Get/Set Methods
+#
+
+# /** getName
+# */
+sub getName {
+   my ($self) = @_;
+   return $self->{Name};
 }
 
-sub _init {
+# /** setName
+#     Set the name attribute. 
+# */
+sub setName {
+   my ($self, $value) = @_;
+   $self->{Name} = $value;
+}
+
+# /** getDescription
+#  */
+sub getDescription {
+   my ($self) = @_;
+   return $self->{Description};
+}
+
+# /** setDescription
+#  */
+sub setDescription {
+   my ($self, $value) = @_;
+   $self->{Description} = $value;
+}
+
+# /** getParamId
+# */
+sub getParamId {
+   my ($self) = @_;
+   return $self->{ParamId};
+}
+
+# /** setParamId
+#     Set the paramId attribute. 
+# */
+sub setParamId {
+   my ($self, $value) = @_;
+   $self->{ParamId} = $value;
+}
+
+# /** getParamIdRef
+# */
+sub getParamIdRef {
+   my ($self) = @_;
+   return $self->{ParamIdRef};
+}
+
+# /** setParamIdRef
+#     Set the paramIdRef attribute. 
+# */
+sub setParamIdRef {
+   my ($self, $value) = @_;
+   $self->{ParamIdRef} = $value;
+}
+
+# /** getDatatype
+# */
+sub getDatatype {
+   my ($self) = @_;
+   return $self->{Datatype};
+}
+
+# /** setDatatype
+#     Set the datatype attribute. 
+# */
+sub setDatatype {
+   my ($self, $value) = @_;
+   $self->{Datatype} = $value;
+}
+
+# /** getNoteList
+# */
+sub getNoteList {
+   my ($self) = @_;
+   return $self->{NoteList};
+}
+
+# /** setNoteList
+#     Set the noteList attribute. 
+# */
+sub setNoteList {
+   my ($self, $value) = @_;
+   $self->{NoteList} = $value;
+}
+
+# /** getValueList
+# */
+sub getValueList {
+   my ($self) = @_;
+   return $self->{ValueList};
+}
+
+# /** setValueList
+#     Set the valueList attribute. 
+# */
+sub setValueList {
+   my ($self, $value) = @_;
+   $self->{ValueList} = $value;
+}
+
+# /** getNotes
+# Convenience method which returns a list of the notes held by 
+# this object. 
+# */
+sub getNotes {
+  my ($self, $what) = @_;
+  return @{$self->{NoteList}};
+}
+
+# /** getValues
+# A convenience method. Returns a list of values in this parameter. 
+# */
+sub getValues {
   my ($self) = @_;
-
-  # initialize objects
-  $self->units(new XDF::Units());
-
-  # initialize lists
-  $self->noteList([]);
-  $self->valueList([]);
-
+  return @{$self->{ValueList}};
 }
+
+# /** getUnits
+# */
+sub getUnits {
+   my ($self) = @_;
+   return $self->{Units};
+}
+
+# /** setUnits
+#     Set the units attribute. 
+# */
+sub setUnits {
+   my ($self, $value) = @_;
+   $self->{Units} = $value;
+}
+
+# /** getXMLAttributes
+#      This method returns the XMLAttributes of this class. 
+#  */
+sub getXMLAttributes {
+  return \@Class_XML_Attributes;
+}
+
+#
+# Other Public Methods
+#
 
 # note: $info could be either string or attrib hash ref, see
 # XDF::Note obj.
@@ -166,21 +300,13 @@ sub addValue {
   if (ref $attribHashRefOrStringOrObjectRef eq 'XDF::ErroredValue') {
     $valueObj = $attribHashRefOrStringOrObjectRef;
   } else {
-    $valueObj = XDF::ErroredValue->new($attribHashRefOrStringOrObjectRef);
+    $valueObj = new XDF::ErroredValue($attribHashRefOrStringOrObjectRef);
   }
 
   # add the new value to the list
-  push @{$self->valueList}, $valueObj;
+  push @{$self->{ValueList}}, $valueObj;
 
   return $valueObj;
-}
-
-# /** getValues
-# A convenience method. Returns a list of values in this parameter. 
-# */
-sub getValues {
-  my ($self) = @_;
-  return @{$self->valueList()};
 }
 
 # /** removeValue
@@ -190,7 +316,7 @@ sub getValues {
 # */
 sub removeValue {
   my ($self, $indexOrObjectRef) = @_;
-  $self->_remove_from_list($indexOrObjectRef, $self->valueList(), 'valueList');
+  $self->_remove_from_list($indexOrObjectRef, $self->{ValueList}, 'valueList');
 }
 
 # /** addNote
@@ -213,7 +339,7 @@ sub addNote {
   }
 
   # add the parameter to the list
-  push @{$self->noteList}, $noteObj;
+  push @{$self->{NoteList}}, $noteObj;
 
   return $noteObj;
 }
@@ -226,16 +352,7 @@ sub addNote {
 # */
 sub removeNote {
   my ($self, $what) = @_;
-  $self->_remove_from_list($what, $self->noteList(), 'noteList');
-}
-
-# /** getNotes
-# Convenience method which returns a list of the notes held by 
-# this object. 
-# */
-sub getNotes {
-  my ($self, $what) = @_;
-  return @{$self->noteList};
+  $self->_remove_from_list($what, $self->{NoteList}, 'noteList');
 }
 
 # /** addUnit
@@ -249,7 +366,7 @@ sub getNotes {
 # used to initialize the new XDF::Unit object.
 # RETURNS : an XDF::Unit object if successfull, undef if not. 
 sub addUnit { my ($self, $attribHashRefOrObjectRef) = @_;
-   my $unitObj = $self->units()->addUnit($attribHashRefOrObjectRef);
+   my $unitObj = $self->{Units}->addUnit($attribHashRefOrObjectRef);
    return $unitObj;
 }
 
@@ -261,12 +378,43 @@ sub addUnit { my ($self, $attribHashRefOrObjectRef) = @_;
 # */
 sub removeUnit {
   my ($self, $indexOrObjectRef) = @_;
-  return $self->units()->removeUnit($indexOrObjectRef);
+  return $self->{Units}->removeUnit($indexOrObjectRef);
 }
+
+#
+# Private Methods
+#
+
+# This is called when we cant find any defined method
+# exists already. Used to handle general purpose set/get
+# methods for our attributes (object fields).
+sub AUTOLOAD {
+  my ($self,$val) = @_;
+  &XDF::GenericObject::AUTOLOAD($self, $val, $AUTOLOAD, \%field );
+}
+
+sub _init {
+  my ($self) = @_;
+
+  # initialize objects
+  $self->setUnits(new XDF::Units());
+
+  # initialize lists
+  $self->setNoteList([]);
+  $self->setValueList([]);
+
+}
+
  
 # Modification History
 #
 # $Log$
+# Revision 1.4  2000/12/14 22:11:26  thomas
+# Big changes to the API. get/set methods, added Href/Entity stuff, deep cloning,
+# added Href, Notes, NotesLocationOrder nodes/classes. Ripped out _enlarge_array
+# from DataCube (not needed) and fixed problems outputing delimited/formatted
+# read nodes. -b.t.
+#
 # Revision 1.3  2000/12/01 20:03:38  thomas
 # Brought Pod docmentation up to date. Bumped up version
 # number. -b.t.
@@ -332,37 +480,561 @@ These methods set the requested attribute if an argument is supplied to the meth
 
 =over 4
 
-=item name
+=item # add in class XML attributes
 
-The STRING description (short name) of this object.  
+ 
 
-=item description
+=item push @Class_Attributes, @Class_XML_Attributes;
 
-A scalar string description (long name) of this object.  
+ 
 
-=item paramId
+=item # add in super class attributes
 
-A scalar (STRING)holding the param Id of this object.  
+ 
 
-=item paramIdRef
+=item push @Class_Attributes, @{&XDF::BaseObject::classAttributes};
 
-A scalar (STRING) holding the parameter id reference to another parameter. Note that in order to get the code to use the reference object,the $obj->setObjRef($refFieldObj) method should be used.  
+ 
 
-=item datatype
+=item # Initalization
 
-Holds a SCALAR object reference to a single datatype (L<XDF::DataFormat>) object for this axis.  
+ 
 
-=item units
+=item # set up object attributes.
 
-a SCALAR (OBJECT REF) of the L<XDF::Units> object of this parameter. The XDF::Units object is used to hold the XDF::Unit objects.  
+ 
 
-=item valueList
+=item for my $attr ( @Class_Attributes ) { $field{$attr}++; }
 
-a SCALAR (ARRAY REF) of the list of L<XDF::Value> objects held within in this parameter.  
+ 
 
-=item noteList
+=item # /** classXMLNodeName
 
-a SCALAR (ARRAY REF) of the list of L<XDF::Note> objects held within this parameter.  
+ 
+
+=item # This method returns the class node name of XDF::Parameter.
+
+ 
+
+=item # This method takes no arguments may not be changed. 
+
+ 
+
+=item # */
+
+ 
+
+=item sub classXMLNodeName {
+
+ 
+
+=item }
+
+ 
+
+=item # /** classAttributes
+
+ 
+
+=item #  This method returns a list reference containing the names
+
+ 
+
+=item #  of the class attributes of XDF::Parameter. 
+
+ 
+
+=item #  This method takes no arguments may not be changed. 
+
+ 
+
+=item # */
+
+ 
+
+=item sub classAttributes {
+
+ 
+
+=item }
+
+ 
+
+=item #
+
+ 
+
+=item # Get/Set Methods
+
+ 
+
+=item #
+
+ 
+
+=item # /** getName
+
+ 
+
+=item # */
+
+ 
+
+=item sub getName {
+
+ 
+
+=item return $self->{Name};
+
+ 
+
+=item }
+
+ 
+
+=item # /** setName
+
+ 
+
+=item #     Set the name attribute. 
+
+ 
+
+=item # */
+
+ 
+
+=item sub setName {
+
+ 
+
+=item $self->{Name} = $value;
+
+ 
+
+=item }
+
+ 
+
+=item # /** getDescription
+
+ 
+
+=item #  */
+
+ 
+
+=item sub getDescription {
+
+ 
+
+=item return $self->{Description};
+
+ 
+
+=item }
+
+ 
+
+=item # /** setDescription
+
+ 
+
+=item #  */
+
+ 
+
+=item sub setDescription {
+
+ 
+
+=item $self->{Description} = $value;
+
+ 
+
+=item }
+
+ 
+
+=item # /** getParamId
+
+ 
+
+=item # */
+
+ 
+
+=item sub getParamId {
+
+ 
+
+=item return $self->{ParamId};
+
+ 
+
+=item }
+
+ 
+
+=item # /** setParamId
+
+ 
+
+=item #     Set the paramId attribute. 
+
+ 
+
+=item # */
+
+ 
+
+=item sub setParamId {
+
+ 
+
+=item $self->{ParamId} = $value;
+
+ 
+
+=item }
+
+ 
+
+=item # /** getParamIdRef
+
+ 
+
+=item # */
+
+ 
+
+=item sub getParamIdRef {
+
+ 
+
+=item return $self->{ParamIdRef};
+
+ 
+
+=item }
+
+ 
+
+=item # /** setParamIdRef
+
+ 
+
+=item #     Set the paramIdRef attribute. 
+
+ 
+
+=item # */
+
+ 
+
+=item sub setParamIdRef {
+
+ 
+
+=item $self->{ParamIdRef} = $value;
+
+ 
+
+=item }
+
+ 
+
+=item # /** getDatatype
+
+ 
+
+=item # */
+
+ 
+
+=item sub getDatatype {
+
+ 
+
+=item return $self->{Datatype};
+
+ 
+
+=item }
+
+ 
+
+=item # /** setDatatype
+
+ 
+
+=item #     Set the datatype attribute. 
+
+ 
+
+=item # */
+
+ 
+
+=item sub setDatatype {
+
+ 
+
+=item $self->{Datatype} = $value;
+
+ 
+
+=item }
+
+ 
+
+=item # /** getNoteList
+
+ 
+
+=item # */
+
+ 
+
+=item sub getNoteList {
+
+ 
+
+=item return $self->{NoteList};
+
+ 
+
+=item }
+
+ 
+
+=item # /** setNoteList
+
+ 
+
+=item #     Set the noteList attribute. 
+
+ 
+
+=item # */
+
+ 
+
+=item sub setNoteList {
+
+ 
+
+=item $self->{NoteList} = $value;
+
+ 
+
+=item }
+
+ 
+
+=item # /** getValueList
+
+ 
+
+=item # */
+
+ 
+
+=item sub getValueList {
+
+ 
+
+=item return $self->{ValueList};
+
+ 
+
+=item }
+
+ 
+
+=item # /** setValueList
+
+ 
+
+=item #     Set the valueList attribute. 
+
+ 
+
+=item # */
+
+ 
+
+=item sub setValueList {
+
+ 
+
+=item $self->{ValueList} = $value;
+
+ 
+
+=item }
+
+ 
+
+=item # /** getNotes
+
+ 
+
+=item # Convenience method which returns a list of the notes held by 
+
+ 
+
+=item # this object. 
+
+ 
+
+=item # */
+
+ 
+
+=item sub getNotes {
+
+ 
+
+=item return @{$self->{NoteList}};
+
+ 
+
+=item }
+
+ 
+
+=item # /** getValues
+
+ 
+
+=item # A convenience method. Returns a list of values in this parameter. 
+
+ 
+
+=item # */
+
+ 
+
+=item sub getValues {
+
+ 
+
+=item return @{$self->{ValueList}};
+
+ 
+
+=item }
+
+ 
+
+=item # /** getUnits
+
+ 
+
+=item # */
+
+ 
+
+=item sub getUnits {
+
+ 
+
+=item return $self->{Units};
+
+ 
+
+=item }
+
+ 
+
+=item # /** setUnits
+
+ 
+
+=item #     Set the units attribute. 
+
+ 
+
+=item # */
+
+ 
+
+=item sub setUnits {
+
+ 
+
+=item $self->{Units} = $value;
+
+ 
+
+=item }
+
+ 
+
+=item # /** getXMLAttributes
+
+ 
+
+=item #      This method returns the XMLAttributes of this class. 
+
+ 
+
+=item #  */
+
+ 
+
+=item sub getXMLAttributes {
+
+ 
+
+=item }
+
+ 
+
+=item #
+
+ 
+
+=item # Other Public Methods
+
+ 
+
+=item #
+
+ 
+
+=item # note: $info could be either string or attrib hash ref, see
+
+ 
+
+=item # XDF::Note obj.
+
+ 
+
+=item # /** addValue
+
+ 
+
+=item # Add a value to this object. 
+
+ 
+
+=item # Takes either an attribute HASH reference or object reference as its argument.
+
+ 
+
+=item # Returns the value object reference on success, undef on failure. 
+
+ 
+
+=item # */
+
+ 
+
+=item sub addValue {
+
+ 
 
 =back
 
@@ -370,13 +1042,85 @@ a SCALAR (ARRAY REF) of the list of L<XDF::Note> objects held within this parame
 
 =over 4
 
-=item addValue ($attribHashRefOrStringOrObjectRef)
+=item getName (EMPTY)
 
-Add a value to this object. Takes either an attribute HASH reference or object reference as its argument. Returns the value object reference on success, undef on failure. 
+
+
+=item setName ($value)
+
+Set the name attribute. 
+
+=item getDescription (EMPTY)
+
+
+
+=item setDescription ($value)
+
+
+
+=item getParamId (EMPTY)
+
+
+
+=item setParamId ($value)
+
+Set the paramId attribute. 
+
+=item getParamIdRef (EMPTY)
+
+
+
+=item setParamIdRef ($value)
+
+Set the paramIdRef attribute. 
+
+=item getDatatype (EMPTY)
+
+
+
+=item setDatatype ($value)
+
+Set the datatype attribute. 
+
+=item getNoteList (EMPTY)
+
+
+
+=item setNoteList ($value)
+
+Set the noteList attribute. 
+
+=item getValueList (EMPTY)
+
+
+
+=item setValueList ($value)
+
+Set the valueList attribute. 
+
+=item getNotes ($what)
+
+Convenience method which returns a list of the notes held by this object. 
 
 =item getValues (EMPTY)
 
 A convenience method. Returns a list of values in this parameter. 
+
+=item getUnits (EMPTY)
+
+
+
+=item setUnits ($value)
+
+Set the units attribute. 
+
+=item getXMLAttributes (EMPTY)
+
+This method returns the XMLAttributes of this class. 
+
+=item addValue ($attribHashRefOrStringOrObjectRef)
+
+Add a value to this object. Takes either an attribute HASH reference or object reference as its argument. Returns the value object reference on success, undef on failure. 
 
 =item removeValue ($indexOrObjectRef)
 
@@ -389,10 +1133,6 @@ Insert an XDF::Note object into the XDF::Notes object held by this object. This 
 =item removeNote ($what)
 
 Removes an XDF::Note object from the list of XDF::Note objectsheld within the XDF::Notes object of this object. This method takes either the list index number or an object reference as its argument. RETURNS : 1 on success, undef on failure. 
-
-=item getNotes ($what)
-
-Convenience method which returns a list of the notes held by this object. 
 
 =item addUnit (EMPTY)
 
@@ -429,7 +1169,7 @@ B<Pretty_XDF_Output>, B<Pretty_XDF_Output_Indentation>, B<DefaultDataArraySize>.
 =over 4
 
 XDF::Parameter inherits the following instance methods of L<XDF::GenericObject>:
-B<new>, B<clone>, B<update>, B<setObjRef>.
+B<new>, B<clone>, B<update>.
 
 =back
 
@@ -438,7 +1178,7 @@ B<new>, B<clone>, B<update>, B<setObjRef>.
 =over 4
 
 XDF::Parameter inherits the following instance methods of L<XDF::BaseObject>:
-B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<toXMLFileHandle>, B<toXMLFile>.
+B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLAttributes>, B<toXMLFileHandle>, B<toXMLFile>.
 
 =back
 

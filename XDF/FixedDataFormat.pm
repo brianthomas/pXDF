@@ -49,13 +49,18 @@ use vars qw ($AUTOLOAD %field @ISA);
 
 # CLASS DATA
 my $Class_XML_Node_Name = "fixed";
-my @Class_Attributes = qw (
+my @Class_XML_Attributes = qw (
                              width
                              precision
                           );
+my @Class_Attributes = (); 
+
+# add in class XML attributes
+push @Class_Attributes, @Class_XML_Attributes;
 
 # add in super class attributes
 push @Class_Attributes, @{&XDF::DataFormat::classAttributes};
+push @Class_Attributes, @{&XDF::DataFormat::getXMLAttributes};
 
 # /** width
 # The entire width of this fixed field.
@@ -91,6 +96,78 @@ sub classAttributes {
   \@Class_Attributes;
 }
 
+# 
+# SET/GET Methods
+#
+
+# /** getWidth
+# */
+sub getWidth {
+   my ($self) = @_;
+   return $self->{Width};
+}
+
+# /** setWidth
+#     Set the width attribute. 
+# */
+sub setWidth {
+   my ($self, $value) = @_;
+   $self->{Width} = $value;
+}
+
+
+# /** getPrecision
+# */
+sub getPrecision {
+   my ($self) = @_;
+   return $self->{Precision};
+}
+
+# /** setPrecision
+#     Set the precision attribute. 
+# */
+sub setPrecision {
+   my ($self, $value) = @_;
+   $self->{Precision} = $value;
+}
+
+# /** getXMLAttributes
+#      This method returns the XMLAttributes of this class. 
+#  */
+sub getXMLAttributes {
+  return \@Class_XML_Attributes;
+}
+
+# /** getBytes
+# A convenience method.
+# Return the number of bytes this XDF::FixedDataFormat holds.
+# */
+sub getBytes {  
+  my ($self) = @_;
+  $self->{Width};
+}
+
+#
+# Other Public Methods
+#
+
+# /** fortranNotation
+# The fortran style notation for this object.
+# */
+sub fortranNotation {
+  my ($self) = @_;
+
+  my $notation = "F";
+  $notation .= $self->{Width};
+  $notation .= '.' . $self->{Precision};
+  return $notation;
+}
+
+
+#
+# Private Methods 
+#
+
 # This is called when we cant find any defined method
 # exists already. Used to handle general purpose set/get
 # methods for our attributes (object fields).
@@ -101,22 +178,13 @@ sub AUTOLOAD {
 
 sub _init {
    my ($self) = @_;
-   $self->width(0);
-   $self->precision(0);
+   $self->{Width} = 0;
+   $self->{Precision} = 0;
 }
-
-# /** bytes
-# A convenience method.
-# Return the number of bytes this XDF::FixedDataFormat holds.
-# */
-sub bytes { 
-  my ($self) = @_; 
-  $self->width; 
-} 
 
 sub _templateNotation {
   my ($self, $endian, $encoding) = @_;
-  return "A" . $self->bytes; 
+  return "A" . $self->getBytes(); 
 }
 
 sub _regexNotation {
@@ -144,23 +212,10 @@ sub _sprintfNotation {
 
   my $notation = '%';
   my $field_symbol = $Perl_Sprintf_Field_Fixed;
-  my $precision = $self->precision;
-  $notation .= $self->width; 
-  $notation .= '.' . $precision;
+  $notation .= $self->{Width}; 
+  $notation .= '.' . $self->{Precision};
   $notation .= $field_symbol;
 
-  return $notation;
-}
-
-# /** fortranNotation
-# The fortran style notation for this object.
-# */
-sub fortranNotation {
-  my ($self) = @_;
-
-  my $notation = "F";
-  $notation .= $self->width;
-  $notation .= '.' . $self->precision;
   return $notation;
 }
 
@@ -168,6 +223,12 @@ sub fortranNotation {
 # Modification History
 #
 # $Log$
+# Revision 1.5  2000/12/14 22:11:26  thomas
+# Big changes to the API. get/set methods, added Href/Entity stuff, deep cloning,
+# added Href, Notes, NotesLocationOrder nodes/classes. Ripped out _enlarge_array
+# from DataCube (not needed) and fixed problems outputing delimited/formatted
+# read nodes. -b.t.
+#
 # Revision 1.4  2000/12/01 20:03:38  thomas
 # Brought Pod docmentation up to date. Bumped up version
 # number. -b.t.
@@ -230,13 +291,269 @@ These methods set the requested attribute if an argument is supplied to the meth
 
 =over 4
 
-=item width
+=item # add in class XML attributes
 
-The entire width of this fixed field.  
+ 
 
-=item precision
+=item push @Class_Attributes, @Class_XML_Attributes;
 
-The precision of this fixed field which is the number of digitsto the right of the '.'.  
+ 
+
+=item # add in super class attributes
+
+ 
+
+=item push @Class_Attributes, @{&XDF::DataFormat::classAttributes};
+
+ 
+
+=item push @Class_Attributes, @{&XDF::DataFormat::getXMLAttributes};
+
+ 
+
+=item # /** width
+
+ 
+
+=item # The entire width of this fixed field.
+
+ 
+
+=item # */
+
+ 
+
+=item # /** precision
+
+ 
+
+=item # The precision of this fixed field which is the number of digits
+
+ 
+
+=item # to the right of the '.'.
+
+ 
+
+=item # */
+
+ 
+
+=item # Something specific to Perl
+
+ 
+
+=item my $Perl_Sprintf_Field_Fixed = 'f';
+
+ 
+
+=item my $Perl_Regex_Field_Fixed = '\d';
+
+ 
+
+=item # Initalization
+
+ 
+
+=item # set up object attributes.
+
+ 
+
+=item for my $attr ( @Class_Attributes ) { $field{$attr}++; }
+
+ 
+
+=item # /** classXMLNodeName
+
+ 
+
+=item # This method takes no arguments may not be changed. 
+
+ 
+
+=item # This method returns the class node name of XDF::FixedDataFormat.
+
+ 
+
+=item # */
+
+ 
+
+=item sub classXMLNodeName {
+
+ 
+
+=item }
+
+ 
+
+=item # /** classAttributes
+
+ 
+
+=item #  This method takes no arguments may not be changed. 
+
+ 
+
+=item #  This method returns a list reference containing the names
+
+ 
+
+=item #  of the class attributes of XDF::FixedDataFormat. 
+
+ 
+
+=item # */
+
+ 
+
+=item sub classAttributes {
+
+ 
+
+=item }
+
+ 
+
+=item # 
+
+ 
+
+=item # SET/GET Methods
+
+ 
+
+=item #
+
+ 
+
+=item # /** getWidth
+
+ 
+
+=item # */
+
+ 
+
+=item sub getWidth {
+
+ 
+
+=item return $self->{Width};
+
+ 
+
+=item }
+
+ 
+
+=item # /** setWidth
+
+ 
+
+=item #     Set the width attribute. 
+
+ 
+
+=item # */
+
+ 
+
+=item sub setWidth {
+
+ 
+
+=item $self->{Width} = $value;
+
+ 
+
+=item }
+
+ 
+
+=item # /** getPrecision
+
+ 
+
+=item # */
+
+ 
+
+=item sub getPrecision {
+
+ 
+
+=item return $self->{Precision};
+
+ 
+
+=item }
+
+ 
+
+=item # /** setPrecision
+
+ 
+
+=item #     Set the precision attribute. 
+
+ 
+
+=item # */
+
+ 
+
+=item sub setPrecision {
+
+ 
+
+=item $self->{Precision} = $value;
+
+ 
+
+=item }
+
+ 
+
+=item # /** getXMLAttributes
+
+ 
+
+=item #      This method returns the XMLAttributes of this class. 
+
+ 
+
+=item #  */
+
+ 
+
+=item sub getXMLAttributes {
+
+ 
+
+=item }
+
+ 
+
+=item # /** getBytes
+
+ 
+
+=item # A convenience method.
+
+ 
+
+=item # Return the number of bytes this XDF::FixedDataFormat holds.
+
+ 
+
+=item # */
+
+ 
+
+=item sub getBytes {  
+
+ 
 
 =back
 
@@ -244,7 +561,27 @@ The precision of this fixed field which is the number of digitsto the right of t
 
 =over 4
 
-=item bytes (EMPTY)
+=item getWidth (EMPTY)
+
+
+
+=item setWidth ($value)
+
+Set the width attribute. 
+
+=item getPrecision (EMPTY)
+
+
+
+=item setPrecision ($value)
+
+Set the precision attribute. 
+
+=item getXMLAttributes (EMPTY)
+
+This method returns the XMLAttributes of this class. 
+
+=item getBytes (EMPTY)
 
 A convenience method. Return the number of bytes this XDF::FixedDataFormat holds. 
 
@@ -279,7 +616,7 @@ B<Pretty_XDF_Output>, B<Pretty_XDF_Output_Indentation>, B<DefaultDataArraySize>.
 =over 4
 
 XDF::FixedDataFormat inherits the following instance methods of L<XDF::GenericObject>:
-B<new>, B<clone>, B<update>, B<setObjRef>.
+B<new>, B<clone>, B<update>.
 
 =back
 
@@ -288,7 +625,7 @@ B<new>, B<clone>, B<update>, B<setObjRef>.
 =over 4
 
 XDF::FixedDataFormat inherits the following instance methods of L<XDF::DataFormat>:
-B<toXMLFileHandle>.
+B<getLessThanValue>, B<setLessThanValue>, B<getLessThanOrEqualValue>, B<setLessThanOrEqualValue>, B<getGreaterThanValue>, B<setGreaterThanValue>, B<getGreaterThanOrEqualValue>, B<setGreaterThanOrEqualValue>, B<getInfiniteValue>, B<setInfiniteValue>, B<getInfiniteNegativeValue>, B<setInfiniteNegativeValue>, B<getNoDataValue>, B<setNoDataValue>, B<toXMLFileHandle>.
 
 =back
 
@@ -297,7 +634,7 @@ B<toXMLFileHandle>.
 =over 4
 
 XDF::FixedDataFormat inherits the following instance methods of L<XDF::BaseObject>:
-B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<toXMLFile>.
+B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLAttributes>, B<toXMLFile>.
 
 =back
 

@@ -34,10 +34,14 @@ use vars qw ($AUTOLOAD %field @ISA);
 
 # CLASS DATA
 my $Class_XML_Node_Name = "relation";
-my @Class_Attributes = qw (
+my @Class_XML_Attributes = qw (
                              fieldIdRefs
                              role
                           );
+my @Class_Attributes = ();
+
+# add in class XML attributes
+push @Class_Attributes, @Class_XML_Attributes;
 
 # add in super class attributes
 push @Class_Attributes, @{&XDF::BaseObject::classAttributes};
@@ -54,6 +58,59 @@ sub classAttributes {
   \@Class_Attributes; 
 }
 
+#
+# Get/Set Methods 
+#
+
+# /** getFieldIdRefs 
+# */
+sub getFieldIdRefs {
+   my ($self) = @_;
+   return $self->{FieldIdRefs};
+}
+
+# /** setFieldIdRefs 
+#     Set the fieldIdRefs attribute. 
+# */
+sub setFieldIdRefs {
+   my ($self, $value) = @_;
+   $self->{FieldIdRefs} = $value;
+}
+
+# /** getRole 
+# */
+sub getRole {
+   my ($self) = @_;
+   return $self->{Role};
+}
+
+# /** setRole 
+#     Set the role attribute. 
+# */
+sub setRole {
+   my ($self, $value) = @_;
+   $self->{Role} = $value;
+}
+
+# /** getXMLAttributes
+#      This method returns the XMLAttributes of this class. 
+#  */
+sub getXMLAttributes {
+  return \@Class_XML_Attributes;
+}
+
+# /** getRelatedFieldIdRefs
+# Convience method which returns an array of related fieldIdRefs.    
+# */
+sub getRelatedFieldIdRefs {
+  my ($self) = @_;
+  return split / /, $self->{FieldIdRefs};
+}
+
+#
+# Private Methods 
+#
+
 # This is called when we cant find any defined method
 # exists already. Used to handle general purpose set/get
 # methods for our attributes (object fields).
@@ -62,17 +119,15 @@ sub AUTOLOAD {
   &XDF::GenericObject::AUTOLOAD($self, $val, $AUTOLOAD, \%field );
 }
 
-# /** getRelatedFieldIdRefs
-# Returns an array of related fieldIdRefs.    
-# */
-sub getRelatedFieldIdRefs {
-  my ($self) = @_;
-  return split / /, $self->fieldIdRefs;
-}
-
 # Modification History
 #
 # $Log$
+# Revision 1.4  2000/12/14 22:11:26  thomas
+# Big changes to the API. get/set methods, added Href/Entity stuff, deep cloning,
+# added Href, Notes, NotesLocationOrder nodes/classes. Ripped out _enlarge_array
+# from DataCube (not needed) and fixed problems outputing delimited/formatted
+# read nodes. -b.t.
+#
 # Revision 1.3  2000/12/01 20:03:38  thomas
 # Brought Pod docmentation up to date. Bumped up version
 # number. -b.t.
@@ -126,11 +181,223 @@ These methods set the requested attribute if an argument is supplied to the meth
 
 =over 4
 
-=item fieldIdRefs
+=item # add in class XML attributes
 
  
 
-=item role
+=item push @Class_Attributes, @Class_XML_Attributes;
+
+ 
+
+=item # add in super class attributes
+
+ 
+
+=item push @Class_Attributes, @{&XDF::BaseObject::classAttributes};
+
+ 
+
+=item # Initalization
+
+ 
+
+=item # set up object attributes.
+
+ 
+
+=item for my $attr ( @Class_Attributes ) { $field{$attr}++; }
+
+ 
+
+=item sub classXMLNodeName { 
+
+ 
+
+=item }
+
+ 
+
+=item sub classAttributes { 
+
+ 
+
+=item }
+
+ 
+
+=item #
+
+ 
+
+=item # Get/Set Methods 
+
+ 
+
+=item #
+
+ 
+
+=item # /** getFieldIdRefs 
+
+ 
+
+=item # */
+
+ 
+
+=item sub getFieldIdRefs {
+
+ 
+
+=item return $self->{FieldIdRefs};
+
+ 
+
+=item }
+
+ 
+
+=item # /** setFieldIdRefs 
+
+ 
+
+=item #     Set the fieldIdRefs attribute. 
+
+ 
+
+=item # */
+
+ 
+
+=item sub setFieldIdRefs {
+
+ 
+
+=item $self->{FieldIdRefs} = $value;
+
+ 
+
+=item }
+
+ 
+
+=item # /** getRole 
+
+ 
+
+=item # */
+
+ 
+
+=item sub getRole {
+
+ 
+
+=item return $self->{Role};
+
+ 
+
+=item }
+
+ 
+
+=item # /** setRole 
+
+ 
+
+=item #     Set the role attribute. 
+
+ 
+
+=item # */
+
+ 
+
+=item sub setRole {
+
+ 
+
+=item $self->{Role} = $value;
+
+ 
+
+=item }
+
+ 
+
+=item # /** getXMLAttributes
+
+ 
+
+=item #      This method returns the XMLAttributes of this class. 
+
+ 
+
+=item #  */
+
+ 
+
+=item sub getXMLAttributes {
+
+ 
+
+=item }
+
+ 
+
+=item # /** getRelatedFieldIdRefs
+
+ 
+
+=item # Convience method which returns an array of related fieldIdRefs.    
+
+ 
+
+=item # */
+
+ 
+
+=item sub getRelatedFieldIdRefs {
+
+ 
+
+=item return split / /, $self->{FieldIdRefs};
+
+ 
+
+=item }
+
+ 
+
+=item #
+
+ 
+
+=item # Private Methods 
+
+ 
+
+=item #
+
+ 
+
+=item # This is called when we cant find any defined method
+
+ 
+
+=item # exists already. Used to handle general purpose set/get
+
+ 
+
+=item # methods for our attributes (object fields).
+
+ 
+
+=item sub AUTOLOAD {
+
+ 
+
+=item my ($self,$val) = @_;
 
  
 
@@ -140,9 +407,29 @@ These methods set the requested attribute if an argument is supplied to the meth
 
 =over 4
 
+=item getFieldIdRefs (EMPTY)
+
+
+
+=item setFieldIdRefs ($value)
+
+Set the fieldIdRefs attribute. 
+
+=item getRole (EMPTY)
+
+
+
+=item setRole ($value)
+
+Set the role attribute. 
+
+=item getXMLAttributes (EMPTY)
+
+This method returns the XMLAttributes of this class. 
+
 =item getRelatedFieldIdRefs (EMPTY)
 
-Returns an array of related fieldIdRefs.    
+Convience method which returns an array of related fieldIdRefs.    
 
 =back
 
@@ -171,7 +458,7 @@ B<Pretty_XDF_Output>, B<Pretty_XDF_Output_Indentation>, B<DefaultDataArraySize>.
 =over 4
 
 XDF::FieldRelation inherits the following instance methods of L<XDF::GenericObject>:
-B<new>, B<clone>, B<update>, B<setObjRef>.
+B<new>, B<clone>, B<update>.
 
 =back
 
@@ -180,7 +467,7 @@ B<new>, B<clone>, B<update>, B<setObjRef>.
 =over 4
 
 XDF::FieldRelation inherits the following instance methods of L<XDF::BaseObject>:
-B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<toXMLFileHandle>, B<toXMLFile>.
+B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLAttributes>, B<toXMLFileHandle>, B<toXMLFile>.
 
 =back
 

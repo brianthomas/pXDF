@@ -61,18 +61,22 @@ use vars qw ($AUTOLOAD %field @ISA);
 
 # CLASS DATA
 my $Class_Node_Name = "fieldAxis";
-# the order of these attributes IS important. In order for the ID/IDREF
-# stuff to work, _objRef MUST be the last attribute
-my @Class_Attributes = qw (
+# the order of these attributes IS important.
+my @Class_XML_Attributes = qw (
                       name
                       description
                       align
                       axisId
                       axisIdRef
                       fieldList
+                          );
+my @Class_Attributes = qw (
                       _length
                       _fieldGroupOwnedHash
                           );
+
+# add in class XML attributes
+push @Class_Attributes, @Class_XML_Attributes;
 
 # add in super class attributes
 push @Class_Attributes, @{&XDF::BaseObject::classAttributes};
@@ -125,26 +129,137 @@ sub classAttributes {
   \@Class_Attributes;
 }
 
-# This is called when we cant find any defined method
-# exists already. Used to handle general purpose set/get
-# methods for our attributes (object fields).
-sub AUTOLOAD {
-  my ($self,$val) = @_;
-  &XDF::GenericObject::AUTOLOAD($self, $val, $AUTOLOAD, \%field );
+#
+# set/get Methods
+#
+
+# /** getName
+# */
+sub getName {
+   my ($self) = @_;
+   return $self->{Name};
 }
 
-sub _init {
+# /** setName
+#     Set the name attribute. 
+# */
+sub setName {
+   my ($self, $value) = @_;
+   $self->{Name} = $value;
+}
+
+# /** getDescription
+#  */
+sub getDescription {
+   my ($self) = @_;
+   return $self->{Description};
+}
+
+# /** setDescription
+#  */
+sub setDescription {
+   my ($self, $value) = @_;
+   $self->{Description} = $value;
+}
+
+# /** getDataFormatList
+# Returns a list of all the dataType objects (see L<XDF::DataFormat>) held 
+# by the fields in this field axis. The list is ordered according to the order
+# of the fields within the field axis. 
+# */
+sub getDataFormatList {
   my ($self) = @_;
 
-  # initialize lists
-  $self->fieldList([]);
-  $self->_fieldGroupOwnedHash({});
+  my @list;
+  foreach my $field (@{$self->getFields}) {
+    if (!defined $field->getDataFormat()) {
+      my $name = $field->getName();
+      carp "Error! FieldAxis dataFormatList request has problem: $field ($name) does not have dataFormat defined, ignoring (probably will cause an IO error)\n";
+    } else {
+      push @list, $field->getDataFormat();
+    }
+  }
 
-  # set the minimum array size (essentially the size of the axis)
-  $#{$self->fieldList} = $self->DefaultDataArraySize();
-
-  $self->_length(0);
+  return @list;
 }
+
+# /** getAxisId
+# */
+sub getAxisId {
+   my ($self) = @_;
+   return $self->{AxisId};
+}
+
+# /** setAxisId
+#     Set the axisId attribute. 
+# */
+sub setAxisId {
+   my ($self, $value) = @_;
+   $self->{AxisId} = $value;
+}
+
+# /** getAxisIdRef 
+# */
+sub getAxisIdRef {
+   my ($self) = @_;
+   return $self->{AxisIdRef};
+}
+
+# /** setAxisIdRef
+#     Set the axisIdRef attribute. 
+# */
+sub setAxisIdRef {
+   my ($self, $value) = @_;
+   $self->{AxisIdRef} = $value;
+}
+
+# /** getAlign
+# */
+sub getAlign {
+   my ($self) = @_;
+   return $self->{Align};
+}
+
+# /** setAlign
+#     Set the align attribute. 
+# */
+sub setAlign {
+   my ($self, $value) = @_;
+   $self->{Align} = $value;
+}
+
+# /** getFieldList
+#  */
+sub getFieldList {
+   my ($self) = @_;
+   return $self->{FieldList};
+}
+
+# /** setFieldList
+#  */
+sub setFieldList {
+   my ($self, $value) = @_;
+   $self->{FieldList} = $value;
+}
+
+# /** getXMLAttributes
+#      This method returns the XMLAttributes of this class. 
+#  */
+sub getXMLAttributes {
+  return \@Class_XML_Attributes;
+}
+
+# /** getLength
+# return the length of this field axis (eg number of field objects) 
+# */
+sub getLength {
+  my ($self) = @_;
+  return $self->{_length};
+}
+
+#
+# Other Public Methods
+#
 
 # /** addField
 # Adds a field to this field Axis. Takes either an attribute HASH
@@ -163,10 +278,10 @@ sub addField {
   }
   
   # add the parameter to the list
-  push @{$self->fieldList}, $fieldObj;
+  push @{$self->{FieldList}}, $fieldObj;
 
   # bump up the size
-  $self->_length($self->_length + 1);
+  $self->{_length}++;
 
   return $fieldObj;
 }
@@ -177,7 +292,7 @@ sub addField {
 sub getField {
   my ($self, $index) = @_;
   return unless defined $index && $index >= 0;
-  return @{$self->fieldList}->[$index];
+  return @{$self->{FieldList}}->[$index];
 }
 
 # /** getFields
@@ -188,10 +303,10 @@ sub getField {
 sub getFields { 
   my ($self) = @_; 
   my @list;
-  foreach my $field (@{$self->fieldList()}) {
+  foreach my $field (@{$self->{FieldList}}) {
     push @list, $field if defined $field;
   }
-  return @list;
+  return \@list;
 }
 
 # /** setField
@@ -202,7 +317,7 @@ sub setField {
   my ($self, $index, $fieldObjectRef) = @_;
 
   return unless defined $index && defined $fieldObjectRef && $index >= 0; 
-  splice @{$self->fieldList}, $index, 1, $fieldObjectRef; 
+  splice @{$self->{FieldList}}, $index, 1, $fieldObjectRef; 
   return $fieldObjectRef;
 }
 
@@ -214,39 +329,11 @@ sub setField {
 # */
 sub removeField {
   my ($self, $indexOrObjectRef) = @_;
-  my $ret_val = $self->_remove_from_list($indexOrObjectRef, $self->fieldList(), 'fieldList');
-  $self->_length($self->_length - 1) if defined $ret_val;
+  my $ret_val = $self->_remove_from_list($indexOrObjectRef, $self->{FieldList}, 'fieldList');
+  $self->{_length}-- if defined $ret_val;
   return $ret_val;
 }
 
-# /** length
-# return the length of this field axis (eg number of field objects) 
-# */
-sub length { 
-  my ($self) = @_; 
-  return $self->_length(); 
-}
-
-# /** dataFormatList
-# Returns a list of all the dataType objects (see L<XDF::DataFormat>) held 
-# by the fields in this field axis. The list is ordered according to the order
-# of the fields within the field axis. 
-# */
-sub dataFormatList {
-  my ($self) = @_;
-
-  my @list;
-  foreach my $field ($self->getFields) {
-    if (!defined $field->dataFormat) {
-      carp "Error! FieldAxis dataFormatList request has problem: $field does not have dataFormat defined, ignoring (probably will cause an IO error)\n";
-    } else { 
-      push @list, $field->dataFormat();
-    }
-  }
-
-  return @list;
-
-}
 
 # /** addFieldGroup 
 # Insert a fieldGroup object into this object.
@@ -265,7 +352,7 @@ sub addFieldGroup {
   }
 
   # add the group to the groupOwnedHash
-  %{$self->_fieldGroupOwnedHash}->{$fieldGroupObj} = $fieldGroupObj;
+  %{$self->{_fieldGroupOwnedHash}}->{$fieldGroupObj} = $fieldGroupObj;
 
   return $fieldGroupObj;
 }
@@ -275,12 +362,45 @@ sub addFieldGroup {
 # */
 sub removeFieldGroup {
   my ($self, $hashKey) = @_;
-  delete %{$self->_fieldGroupOwnedHash}->{$hashKey};
+  delete %{$self->{_fieldGroupOwnedHash}}->{$hashKey};
 }
+
+#
+# Private Methods
+#
+
+# This is called when we cant find any defined method
+# exists already. Used to handle general purpose set/get
+# methods for our attributes (object fields).
+sub AUTOLOAD {
+  my ($self,$val) = @_;
+  &XDF::GenericObject::AUTOLOAD($self, $val, $AUTOLOAD, \%field );
+}
+
+sub _init {
+  my ($self) = @_;
+
+  # initialize lists
+  $self->{FieldList} = [];
+  $self->{_fieldGroupOwnedHash} = {};
+
+  # set the minimum array size (essentially the size of the axis)
+  $#{$self->{FieldList}} = $self->DefaultDataArraySize();
+
+  $self->{_length} = 0;
+
+}
+
 
 # Modification History
 #
 # $Log$
+# Revision 1.4  2000/12/14 22:11:25  thomas
+# Big changes to the API. get/set methods, added Href/Entity stuff, deep cloning,
+# added Href, Notes, NotesLocationOrder nodes/classes. Ripped out _enlarge_array
+# from DataCube (not needed) and fixed problems outputing delimited/formatted
+# read nodes. -b.t.
+#
 # Revision 1.3  2000/12/01 20:03:38  thomas
 # Brought Pod docmentation up to date. Bumped up version
 # number. -b.t.
@@ -338,41 +458,69 @@ This method returns a list reference containing the namesof the class attributes
 
 =back
 
-=head2 ATTRIBUTE Methods
-
-These methods set the requested attribute if an argument is supplied to the method. Whether or not an argument is supplied the current value of the attribute is always returned. Values of these methods are always SCALAR (may be number, string, or reference).
-
-=over 4
-
-=item name
-
-The STRING description (short name) of this object.  
-
-=item description
-
-A scalar string description (long name) of this object.  
-
-=item align
-
-B<NOT CURRENTLY IMPLEMENTED> 
-
-=item axisId
-
-A scalar string holding the axis Id of this object.  
-
-=item axisIdRef
-
-A scalar string holding the reference object axisId. A reference object is used to supply those attributesof the object which have not been set. Note that $obj->axisIdRef is simply what will be written to the XML file if $obj->toXMLFileHandle method is called. You will have to $obj->setObjRef($refObject) to get the referencing functionality within the code.  
-
-=item fieldList
-
-Holds a scalar ARRAY reference to the list of field objects held by this object.  
-
-=back
-
 =head2 OTHER Methods
 
 =over 4
+
+=item getName (EMPTY)
+
+
+
+=item setName ($value)
+
+Set the name attribute. 
+
+=item getDescription (EMPTY)
+
+
+
+=item setDescription ($value)
+
+
+
+=item getDataFormatList (EMPTY)
+
+Returns a list of all the dataType objects (see L<XDF::DataFormat>) held by the fields in this field axis. The list is ordered according to the orderof the fields within the field axis. 
+
+=item getAxisId (EMPTY)
+
+
+
+=item setAxisId ($value)
+
+Set the axisId attribute. 
+
+=item getAxisIdRef (EMPTY)
+
+
+
+=item setAxisIdRef ($value)
+
+Set the axisIdRef attribute. 
+
+=item getAlign (EMPTY)
+
+
+
+=item setAlign ($value)
+
+Set the align attribute. 
+
+=item getFieldList (EMPTY)
+
+
+
+=item setFieldList ($value)
+
+
+
+=item getXMLAttributes (EMPTY)
+
+This method returns the XMLAttributes of this class. 
+
+=item getLength (EMPTY)
+
+return the length of this field axis (eg number of field objects) 
 
 =item addField ($attribHashOrObjectRef)
 
@@ -393,14 +541,6 @@ Set the field object at indicated index. Returns the field object onsuccess, und
 =item removeField ($indexOrObjectRef)
 
 Remove a field object from the list of fieldsheld within this object. This method takes either the list index number or an object reference as its argument. RETURNS : 1 on success, undef on failure. 
-
-=item length (EMPTY)
-
-return the length of this field axis (eg number of field objects) 
-
-=item dataFormatList (EMPTY)
-
-Returns a list of all the dataType objects (see L<XDF::DataFormat>) held by the fields in this field axis. The list is ordered according to the orderof the fields within the field axis. 
 
 =item addFieldGroup ($attribHashOrObjectRef)
 
@@ -437,7 +577,7 @@ B<Pretty_XDF_Output>, B<Pretty_XDF_Output_Indentation>, B<DefaultDataArraySize>.
 =over 4
 
 XDF::FieldAxis inherits the following instance methods of L<XDF::GenericObject>:
-B<new>, B<clone>, B<update>, B<setObjRef>.
+B<new>, B<clone>, B<update>.
 
 =back
 
@@ -446,7 +586,7 @@ B<new>, B<clone>, B<update>, B<setObjRef>.
 =over 4
 
 XDF::FieldAxis inherits the following instance methods of L<XDF::BaseObject>:
-B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<toXMLFileHandle>, B<toXMLFile>.
+B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLAttributes>, B<toXMLFileHandle>, B<toXMLFile>.
 
 =back
 

@@ -92,9 +92,12 @@ WriteMakefile(
             'XDF/FormattedXMLDataIOStyle.pm'      => "\$(INST_LIBDIR)/$install_dir/FormattedXMLDataIOStyle.pm",
             'XDF/GenericObject.pm'     => "\$(INST_LIBDIR)/$install_dir/GenericObject.pm",
             'XDF/Group.pm'      => "\$(INST_LIBDIR)/$install_dir/Group.pm",
+            'XDF/Href.pm'      => "\$(INST_LIBDIR)/$install_dir/Href.pm",
             'XDF/IntegerDataFormat.pm'      => "\$(INST_LIBDIR)/$install_dir/IntegerDataFormat.pm",
             'XDF/Locator.pm'       => "\$(INST_LIBDIR)/$install_dir/Locator.pm",
             'XDF/Note.pm'       => "\$(INST_LIBDIR)/$install_dir/Note.pm",
+            'XDF/Notes.pm'       => "\$(INST_LIBDIR)/$install_dir/Notes.pm",
+            'XDF/NotesLocationOrder.pm'       => "\$(INST_LIBDIR)/$install_dir/NotesLocationOrder.pm",
             'XDF/Parameter.pm'  => "\$(INST_LIBDIR)/$install_dir/Parameter.pm",
             'XDF/ParameterGroup.pm'  => "\$(INST_LIBDIR)/$install_dir/ParameterGroup.pm",
             'XDF/ReadCellFormattedIOCmd.pm'     => "\$(INST_LIBDIR)/$install_dir/ReadCellFormattedIOCmd.pm",
@@ -118,6 +121,12 @@ WriteMakefile(
 # Modification History
 #
 # $Log$
+# Revision 1.4  2000/12/14 22:11:25  thomas
+# Big changes to the API. get/set methods, added Href/Entity stuff, deep cloning,
+# added Href, Notes, NotesLocationOrder nodes/classes. Ripped out _enlarge_array
+# from DataCube (not needed) and fixed problems outputing delimited/formatted
+# read nodes. -b.t.
+#
 # Revision 1.3  2000/12/01 20:02:16  thomas
 # *** empty log message ***
 #

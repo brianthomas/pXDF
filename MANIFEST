@@ -26,9 +26,12 @@ XDF/FormattedIOCmd.pm
 XDF/FormattedXMLDataIOStyle.pm
 XDF/GenericObject.pm
 XDF/Group.pm
+XDF/Href.pm
 XDF/IntegerDataFormat.pm
 XDF/Locator.pm
 XDF/Note.pm
+XDF/Notes.pm
+XDF/NotesLocationOrder.pm
 XDF/Parameter.pm
 XDF/ParameterGroup.pm
 XDF/ReadCellFormattedIOCmd.pm

@@ -59,13 +59,15 @@ use vars qw ($AUTOLOAD %field @ISA);
 
 # CLASS DATA
 my $Class_XML_Node_Name = "data";
-my @Class_Attributes = qw (
+my @Class_XML_Attributes = qw (
                              href
                              checksum
                              compression
+                          );
+                             #_currentLocator
+my @Class_Attributes = qw (
                              dimension
                              maxDimensionIndex
-                             _currentLocator
                              _parentArray
                              _data
                           );
@@ -77,11 +79,19 @@ my @Class_Attributes = qw (
 # /** maxDimensionIndex
 # The maximum index value along each dimension (Axis). Returns an ARRAY of SCALARS (non-negative INTEGERS).
 # */
+# /** href
+# Reference to a separate resource (file, URL, etc) holding the actual data.
+# */
+# /** checksum
+# The MD5 checksum of the data.
+# */
 # /** compression
 # The STRING value which stores the type of compression algoritm used
 # to compress the data.
 # */
 
+# add in class XML attributes
+push @Class_Attributes, @Class_XML_Attributes;
 
 # add in super class attributes
 push @Class_Attributes, @{&XDF::BaseObject::classAttributes};
@@ -108,46 +118,74 @@ sub classAttributes {
   \@Class_Attributes; 
 }
 
-# This is called when we cant find any defined method
-# exists already. Used to handle general purpose set/get
-# methods for our attributes (object fields).
-sub AUTOLOAD {
-  my ($self,$val) = @_;
-  #&XDF::BaseObject::AUTOLOAD($self, $val, $AUTOLOAD, \%{$XDF::DataCube::FIELDS} );
-  &XDF::GenericObject::AUTOLOAD($self, $val, $AUTOLOAD, \%field );
-}
+#
+# Set/Get Methods 
+#
 
-sub _init {
-  my ($self) = @_;
-
-  # declare the _data attribute as an array 
-  # as we add data (below) it may grow in
-  # dimensionality, but defaults to 0 at start. 
-  $self->dimension(0);
-  $self->_data([]);
- 
-  # set the minimum array size (essentially the size of the axis)
-  $#{$self->_data} = $self->DefaultDataArraySize();
-
-  # a list of what the maximum index is along each dimension
-  $self->maxDimensionIndex([]);
-
-  my @locator = (); # zero dimensions, empty array
-  $self->_currentLocator(\@locator);
-
-}
-
-# /** clone
-# special method for dataCube. B<NOT IMPLEMENTED YET>.
+# /** getChecksum
 # */
-# a place holder. Obviously not correct
-sub clone {
-  my ($self, $_parentArray) = @_;
-  carp "Warning DataCube cloning NOT implemented fully\n";
-  my $clone = ref($self)->new;
-  $clone->_parentArray($_parentArray) if defined $_parentArray;
-  return $clone;
+sub getChecksum {
+   my ($self) = @_;
+   return $self->{Checksum};
 }
+
+# /** setChecksum
+#     Set the checksum attribute. 
+# */
+sub setChecksum {
+   my ($self, $value) = @_;
+   $self->{Checksum} = $value;
+}
+
+# /** getHref
+# */
+sub getHref {
+   my ($self) = @_;
+   return $self->{Href};
+}
+
+# /** setHref
+#     Set the href attribute. 
+# */
+sub setHref {
+   my ($self, $hrefObjectRef) = @_;
+   if (ref($hrefObjectRef) eq 'XDF::Href') {
+     $self->{Href} = $hrefObjectRef;
+   }
+}
+
+# /** getCompression
+# */
+sub getCompression {
+   my ($self) = @_;
+   return $self->{Compression};
+}
+
+# /** setCompression 
+#     Set the compression attribute. 
+# */
+sub setCompression {
+   my ($self, $value) = @_;
+   $self->{Compression} = $value;
+}
+
+# /** getDimension
+# */
+sub getDimension {
+   my ($self) = @_;
+   return $self->{Dimension};
+}
+
+# /** getXMLAttributes
+#      This method returns the XMLAttributes of this class. 
+#  */
+sub getXMLAttributes { 
+  return \@Class_XML_Attributes;
+}
+
+#
+# Other Public methods 
+#
 
 # /** toXMLFileHandle
 # We overwrite the toXMLFileHandle method supplied by L<XDF::BaseObject> to 
@@ -168,15 +206,14 @@ sub toXMLFileHandle {
   # open the tagged data section
   print $fileHandle $indent if $niceOutput;
   print $fileHandle "<" . $nodeName ;
-  print $fileHandle " href=\"".$self->href."\"" if defined $self->href;
-  print $fileHandle " checksum=\"".$self->checksum."\"" if defined $self->checksum;
+  print $fileHandle " href=\"".$self->{Href}->getName()."\"" if defined $self->{Href};
+  print $fileHandle " checksum=\"".$self->{Checksum}."\"" if defined $self->{Checksum};
   print $fileHandle ">";
 
   # write the data
   $self->toFileHandle($fileHandle, $indent );
 
   # close the tagged data section
-  print $fileHandle $indent if $niceOutput;
   print $fileHandle "</" . $nodeName . ">";
   print $fileHandle "\n" if $niceOutput;
 
@@ -187,19 +224,18 @@ sub toXMLFileHandle {
 # Writes out just the data
 # */
 sub toFileHandle {
-  my ($self, $fileHandle, $indent, $dontPrintCDATATag ) = @_;
+  my ($self, $fileHandle, $indent) = @_;
 
+  my $dontPrintCDATATag = 0;
   my $niceOutput = $self->Pretty_XDF_Output();
   $indent = "" unless defined $indent;
 
-  my $readObj = $self->_parentArray->XmlDataIOStyle();
+  my $readObj = $self->{_parentArray}->getXMLDataIOStyle();
 
   croak "DataCube can't write out. No format reference object defined.\n"
      unless defined $readObj;
 
-  my @size = @{$self->maxDimensionIndex()};
-
-  my $href = $self->href;
+  my $href = $self->{Href};
   my $dataFileHandle;
   my $dataFileName;
 
@@ -207,16 +243,16 @@ sub toFileHandle {
 
       # BIG assumption: href is a file we want to read/write
       # Better Handling in future is needed
-      if ($href =~ m/^file:\/\//) {
-        $dataFileName = $href;
-        $dataFileName =~ s/^file:\/\/(.*?)/$1/;
+      if (defined $href->getSysId()) {
+        $dataFileName = $href->getBase() if defined $href->getBase();
+        $dataFileName .= $href->getSysId();
         open(DFH, ">$dataFileName"); # we will write data to another file 
                                      # as specified by the entity
         $dataFileHandle = \*DFH;
+        $dontPrintCDATATag = 1;
       } else {
-        croak "XDF::DataCube only takes files for href\n";
-      }      
-
+        croak "XDF::DataCube Href lacks SysId attribute, cannot write out data.\n";
+      }   
 
   } else {
     $dataFileHandle = $fileHandle;
@@ -224,10 +260,13 @@ sub toFileHandle {
 
   croak "XDF::DataCube has no valid data filehandle" unless defined $dataFileHandle;
 
+  # write the data
+  #
   if (ref($readObj) eq 'XDF::TaggedXMLDataIOStyle' ) {
 
      print $dataFileHandle "\n" if $niceOutput;
      &_write_tagged_data($self, $dataFileHandle, $readObj, $indent, $niceOutput);
+     print $dataFileHandle "$indent" if $niceOutput;
 
   } elsif (ref($readObj) eq 'XDF::DelimitedXMLDataIOStyle' or
            ref($readObj) eq 'XDF::FormattedXMLDataIOStyle' )
@@ -237,20 +276,127 @@ sub toFileHandle {
     &_write_untagged_data($self, $dataFileHandle, $readObj, $indent, $niceOutput);
     unless ($dontPrintCDATATag) {
       print $dataFileHandle "]]>";
-      print $dataFileHandle "\n" if $niceOutput;
+      print $dataFileHandle "\n$indent" if $niceOutput;
     }
 
   } else {
-
      warn "Unknown read object: $readObj. $self cannot write itself out.\n";
-
   }
 
-  if ( $dataFileName ) {
-    close DFH;
-  }
+  if ( $dataFileName ) { close DFH; }
 
 }
+
+# /** addData
+# This routine will append data to a cell unless directed to do otherwise.
+# */
+# the self evaluation part will make this SLOW for large arrays. :P
+sub addData {
+  my ($self, $locator, $data, $no_append ) = @_;
+
+  # safety
+  unless (defined $locator || defined $data) {
+    carp "Please specify location and data value. Ignoring addData request.";
+    return;
+  }
+
+  # add the data to the right array in the $self->{_data} list
+
+  # We first check that the location exists! 
+  # fix the array if it doesnt
+  my $eval_string = &_build_locator_string($self->{_parentArray}, $locator);
+
+
+  if($no_append) {
+    $eval_string = $eval_string . " = \"$data\"";
+  } else {
+    $eval_string = $eval_string . " .= \"$data\"";
+  }
+
+#  if (0) {
+#my $locationPos;
+#my $locationName;
+#for (@{$locator->getIterationOrder()}) {
+#   $locationName .= $_->getAxisId() . ",";
+#   $locationPos .= $locator->getAxisLocation($_) . ",";
+#}
+#chop $locationPos;
+#chop $locationName;
+#
+#print STDERR "ADD EVAL STRING ($locationName)($locationPos): $eval_string\n";
+#  }
+
+  eval " $eval_string; ";
+
+}
+
+# /** removeData
+# Data held within the requested datacell is removed. The value of the datacell is set to undef.
+# B<NOT CURRENTLY IMPLEMENTED>.
+# */
+sub removeData {
+  carp "Remove_data not currently implemented.\n";
+} 
+  
+# /** setData
+# Set the SCALAR value of the requested datacell at indicated location (see LOCATOR REF section).
+# Overwrites existing datacell value if any.
+# */
+sub setData {
+  my ($self, $locator, $datum ) = @_;
+  $self->addData($locator, $datum, 1);
+} 
+
+# /** getData
+# Retrieve the SCALAR value of the requested datacell.
+# */
+# do we need to do some bounds checking here??
+sub getData {
+  my ($self, $locator) = @_;
+
+  unless (defined $locator and ref($locator) eq 'XDF::Locator') {
+    warn "getData method not passed a valid XDF::Locator object, ignoring request\n";
+    return;
+  }
+
+  my $get_string = "\$self->{_data}";
+  foreach my $axisObj (@{$self->{_parentArray}->getAxisList()}) {
+     my $loc = $locator->getAxisLocation($axisObj);
+     $get_string = $get_string . "->[$loc]";
+  }
+
+  my $result = eval "$get_string";
+  return $result;
+
+}
+
+#
+# Private/Protected(?) Methods 
+#
+
+# This is called when we cant find any defined method
+# exists already. Used to handle general purpose set/get
+# methods for our attributes (object fields).
+sub AUTOLOAD {
+  my ($self,$val) = @_;
+  #&XDF::BaseObject::AUTOLOAD($self, $val, $AUTOLOAD, \%{$XDF::DataCube::FIELDS} );
+  &XDF::GenericObject::AUTOLOAD($self, $val, $AUTOLOAD, \%field );
+}
+
+sub _init {
+  my ($self) = @_;
+
+  # declare the _data attribute as an array 
+  # as we add data (below) it may grow in
+  # dimensionality, but defaults to 0 at start. 
+  $self->{Dimension} = 0;
+  $self->{_data} = [];
+
+  # set the minimum array size (essentially the size of the axis)
+  $#{$self->{_data}} = $self->DefaultDataArraySize();
+
+}
+
 
 # Yes, this is crappy. I plan to come back and do it 'right' one day.
 #
@@ -260,12 +406,10 @@ sub toFileHandle {
 sub _write_tagged_data {
   my ($self, $fileHandle, $readObj, $indent, $niceOutput) = @_;
 
-  my @size = @{$self->maxDimensionIndex()};
+  # now we populate the data , if there are any dimensions 
+  if ($self->{Dimension} > 0) {
 
-#print "MAX DIMENSION SIZES: ",join ',', @size,"\n";
-
-  # now we populate the data , if there are any
-  if ($#size > -1) {
+    my @axisList = @{$self->{_parentArray}->getAxisList()};
 
     # gather info. Find out what tags go w/ which axii
     my @AXIS_TAG = reverse $readObj->getAxisTags(); 
@@ -274,23 +418,23 @@ sub _write_tagged_data {
     my $data_indent = $indent . $self->Pretty_XDF_Output_Indentation;
     my $startDataRecordTag = $data_indent;
     my $endDataRecordTag = "";
-    foreach my $axis (0 .. ($#size-1)) {
+    foreach my $axis (0 .. ($#axisList-1)) {
       $startDataRecordTag .= "<" . $AXIS_TAG[$axis] . ">";
     }
-    foreach my $axis (reverse 0 .. ($#size-1)) {
+    foreach my $axis (reverse 0 .. ($#axisList-1)) {
       $endDataRecordTag .= "</" . $AXIS_TAG[$axis] . ">";
     }
     $endDataRecordTag .= "\n";
-    my $startDataTag = "<" . $AXIS_TAG[$#size] . ">";
-    my $endDataTag = "</" . $AXIS_TAG[$#size] . ">";
-    my $emptyDataTag = "<" . $AXIS_TAG[$#size] . "/>";
+    my $startDataTag = "<" . $AXIS_TAG[$#axisList] . ">";
+    my $endDataTag = "</" . $AXIS_TAG[$#axisList] . ">";
+    my $emptyDataTag = "<" . $AXIS_TAG[$#axisList] . "/>";
  
     # ok, time to build the eval block that will write out the tagged data
     my $eval_block;
-    my $locator = $self->_parentArray->createLocator;
+    my $locator = $self->{_parentArray}->createLocator;
 
     my $more_data = 1;
-    my $fast_axis_length = @{$self->_parentArray->axisList}->[0]->length; 
+    my $fast_axis_length = @{$self->{_parentArray}->getAxisList()}->[0]->getLength(); 
     my $dataNumb = 0; 
     while ($more_data) {
        print $fileHandle $startDataRecordTag if ($dataNumb == 0);
@@ -309,13 +453,11 @@ sub _write_tagged_data {
 sub _write_untagged_data {
   my ($self, $fileHandle, $readObj, $indent) = @_;
 
-  my @size = @{$self->maxDimensionIndex()};
-
-  # now we populate the data , if there are any
-  if ($#size > -1) {
+  # now we populate the data, if there are any dimensions 
+  if ($self->{Dimension} > 0) {
 
     # gather info. Find out what formating to use w/ which data
-    my $formatObj = $self->_parentArray->XmlDataIOStyle;
+    my $formatObj = $self->{_parentArray}->getXMLDataIOStyle;
 
     # a little safety
     croak "$self lacks formatobj! Cannot write XML data out.\n"
@@ -330,8 +472,8 @@ sub _write_untagged_data {
     if (ref($formatObj) eq 'XDF::DelimitedXMLDataIOStyle') {
       # tis a shame that we dont use the outArray/template system here.
       $sprintfFormat = $formatObj->_sprintfNotation();
-      $terminator = $formatObj->recordTerminator;
-      $fast_axis_length = @{$self->_parentArray->axisList}->[0]->length; 
+      $terminator = $formatObj->getRecordTerminator();
+      $fast_axis_length = @{$self->{_parentArray}->getAxisList()}->[0]->getLength(); 
     } elsif (ref($formatObj) eq 'XDF::FormattedXMLDataIOStyle') {
       $template = $formatObj->_templateNotation(0);
       @outArray = $formatObj->_outputSkipCharArray;
@@ -339,7 +481,8 @@ sub _write_untagged_data {
       die "$self got weird formatobj for untagged output of DataCube: $formatObj\n";
     }
 
-    my $locator = $self->_parentArray->createLocator(); 
+    my $locator = $self->{_parentArray}->createLocator(); 
+    $locator->setIterationOrder($formatObj->getWriteAxisOrderList());
 
     if (ref($formatObj) eq 'XDF::DelimitedXMLDataIOStyle') { 
 
@@ -400,178 +543,25 @@ sub _print_data {
 }
 
 # private method
-sub _check_datacube_dimension {
-  my ($self, $locator, $check_string, $dontCheckBounds) = @_;
-
-  # does this location (dimensionally) exist? if not, we add it 
-  #if ($#{$locator_ref} > $#{$self->maxDimensionIndex()} ) { 
-
-  if ($#{$locator->_locationList} > $#{$self->maxDimensionIndex()} ) { 
-     # if array exists, we will enlarge it
-     &_enlarge_array($self, $locator) if (defined $self->_data()->[0] &&
-       !defined $dontCheckBounds);
-     # bump up max index for each axis
-  } 
-  &_increase_max_dimension_index($self, $locator);
-
-}
-
-# private method
 sub _build_locator_string {
-  my ($locator) = @_;
+  my ($parentArray, $locator) = @_;
 
-  my $string = '$self->_data()';
-  foreach my $axisObj ($locator->getIterationOrder) {
-    #$string = $string . "->[" . @{$locator_ref}->[$loc] . "]";
+  my $string = '$self->{_data}';
+  foreach my $axisObj (@{$parentArray->getAxisList()}) {
     $string = $string . "->[" . $locator->getAxisLocation($axisObj) . "]";
   }
   return $string;
 } 
 
-# private method
-# adds 1 dimension to the array
-sub _enlarge_array {
-  my ($self, $locator_ref) = @_;
-
-  print STDERR "ENLARGING ARRAY to encompass (",join ',', @{$locator_ref},")\n";
-
-  #my @max_size = @{$locator_ref};
-  my @max_size = $locator_ref->getAxisLocations;
-
-  my @size = @{$self->maxDimensionIndex()};
-  print STDERR "SIZES FOR EVAL : ",join ',', @size,"\n";
-
-  my $locator; 
-  my $eval_block;
-  my $newdatanumber = 1;
-  foreach my $axis (0 .. $#size) { 
-     $locator .= "\$axis$axis" . "_index,"; 
-     $eval_block .= "foreach my \$axis$axis" . "_index (0 .. \$size[$axis]) { \n";
-     $newdatanumber *= ($size[$axis]+1);
-  }
-
-  my @new_array_refs;
-  for (0 .. $newdatanumber) {
-    my @array = ();
-    # set the minimum array size (essentially the size of the axis)
-    $#array = $self->DefaultDataArraySize();
-    push @new_array_refs, \@array;
-  }
-
-  # print "LOCATOR: $locator\n";
-
-  $eval_block .= "my $locator = new XDF::Locator(); \n";
-#  for (@locator) {
-#    $eval_block .= "$locator = ($locator); \n";
-#  }
-
-  $eval_block .= "my \$oldData = \$self->getData(\\\@locator); \n";
-  $eval_block .= "\$self->setData(\\\@locator, pop \@new_array_refs); \n";
-  $eval_block .= "push \@locator, 0; \n";
-  $eval_block .= "\$self->setData(\\\@locator, \$oldData, 1) if defined \$oldData; \n";
-
-  $eval_block .= "}" x $#size;
-  $eval_block .= "}\n";
-
-
-  #print "SIZES: (", join ',', @size, ")\n";
-    print STDERR "EVAL BLOCK: \n$eval_block\n"; 
-exit 0;
-  eval " $eval_block ";
-
-}
-
-sub _increase_max_dimension_index {
-  my ($self, $locatorObj) = @_;
-
-  my @max_size = $locatorObj->getAxisLocations;
-
-  foreach my $dim (0 ... $#max_size) {
-     @{$self->maxDimensionIndex()}->[$dim] = $max_size[$dim]
-        unless defined @{$self->maxDimensionIndex()}->[$dim] &&
-               @{$self->maxDimensionIndex()}->[$dim] > $max_size[$dim]; 
-  }
- # print "MAXSIZES are now: (",join ',', @{$self->maxDimensionIndex()},")\n";
-
-}
-
-# /** addData
-# This routine will append data to a cell unless directed to do otherwise.
-# */
-# the self evaluation part will make this SLOW for large arrays. :P
-sub addData {
-  my ($self, $locator, $data, $no_append, $dontCheckBounds ) = @_;
-
-  # safety
-  unless (defined $locator && defined $data) {
-    carp "Please specify location and data value, e.g. \$obj->addData(\$locator,\$value). Ignoring request.";
-    return;
-  }
-
-  unless (ref($locator) eq 'XDF::Locator') {
-    warn "addData method not passed a valid XDF::Locator object, ignoring request\n";
-    return;
-  }
-
-  # add the data to the right array in the $self->_data list
-
-  # We first check that the location exists! 
-  # fix the array if it doesnt
-  my $eval_string = &_build_locator_string($locator);
-  &_check_datacube_dimension($self, $locator, $eval_string, $dontCheckBounds);
-
-  if($no_append) {
-    $eval_string = $eval_string . " = \"$data\"";
-  } else {
-    $eval_string = $eval_string . " .= \"$data\"";
-  }
-
-#  print "ADD EVAL STRING($locator): $eval_string\n";
-  eval " $eval_string; ";
-
-}
-
-# /** removeData
-# Data held within the requested datacell is removed. The value of the datacell is set to undef.
-# B<NOT CURRENTLY IMPLEMENTED>.
-# */
-sub removeData {
-  carp "Remove_data not currently implemented.\n";
-}
-
-# /** setData
-# Set the SCALAR value of the requested datacell at indicated location (see LOCATOR REF section).
-# Overwrites existing datacell value if any.
-# */
-sub setData {
-  my ($self, $locator, $datum , $dontCheckBounds) = @_;
-  $self->addData($locator, $datum, 1, $dontCheckBounds);
-}
-
-# /** getData
-# Retrieve the SCALAR value of the requested datacell.
-# */
-# do we need to do some bounds checking here??
-sub getData {
-  my ($self, $locator) = @_;
- 
-  unless (defined $locator and ref($locator) eq 'XDF::Locator') {
-    warn "getData method not passed a valid XDF::Locator object, ignoring request\n";
-    return;
-  }
-
-  my $get_string = "\$self->_data()";
-  foreach my $loc ($locator->getAxisLocations) {
-     $get_string = $get_string . "->[$loc]";
-  }
-
-  return eval "$get_string";
-  
-}
-
 # Modification History
 #
 # $Log$
+# Revision 1.5  2000/12/14 22:11:25  thomas
+# Big changes to the API. get/set methods, added Href/Entity stuff, deep cloning,
+# added Href, Notes, NotesLocationOrder nodes/classes. Ripped out _enlarge_array
+# from DataCube (not needed) and fixed problems outputing delimited/formatted
+# read nodes. -b.t.
+#
 # Revision 1.4  2000/12/01 20:03:37  thomas
 # Brought Pod docmentation up to date. Bumped up version
 # number. -b.t.
@@ -633,18 +623,6 @@ These methods set the requested attribute if an argument is supplied to the meth
 
 =over 4
 
-=item href
-
- 
-
-=item checksum
-
- 
-
-=item compression
-
-The STRING value which stores the type of compression algoritm usedto compress the data.  
-
 =item dimension
 
 The number of dimensions within this dataCube.  
@@ -659,19 +637,47 @@ The maximum index value along each dimension (Axis). Returns an ARRAY of SCALARS
 
 =over 4
 
-=item clone ($_parentArray)
+=item getChecksum (EMPTY)
 
-special method for dataCube. B<NOT IMPLEMENTED YET>. 
+
+
+=item setChecksum ($value)
+
+Set the checksum attribute. 
+
+=item getHref (EMPTY)
+
+
+
+=item setHref ($hrefObjectRef)
+
+Set the href attribute. 
+
+=item getCompression (EMPTY)
+
+
+
+=item setCompression ($value)
+
+Set the compression attribute. 
+
+=item getDimension (EMPTY)
+
+
+
+=item getXMLAttributes (EMPTY)
+
+This method returns the XMLAttributes of this class. 
 
 =item toXMLFileHandle ($newNodeNameString, $indent, $junk, $fileHandle)
 
 We overwrite the toXMLFileHandle method supplied by L<XDF::BaseObject> to have some special handling for the XDF::DataCube. The interface for thismethod remains the same however. 
 
-=item toFileHandle ($dontPrintCDATATag, $indent, $fileHandle)
+=item toFileHandle ($indent, $fileHandle)
 
 Writes out just the data
 
-=item addData ($dontCheckBounds, $no_append, $data, $locator)
+=item addData ($no_append, $data, $locator)
 
 This routine will append data to a cell unless directed to do otherwise. 
 
@@ -679,7 +685,7 @@ This routine will append data to a cell unless directed to do otherwise.
 
 Data held within the requested datacell is removed. The value of the datacell is set to undef. B<NOT CURRENTLY IMPLEMENTED>. 
 
-=item setData ($dontCheckBounds, $datum, $locator)
+=item setData ($datum, $locator)
 
 Set the SCALAR value of the requested datacell at indicated location (see LOCATOR REF section). Overwrites existing datacell value if any. 
 
@@ -714,7 +720,7 @@ B<Pretty_XDF_Output>, B<Pretty_XDF_Output_Indentation>, B<DefaultDataArraySize>.
 =over 4
 
 XDF::DataCube inherits the following instance methods of L<XDF::GenericObject>:
-B<new>, B<update>, B<setObjRef>.
+B<new>, B<clone>, B<update>.
 
 =back
 
@@ -723,7 +729,7 @@ B<new>, B<update>, B<setObjRef>.
 =over 4
 
 XDF::DataCube inherits the following instance methods of L<XDF::BaseObject>:
-B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<toXMLFile>.
+B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLAttributes>, B<toXMLFile>.
 
 =back
 

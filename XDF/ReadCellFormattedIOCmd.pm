@@ -33,11 +33,12 @@ use vars qw ($AUTOLOAD %field @ISA);
 
 # CLASS DATA
 my $Class_XML_Node_Name = "readCell";
-my @Class_Attributes = qw ( 
-                          );
+my @Class_XML_Attributes = ( );
+my @Class_Attributes = ( );
 
 # add in super class attributes
 push @Class_Attributes, @{&XDF::FormattedIOCmd::classAttributes};
+push @Class_XML_Attributes, @{&XDF::FormattedIOCmd::getXMLAttributes};
 
 # Initalization
 # set up object attributes.
@@ -50,6 +51,21 @@ sub classXMLNodeName {
 sub classAttributes { 
   \@Class_Attributes; 
 }
+
+#
+# Get/Set Methods
+#
+
+# /** getXMLAttributes
+#      This method returns the XMLAttributes of this class. 
+#  */
+sub getXMLAttributes {
+  return \@Class_XML_Attributes;
+}
+
+#
+# Private MEthods
+#
 
 # This is called when we cant find any defined method
 # exists already. Used to handle general purpose set/get
@@ -77,6 +93,12 @@ sub _sprintfNotation {
 # Modification History
 #
 # $Log$
+# Revision 1.4  2000/12/14 22:11:26  thomas
+# Big changes to the API. get/set methods, added Href/Entity stuff, deep cloning,
+# added Href, Notes, NotesLocationOrder nodes/classes. Ripped out _enlarge_array
+# from DataCube (not needed) and fixed problems outputing delimited/formatted
+# read nodes. -b.t.
+#
 # Revision 1.3  2000/12/01 20:03:38  thomas
 # Brought Pod docmentation up to date. Bumped up version
 # number. -b.t.
@@ -124,6 +146,128 @@ A change in the value of these class attributes will change the value for ALL in
 
 =back
 
+=head2 ATTRIBUTE Methods
+
+These methods set the requested attribute if an argument is supplied to the method. Whether or not an argument is supplied the current value of the attribute is always returned. Values of these methods are always SCALAR (may be number, string, or reference).
+
+=over 4
+
+=item # add in super class attributes
+
+ 
+
+=item push @Class_Attributes, @{&XDF::FormattedIOCmd::classAttributes};
+
+ 
+
+=item push @Class_XML_Attributes, @{&XDF::FormattedIOCmd::getXMLAttributes};
+
+ 
+
+=item # Initalization
+
+ 
+
+=item # set up object attributes.
+
+ 
+
+=item for my $attr ( @Class_Attributes ) { $field{$attr}++; }
+
+ 
+
+=item sub classXMLNodeName { 
+
+ 
+
+=item }
+
+ 
+
+=item sub classAttributes { 
+
+ 
+
+=item }
+
+ 
+
+=item #
+
+ 
+
+=item # Get/Set Methods
+
+ 
+
+=item #
+
+ 
+
+=item # /** getXMLAttributes
+
+ 
+
+=item #      This method returns the XMLAttributes of this class. 
+
+ 
+
+=item #  */
+
+ 
+
+=item sub getXMLAttributes {
+
+ 
+
+=item }
+
+ 
+
+=item #
+
+ 
+
+=item # Private MEthods
+
+ 
+
+=item #
+
+ 
+
+=item # This is called when we cant find any defined method
+
+ 
+
+=item # exists already. Used to handle general purpose set/get
+
+ 
+
+=item # methods for our attributes (object fields).
+
+ 
+
+=item sub AUTOLOAD {
+
+ 
+
+=item my ($self,$val) = @_;
+
+ 
+
+=back
+
+=head2 OTHER Methods
+
+=over 4
+
+=item getXMLAttributes (EMPTY)
+
+This method returns the XMLAttributes of this class. 
+
+=back
+
 =over 4
 
 =head2 INHERITED Class Methods
@@ -149,7 +293,7 @@ B<Pretty_XDF_Output>, B<Pretty_XDF_Output_Indentation>, B<DefaultDataArraySize>.
 =over 4
 
 XDF::ReadCellFormattedIOCmd inherits the following instance methods of L<XDF::GenericObject>:
-B<new>, B<clone>, B<update>, B<setObjRef>.
+B<new>, B<clone>, B<update>.
 
 =back
 
@@ -158,7 +302,7 @@ B<new>, B<clone>, B<update>, B<setObjRef>.
 =over 4
 
 XDF::ReadCellFormattedIOCmd inherits the following instance methods of L<XDF::FormattedIOCmd>:
-B<bytes>.
+B<getBytes>.
 
 =back
 
@@ -167,7 +311,7 @@ B<bytes>.
 =over 4
 
 XDF::ReadCellFormattedIOCmd inherits the following instance methods of L<XDF::BaseObject>:
-B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<toXMLFileHandle>, B<toXMLFile>.
+B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLAttributes>, B<toXMLFileHandle>, B<toXMLFile>.
 
 =back
 

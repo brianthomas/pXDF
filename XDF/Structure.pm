@@ -107,13 +107,15 @@ use vars qw ($AUTOLOAD @ISA %field);
 
 # CLASS DATA
 my $Class_XML_Node_Name = "structure";
+my @Class_XML_Attributes = qw (
+                                 name
+                                 description
+                                 paramList
+                                 structList
+                                 arrayList
+                                 noteList
+                              ); 
 my @Class_Attributes = qw (
-                             name
-                             description
-                             paramList
-                             structList
-                             arrayList
-                             noteList
                              _paramGroupOwnedHash
                           ); 
 
@@ -134,8 +136,14 @@ my @Class_Attributes = qw (
 # A scalar list reference to the XDF::Array objects held by this XDF::Structure.
 # */
 
+# add in class XML attributes
+push @Class_Attributes, @Class_XML_Attributes;
+
 # add in super class attributes
 push @Class_Attributes, @{&XDF::BaseObject::classAttributes};
+
+# add in super class XML attributes to our list 
+push @Class_XML_Attributes, @{&XDF::BaseObject::getXMLAttributes};
 
 # Initalization
 # set up object attributes.
@@ -155,29 +163,108 @@ sub classXMLNodeName {
 #  of the class attributes for XDF::Structure; 
 # */
 sub classAttributes { 
-
   return \@Class_Attributes; 
 }
 
-# This is called when we cant find any defined method
-# exists already. Used to handle general purpose set/get
-# methods for our attributes (object fields).
-sub AUTOLOAD {
-  my ($self,$val) = @_;
-  &XDF::GenericObject::AUTOLOAD($self, $val, $AUTOLOAD, \%field );
+# 
+# SET/GET Methods
+#
+
+# /** getName
+# */
+sub getName { 
+   my ($self) = @_; 
+   return $self->{Name}; 
 }
 
-sub _init {
-  my ($self) = @_;
-
-  # initialize lists
-  $self->structList([]);
-  $self->paramList([]);
-  $self->arrayList([]);
-  $self->noteList([]);
-  $self->_paramGroupOwnedHash({});
-
+# /** setName
+#     Set the name attribute. 
+# */
+sub setName { 
+   my ($self, $value) = @_; 
+   $self->{Name} = $value; 
 }
+
+# /** getDescription
+#  */
+sub getDescription { 
+   my ($self) = @_; 
+   return $self->{Description}; 
+}
+
+# /** setDescription
+#  */
+sub setDescription { 
+   my ($self, $value) = @_; 
+   $self->{Description} = $value; 
+}
+
+# /** getArrayList
+#  */
+sub getArrayList { 
+   my ($self) = @_; 
+   return $self->{ArrayList}; 
+}
+
+# /** setArrayList
+#  */
+sub setArrayList { 
+   my ($self, $value) = @_; 
+   $self->{ArrayList} = $value; 
+}
+
+# /** getStructList
+#  */
+sub getStructList { 
+   my ($self) = @_; 
+   return $self->{StructList}; 
+}
+
+# /** setStructList
+#  */
+sub setStructList { 
+   my ($self, $value) = @_; 
+   $self->{StructList} = $value; 
+}
+
+# /** getParamList
+#  */
+sub getParamList { 
+   my ($self) = @_; 
+   return $self->{ParamList}; 
+}
+
+# /** setParamList
+#  */
+sub setParamList { 
+   my ($self, $value) = @_; 
+   $self->{ParamList} = $value; 
+}
+
+# /** getNoteList
+#  */
+sub getNoteList { 
+   my ($self) = @_; 
+   return $self->{NoteList}; 
+}
+
+# /** setNoteList
+#  */
+sub setNoteList { 
+   my ($self, $value) = @_; 
+   $self->{NoteList} = $value; 
+}
+
+# /** getXMLAttributes
+#      This method returns the XMLAttributes of this class. 
+#  */
+sub getXMLAttributes { 
+  return \@Class_XML_Attributes; 
+}
+  
+#
+# Other Public Methods 
+#
 
 # /** addNote
 # Insert an XDF::Note object into the XDF::Notes object held by this object.
@@ -199,7 +286,7 @@ sub addNote {
   }
 
   # add the parameter to the list
-  push @{$self->noteList}, $noteObj;
+  push @{$self->{NoteList}}, $noteObj;
 
   return $noteObj;
 }
@@ -212,7 +299,7 @@ sub addNote {
 # */
 sub removeNote {
   my ($self, $what) = @_;
-  $self->_remove_from_list($what, $self->noteList(), 'noteList');
+  $self->_remove_from_list($what, $self->{NoteList}, 'noteList');
 }
 
 # /** getNotes
@@ -221,7 +308,7 @@ sub removeNote {
 # */
 sub getNotes {
   my ($self, $what) = @_;
-  return @{$self->noteList};
+  return @{$self->{NoteList}};
 }
 
 # /** addParameter 
@@ -239,7 +326,7 @@ sub addParameter {
   my $paramObj = XDF::Parameter->new($attribHashReference);
 
   # add the parameter to the list
-  push @{$self->paramList}, $paramObj;
+  push @{$self->{ParamList}}, $paramObj;
 
   return $paramObj;
 }
@@ -252,7 +339,7 @@ sub addParameter {
 # */
 sub removeParameter {
   my ($self, $indexOrObjectRef) = @_;
-  $self->_remove_from_list($indexOrObjectRef, $self->paramList(), 'paramList');
+  $self->_remove_from_list($indexOrObjectRef, $self->{ParamList}, 'paramList');
 }
 
 # /** addStructure
@@ -270,7 +357,7 @@ sub addStructure {
   my $structObj = XDF::Structure->new($attribHashReference);
 
   # add the new structure to the list
-  push @{$self->structList}, $structObj;
+  push @{$self->{StructList}}, $structObj;
 
   return $structObj;
 }
@@ -283,7 +370,7 @@ sub addStructure {
 # */
 sub removeStructure {
   my ($self, $indexOrObjectRef) = @_; 
-  $self->_remove_from_list($indexOrObjectRef, $self->structList(), 'structList');
+  $self->_remove_from_list($indexOrObjectRef, $self->{StructList}, 'structList');
 }
 
 # /** addArray
@@ -301,7 +388,7 @@ sub addArray {
   my $arrayObj = XDF::Array->new($attribHashReference);
 
   # add the parameter to the list
-  push @{$self->arrayList}, $arrayObj;
+  push @{$self->{ArrayList}}, $arrayObj;
 
   return $arrayObj;
 }
@@ -314,7 +401,7 @@ sub addArray {
 # */
 sub removeArray {
   my ($self, $indexOrObjectRef) = @_; 
-  $self->_remove_from_list($indexOrObjectRef, $self->arrayList(), 'arrayList');
+  $self->_remove_from_list($indexOrObjectRef, $self->{ArrayList}, 'arrayList');
 }
 
 # /** addParamGroup
@@ -341,7 +428,7 @@ sub addParamGroup {
   }
 
   # add the group to the groupOwnedHash
-  %{$self->_paramGroupOwnedHash}->{$groupObj} = $groupObj;
+  %{$self->{_paramGroupOwnedHash}}->{$groupObj} = $groupObj;
 
   return $groupObj;
 }
@@ -353,7 +440,7 @@ sub addParamGroup {
 # */
 sub removeParamGroup { 
   my ($self, $hashKey) = @_; 
-  delete %{$self->_paramGroupOwnedHash}->{$hashKey}; 
+  delete %{$self->{_paramGroupOwnedHash}}->{$hashKey}; 
 }
 
 # /** read
@@ -365,9 +452,40 @@ sub read {
   &XDF::Reader::createXDFObjectFromFile($file, $optionsHashRef);
 }
 
+#
+# Private Methods 
+#
+
+# This is called when we cant find any defined method
+# exists already. Used to handle general purpose set/get
+# methods for our attributes (object fields).
+sub AUTOLOAD {
+  my ($self,$val) = @_;
+  &XDF::GenericObject::AUTOLOAD($self, $val, $AUTOLOAD, \%field );
+}
+
+sub _init {
+  my ($self) = @_;
+  
+  # initialize lists
+  $self->{StructList} = [];
+  $self->{ParamList} = [];
+  $self->{ArrayList} = [];
+  $self->{NoteList} = [];
+
+  $self->{_paramGroupOwnedHash} = {};
+
+}
+
 # Modification History
 #
 # $Log$
+# Revision 1.4  2000/12/14 22:11:26  thomas
+# Big changes to the API. get/set methods, added Href/Entity stuff, deep cloning,
+# added Href, Notes, NotesLocationOrder nodes/classes. Ripped out _enlarge_array
+# from DataCube (not needed) and fixed problems outputing delimited/formatted
+# read nodes. -b.t.
+#
 # Revision 1.3  2000/12/01 20:03:38  thomas
 # Brought Pod docmentation up to date. Bumped up version
 # number. -b.t.
@@ -468,41 +586,61 @@ This method takes no arguments may not be changed. This method returns a list re
 
 =back
 
-=head2 ATTRIBUTE Methods
-
-These methods set the requested attribute if an argument is supplied to the method. Whether or not an argument is supplied the current value of the attribute is always returned. Values of these methods are always SCALAR (may be number, string, or reference).
-
-=over 4
-
-=item name
-
-A scalar string containing the name of this XDF::Structure.  
-
-=item description
-
-A scalar string containing the description (long name) of this XDF::Structure.  
-
-=item paramList
-
-A scalar list reference to the XDF::Parameter objects held by this XDF::Structure.  
-
-=item structList
-
-A scalar list reference to the XDF::Structure objects held by this XDF::Structure.  
-
-=item arrayList
-
-A scalar list reference to the XDF::Array objects held by this XDF::Structure.  
-
-=item noteList
-
- 
-
-=back
-
 =head2 OTHER Methods
 
 =over 4
+
+=item getName (EMPTY)
+
+
+
+=item setName ($value)
+
+Set the name attribute. 
+
+=item getDescription (EMPTY)
+
+
+
+=item setDescription ($value)
+
+
+
+=item getArrayList (EMPTY)
+
+
+
+=item setArrayList ($value)
+
+
+
+=item getStructList (EMPTY)
+
+
+
+=item setStructList ($value)
+
+
+
+=item getParamList (EMPTY)
+
+
+
+=item setParamList ($value)
+
+
+
+=item getNoteList (EMPTY)
+
+
+
+=item setNoteList ($value)
+
+
+
+=item getXMLAttributes (EMPTY)
+
+This method returns the XMLAttributes of this class. 
 
 =item addNote ($info)
 
@@ -579,7 +717,7 @@ B<Pretty_XDF_Output>, B<Pretty_XDF_Output_Indentation>, B<DefaultDataArraySize>.
 =over 4
 
 XDF::Structure inherits the following instance methods of L<XDF::GenericObject>:
-B<new>, B<clone>, B<update>, B<setObjRef>.
+B<new>, B<clone>, B<update>.
 
 =back
 
@@ -588,7 +726,7 @@ B<new>, B<clone>, B<update>, B<setObjRef>.
 =over 4
 
 XDF::Structure inherits the following instance methods of L<XDF::BaseObject>:
-B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<toXMLFileHandle>, B<toXMLFile>.
+B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLAttributes>, B<toXMLFileHandle>, B<toXMLFile>.
 
 =back
 

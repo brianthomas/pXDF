@@ -37,8 +37,13 @@ use vars qw ($AUTOLOAD %field @ISA);
 @ISA = ("XDF::BaseObject");
 
 # CLASS DATA
+my @Class_XML_Attributes = qw (
+                          );
 my @Class_Attributes = qw (
                           );
+
+# add in class XML attributes
+#push @Class_Attributes, @Class_XML_Attributes;
 
 # add in super class attributes
 push @Class_Attributes, @{&XDF::BaseObject::classAttributes};
@@ -51,17 +56,32 @@ sub classAttributes {
   \@Class_Attributes; 
 }
 
+#
+# Get/Set Methods
+#
+
+sub getBytes {
+  my ($self, $dataFormatListRef ) = @_;
+  warn "You are calling the bytes method of an abstract class from $self.\n";
+}
+
+# /** getXMLAttributes
+#      This method returns the XMLAttributes of this class. 
+#  */
+sub getXMLAttributes {
+  return \@Class_XML_Attributes;
+}
+
+#
+# Private/Protected Methods 
+#
+
 # This is called when we cant find any defined method
 # exists already. Used to handle general purpose set/get
 # methods for our attributes (object fields).
 sub AUTOLOAD {
   my ($self,$val) = @_;
   &XDF::GenericObject::AUTOLOAD($self, $val, $AUTOLOAD, \%field );
-}
-
-sub bytes {
-  my ($self, $dataFormatListRef ) = @_;
-  warn "You are calling the bytes method of an abstract class from $self.\n";
 }
 
 # Protected method
@@ -85,6 +105,12 @@ sub _sprintfNotation {
 # Modification History
 #
 # $Log$
+# Revision 1.4  2000/12/14 22:11:26  thomas
+# Big changes to the API. get/set methods, added Href/Entity stuff, deep cloning,
+# added Href, Notes, NotesLocationOrder nodes/classes. Ripped out _enlarge_array
+# from DataCube (not needed) and fixed problems outputing delimited/formatted
+# read nodes. -b.t.
+#
 # Revision 1.3  2000/12/01 20:03:38  thomas
 # Brought Pod docmentation up to date. Bumped up version
 # number. -b.t.
@@ -134,9 +160,13 @@ A change in the value of these class attributes will change the value for ALL in
 
 =over 4
 
-=item bytes ($dataFormatListRef)
+=item getBytes ($dataFormatListRef)
 
 
+
+=item getXMLAttributes (EMPTY)
+
+This method returns the XMLAttributes of this class. 
 
 =back
 
@@ -165,7 +195,7 @@ B<Pretty_XDF_Output>, B<Pretty_XDF_Output_Indentation>, B<DefaultDataArraySize>.
 =over 4
 
 XDF::FormattedIOCmd inherits the following instance methods of L<XDF::GenericObject>:
-B<new>, B<clone>, B<update>, B<setObjRef>.
+B<new>, B<clone>, B<update>.
 
 =back
 
@@ -174,7 +204,7 @@ B<new>, B<clone>, B<update>, B<setObjRef>.
 =over 4
 
 XDF::FormattedIOCmd inherits the following instance methods of L<XDF::BaseObject>:
-B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<toXMLFileHandle>, B<toXMLFile>.
+B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLAttributes>, B<toXMLFileHandle>, B<toXMLFile>.
 
 =back
 

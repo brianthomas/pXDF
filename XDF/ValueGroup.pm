@@ -55,11 +55,12 @@ use vars qw ($AUTOLOAD %field @ISA);
 
 # CLASS DATA
 my $Class_XML_Node_Name = "valueGroup";
-my @Class_Attributes = qw ( 
-                          );
+my @Class_XML_Attributes = (); 
+my @Class_Attributes = ();
 
 # add in super class attributes
 push @Class_Attributes, @{&XDF::Group::classAttributes};
+push @Class_Attributes, @{&XDF::Group::getXMLAttributes};
 
 # Initalization
 # set up object attributes.
@@ -70,7 +71,6 @@ for my $attr ( @Class_Attributes ) { $field{$attr}++; }
 # This method takes no arguments may not be changed. 
 # */
 sub classXMLNodeName {
-
   $Class_XML_Node_Name;
 }
 
@@ -80,17 +80,23 @@ sub classXMLNodeName {
 #  This method takes no arguments may not be changed. 
 # */
 sub classAttributes {
-
   \@Class_Attributes;
 }
 
-# This is called when we cant find any defined method
-# exists already. Used to handle general purpose set/get
-# methods for our attributes (object fields).
-sub AUTOLOAD {
-  my ($self,$val) = @_;
-  &XDF::GenericObject::AUTOLOAD($self, $val, $AUTOLOAD, \%field );
-}
+#
+# Set/Get Methods
+#
+
+# /** getXMLAttributes
+#      This method returns the XMLAttributes of this class. 
+#  */
+sub getXMLAttributes {
+  return \@Class_XML_Attributes; 
+}   
+  
+#   
+# Other Public Methods 
+# 
 
 # /** addValueGroup 
 # Convenience method.
@@ -120,9 +126,27 @@ sub removeValueGroup {
   $self->removeMemberObject($obj); 
 }
 
+#
+# Private Methods
+#
+
+# This is called when we cant find any defined method
+# exists already. Used to handle general purpose set/get
+# methods for our attributes (object fields).
+sub AUTOLOAD {
+  my ($self,$val) = @_;
+  &XDF::GenericObject::AUTOLOAD($self, $val, $AUTOLOAD, \%field );
+}
+
 # Modification History
 #
 # $Log$
+# Revision 1.4  2000/12/14 22:11:27  thomas
+# Big changes to the API. get/set methods, added Href/Entity stuff, deep cloning,
+# added Href, Notes, NotesLocationOrder nodes/classes. Ripped out _enlarge_array
+# from DataCube (not needed) and fixed problems outputing delimited/formatted
+# read nodes. -b.t.
+#
 # Revision 1.3  2000/12/01 20:03:38  thomas
 # Brought Pod docmentation up to date. Bumped up version
 # number. -b.t.
@@ -175,9 +199,181 @@ This method returns a list reference containing the namesof the class attributes
 
 =back
 
+=head2 ATTRIBUTE Methods
+
+These methods set the requested attribute if an argument is supplied to the method. Whether or not an argument is supplied the current value of the attribute is always returned. Values of these methods are always SCALAR (may be number, string, or reference).
+
+=over 4
+
+=item # add in super class attributes
+
+ 
+
+=item push @Class_Attributes, @{&XDF::Group::classAttributes};
+
+ 
+
+=item push @Class_Attributes, @{&XDF::Group::getXMLAttributes};
+
+ 
+
+=item # Initalization
+
+ 
+
+=item # set up object attributes.
+
+ 
+
+=item for my $attr ( @Class_Attributes ) { $field{$attr}++; }
+
+ 
+
+=item # /** classXMLNodeName
+
+ 
+
+=item # This method returns the class node name for XDF::FieldGroup; 
+
+ 
+
+=item # This method takes no arguments may not be changed. 
+
+ 
+
+=item # */
+
+ 
+
+=item sub classXMLNodeName {
+
+ 
+
+=item }
+
+ 
+
+=item # /** classAttributes
+
+ 
+
+=item #  This method returns a list reference containing the names
+
+ 
+
+=item #  of the class attributes for XDF::FieldGroup; 
+
+ 
+
+=item #  This method takes no arguments may not be changed. 
+
+ 
+
+=item # */
+
+ 
+
+=item sub classAttributes {
+
+ 
+
+=item }
+
+ 
+
+=item #
+
+ 
+
+=item # Set/Get Methods
+
+ 
+
+=item #
+
+ 
+
+=item # /** getXMLAttributes
+
+ 
+
+=item #      This method returns the XMLAttributes of this class. 
+
+ 
+
+=item #  */
+
+ 
+
+=item sub getXMLAttributes {
+
+ 
+
+=item }   
+
+ 
+
+=item #   
+
+ 
+
+=item # Other Public Methods 
+
+ 
+
+=item # 
+
+ 
+
+=item # /** addValueGroup 
+
+ 
+
+=item # Convenience method.
+
+ 
+
+=item # Insert a valueGroup object into this object 
+
+ 
+
+=item # */ 
+
+ 
+
+=item sub addValueGroup {
+
+ 
+
+=item return unless defined $info && ref $info;
+
+ 
+
+=item my $groupObj;
+
+ 
+
+=item if ($info =~ m/XDF::ValueGroup/) {
+
+ 
+
+=item $groupObj = $info;
+
+ 
+
+=item } else {
+
+ 
+
+=back
+
 =head2 OTHER Methods
 
 =over 4
+
+=item getXMLAttributes (EMPTY)
+
+This method returns the XMLAttributes of this class. 
 
 =item addValueGroup ($info)
 
@@ -214,7 +410,7 @@ B<Pretty_XDF_Output>, B<Pretty_XDF_Output_Indentation>, B<DefaultDataArraySize>.
 =over 4
 
 XDF::ValueGroup inherits the following instance methods of L<XDF::GenericObject>:
-B<new>, B<clone>, B<update>, B<setObjRef>.
+B<new>, B<clone>, B<update>.
 
 =back
 
@@ -223,7 +419,7 @@ B<new>, B<clone>, B<update>, B<setObjRef>.
 =over 4
 
 XDF::ValueGroup inherits the following instance methods of L<XDF::BaseObject>:
-B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<toXMLFileHandle>, B<toXMLFile>.
+B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLAttributes>, B<toXMLFileHandle>, B<toXMLFile>.
 
 =back
 
@@ -232,7 +428,7 @@ B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<toXMLFileHandle>, B<toXML
 =over 4
 
 XDF::ValueGroup inherits the following instance methods of L<XDF::Group>:
-B<addMemberObject>, B<removeMemberObject>, B<hasMemberObj>.
+B<getName>, B<setName>, B<getDescription>, B<setDescription>, B<addMemberObject>, B<removeMemberObject>, B<hasMemberObj>.
 
 =back
 

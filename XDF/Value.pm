@@ -53,13 +53,17 @@ use vars qw ($AUTOLOAD %field @ISA);
 
 # CLASS DATA
 my $Class_XML_Node_Name = "value";
-my @Class_Attributes = qw (
+my @Class_XML_Attributes = qw (
                              valueId
                              valueIdRef
                              special
                              inequality
                              value
                           );
+my @Class_Attributes = ();
+
+# add in class XML attributes
+push @Class_Attributes, @Class_XML_Attributes;
 
 # add in super class attributes
 push @Class_Attributes, @{&XDF::BaseObject::classAttributes};
@@ -85,6 +89,127 @@ sub classAttributes {
   \@Class_Attributes; 
 }
 
+# 
+# SET/GET Methods
+#
+
+# /** getValueId
+# */
+sub getValueId{
+   my ($self) = @_;
+   return $self->{ValueId};
+}
+
+# /** setValueId
+#     Set the valueId attribute. 
+# */
+sub setValueId {
+   my ($self, $value) = @_;
+   $self->{ValueId} = $value;
+}
+
+# /** getValueIdRef 
+# */
+sub getValueIdRef {
+   my ($self) = @_;
+   return $self->{ValueIdRef};
+}
+
+# /** setValueIdRef 
+#     Set the valueIdRef attribute. 
+# */
+sub setValueIdRef {
+   my ($self, $value) = @_;
+   $self->{ValueIdRef} = $value;
+}
+
+# /** getSpecial
+# */
+sub getSpecial{
+   my ($self) = @_;
+   return $self->{Special};
+}
+
+# /** setSpecial
+#     Set the special attribute. 
+# */
+sub setSpecial {
+   my ($self, $value) = @_;
+   $self->{Special} = $value;
+}
+
+# /** getInequality
+# */
+sub getInequality{
+   my ($self) = @_;
+   return $self->{Inequality};
+}
+
+# /** setInequality
+#     Set the inequality attribute. 
+# */
+sub setInequality {
+   my ($self, $value) = @_;
+   $self->{Inequality} = $value;
+}
+
+# /** getValue
+# */
+sub getValue{
+   my ($self) = @_;
+   return $self->{Value};
+}
+
+# /** setValue
+#     Set the value attribute. 
+# */
+sub setValue {
+   my ($self, $value) = @_;
+   $self->{Value} = $value;
+}
+
+# /** getXMLAttributes
+#      This method returns the XMLAttributes of this class. 
+#  */
+sub getXMLAttributes {
+  return \@Class_XML_Attributes;
+}
+
+#
+# Other Public Methods
+#
+
+# special new method for Value objects.
+# /** setXMLAttributes
+# XDF::ErrorValue has a special setXMLAttributes method. 
+# These objects are so simple they seem to merit 
+# special handling. This new setXMLAttributes method takes either
+# and attribute Hash reference or a STRING.
+# If the input value is a HASH reference, we 
+# construct an object from it, else, we 
+# just set its upperErrorValue AND lowerErrorValue attributes to the 
+# contents of the passed STRING. 
+# */
+sub setXMLAttributes {
+  my ($self, $info) = @_;
+
+  # these objects are so simple they seem to merit 
+  # special handling. If $info is a reference, we assume
+  # it is an attribute hash (as per other objects). Else,
+  # we assume its a string, and the value of the errorValue.
+  if (defined $info) {
+    if (ref($info) ) {
+      $self->SUPER::setXMLAttributes($info);
+    } else {
+      $self->{Value} = $info;
+    }
+  }
+}
+
+#
+# Private methods 
+#
+
 # This is called when we cant find any defined method
 # exists already. Used to handle general purpose set/get
 # methods for our attributes (object fields).
@@ -96,6 +221,12 @@ sub AUTOLOAD {
 # Modification History
 #
 # $Log$
+# Revision 1.4  2000/12/14 22:11:26  thomas
+# Big changes to the API. get/set methods, added Href/Entity stuff, deep cloning,
+# added Href, Notes, NotesLocationOrder nodes/classes. Ripped out _enlarge_array
+# from DataCube (not needed) and fixed problems outputing delimited/formatted
+# read nodes. -b.t.
+#
 # Revision 1.3  2000/12/01 20:03:38  thomas
 # Brought Pod docmentation up to date. Bumped up version
 # number. -b.t.
@@ -154,25 +285,475 @@ These methods set the requested attribute if an argument is supplied to the meth
 
 =over 4
 
-=item valueId
+=item # add in class XML attributes
 
  
 
-=item valueIdRef
+=item push @Class_Attributes, @Class_XML_Attributes;
 
  
 
-=item special
+=item # add in super class attributes
 
  
 
-=item inequality
+=item push @Class_Attributes, @{&XDF::BaseObject::classAttributes};
 
  
 
-=item value
+=item # Initalization
 
  
+
+=item # set up object attributes.
+
+ 
+
+=item for my $attr ( @Class_Attributes ) { $field{$attr}++; }
+
+ 
+
+=item # /** classXMLNodeName
+
+ 
+
+=item # This method takes no arguments may not be changed. 
+
+ 
+
+=item # This method returns the class node name of XDF::Value.
+
+ 
+
+=item # */
+
+ 
+
+=item sub classXMLNodeName { 
+
+ 
+
+=item }
+
+ 
+
+=item # /** classAttributes
+
+ 
+
+=item #  This method takes no arguments may not be changed. 
+
+ 
+
+=item #  This method returns a list reference containing the names
+
+ 
+
+=item #  of the class attributes of XDF::Value.
+
+ 
+
+=item # */
+
+ 
+
+=item sub classAttributes { 
+
+ 
+
+=item }
+
+ 
+
+=item # 
+
+ 
+
+=item # SET/GET Methods
+
+ 
+
+=item #
+
+ 
+
+=item # /** getValueId
+
+ 
+
+=item # */
+
+ 
+
+=item sub getValueId{
+
+ 
+
+=item return $self->{ValueId};
+
+ 
+
+=item }
+
+ 
+
+=item # /** setValueId
+
+ 
+
+=item #     Set the valueId attribute. 
+
+ 
+
+=item # */
+
+ 
+
+=item sub setValueId {
+
+ 
+
+=item $self->{ValueId} = $value;
+
+ 
+
+=item }
+
+ 
+
+=item # /** getValueIdRef 
+
+ 
+
+=item # */
+
+ 
+
+=item sub getValueIdRef {
+
+ 
+
+=item return $self->{ValueIdRef};
+
+ 
+
+=item }
+
+ 
+
+=item # /** setValueIdRef 
+
+ 
+
+=item #     Set the valueIdRef attribute. 
+
+ 
+
+=item # */
+
+ 
+
+=item sub setValueIdRef {
+
+ 
+
+=item $self->{ValueIdRef} = $value;
+
+ 
+
+=item }
+
+ 
+
+=item # /** getSpecial
+
+ 
+
+=item # */
+
+ 
+
+=item sub getSpecial{
+
+ 
+
+=item return $self->{Special};
+
+ 
+
+=item }
+
+ 
+
+=item # /** setSpecial
+
+ 
+
+=item #     Set the special attribute. 
+
+ 
+
+=item # */
+
+ 
+
+=item sub setSpecial {
+
+ 
+
+=item $self->{Special} = $value;
+
+ 
+
+=item }
+
+ 
+
+=item # /** getInequality
+
+ 
+
+=item # */
+
+ 
+
+=item sub getInequality{
+
+ 
+
+=item return $self->{Inequality};
+
+ 
+
+=item }
+
+ 
+
+=item # /** setInequality
+
+ 
+
+=item #     Set the inequality attribute. 
+
+ 
+
+=item # */
+
+ 
+
+=item sub setInequality {
+
+ 
+
+=item $self->{Inequality} = $value;
+
+ 
+
+=item }
+
+ 
+
+=item # /** getValue
+
+ 
+
+=item # */
+
+ 
+
+=item sub getValue{
+
+ 
+
+=item return $self->{Value};
+
+ 
+
+=item }
+
+ 
+
+=item # /** setValue
+
+ 
+
+=item #     Set the value attribute. 
+
+ 
+
+=item # */
+
+ 
+
+=item sub setValue {
+
+ 
+
+=item $self->{Value} = $value;
+
+ 
+
+=item }
+
+ 
+
+=item # /** getXMLAttributes
+
+ 
+
+=item #      This method returns the XMLAttributes of this class. 
+
+ 
+
+=item #  */
+
+ 
+
+=item sub getXMLAttributes {
+
+ 
+
+=item }
+
+ 
+
+=item #
+
+ 
+
+=item # Other Public Methods
+
+ 
+
+=item #
+
+ 
+
+=item # special new method for Value objects.
+
+ 
+
+=item # /** setXMLAttributes
+
+ 
+
+=item # XDF::ErrorValue has a special setXMLAttributes method. 
+
+ 
+
+=item # These objects are so simple they seem to merit 
+
+ 
+
+=item # special handling. This new setXMLAttributes method takes either
+
+ 
+
+=item # and attribute Hash reference or a STRING.
+
+ 
+
+=item # If the input value is a HASH reference, we 
+
+ 
+
+=item # construct an object from it, else, we 
+
+ 
+
+=item # just set its upperErrorValue AND lowerErrorValue attributes to the 
+
+ 
+
+=item # contents of the passed STRING. 
+
+ 
+
+=item # */
+
+ 
+
+=item sub setXMLAttributes {
+
+ 
+
+=item # these objects are so simple they seem to merit 
+
+ 
+
+=item # special handling. If $info is a reference, we assume
+
+ 
+
+=item # it is an attribute hash (as per other objects). Else,
+
+ 
+
+=item # we assume its a string, and the value of the errorValue.
+
+ 
+
+=item if (defined $info) {
+
+ 
+
+=item if (ref($info) ) {
+
+ 
+
+=back
+
+=head2 OTHER Methods
+
+=over 4
+
+=item getValueId{ (EMPTY)
+
+
+
+=item setValueId ($value)
+
+Set the valueId attribute. 
+
+=item getValueIdRef (EMPTY)
+
+
+
+=item setValueIdRef ($value)
+
+Set the valueIdRef attribute. 
+
+=item getSpecial{ (EMPTY)
+
+
+
+=item setSpecial ($value)
+
+Set the special attribute. 
+
+=item getInequality{ (EMPTY)
+
+
+
+=item setInequality ($value)
+
+Set the inequality attribute. 
+
+=item getValue{ (EMPTY)
+
+
+
+=item setValue ($value)
+
+Set the value attribute. 
+
+=item getXMLAttributes (EMPTY)
+
+This method returns the XMLAttributes of this class. 
+
+=item setXMLAttributes ($info)
+
+XDF::ErrorValue has a special setXMLAttributes method. These objects are so simple they seem to merit special handling. This new setXMLAttributes method takes eitherand attribute Hash reference or a STRING. If the input value is a HASH reference, we construct an object from it, else, we just set its upperErrorValue AND lowerErrorValue attributes to the contents of the passed STRING. 
 
 =back
 
@@ -201,7 +782,7 @@ B<Pretty_XDF_Output>, B<Pretty_XDF_Output_Indentation>, B<DefaultDataArraySize>.
 =over 4
 
 XDF::Value inherits the following instance methods of L<XDF::GenericObject>:
-B<new>, B<clone>, B<update>, B<setObjRef>.
+B<new>, B<clone>, B<update>.
 
 =back
 

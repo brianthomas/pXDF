@@ -46,37 +46,156 @@ use vars qw ($AUTOLOAD %field @ISA);
 @ISA = ("XDF::XMLDataIOStyle");
 
 # CLASS DATA
-
+my @Class_XML_Attributes = qw (
+                                 formatCmdList
+                              );
 my @Class_Attributes = qw (
-                             formatCmdList
+                             writeAxisOrderList
                           );
+
+# add in class XML attributes
+push @Class_Attributes, @Class_XML_Attributes;
 
 # add in super class attributes
 push @Class_Attributes, @{&XDF::XMLDataIOStyle::classAttributes};
+push @Class_XML_Attributes, @{&XDF::XMLDataIOStyle::getXMLAttributes};
 
 # Initalization
 # set up object attributes.
 for my $attr ( @Class_Attributes ) { $field{$attr}++; }
 
-sub classAttributes { 
-  \@Class_Attributes; 
+# /** classAttributes
+#  This method takes no arguments may not be changed. 
+#  This method returns a list reference containing the names
+#  of the class attributes for XDF::Structure; 
+# */
+sub classAttributes {
+  return \@Class_Attributes;
 }
 
-# This is called when we cant find any defined method
-# exists already. Used to handle general purpose set/get
-# methods for our attributes (object fields).
-sub AUTOLOAD {
-  my ($self,$val) = @_;
-  &XDF::GenericObject::AUTOLOAD($self, $val, $AUTOLOAD, \%field );
+#
+# Get/Set Methods
+#
+
+# /** getFormatCmdList
+#  */
+sub getFormatCmdList {
+   my ($self) = @_;
+   return $self->{FormatCmdList};
 }
 
-sub _init { 
-  my ($self) = @_; 
-
-  # set these defaults. 
-  $self->formatCmdList([]); 
-
+# /** setFormatCmdList
+#  */
+sub setFormatCmdList {
+   my ($self, $value) = @_;
+   $self->{FormatCmdList} = $value;
 }
+
+sub getFormatCommands {
+  my ($self) = @_;
+  return $self->getFormatCmdList();
+}
+
+sub getFormatCommand {
+  my ($self, $index, $expandRepeatCommands) = @_;
+
+  return unless defined $index && $index >= 0;
+
+  my @list;
+  if ($expandRepeatCommands) {
+    @list = @{$self->getCommands()};
+  } else { 
+    @list = $self->getFormatCommands();
+  }
+
+  return $list[$index];
+}
+
+#/** getWriteAxisOrderList 
+# This method sets the ordering of the fastest to slowest axis for
+# writing out formatted data. The default is to use the parent array
+# axisList ordering.
+# */
+sub getWriteAxisOrderList {
+  my ($self) =@_;
+  my $list_ref = $self->{WriteAxisOrderList};
+  $list_ref = $self->{_parentArray}->getAxisList() unless 
+      defined $list_ref || !defined $self->{_parentArray};
+  return $list_ref;
+}
+
+#/** setWriteAxisOrderList 
+# This method sets the ordering of the fastest to slowest axis for
+# writing out formatted data. The fastest axis is the last in
+# the array.
+# */
+sub setWriteAxisOrderList {
+  my ($self, $arrayRefValue) = @_;
+  $self->{WriteAxisOrderList} = $arrayRefValue;
+}
+
+# /** getCommands
+#    This convenience method returns the command list (as
+#    an ARRAY Ref). Repeat commands are expanded into their 
+#    component parts.  
+# */
+sub getCommands () {
+  my ($self) = @_;
+
+  my @commandList = ();
+
+  foreach my $obj (@{$self->{FormatCmdList}}) {
+     if (ref($obj) eq 'XDF::RepeatFormattedIOCmd') {
+       my $count = $obj->getCount();
+       my @repeatCommandList = @{$obj->getCommands()};
+       while ($count-- > 0) {
+          push @commandList, @repeatCommandList;
+       }
+     } else {
+        push @commandList, $obj;
+     }
+   }
+
+   return \@commandList;
+}
+
+sub getBytes {
+  my ($self) = @_;
+
+  my $bytes = 0;
+
+  my @dataFormatList = $self->{_parentArray}->getDataFormatList();
+
+  if (!@dataFormatList or $#dataFormatList < 0) {
+    carp "Error: cant determine Formatted ReadStyle byte size w/o defined dataFormat.\n";
+    return;
+  }
+
+  foreach my $obj (@{$self->getCommands()}) {
+    if(ref($obj) eq 'XDF::ReadCellFormattedIOCmd') {
+      my $readObj = shift @dataFormatList;
+      push (@dataFormatList, $readObj); # its a circular list
+      $bytes += $readObj->getBytes();
+    } elsif (ref($obj) eq 'XDF::SkipCharFormattedIOCmd') {
+      $bytes += $obj->getBytes();
+    } else {
+      warn "Unknown format cmd in $self bytes: $obj, ignoring\n";
+    }
+  }
+
+  return $bytes;
+}
+
+# /** getXMLAttributes
+#      This method returns the XMLAttributes of this class. 
+#  */
+sub getXMLAttributes {
+  return \@Class_XML_Attributes;
+}
+
+#
+# Other Public Methods
+#
 
 # perhaps we should be adding full-blown objects here, but
 # it doesnt seem to be justified. 
@@ -86,148 +205,15 @@ sub addFormatCommand {
   return unless defined $obj && ref $obj;
 
   # push into our array
-  push @{$self->formatCmdList}, $obj;
+  push @{$self->{FormatCmdList}}, $obj;
 
   return $obj;
 }
 
-sub getFormatCommands { 
-  my ($self) = @_; 
-  return @{$self->formatCmdList}; 
-}
-
-sub getFormatCommand {
-  my ($self, $index) = @_;
-
-  return unless defined $index && $index >= 0;
-  my $this_index = 0;
-  my $obj;
-  ($obj, $this_index) = &_do_search_for_Text_Format_Cmd($self, $this_index, $index);
-
-  return $obj if $this_index == $index;
-
-}
-
-# /** Convenience method that returns the command list. Repeat
-#    commands are expanded into their component parts.  
-# */
-sub getCommands () {
-  my ($self) = @_;
-     
-  my @commandList = ();
-
-  foreach my $obj (@{$self->formatCmdList}) {
-     if (ref($obj) eq 'XDF::RepeatFormattedIOCmd') {
-       my $count = $obj->count();
-       while ($count-- > 0) {
-          push @commandList, $obj->getCommands();
-       }
-     } else {
-        push @commandList, $obj;
-     }
-   }
-
-   return @commandList;
-}
-
-
-# VERY Sloppy and hasty algorithm. Needs to be redone. In fact, the
-# idea of separate skipChar, Text and Repeat format command objects is bad. 
-sub _do_search_for_Text_Format_Cmd { 
-    my ($obj, $this_index, $index) = @_;
-
-    while (@{$obj->formatCmdList}) {
-      my $obj = $_;
-
-      if($obj =~ m/XDF::Repeat/) {
-        my @list = $obj->getFormatCommands();
-        my $count = $obj->count;
-        while ($count-- > 0) {
-          $this_index += $#list;
-          if ($this_index >= $index) {
-            my $no = $#list - ($this_index - $index);
-            $obj = $list[$no];
-   
-            ($obj, $this_index) = &_do_search_for_Text_Format_Cmd($obj, $this_index, $index)
-               if ($obj =~ m/XDF::Repeat/);
-            return ($obj, $this_index);
-          }
-        } 
-
-      } else { 
-        return ($obj, $this_index) if $this_index == $index;
-      }
-      $this_index++;
-    }
-
-    return ($obj, $this_index);
-}
-
-sub _regexNotation {
-  my ($self) = @_;
-  my $notation;
-
-  my @dataFormatList = $self->_parentArray->dataFormatList;
-
-  if (!@dataFormatList or $#dataFormatList < 0) {
-    carp "Error: cant read Formatted ReadStyle w/o defined dataFormat\n";
-    return;
-  }
-
-  foreach my $obj (@{$self->formatCmdList}) { 
-    if(ref($obj) eq 'XDF::ReadCellFormattedIOCmd') {
-      my $readObj = shift @dataFormatList;
-      push (@dataFormatList, $readObj); # its a circular list
-      $notation .= $readObj->_regexNotation(); 
-    } elsif (ref($obj) eq 'XDF::RepeatFormattedIOCmd') {
-      my ($repeat_notation, $dataListRef) = $obj->_regexNotation(\@dataFormatList); 
-      @dataFormatList = @{$dataListRef};
-      $notation .= $repeat_notation;
-    } elsif (ref($obj) eq 'XDF::SkipCharFormattedIOCmd') {
-      $notation .= $obj->_regexNotation(); 
-    } else {
-      warn "Unknown format cmd in $self _regexNotation: $obj, ignoring\n";
-    }
-  }
-#  $notation .= $self->recordTerminator;
-  return $notation;
-
-}
-
-sub bytes { 
-  my ($self) = @_; 
-
-  my $bytes = 0;
- 
-  my @dataFormatList = $self->_parentArray->dataFormatList;
-
-  if (!@dataFormatList or $#dataFormatList < 0) {
-    carp "Error: cant determine Formatted ReadStyle byte size w/o defined dataFormat.\n";
-    return;
-  }
-
-  foreach my $obj ($self->getCommands()) {
-    if(ref($obj) eq 'XDF::ReadCellFormattedIOCmd') {
-      my $readObj = shift @dataFormatList;
-      push (@dataFormatList, $readObj); # its a circular list
-      $bytes += $readObj->bytes;
-#    } elsif (ref($obj) eq 'XDF::RepeatFormattedIOCmd') {
-#      my ($repeat_byte_size, $dataListRef) = $obj->bytes(\@dataFormatList);
-#      @dataFormatList = @{$dataListRef};
-#      $bytes += $repeat_byte_size;
-    } elsif (ref($obj) eq 'XDF::SkipCharFormattedIOCmd') {
-      $bytes += $obj->bytes;
-    } else {
-      warn "Unknown format cmd in $self bytes: $obj, ignoring\n";
-    }
-  }
-
-  return $bytes;
-} 
-
+# Is this needed still? -b.t.
 sub hasSpecialIntegers {
   my ($self) = @_;
-  my @dataFormatList = $self->_parentArray->dataFormatList;
+  my @dataFormatList = $self->{_parentArray}->getDataFormatList();
 
   if (!@dataFormatList) {
     carp "Error: cant look for special type IntegerFields w/o defined dataFormat\n";
@@ -235,11 +221,106 @@ sub hasSpecialIntegers {
 
   foreach my $dataType (@dataFormatList) {
     if (ref($dataType) eq 'XDF::IntegerField') {
-      return 1 if $dataType->type ne $dataType->typeDecimal; 
+      return 1 if $dataType->getType() ne $dataType->typeDecimal; 
     }
   }
 
   return 0;
+}
+
+sub toXMLFileHandle {
+  my ($self, $fileHandle, $junk, $indent) = @_;
+
+  my $niceOutput = $self->Pretty_XDF_Output;
+
+  $indent = "" unless defined $indent;
+  my $more_indent = $self->Pretty_XDF_Output_Indentation;
+
+  print $fileHandle "$indent" if $niceOutput;
+
+  # open the read block, print attributes 
+  print $fileHandle "<" . $self->SUPER::classXMLNodeName;
+  # print out attributes
+  $self->_printAttributes($fileHandle, $self->SUPER::classAttributes);
+  print $fileHandle ">";
+  print $fileHandle "\n" if $niceOutput;
+
+  my @indent;
+  my $Untagged_Instruction_Node_Name = $self->untaggedInstructionNodeName();
+  my $next_indent = $indent . $more_indent;
+  foreach my $axisObj (@{$self->getWriteAxisOrderList()}) {
+    my $axisId = $axisObj->getAxisId();
+    push @indent, $next_indent;
+    print $fileHandle "$next_indent" if $niceOutput;
+    print $fileHandle "<$Untagged_Instruction_Node_Name axisIdRef=\"$axisId\">";
+    print $fileHandle "\n" if $niceOutput;
+    $next_indent .= $more_indent;
+  }
+
+  # now dump our format commands here the trusty generic method
+  for (@{$self->getFormatCmdList()}) {
+     $_->toXMLFileHandle($fileHandle, $junk, $next_indent);
+  }
+
+  #close the instructions
+  for (reverse @indent) {
+    print $fileHandle "$_" if $niceOutput;
+    print $fileHandle "</$Untagged_Instruction_Node_Name>";
+    print $fileHandle "\n" if $niceOutput;
+  }
+
+  # close the read block
+  print $fileHandle "$indent" if $niceOutput;
+  print $fileHandle "</" . $self->SUPER::classXMLNodeName . ">";
+  print $fileHandle "\n" if $niceOutput;
+
+}
+
+#
+# Private Methods (note stuff like *Notation methods arent really private or protected. bleh) 
+#
+
+# This is called when we cant find any defined method
+# exists already. Used to handle general purpose set/get
+# methods for our attributes (object fields).
+sub AUTOLOAD {
+  my ($self,$val) = @_;
+  &XDF::GenericObject::AUTOLOAD($self, $val, $AUTOLOAD, \%field );
+}
+
+sub _init {
+  my ($self) = @_;
+
+  # set defaults
+  $self->{FormatCmdList} = []; 
+
+}
+
+sub _regexNotation {
+  my ($self) = @_;
+  my $notation;
+
+  my @dataFormatList = $self->{_parentArray}->getDataFormatList();
+
+  if (!@dataFormatList or $#dataFormatList < 0) {
+    carp "Error: cant read Formatted ReadStyle w/o defined dataFormat\n";
+    return;
+  }
+
+  foreach my $obj (@{$self->getCommands()}) {
+    if(ref($obj) eq 'XDF::ReadCellFormattedIOCmd') {
+      my $readObj = shift @dataFormatList;
+      push (@dataFormatList, $readObj); # its a circular list
+      $notation .= $readObj->_regexNotation();
+    } elsif (ref($obj) eq 'XDF::SkipCharFormattedIOCmd') {
+      $notation .= $obj->_regexNotation();
+    } else {
+      warn "Unknown format cmd in $self _regexNotation: $obj, ignoring\n";
+    }
+  }
+
+  return $notation;
+
 }
 
 # this is only called from dataCube
@@ -247,24 +328,20 @@ sub _outputSkipCharArray {
   my ($self) =@_; 
   my @outArray;
 
-  my @dataFormatList = $self->_parentArray->dataFormatList;
+  my @dataFormatList = $self->{_parentArray}->getDataFormatList();
   
   if (!@dataFormatList or $#dataFormatList < 0) {
     carp "Error: cant read Formatted ReadStyle w/o defined dataFormat\n";
     return;
   }
   
-  foreach my $obj (@{$self->formatCmdList}) {
+  foreach my $obj (@{$self->getCommands()}) {
     if(ref($obj) eq 'XDF::ReadCellFormattedIOCmd') {
       my $readObj = shift @dataFormatList;
       push (@dataFormatList, $readObj); # its a circular list
       push @outArray, undef; # push in a holding spot for the data
-    } elsif (ref($obj) eq 'XDF::RepeatFormattedIOCmd') {
-      my ($arr_ref, $dataListRef) = $obj->_outputSkipCharArray(\@dataFormatList);
-      @dataFormatList = @{$dataListRef};
-      push @outArray, @{$arr_ref};
     } elsif (ref($obj) eq 'XDF::SkipCharFormattedIOCmd') {
-      push @outArray, $obj->output;
+      push @outArray, $obj->getOutput();
     } else {
       warn "Unknown format cmd in $self outputSkipCharArray $obj, ignoring\n";
     }
@@ -273,64 +350,25 @@ sub _outputSkipCharArray {
   return @outArray;
 }
 
-sub _OldtemplateNotation {
-  my ($self, $input) = @_;
- 
-  my $notation;
-  my $endian = $self->endian;
-  my $encoding = $self->encoding;
-
-  my @dataFormatList = $self->_parentArray->dataFormatList;
-
-  if (!@dataFormatList or $#dataFormatList < 0) {
-    carp "Error: cant read Formatted ReadStyle w/o defined dataFormat\n";
-    return;
-  }
-
-  foreach my $obj (@{$self->formatCmdList}) {
-    if(ref($obj) eq 'XDF::ReadCellFormattedIOCmd') {
-      my $readObj = shift @dataFormatList;
-      push (@dataFormatList, $readObj); # its a circular list
-      $notation .= $readObj->_templateNotation($endian,$encoding,$input);
-    } elsif (ref($obj) eq 'XDF::RepeatFormattedIOCmd') {
-      my ($repeat_notation, $dataListRef) = $obj->_templateNotation(\@dataFormatList,$endian,$encoding, $input);
-      @dataFormatList = @{$dataListRef};
-      $notation .= $repeat_notation;
-    } elsif (ref($obj) eq 'XDF::SkipCharFormattedIOCmd') {
-      $notation .= $obj->_templateNotation($endian,$encoding,$input);
-    } else { 
-      # everything else, which nothing right now, so throw an error
-      warn "Got weird formattedIOCmd in $self : $obj , ignoring it.\n";
-    }
-  }
-
-  return $notation;
-
-}
-
 sub _templateNotation {
   my ($self, $input) = @_;
 
   my $notation;
-  my $endian = $self->endian;
-  my $encoding = $self->encoding;
+  my $endian = $self->getEndian();
+  my $encoding = $self->getEncoding();
 
-  my @dataFormatList = $self->_parentArray->dataFormatList;
+  my @dataFormatList = $self->{_parentArray}->getDataFormatList();
 
   if (!@dataFormatList or $#dataFormatList < 0) {
     carp "Error: cant read Formatted ReadStyle w/o defined dataFormat\n";
     return;
   }
 
-  foreach my $obj ($self->getCommands()) {
+  foreach my $obj (@{$self->getCommands()}) {
     if(ref($obj) eq 'XDF::ReadCellFormattedIOCmd') {
       my $readObj = shift @dataFormatList;
       push (@dataFormatList, $readObj); # its a circular list
       $notation .= $readObj->_templateNotation($endian,$encoding,$input);
-    } elsif (ref($obj) eq 'XDF::RepeatFormattedIOCmd') {
-      my ($repeat_notation, $dataListRef) = $obj->_templateNotation(\@dataFormatList,$endian,$encoding, $input);
-      @dataFormatList = @{$dataListRef};
-      $notation .= $repeat_notation;
     } elsif (ref($obj) eq 'XDF::SkipCharFormattedIOCmd') {
       $notation .= $obj->_templateNotation($endian,$encoding,$input);
     } else { 
@@ -340,7 +378,6 @@ sub _templateNotation {
   }
 
   return $notation;
-
 
 }
 
@@ -348,22 +385,18 @@ sub _sprintfNotation {
   my ($self) = @_;
   my $notation;
 
-  my @dataFormatList = $self->_parentArray->dataFormatList;
+  my @dataFormatList = $self->{_parentArray}->getDataFormatList();
 
   if (!@dataFormatList or $#dataFormatList < 0) {
     carp "Error: cant read Formatted ReadStyle w/o defined dataFormat\n";
     return;
   }
 
-  foreach my $obj (@{$self->formatCmdList}) { 
+  foreach my $obj (@{$self->getCommands()}) {
    if(ref($obj) eq 'XDF::ReadCellFormattedIOCmd') {
       my $readObj = shift @dataFormatList;
       push (@dataFormatList, $readObj); # its a circular list
       $notation .= $readObj->_sprintfNotation(); 
-    } elsif (ref($obj) eq 'XDF::RepeatFormattedIOCmd') {
-      my ($repeat_notation, $dataListRef) = $obj->_sprintfNotation(\@dataFormatList); 
-      @dataFormatList = @{$dataListRef};
-      $notation .= $repeat_notation;
     } elsif (ref($obj) eq 'XDF::SkipCharFormattedIOCmd') {
       $notation .= $obj->_sprintfNotation(); 
     } else {
@@ -378,6 +411,12 @@ sub _sprintfNotation {
 # Modification History
 #
 # $Log$
+# Revision 1.5  2000/12/14 22:11:26  thomas
+# Big changes to the API. get/set methods, added Href/Entity stuff, deep cloning,
+# added Href, Notes, NotesLocationOrder nodes/classes. Ripped out _enlarge_array
+# from DataCube (not needed) and fixed problems outputing delimited/formatted
+# read nodes. -b.t.
+#
 # Revision 1.4  2000/12/01 20:03:38  thomas
 # Brought Pod docmentation up to date. Bumped up version
 # number. -b.t.
@@ -423,7 +462,7 @@ A change in the value of these class attributes will change the value for ALL in
 
 =item classAttributes (EMPTY)
 
- 
+This method takes no arguments may not be changed. This method returns a list reference containing the namesof the class attributes for XDF::Structure;  
 
 =back
 
@@ -433,7 +472,7 @@ These methods set the requested attribute if an argument is supplied to the meth
 
 =over 4
 
-=item formatCmdList
+=item writeAxisOrderList
 
  
 
@@ -443,7 +482,11 @@ These methods set the requested attribute if an argument is supplied to the meth
 
 =over 4
 
-=item addFormatCommand ($obj)
+=item getFormatCmdList (EMPTY)
+
+
+
+=item setFormatCmdList ($value)
 
 
 
@@ -451,19 +494,39 @@ These methods set the requested attribute if an argument is supplied to the meth
 
 
 
-=item getFormatCommand ($index)
+=item getFormatCommand ($expandRepeatCommands, $index)
 
 
+
+=item getWriteAxisOrderList (EMPTY)
+
+This method sets the ordering of the fastest to slowest axis forwriting out formatted data. The default is to use the parent arrayaxisList ordering. 
+
+=item setWriteAxisOrderList ($arrayRefValue)
+
+This method sets the ordering of the fastest to slowest axis forwriting out formatted data. The fastest axis is the last inthe array. 
 
 =item getCommands (EMPTY)
 
+This convenience method returns the command list (asan ARRAY Ref). Repeat commands are expanded into their component parts.  
+
+=item getBytes (EMPTY)
 
 
-=item bytes (EMPTY)
+
+=item getXMLAttributes (EMPTY)
+
+This method returns the XMLAttributes of this class. 
+
+=item addFormatCommand ($obj)
 
 
 
 =item hasSpecialIntegers (EMPTY)
+
+
+
+=item toXMLFileHandle ($indent, $junk, $fileHandle)
 
 
 
@@ -494,7 +557,7 @@ B<Pretty_XDF_Output>, B<Pretty_XDF_Output_Indentation>, B<DefaultDataArraySize>.
 =over 4
 
 XDF::FormattedXMLDataIOStyle inherits the following instance methods of L<XDF::GenericObject>:
-B<new>, B<clone>, B<update>, B<setObjRef>.
+B<new>, B<clone>, B<update>.
 
 =back
 
@@ -503,7 +566,7 @@ B<new>, B<clone>, B<update>, B<setObjRef>.
 =over 4
 
 XDF::FormattedXMLDataIOStyle inherits the following instance methods of L<XDF::BaseObject>:
-B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<toXMLFile>.
+B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLAttributes>, B<toXMLFile>.
 
 =back
 
@@ -512,7 +575,7 @@ B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<toXMLFile>.
 =over 4
 
 XDF::FormattedXMLDataIOStyle inherits the following instance methods of L<XDF::XMLDataIOStyle>:
-B<toXMLFileHandle>.
+B<untaggedInstructionNodeName>, B<getReadId{>, B<setReadId>, B<getReadIdRef>, B<setReadIdRef>, B<getEncoding{>, B<setEncoding>, B<getEndian{>, B<setEndian>.
 
 =back
 

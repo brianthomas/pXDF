@@ -48,20 +48,17 @@ use vars qw ($AUTOLOAD %field @ISA);
 
 # CLASS DATA
 my $Class_XML_Node_Name = "integer";
-my @Class_Attributes = qw (
+my @Class_XML_Attributes = qw (
                              type
                              width
                           );
-
-# add in super class attributes
-push @Class_Attributes, @{&XDF::DataFormat::classAttributes};
+my @Class_Attributes = ();
 
 my $Integer_Type_Decimal = 'decimal';
 my $Integer_Type_Hex = 'hexadecimal';
 my $Integer_Type_Octal = 'octal';
 
 # Something specific to Perl
-
 # This is used by the 'decimal' type
 my $Perl_Sprintf_Field_Integer = 'd';
 
@@ -73,6 +70,13 @@ my $Octal_Perl_Sprintf_Field_Integer = 'lo';
 # using long hex format. Should be an error   
 my $Hex_Perl_Sprintf_Field_Integer = 'lx';
 my $Perl_Regex_Field_Integer = '\d';
+
+# add in class XML attributes
+push @Class_Attributes, @Class_XML_Attributes;
+
+# add in super class attributes
+push @Class_Attributes, @{&XDF::DataFormat::classAttributes};
+push @Class_XML_Attributes, @{&XDF::DataFormat::getXMLAttributes};
 
 # Initalization
 # set up object attributes.
@@ -113,6 +117,75 @@ sub typeOctal { $Integer_Type_Octal; }
 # */
 sub typeDecimal { $Integer_Type_Decimal; }
 
+#
+# Get/Set Methods
+#
+
+# /** getWidth
+# */
+sub getWidth {
+   my ($self) = @_;
+   return $self->{Width};
+}
+
+# /** setWidth
+#     Set the width attribute. 
+# */
+sub setWidth {
+   my ($self, $value) = @_;
+   $self->{Width} = $value;
+}
+
+# /** getType
+# */
+sub getType {
+   my ($self) = @_;
+   return $self->{Type};
+}
+
+# /** setType
+#     Set the type attribute. 
+# */
+sub setType {
+   my ($self, $value) = @_;
+   $self->{Type} = $value;
+}
+
+# /** getBytes
+# A convenience method.
+# Return the number of bytes this XDF::BinaryFloatField holds.
+# */
+sub getBytes { 
+  my ($self) = @_;
+  $self->getWidth();
+}
+
+# /** getXMLAttributes
+#      This method returns the XMLAttributes of this class. 
+#  */
+sub getXMLAttributes { 
+  return \@Class_XML_Attributes;
+}
+
+#
+# Other Public Methods 
+#
+
+# /** fortranNotation
+# The fortran style notation for this object.
+# */
+sub fortranNotation {
+  my ($self) = @_;
+
+  my $notation = "I";
+  $notation .= $self->{Width};
+  return $notation;
+}
+
+#
+# Private Methods 
+#
+
 # This is called when we cant find any defined method
 # exists already. Used to handle general purpose set/get
 # methods for our attributes (object fields).
@@ -124,23 +197,14 @@ sub AUTOLOAD {
 sub _init {
   my ($self) = @_;
 
-  $self->width(0);
-  $self->type($Integer_Type_Decimal);
+  $self->{Width} = 0;
+  $self->{Type} = $Integer_Type_Decimal;
 
 }
 
-# /** bytes
-# A convenience method.
-# Return the number of bytes this XDF::BinaryFloatField holds.
-# */
-sub bytes { 
-  my ($self) = @_; 
-  $self->width; 
-} 
-
 sub _templateNotation {
   my ($self, $endian, $encoding) = @_;
-  return "A" . $self->width;
+  return "A" . $self->{Width};
 }
 
 sub _regexNotation {
@@ -150,7 +214,7 @@ sub _regexNotation {
   my $symbol = $Perl_Regex_Field_Integer;
 
   # treat the read as a string unless decimal
-  $symbol = '\.' unless ($self->type eq $Integer_Type_Decimal);
+  $symbol = '\.' unless ($self->{Type} eq $Integer_Type_Decimal);
 
   my $notation = '(';
   my $before_whitespace = $width - 1;
@@ -169,30 +233,24 @@ sub _sprintfNotation {
   my $notation = '%';
   my $field_symbol = $Perl_Sprintf_Field_Integer;
 
-  $field_symbol = $Octal_Perl_Sprintf_Field_Integer if ($self->type eq $Integer_Type_Octal );
-  $field_symbol = $Hex_Perl_Sprintf_Field_Integer if ($self->type eq $Integer_Type_Hex );
+  $field_symbol = $Octal_Perl_Sprintf_Field_Integer if ($self->getType() eq $Integer_Type_Octal );
+  $field_symbol = $Hex_Perl_Sprintf_Field_Integer if ($self->getType() eq $Integer_Type_Hex );
 
-  $notation .= $self->width; 
+  $notation .= $self->{Width}; 
   $notation .= $field_symbol;
 
   return $notation;
 }
 
-# /** fortranNotation
-# The fortran style notation for this object.
-# */
-sub fortranNotation {
-  my ($self) = @_;
-
-  my $notation = "I";
-  $notation .= $self->width;
-  return $notation;
-}
-
-
 # Modification History
 #
 # $Log$
+# Revision 1.5  2000/12/14 22:11:25  thomas
+# Big changes to the API. get/set methods, added Href/Entity stuff, deep cloning,
+# added Href, Notes, NotesLocationOrder nodes/classes. Ripped out _enlarge_array
+# from DataCube (not needed) and fixed problems outputing delimited/formatted
+# read nodes. -b.t.
+#
 # Revision 1.4  2000/12/01 20:03:38  thomas
 # Brought Pod docmentation up to date. Bumped up version
 # number. -b.t.
@@ -255,11 +313,319 @@ These methods set the requested attribute if an argument is supplied to the meth
 
 =over 4
 
-=item type
+=item my $Integer_Type_Decimal = 'decimal';
 
  
 
-=item width
+=item my $Integer_Type_Hex = 'hexadecimal';
+
+ 
+
+=item my $Integer_Type_Octal = 'octal';
+
+ 
+
+=item # Something specific to Perl
+
+ 
+
+=item # This is used by the 'decimal' type
+
+ 
+
+=item my $Perl_Sprintf_Field_Integer = 'd';
+
+ 
+
+=item # using long octal format. Technically, should be an error
+
+ 
+
+=item # to have Octal on Exponent and Fixed formats but we will 
+
+ 
+
+=item # return the value as regular number 
+
+ 
+
+=item my $Octal_Perl_Sprintf_Field_Integer = 'lo';
+
+ 
+
+=item # using long hex format. Should be an error   
+
+ 
+
+=item my $Hex_Perl_Sprintf_Field_Integer = 'lx';
+
+ 
+
+=item my $Perl_Regex_Field_Integer = '\d';
+
+ 
+
+=item # add in class XML attributes
+
+ 
+
+=item push @Class_Attributes, @Class_XML_Attributes;
+
+ 
+
+=item # add in super class attributes
+
+ 
+
+=item push @Class_Attributes, @{&XDF::DataFormat::classAttributes};
+
+ 
+
+=item push @Class_XML_Attributes, @{&XDF::DataFormat::getXMLAttributes};
+
+ 
+
+=item # Initalization
+
+ 
+
+=item # set up object attributes.
+
+ 
+
+=item for my $attr ( @Class_Attributes ) { $field{$attr}++; }
+
+ 
+
+=item # /** classXMLNodeName
+
+ 
+
+=item # This method returns the class node name of XDF::BinaryFloatField.
+
+ 
+
+=item # This method takes no arguments may not be changed. 
+
+ 
+
+=item # */
+
+ 
+
+=item sub classXMLNodeName {
+
+ 
+
+=item }
+
+ 
+
+=item # /** classAttributes
+
+ 
+
+=item #  This method returns a list reference containing the names
+
+ 
+
+=item #  of the class attributes of XDF::BinaryFloatField. 
+
+ 
+
+=item #  This method takes no arguments may not be changed. 
+
+ 
+
+=item # */
+
+ 
+
+=item sub classAttributes {
+
+ 
+
+=item }
+
+ 
+
+=item # /** typeHexadecimal
+
+ 
+
+=item # Returns the class value for the hexadecimal type. 
+
+ 
+
+=item # This method takes no arguments may not be changed. 
+
+ 
+
+=item # */
+
+ 
+
+=item sub typeHexadecimal { $Integer_Type_Hex; }
+
+ 
+
+=item # /** typeOctal
+
+ 
+
+=item # Returns the class value for the octal type. 
+
+ 
+
+=item # This method takes no arguments may not be changed. 
+
+ 
+
+=item # */
+
+ 
+
+=item sub typeOctal { $Integer_Type_Octal; }
+
+ 
+
+=item # /** typeDecimal
+
+ 
+
+=item # Returns the class value for the (default) decimal type. 
+
+ 
+
+=item # This method takes no arguments may not be changed. 
+
+ 
+
+=item # */
+
+ 
+
+=item sub typeDecimal { $Integer_Type_Decimal; }
+
+ 
+
+=item #
+
+ 
+
+=item # Get/Set Methods
+
+ 
+
+=item #
+
+ 
+
+=item # /** getWidth
+
+ 
+
+=item # */
+
+ 
+
+=item sub getWidth {
+
+ 
+
+=item return $self->{Width};
+
+ 
+
+=item }
+
+ 
+
+=item # /** setWidth
+
+ 
+
+=item #     Set the width attribute. 
+
+ 
+
+=item # */
+
+ 
+
+=item sub setWidth {
+
+ 
+
+=item $self->{Width} = $value;
+
+ 
+
+=item }
+
+ 
+
+=item # /** getType
+
+ 
+
+=item # */
+
+ 
+
+=item sub getType {
+
+ 
+
+=item return $self->{Type};
+
+ 
+
+=item }
+
+ 
+
+=item # /** setType
+
+ 
+
+=item #     Set the type attribute. 
+
+ 
+
+=item # */
+
+ 
+
+=item sub setType {
+
+ 
+
+=item $self->{Type} = $value;
+
+ 
+
+=item }
+
+ 
+
+=item # /** getBytes
+
+ 
+
+=item # A convenience method.
+
+ 
+
+=item # Return the number of bytes this XDF::BinaryFloatField holds.
+
+ 
+
+=item # */
+
+ 
+
+=item sub getBytes { 
 
  
 
@@ -281,9 +647,29 @@ Returns the class value for the octal type. This method takes no arguments may n
 
 Returns the class value for the (default) decimal type. This method takes no arguments may not be changed. 
 
-=item bytes (EMPTY)
+=item getWidth (EMPTY)
+
+
+
+=item setWidth ($value)
+
+Set the width attribute. 
+
+=item getType (EMPTY)
+
+
+
+=item setType ($value)
+
+Set the type attribute. 
+
+=item getBytes (EMPTY)
 
 A convenience method. Return the number of bytes this XDF::BinaryFloatField holds. 
+
+=item getXMLAttributes (EMPTY)
+
+This method returns the XMLAttributes of this class. 
 
 =item fortranNotation (EMPTY)
 
@@ -316,7 +702,7 @@ B<Pretty_XDF_Output>, B<Pretty_XDF_Output_Indentation>, B<DefaultDataArraySize>.
 =over 4
 
 XDF::IntegerDataFormat inherits the following instance methods of L<XDF::GenericObject>:
-B<new>, B<clone>, B<update>, B<setObjRef>.
+B<new>, B<clone>, B<update>.
 
 =back
 
@@ -325,7 +711,7 @@ B<new>, B<clone>, B<update>, B<setObjRef>.
 =over 4
 
 XDF::IntegerDataFormat inherits the following instance methods of L<XDF::DataFormat>:
-B<toXMLFileHandle>.
+B<getLessThanValue>, B<setLessThanValue>, B<getLessThanOrEqualValue>, B<setLessThanOrEqualValue>, B<getGreaterThanValue>, B<setGreaterThanValue>, B<getGreaterThanOrEqualValue>, B<setGreaterThanOrEqualValue>, B<getInfiniteValue>, B<setInfiniteValue>, B<getInfiniteNegativeValue>, B<setInfiniteNegativeValue>, B<getNoDataValue>, B<setNoDataValue>, B<toXMLFileHandle>.
 
 =back
 
@@ -334,7 +720,7 @@ B<toXMLFileHandle>.
 =over 4
 
 XDF::IntegerDataFormat inherits the following instance methods of L<XDF::BaseObject>:
-B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<toXMLFile>.
+B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLAttributes>, B<toXMLFile>.
 
 =back
 

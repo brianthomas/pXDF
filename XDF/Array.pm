@@ -72,7 +72,7 @@ use XDF::DataCube;
 use XDF::DataFormat;
 use XDF::FieldAxis;
 use XDF::Locator;
-use XDF::Note;
+use XDF::Notes;
 use XDF::Parameter;
 use XDF::ParameterGroup;
 use XDF::TaggedXMLDataIOStyle;
@@ -89,18 +89,20 @@ use vars qw ($AUTOLOAD %field @ISA);
 # CLASS DATA
 my $Class_Node_Name = "array";
 # order is important, put array node attributes
-# first, then fieldAxis, axisList, dataCube, then noteList 
-                     #fieldAxis
+# first, then fieldAxis, axisList, dataCube, then notes
+
+my @Class_XML_Attributes = qw (
+                                name
+                                description
+                                paramList
+                                units
+                                dataFormat
+                                axisList
+                                XMLDataIOStyle 
+                                dataCube
+                                notes
+                              );
 my @Class_Attributes = qw (
-                             name
-                             description
-                             paramList
-                             units
-                             dataFormat
-                             axisList
-                             XmlDataIOStyle 
-                             dataCube
-                             noteList   
                              _paramGroupOwnedHash
                              _locatorOrder
                           );
@@ -120,8 +122,9 @@ my @Class_Attributes = qw (
 # /** paramList
 # a SCALAR (ARRAY REF) of the list of L<XDF::Parameter> objects held within in this Array.
 # */
-# /** noteList
-# a SCALAR (ARRAY REF) of the list of L<XDF::Note> objects held within this object.
+# /** notes
+# a SCALAR (Obj REF) of the object which holds the list of L<XDF::Note> objects associated with
+# this array object.
 # */
 # /** dataCube
 # a SCALAR (OBJECT REF) of the L<XDF::DataCube> object which is a matrix holding the mathematical data
@@ -137,6 +140,9 @@ my @Class_Attributes = qw (
 # /** fieldAxis
 # a SCALAR (OBJECT REF) of the L<XDF::FieldAxis> object.
 # */
+
+# add in class XML attributes
+push @Class_Attributes, @Class_XML_Attributes;
 
 # add in super class attributes
 push @Class_Attributes, @{&XDF::BaseObject::classAttributes};
@@ -162,62 +168,215 @@ sub classAttributes {
   \@Class_Attributes; 
 }
 
-# This is called when we cant find any defined method
-# exists already. Used to handle general purpose set/get
-# methods for our attributes (object fields).
-sub AUTOLOAD {
-  my ($self,$val) = @_;
-  &XDF::GenericObject::AUTOLOAD($self, $val, $AUTOLOAD, \%field );
+# 
+# SET/GET Methods
+#
+
+# /** getName
+# */
+sub getName {
+   my ($self) = @_;
+   return $self->{Name};
 }
 
-# private method called from XDF::BaseObject->new
-sub _init {
+# /** setName
+#     Set the name attribute. 
+# */
+sub setName {
+   my ($self, $value) = @_;
+   $self->{Name} = $value;
+}
+
+# /** getDescription
+#  */
+sub getDescription {
+   my ($self) = @_;
+   return $self->{Description};
+}
+
+# /** setDescription
+#  */
+sub setDescription {
+   my ($self, $value) = @_;
+   $self->{Description} = $value;
+}
+
+# /** getDataCube
+#  */
+sub getDataCube {
+   my ($self) = @_;
+   return $self->{DataCube};
+}
+
+# /** getAxisList
+#  */
+sub getAxisList {
+   my ($self) = @_;
+   return $self->{AxisList};
+}
+
+# /** setAxisList
+#  */
+sub setAxisList {
+   my ($self, $value) = @_;
+   $self->{AxisList} = $value;
+}
+
+# /** getParamList
+#  */
+sub getParamList {
+   my ($self) = @_;
+   return $self->{ParamList};
+}
+
+# /** setParamList
+#  */
+sub setParamList {
+   my ($self, $value) = @_;
+   $self->{ParamList} = $value;
+}
+
+# /** getNoteList
+#  */
+sub getNoteList {
+   my ($self) = @_;
+   return $self->{Notes}->{NoteList};
+}
+
+# /** setNoteList
+#  */
+sub setNoteList {
+   my ($self, $value) = @_;
+   $self->{Notes}->{NoteList} = $value;
+}
+
+# /** getDataFormat
+# */
+sub getDataFormat {
+   my ($self) = @_;
+   return $self->{DataFormat};
+}
+
+# /** setDataFormat
+# Sets the data format *type* for this array. Takes a SCALAR object reference
+# as its argument. Allowed objects to pass to this method include 
+# L<XDF::BinaryIntegerDataFormat>, L<XDF::BinaryFloatDataFormat>, L<XDF::ExponentialDataFormat>, 
+# L<XDF::FixedDataFormat>, L<XDF::IntegerDataFormat>, or L<XDF::StringDataFormat>.
+# */
+sub setDataFormat {
+   my ($self, $value) = @_;
+   $self->{DataFormat} = $value;
+}
+
+# /** getNotes
+# Returns the notes object held by this object.
+# */
+sub getNotes { 
+  my ($self, $what) = @_;
+  return $self->{Notes};
+}
+
+# /** setNotes
+# */
+sub setNotes {
+   my ($self, $value) = @_;
+   $self->{Notes} = $value;
+}
+
+# /** getUnits
+# */
+sub getUnits {
+   my ($self) = @_;
+   return $self->{Units};
+}
+
+# /** setUnits
+# */
+sub setUnits {
+   my ($self, $value) = @_;
+   $self->{Units} = $value;
+}
+
+# /** setFieldAxis
+# Set the fieldAxis in this array. 
+# This will remove an existing field axis if undef is passed. 
+# */
+sub setFieldAxis {
+  my ($self, $value) = @_;
+
+  # dont add unless defined and a reference. 
+  # remove an existing field axis if undef is passed. 
+  if (defined $value) {
+    $self->addFieldAxis($value) if ref($value);
+  } else {
+    $self->removeFieldAxis();
+  }
+}
+
+# /** getFieldAxis
+# */
+sub getFieldAxis {
   my ($self) = @_;
-
-  # initalize objects we always have
-  $self->dataCube(new XDF::DataCube());
-  $self->dataCube->_parentArray($self); # cross reference w/ dataCube 
-  $self->units(new XDF::Units());
-  $self->XmlDataIOStyle(new XDF::TaggedXMLDataIOStyle()); # set the default IO style to Tagged.
-
-  # initialize variables
-  $self->dimension(0);
-
-  # initialize lists/hashes 
-  $self->axisList([]);
-  $self->paramList([]);
-  $self->noteList([]);
-  $self->_paramGroupOwnedHash({}); 
-
+  my $axisObj = @{$self->{AxisList}}[0];
+  return ref($axisObj) eq 'XDF::FieldAxis' ? $axisObj : undef;
 }
 
-# /** XmlDataIOStyle
-# Get/set the XMLDataIOStyle object for this array.
+# /** setXMLDataIOStyle
+# Set the XMLDataIOStyle object for this array.
+# */
+sub setXMLDataIOStyle {
+  my ($self, $val) = @_;
+
+  $self->{XMLDataIOStyle} = $val;
+  # set the parent array to this object
+  $self->{XMLDataIOStyle}->{_parentArray} = $self;
+}
+
+# /** getXMLDataIOStyle
+# Get the XMLDataIOStyle object for this array.
 # Returns a SCALAR (OBJECT REF) holding an instance derived 
 # from the abstract class L<XDF::DataIOStyle>.
 # */
-# Note that we have to use this special method (instead of relying
-# on XDF::GenericObject AUTOLOAD) to insure that _parentArray is properly
-# updated.
-sub XmlDataIOStyle {
-  my ($self, $val) = @_;
-
-  $self->{XmlDataIOStyle} = $val if defined $val;
-  # set the parent array to this object
-  $self->{XmlDataIOStyle}->_parentArray($self);
-
-  return $self->{XmlDataIOStyle};
+sub getXMLDataIOStyle {
+  my ($self) = @_;
+  return $self->{XMLDataIOStyle};
 }
 
-# /** dimension
+# /** getXMLAttributes
+#      This method returns the XMLAttributes of this class. 
+#  */
+sub getXMLAttributes {
+  return \@Class_XML_Attributes;
+}
+
+# /** getDimension
 # Get/set the dimension of the L<XDF::DataCube> held within this Array.
 # */
-sub dimension {
-  my ($self, $dimension) = @_;
-
-  $self->dataCube()->dimension($dimension) if defined $dimension;
-  return $self->dataCube()->dimension();
+sub getDimension {
+  my ($self) = @_;
+  return $self->{DataCube}->getDimension();
 }
+
+# /** getDataFormatList
+# Get the dataFormatList for this array. 
+# Returns an ARRAY of dataFormat objects.
+# */
+sub getDataFormatList {
+  my ($self) = @_;
+
+  if (defined (my $fieldAxis = $self->getFieldAxis()) ) {
+    return $fieldAxis->getDataFormatList();
+  } else {
+    # no field axis? then we use the dataFormat in the array
+    return ($self->getDataFormat()) if defined $self->getDataFormat();
+  }
+
+  return (); # opps, nothing defined!! 
+}
+
+#
+# Other public methods
+#
 
 # /** createLocator
 # Create one instance of an L<XDF::Locator> object for this array.
@@ -225,7 +384,7 @@ sub dimension {
 sub createLocator {
   my ($self) = @_;
 
-  my $locatorObj = new XDF::Locator({'_parentArray' => $self});
+  my $locatorObj = new XDF::Locator($self);
   return $locatorObj;
 }
 
@@ -289,11 +448,10 @@ sub addAxis {
   return unless &_can_add_axisObj_to_array($axisObj);
 
   # add this axis to the list 
-  push @{$self->axisList}, $axisObj; 
+  push @{$self->{AxisList}}, $axisObj; 
 
   # bump up the number of dimensions
-  $self->dimension(0) unless defined $self->dimension();
-  $self->dimension( $self->dimension() + 1 );
+  $self->{DataCube}->{Dimension} = $self->{DataCube}->{Dimension} + 1;
 
   return $axisObj;
 }
@@ -304,7 +462,7 @@ sub addAxis {
 sub _can_add_axisObj_to_array {
   my ($axisObj) = @_;
 
-  unless (defined $axisObj and defined $axisObj->axisId ) {
+  unless (defined $axisObj and defined $axisObj->getAxisId() ) {
      carp "Can't add Axis object wi/o axisId attribute defined.\n";
      return 0;
   }
@@ -321,7 +479,7 @@ sub removeAxis {
   my ($self, $indexOrObjectRef) = @_;
   # NOT the whole story. We have to deal with clearing up the 
   # DataIOStyle object (see addAxis above)
-  $self->_remove_from_list($indexOrObjectRef, $self->axisList(), 'axisList');
+  $self->_remove_from_list($indexOrObjectRef, $self->{AxisList}, 'axisList');
 }
 
 # /** addUnit
@@ -335,7 +493,7 @@ sub removeAxis {
 # used to initialize the new XDF::Unit object.
 # RETURNS : an XDF::Unit object if successfull, undef if not. 
 sub addUnit { my ($self, $attribHashRefOrObjectRef) = @_;
-   my $unitObj = $self->units()->addUnit($attribHashRefOrObjectRef);
+   my $unitObj = $self->{Units}->addUnit($attribHashRefOrObjectRef);
    return $unitObj;
 }
 
@@ -347,7 +505,7 @@ sub addUnit { my ($self, $attribHashRefOrObjectRef) = @_;
 # */
 sub removeUnit { 
   my ($self, $indexOrObjectRef) = @_;
-  return $self->units()->removeUnit($indexOrObjectRef); 
+  return $self->{Units}->removeUnit($indexOrObjectRef); 
 }
 
 
@@ -366,7 +524,7 @@ sub addParameter {
   my $paramObj = XDF::Parameter->new($attribHashReference);
 
   # add the parameter to the list
-  push @{$self->paramList}, $paramObj;
+  push @{$self->{ParamList}}, $paramObj;
 
   return $paramObj;
 }
@@ -379,36 +537,7 @@ sub addParameter {
 # */
 sub removeParameter {
   my ($self, $indexOrObjectRef) = @_;
-  $self->_remove_from_list($indexOrObjectRef, $self->paramList(), 'paramList');
-}
-
-# /** setDataFormat
-# Sets the data format *type* for this array (an XDF::DataFormat object
-# is held in the attribute $obj->dataFormat, its type is accessible
-# as $obj->dataFormat->type). Takes a SCALAR object reference
-# as its argument. Allowed objects to pass to this method include 
-# L<XDF::BinaryIntegerDataFormat>, L<XDF::BinaryFloatDataFormat>, L<XDF::ExponentialDataFormat>, 
-# L<XDF::FixedDataFormat>, L<XDF::IntegerDataFormat>, or L<XDF::StringDataFormat>.
-# RETURNS an object reference if successfull, undef if not.
-# */
-sub setDataFormat {
-   my ($self, $objectRef) = @_;
-
-   return unless defined $objectRef && ref $objectRef;
-   $self->dataFormat(new XDF::DataFormat()) unless defined $self->dataFormat;
-   return $self->dataFormat()->type($objectRef);
-}
-
-# /** maxDataIndices
-# A convenience method [same as $ArrayObj->dataCube()->maxDimensionIndex].
-# Returns a SCALAR ARRAY REF of SCALARS (non-negative INTEGERS) which are the maximum index
-# values along each dimension (FieldAxis and Axis objects).
-# */
-sub maxDataIndices {
-  my ($self) = @_;
-  my @indices = defined $self->dataCube()->maxDimensionIndex() ?
-      @{$self->dataCube()->maxDimensionIndex()} : (-1);
-  return \@indices;
+  $self->_remove_from_list($indexOrObjectRef, $self->{ParamList}, 'paramList');
 }
 
 # /** addNote
@@ -422,17 +551,7 @@ sub maxDataIndices {
 # */
 sub addNote {
   my ($self, $info) = @_;
-
-  my $noteObj;
-  if(ref $info && $info =~ m/XDF::Note/) {
-    $noteObj = $info if(ref $info && $info =~ m/XDF::Note/);
-  } else {
-    $noteObj = XDF::Note->new($info);
-  }
-
-  # add the parameter to the list
-  push @{$self->noteList}, $noteObj;
-
+  my $noteObj = $self->{Notes}->addNote($info);
   return $noteObj;
 }
 
@@ -444,23 +563,15 @@ sub addNote {
 # */
 sub removeNote {
   my ($self, $what) = @_;
-  $self->_remove_from_list($what, $self->noteList(), 'noteList');
+  $self->getNotes()->removeNote($what);
 }
 
-# /** getNotes
-# Convenience method which returns a list of the notes held by this object.
-# */
-sub getNotes { 
-  my ($self, $what) = @_; 
-  return @{$self->noteList}; 
-}
-  
 # /** addData
 # Append the SCALAR value onto the requested datacell (via L<XDF::DataCube> LOCATOR REF).
 # */
 sub addData {
   my ($self, $locator, $dataValue) = @_;
-  $self->dataCube()->addData($locator, $dataValue);
+  $self->{DataCube}->addData($locator, $dataValue);
 }
 
 # /** setData
@@ -469,7 +580,7 @@ sub addData {
 # */
 sub setData {
   my ($self, $locator, $dataValue ) = @_;
-  $self->dataCube()->setData($locator, $dataValue);
+  $self->{DataCube}->setData($locator, $dataValue);
 }
 
 # /** removeData
@@ -479,7 +590,7 @@ sub setData {
 # */
 sub removeData {
   my ($self, $locator, $data) = @_;
-  $self->dataCube()->removeData($locator, $data);
+  $self->{DataCube}->removeData($locator, $data);
 }
 
 # /** getData
@@ -487,27 +598,11 @@ sub removeData {
 # */
 sub getData {
   my ($self, $locator ) = @_;
-  return $self->dataCube()->getData($locator);
-}
-
-# /** dataFormatList
-# Get the dataFormatList for this array. 
-# */
-sub dataFormatList {
-  my ($self) = @_;
-
-  if (defined (my $fieldAxis = $self->fieldAxis()) ) {
-    return $fieldAxis->dataFormatList;
-  } else {
-    # no field axis? then we use the dataFormat in the array
-    return ($self->dataFormat()) if defined $self->dataFormat;
-  }
-
-  return; # opps, nothing defined!! 
+  return $self->{DataCube}->getData($locator);
 }
 
 # /** addFieldAxis
-# A convenience method (same as $Array->fieldAxis($fieldAxisObj)).
+# A convenience method (same as $Array->setFieldAxis($fieldAxisObj)).
 # Changes the L<XDF::FieldAxis> object in this Array to the indicated one.
 # */
 sub addFieldAxis {
@@ -521,38 +616,59 @@ sub addFieldAxis {
 
   # By convention, the fieldAxis is always first axis in the axis list.
   # Make sure that we *replace* the existing fieldAxis, if it exists.
-  shift @{$self->axisList} if ref(@{$self->axisList}[0]) eq 'XDF::FieldAxis';
-  unshift @{$self->axisList}, $fieldAxisObj;
+  shift @{$self->{AxisList}} if ref(@{$self->{AxisList}}[0]) eq 'XDF::FieldAxis';
+  unshift @{$self->{AxisList}}, $fieldAxisObj;
 
   # bump up the number of dimensions
-  $self->dimension(0) unless defined $self->dimension();
-  $self->dimension( $self->dimension() + 1 );
+  $self->{DataCube}->{Dimension} = $self->{DataCube}->getDimension() + 1;
 
   return $fieldAxisObj;
 }
 
 # /** removeFieldAxis
-# A convenience method (same as $Array->fieldAxis(undef)). 
 # Removes the L<XDF::FieldAxis> object in this Array.
-# B<CURRENTLY BROKEN>!
 # */
 sub removeFieldAxis { 
   my ($self) = @_; 
 
-# $self->fieldAxis(undef); # this WONT work!!
-#  $self->dimension( $self->dimension() - 1 );
-  warn "RemoveField Axis is not currently implemented\n";
+  if (ref(@{$self->{AxisList}}[0]) eq 'XDF::FieldAxis') {
+     shift @{$self->{AxisList}};
+     $self->dimension( $self->dimension() - 1 );
+  }
 }
 
-# /** fieldAxis
-# Set/get the fieldAxis in this array. 
-# */
-sub fieldAxis {
-  my ($self, $value) = @_;
+#
+# Private Methods
+#
 
-  $self->addFieldAxis($value) if defined $value && ref($value);
-  my $axisObj = @{$self->axisList}[0];
-  return ref($axisObj) eq 'XDF::FieldAxis' ? $axisObj : undef;
+# This is called when we cant find any defined method
+# exists already. Used to handle general purpose set/get
+# methods for our attributes (object fields).
+sub AUTOLOAD {
+  my ($self,$val) = @_;
+  &XDF::GenericObject::AUTOLOAD($self, $val, $AUTOLOAD, \%field );
+}
+
+# private method called from XDF::BaseObject->new
+sub _init {
+  my ($self) = @_;
+
+  # initalize objects we always have
+  $self->{DataCube} = new XDF::DataCube();
+  $self->{DataCube}->{_parentArray} = $self; # cross reference w/ dataCube 
+  $self->{Units} = new XDF::Units();
+  $self->{Notes} = new XDF::Notes();
+  $self->setXMLDataIOStyle(new XDF::TaggedXMLDataIOStyle()); # set the default IO style to Tagged.
+
+  # initialize variables
+ # $self->dimension(0);
+
+  # initialize lists/hashes 
+  $self->{AxisList} = [];
+  $self->{ParamList} = [];
+
+  $self->{_paramGroupOwnedHash} = {};
+
 }
 
 1;
@@ -624,61 +740,105 @@ This method returns a list reference containing the namesof the class attributes
 
 =back
 
-=head2 ATTRIBUTE Methods
-
-These methods set the requested attribute if an argument is supplied to the method. Whether or not an argument is supplied the current value of the attribute is always returned. Values of these methods are always SCALAR (may be number, string, or reference).
-
-=over 4
-
-=item name
-
-The STRING description (short name) of this Array.  
-
-=item description
-
-A scalar string description (long name) of this Array.  
-
-=item paramList
-
-a SCALAR (ARRAY REF) of the list of L<XDF::Parameter> objects held within in this Array.  
-
-=item units
-
-a SCALAR (OBJECT REF) of the L<XDF::Units> object of this array. The XDF::Units object is used to hold the XDF::Unit objects.  
-
-=item dataFormat
-
-a SCALAR (OBJECT REF) of the L<XDF::DataFormat> object.  
-
-=item axisList
-
-a SCALAR (ARRAY REF) of the list of L<XDF::Axis> objects held within this array.  
-
-=item XmlDataIOStyle 
-
- 
-
-=item dataCube
-
-a SCALAR (OBJECT REF) of the L<XDF::DataCube> object which is a matrix holding the mathematical dataof this array.  
-
-=item noteList   
-
- 
-
-=back
-
 =head2 OTHER Methods
 
 =over 4
 
-=item XmlDataIOStyle ($val)
+=item getName (EMPTY)
 
-Get/set the XMLDataIOStyle object for this array. Returns a SCALAR (OBJECT REF) holding an instance derived from the abstract class L<XDF::DataIOStyle>. 
 
-=item dimension ($dimension)
+
+=item setName ($value)
+
+Set the name attribute. 
+
+=item getDescription (EMPTY)
+
+
+
+=item setDescription ($value)
+
+
+
+=item getDataCube (EMPTY)
+
+
+
+=item getAxisList (EMPTY)
+
+
+
+=item setAxisList ($value)
+
+
+
+=item getParamList (EMPTY)
+
+
+
+=item setParamList ($value)
+
+
+
+=item getNoteList (EMPTY)
+
+
+
+=item setNoteList ($value)
+
+
+
+=item getDataFormat (EMPTY)
+
+
+
+=item setDataFormat ($value)
+
+Sets the data format *type* for this array. Takes a SCALAR object referenceas its argument. Allowed objects to pass to this method include L<XDF::BinaryIntegerDataFormat>, L<XDF::BinaryFloatDataFormat>, L<XDF::ExponentialDataFormat>, L<XDF::FixedDataFormat>, L<XDF::IntegerDataFormat>, or L<XDF::StringDataFormat>. 
+
+=item getNotes ($what)
+
+Returns the notes object held by this object. 
+
+=item setNotes ($value)
+
+
+
+=item getUnits (EMPTY)
+
+
+
+=item setUnits ($value)
+
+
+
+=item setFieldAxis ($value)
+
+Set the fieldAxis in this array. This will remove an existing field axis if undef is passed. 
+
+=item getFieldAxis (EMPTY)
+
+
+
+=item setXMLDataIOStyle ($val)
+
+Set the XMLDataIOStyle object for this array. 
+
+=item getXMLDataIOStyle (EMPTY)
+
+Get the XMLDataIOStyle object for this array. Returns a SCALAR (OBJECT REF) holding an instance derived from the abstract class L<XDF::DataIOStyle>. 
+
+=item getXMLAttributes (EMPTY)
+
+This method returns the XMLAttributes of this class. 
+
+=item getDimension (EMPTY)
 
 Get/set the dimension of the L<XDF::DataCube> held within this Array. 
+
+=item getDataFormatList (EMPTY)
+
+Get the dataFormatList for this array. Returns an ARRAY of dataFormat objects. 
 
 =item createLocator (EMPTY)
 
@@ -716,14 +876,6 @@ Insert an XDF::Parameter object into this object. This method may optionally tak
 
 Remove an XDF::Parameter object from the list of XDF::Parametersheld within this object. This method takes either the list index number or an object reference as its argument. RETURNS : 1 on success, undef on failure. 
 
-=item setDataFormat ($objectRef)
-
-Sets the data format *type* for this array (an XDF::DataFormat objectis held in the attribute $obj->dataFormat, its type is accessibleas $obj->dataFormat->type). Takes a SCALAR object referenceas its argument. Allowed objects to pass to this method include L<XDF::BinaryIntegerDataFormat>, L<XDF::BinaryFloatDataFormat>, L<XDF::ExponentialDataFormat>, L<XDF::FixedDataFormat>, L<XDF::IntegerDataFormat>, or L<XDF::StringDataFormat>. RETURNS an object reference if successfull, undef if not. 
-
-=item maxDataIndices (EMPTY)
-
-A convenience method [same as $ArrayObj->dataCube()->maxDimensionIndex]. Returns a SCALAR ARRAY REF of SCALARS (non-negative INTEGERS) which are the maximum indexvalues along each dimension (FieldAxis and Axis objects). 
-
 =item addNote ($info)
 
 Insert an XDF::Note object into the XDF::Notes object held by this object. This method may optionally take a reference to an attribute hash asits argument. Attributes in the attribute hash shouldcorrespond to attributes of the L<XDF::Note> object. The attribute/value pairs in the attribute hash reference areused to initialize the new XDF::Note object. RETURNS : an XDF::Note object reference on success, undef on failure. 
@@ -731,10 +883,6 @@ Insert an XDF::Note object into the XDF::Notes object held by this object. This 
 =item removeNote ($what)
 
 Removes an XDF::Note object from the list of XDF::Note objectsheld within the XDF::Notes object of this object. This method takes either the list index number or an object reference as its argument. RETURNS : 1 on success, undef on failure. 
-
-=item getNotes ($what)
-
-Convenience method which returns a list of the notes held by this object. 
 
 =item addData ($dataValue, $locator)
 
@@ -752,21 +900,13 @@ Remove the requested data from the indicated datacell (via L<XDF::DataCube> LOCA
 
 Retrieve the SCALAR value of the requested datacell (via L<XDF::DataCube> LOCATOR REF). 
 
-=item dataFormatList (EMPTY)
-
-Get the dataFormatList for this array. 
-
 =item addFieldAxis ($attribHashRefOrObjectRef)
 
-A convenience method (same as $Array->fieldAxis($fieldAxisObj)). Changes the L<XDF::FieldAxis> object in this Array to the indicated one. 
+A convenience method (same as $Array->setFieldAxis($fieldAxisObj)). Changes the L<XDF::FieldAxis> object in this Array to the indicated one. 
 
 =item removeFieldAxis (EMPTY)
 
-A convenience method (same as $Array->fieldAxis(undef)). Removes the L<XDF::FieldAxis> object in this Array. B<CURRENTLY BROKEN>!
-
-=item fieldAxis ($value)
-
-a SCALAR (OBJECT REF) of the L<XDF::FieldAxis> object. Set/get the fieldAxis in this array. 
+Removes the L<XDF::FieldAxis> object in this Array. 
 
 =back
 
@@ -795,7 +935,7 @@ B<Pretty_XDF_Output>, B<Pretty_XDF_Output_Indentation>, B<DefaultDataArraySize>.
 =over 4
 
 XDF::Array inherits the following instance methods of L<XDF::GenericObject>:
-B<new>, B<clone>, B<update>, B<setObjRef>.
+B<new>, B<clone>, B<update>.
 
 =back
 
@@ -804,7 +944,7 @@ B<new>, B<clone>, B<update>, B<setObjRef>.
 =over 4
 
 XDF::Array inherits the following instance methods of L<XDF::BaseObject>:
-B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<toXMLFileHandle>, B<toXMLFile>.
+B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLAttributes>, B<toXMLFileHandle>, B<toXMLFile>.
 
 =back
 
@@ -812,7 +952,7 @@ B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<toXMLFileHandle>, B<toXML
 
 =head1 SEE ALSO
 
-L<XDF::BaseObject>, L<XDF::Axis>, L<XDF::DataCube>, L<XDF::DataFormat>, L<XDF::FieldAxis>, L<XDF::Locator>, L<XDF::Note>, L<XDF::Parameter>, L<XDF::ParameterGroup>, L<XDF::TaggedXMLDataIOStyle>, L<XDF::Units>
+L<XDF::BaseObject>, L<XDF::Axis>, L<XDF::DataCube>, L<XDF::DataFormat>, L<XDF::FieldAxis>, L<XDF::Locator>, L<XDF::Notes>, L<XDF::Parameter>, L<XDF::ParameterGroup>, L<XDF::TaggedXMLDataIOStyle>, L<XDF::Units>
 
 =back
 

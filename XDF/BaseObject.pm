@@ -54,7 +54,7 @@ use integer;
 use vars qw ($VERSION @ISA %field);
 
 # the version of this module
-$VERSION = "0.17k";
+$VERSION = "0.17l";
 
 # inherits from XDF::GenericObject
 @ISA = ("XDF::GenericObject");
@@ -97,6 +97,8 @@ my @Class_Attributes = qw (
                              _groupMemberHash
                           );
 
+my @Class_XML_Attributes = ();
+
 # add in super class attributes
 push @Class_Attributes, @{&XDF::GenericObject::classAttributes};
 
@@ -112,6 +114,10 @@ sub classAttributes {
   return \@Class_Attributes; 
 }
 
+sub getXMLAttributes {
+  return \@Class_XML_Attributes;
+}
+
 #
 # Methods ..
 #
@@ -125,9 +131,9 @@ sub addToGroup {
   return unless defined $groupObj && ref $groupObj;
 
   # make sure its not already a member!
-  unless (exists %{$self->_groupMemberHash}->{$groupObj}) {
+  unless (exists %{$self->{_groupMemberHash}}->{$groupObj}) {
     $groupObj->addMemberObject($self);
-    %{$self->_groupMemberHash}->{$groupObj} = $groupObj;
+    %{$self->{_groupMemberHash}}->{$groupObj} = $groupObj;
     return $groupObj;
   } else {
      carp "Can't add to group: $self already a member of $groupObj\n"; 
@@ -144,9 +150,9 @@ sub removeFromGroup {
   return unless defined $groupObj && ref $groupObj;
 
   # make sure its a member!
-  if (exists %{$self->_groupMemberHash}->{$groupObj}) {
+  if (exists %{$self->{_groupMemberHash}}->{$groupObj}) {
     $groupObj->removeMemberObject($self);
-    delete %{$self->_groupMemberHash}->{$groupObj};
+    delete %{$self->{_groupMemberHash}}->{$groupObj};
     return $groupObj;
   } else {
     carp "Can't delete from group: $self not a member of $groupObj\n"; 
@@ -161,7 +167,18 @@ sub removeFromGroup {
 sub isGroupMember { 
   my ($self, $groupObj) = @_;
   return unless defined $groupObj && ref $groupObj;
-  return exists %{$self->_groupMemberHash}->{$groupObj} ? 1 : undef;
+  return exists %{$self->{_groupMemberHash}}->{$groupObj} ? 1 : undef;
+}
+
+# /** setXMLAttributes
+#   Set the XML attributes of this object using a passed Hashtable ref.
+# */
+sub setXMLAttributes { 
+  my ($self, $attribHashRef) = @_;
+  while (my ($attrib, $value) = each (%{$attribHashRef}) ) { 
+     my $method = 'set' . ucfirst $attrib;
+     $self->$method($value); 
+  }
 }
 
 # a few Class Methods..
@@ -246,13 +263,13 @@ sub toXMLFileHandle {
   }
 
   # To undo all the object ref stuff, 'undefine' it while writing
-  my $objRef;
-  if (@{$self->classAttributes}->[$#{$self->classAttributes}] eq '_objRef'
-       && defined $self->_objRef ) 
-  {
-     $objRef = $self->_objRef;
-     $self->_objRef(0); # prevents us from using object Ref
-  }
+#  my $objRef;
+#  if (@{$self->classAttributes}->[$#{$self->classAttributes}] eq '_objRef'
+#       && defined $self->_objRef ) 
+#  {
+#     $objRef = $self->_objRef;
+#     $self->_objRef(0); # prevents us from using object Ref
+#  }
 
   # We need to invoke a little bit of Voodoo to keep the DTD happy; 
   # the first structure node is always called by the root node name
@@ -278,16 +295,11 @@ sub toXMLFileHandle {
     }
   }
 
-
-  my ($attribHashRef, $objListRef, $objPCDATA) = $self->_getXMLInfo();
-  my %attribHash = %{$attribHashRef};
+  my ($attribListRef, $objListRef, $objPCDATA) = $self->_getXMLInfo();
   my @objList = @{$objListRef};
 
   # print out attributes
-  foreach my $attrib (keys %attribHash) {
-    my $val = $attribHash{$attrib};
-    print $fileHandle " $attrib=\"",$val,"\"";
-  }
+  $self->_printAttributes($fileHandle, $attribListRef);
 
   # now, does this object own others? if so print them
   if ($#objList > -1 or defined $objPCDATA or defined $noChildObjectNodeName) {
@@ -375,8 +387,23 @@ sub toXMLFileHandle {
   print $fileHandle "\n" if $Pretty_XDF_Output && $#nodenames > -1;
  
   # reset the object reference, if it existed 
-  $self->_objRef($objRef) if defined $objRef;
+#  $self->_objRef($objRef) if defined $objRef;
 
+}
+
+sub _printAttributes {
+  my ($self, $fileHandle, $listRef) = @_;
+
+  foreach my $attrib (@{$listRef}) {
+    next if $attrib =~ /^_/;
+    my $method = 'get' . ucfirst $attrib;
+    my $val = $self->$method();
+    if ($replaceNewlineWithEntityInOutputAttribute && $val) {
+       $val =~ s/\n/&#10;/g; # newline gets entity 
+       $val =~ s/\r/&#13;/g; # carriage return gets entity 
+    }
+    print $fileHandle " $attrib=\"",$val,"\"" if defined $val;
+  }
 }
 
 sub _getXMLInfo {
@@ -384,14 +411,17 @@ sub _getXMLInfo {
 
   my $objPCDATA;
   my @objList = ();
-  my %attribHash;
+  my @attribs;
 
  
-  foreach my $attrib (@{$self->classAttributes}) {
+  #foreach my $attrib (@{$self->classAttributes}) {
+  foreach my $attrib (@{$self->getXMLAttributes}) {
     # DONT show private attributes (which have a leading underscore)
-    next if $attrib =~ /^_/;
+    #next if $attrib =~ m/XMLNodeName/;
+    #next if $attrib =~ m/^_/;
     
-    my $val = $self->$attrib();
+    my $method = 'get' . ucfirst $attrib;
+    my $val = $self->$method();
     next unless defined $val;
 
     if (ref $val) {
@@ -403,8 +433,8 @@ sub _getXMLInfo {
         # 
         # 1- dont include empty notelists, 
         # 2- dont include empty unitlists (removed), 
-        if (    ($val !~ m/XDF::Notes/ or  $#{$val->noteList()} > -1)
-#             && ($val !~ m/XDF::Units/ or  $#{$val->unitList()} > -1)
+        if (    (ref($val) ne 'XDF::Notes' or  $#{$val->getNoteList()} > -1)
+#             && (ref($val) ne 'XDF::Units' or  $#{$val->getUnitList()} > -1)
            )
         { 
           push @objList, $val;
@@ -414,28 +444,24 @@ sub _getXMLInfo {
       if ($attrib eq $PCDATA_ATTRIBUTE) {
         $objPCDATA = $val;
       } else {
-        if ($replaceNewlineWithEntityInOutputAttribute) {
-          $val =~ s/\n/&#10;/g; # newline gets entity 
-          $val =~ s/\r/&#13;/g; # carriage return gets entity 
-        }
-        $attribHash{$attrib} = $val;
+        push @attribs, $attrib;
       }
     }
   }
 
-  return (\%attribHash, \@objList, $objPCDATA);
+  return (\@attribs, \@objList, $objPCDATA);
 }
 
 # deal with group stuff here. Open all groups not previously opened 
 sub _deal_with_opening_group_nodes {
   my ($self, $obj, $fileHandle, $indent) = @_;
 
-  foreach my $group (keys %{$obj->_groupMemberHash}) {
-    unless (exists %{$self->_openGroupNodeHash}->{$group}) {
-      my $groupObj = %{$obj->_groupMemberHash}->{$group};
+  foreach my $group (keys %{$obj->{_groupMemberHash}}) {
+    unless (exists %{$self->{_openGroupNodeHash}}->{$group}) {
+      my $groupObj = %{$obj->{_groupMemberHash}}->{$group};
       $indent .= $Pretty_XDF_Output_Indentation; # add some indent 
       $groupObj->toXMLFileHandle($fileHandle, undef, $indent, 1); 
-      %{$self->_openGroupNodeHash}->{$group} = $groupObj;
+      %{$self->{_openGroupNodeHash}}->{$group} = $groupObj;
     }
   }
 
@@ -446,15 +472,15 @@ sub _deal_with_opening_group_nodes {
 sub _deal_with_closing_group_nodes {
   my ($self, $obj, $fileHandle, $indent) = @_;
  
-  foreach my $openGroup (keys %{$self->_openGroupNodeHash}) {
-    unless (exists %{$obj->_groupMemberHash}->{$openGroup}) {
-       my $groupNodeName = %{$self->_openGroupNodeHash}->{$openGroup}->classXMLNodeName;
+  foreach my $openGroup (keys %{$self->{_openGroupNodeHash}}) {
+    unless (exists %{$obj->{_groupMemberHash}}->{$openGroup}) {
+       my $groupNodeName = %{$self->{_openGroupNodeHash}}->{$openGroup}->classXMLNodeName;
        # close this node
        print $fileHandle $indent if $Pretty_XDF_Output;
        print $fileHandle "</" . $groupNodeName . ">";
        print $fileHandle "\n" if $Pretty_XDF_Output;
        # delete from list
-       delete %{$self->_openGroupNodeHash}->{$openGroup};
+       delete %{$self->{_openGroupNodeHash}}->{$openGroup};
        $indent =~ s/$Pretty_XDF_Output_Indentation//; # peel off some of the indent 
     }
   }
@@ -510,6 +536,12 @@ sub _write_XML_decl_to_file_handle {
 # Modification History
 #
 # $Log$
+# Revision 1.3  2000/12/14 22:11:26  thomas
+# Big changes to the API. get/set methods, added Href/Entity stuff, deep cloning,
+# added Href, Notes, NotesLocationOrder nodes/classes. Ripped out _enlarge_array
+# from DataCube (not needed) and fixed problems outputing delimited/formatted
+# read nodes. -b.t.
+#
 # Revision 1.2  2000/12/01 20:03:37  thomas
 # Brought Pod docmentation up to date. Bumped up version
 # number. -b.t.
@@ -566,6 +598,10 @@ This method returns a list reference containing the namesof the class attributes
 
 =over 4
 
+=item getXMLAttributes (EMPTY)
+
+
+
 =item addToGroup ($groupObj)
 
 Add this object as a member of a group. 
@@ -577,6 +613,10 @@ Remove this object from membership in a group.
 =item isGroupMember ($groupObj)
 
 Determine if this object is a member of the reference Group object. Returns 1 if true, undef if false. 
+
+=item setXMLAttributes ($attribHashRef)
+
+Set the XML attributes of this object using a passed Hashtable ref. 
 
 =item Pretty_XDF_Output ($value)
 
@@ -616,7 +656,7 @@ A change in the value of these attributes will change the functioning of ALL ins
 =over 4
 
 XDF::BaseObject inherits the following instance methods of L<XDF::GenericObject>:
-B<new>, B<clone>, B<update>, B<setObjRef>.
+B<new>, B<clone>, B<update>.
 
 =back
 

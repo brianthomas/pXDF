@@ -61,14 +61,18 @@ use vars qw ($AUTOLOAD %field @ISA);
 # Holds the scalar STRING that is this value.
 # */
 
-my @Class_Attributes = qw (
+my @Class_XML_Attributes = qw (
                              upperErrorValue
                              lowerErrorValue
-                             errorValue
                           );
+my @Class_Attributes = ();
+
+# add in class XML attributes
+push @Class_Attributes, @Class_XML_Attributes;
 
 # add in super class attributes
 push @Class_Attributes, @{&XDF::Value::classAttributes};
+push @Class_XML_Attributes, @{&XDF::Value::getXMLAttributes};
 
 # Initalization
 # set up object attributes.
@@ -83,6 +87,71 @@ sub classAttributes {
   \@Class_Attributes;
 }
 
+#
+# SET/GET Methods
+#
+
+# /** getUpperErrorValue
+# */
+sub getUpperErrorValue{
+   my ($self) = @_;
+   return $self->{UpperErrorValue};
+}
+
+# /** setUpperErrorValue
+#     Set the upperErrorValue attribute. 
+# */
+sub setUpperErrorValue {
+   my ($self, $value) = @_;
+   $self->{UpperErrorValue} = $value;
+}
+
+# /** getLowerErrorValue
+# */
+sub getLowerErrorValue {
+   my ($self) = @_;
+   return $self->{LowerErrorValue};
+}
+
+# /** setLowerErrorValue
+#     Set the lowerErrorValue attribute. 
+# */
+sub setLowerErrorValue {
+   my ($self, $value) = @_;
+   $self->{LowerErrorValue} = $value;
+}
+
+# /** getErrorValues
+#   A convience method which returns an array reference holding 
+#   the value of the lowerErrorValue and upperErrorValue attributes. 
+# */
+sub getErrorValues {
+   my ($self) = @_;
+   my @values = ($self->{LowerErrorValue}, $self->{UpperErrorValue});
+   return \@values;
+}
+
+# /** setErrorValue
+#     Sets the value of both the upperErrorValue and lowerErrorValue
+#     attributes to the passed value.
+# */
+sub setErrorValue {
+   my ($self, $value) = @_;
+   $self->{UpperErrorValue} = $value;
+   $self->{LowerErrorValue} = $value;
+}
+
+# /** getXMLAttributes
+#      This method returns the XMLAttributes of this class. 
+#  */
+sub getXMLAttributes {
+  return \@Class_XML_Attributes;
+}
+
+#
+# Private Methods 
+#
+
 # This is called when we cant find any defined method
 # exists already. Used to handle general purpose set/get
 # methods for our attributes (object fields).
@@ -91,36 +160,15 @@ sub AUTOLOAD {
   &XDF::GenericObject::AUTOLOAD($self, $val, $AUTOLOAD, \%field );
 }
 
-# special new method for Value objects.
-# /** update
-# XDF::Value has a special update method. 
-# These objects are so simple they seem to merit 
-# special handling. This new update method takes either
-# and attribute Hash reference or a STRING.
-# If the input value is a HASH reference, we 
-# construct an object from it, else, we 
-# just set its value attribute to the contents of 
-# the passed STRING. 
-# */
-sub update {
-  my ($self, $info ) = @_;
-
-  # these objects are so simple they seem to merit 
-  # special handling. If $info is a reference, we assume
-  # it is an attribute hash (as per other objects). Else,
-  # we assume its a string, and the value of the note.
-  if (defined $info) {
-    if (ref($info) ) {
-      $self->SUPER::update($info);
-    } else {
-      $self->value($info);
-    }
-  }
-}
-
 # Modification History
 #
 # $Log$
+# Revision 1.4  2000/12/14 22:11:26  thomas
+# Big changes to the API. get/set methods, added Href/Entity stuff, deep cloning,
+# added Href, Notes, NotesLocationOrder nodes/classes. Ripped out _enlarge_array
+# from DataCube (not needed) and fixed problems outputing delimited/formatted
+# read nodes. -b.t.
+#
 # Revision 1.3  2000/12/01 20:03:37  thomas
 # Brought Pod docmentation up to date. Bumped up version
 # number. -b.t.
@@ -175,15 +223,183 @@ These methods set the requested attribute if an argument is supplied to the meth
 
 =over 4
 
-=item upperErrorValue
+=item # add in class XML attributes
 
  
 
-=item lowerErrorValue
+=item push @Class_Attributes, @Class_XML_Attributes;
 
  
 
-=item errorValue
+=item # add in super class attributes
+
+ 
+
+=item push @Class_Attributes, @{&XDF::Value::classAttributes};
+
+ 
+
+=item push @Class_XML_Attributes, @{&XDF::Value::getXMLAttributes};
+
+ 
+
+=item # Initalization
+
+ 
+
+=item # set up object attributes.
+
+ 
+
+=item for my $attr ( @Class_Attributes ) { $field{$attr}++; }
+
+ 
+
+=item # /** classAttributes
+
+ 
+
+=item #  This method returns a list reference containing the names
+
+ 
+
+=item #  of the class attributes of XDF::Value. 
+
+ 
+
+=item #  This method takes no arguments may not be changed. 
+
+ 
+
+=item # */
+
+ 
+
+=item sub classAttributes {
+
+ 
+
+=item }
+
+ 
+
+=item #
+
+ 
+
+=item # SET/GET Methods
+
+ 
+
+=item #
+
+ 
+
+=item # /** getUpperErrorValue
+
+ 
+
+=item # */
+
+ 
+
+=item sub getUpperErrorValue{
+
+ 
+
+=item return $self->{UpperErrorValue};
+
+ 
+
+=item }
+
+ 
+
+=item # /** setUpperErrorValue
+
+ 
+
+=item #     Set the upperErrorValue attribute. 
+
+ 
+
+=item # */
+
+ 
+
+=item sub setUpperErrorValue {
+
+ 
+
+=item $self->{UpperErrorValue} = $value;
+
+ 
+
+=item }
+
+ 
+
+=item # /** getLowerErrorValue
+
+ 
+
+=item # */
+
+ 
+
+=item sub getLowerErrorValue {
+
+ 
+
+=item return $self->{LowerErrorValue};
+
+ 
+
+=item }
+
+ 
+
+=item # /** setLowerErrorValue
+
+ 
+
+=item #     Set the lowerErrorValue attribute. 
+
+ 
+
+=item # */
+
+ 
+
+=item sub setLowerErrorValue {
+
+ 
+
+=item $self->{LowerErrorValue} = $value;
+
+ 
+
+=item }
+
+ 
+
+=item # /** getErrorValues
+
+ 
+
+=item #   A convience method which returns an array reference holding 
+
+ 
+
+=item #   the value of the lowerErrorValue and upperErrorValue attributes. 
+
+ 
+
+=item # */
+
+ 
+
+=item sub getErrorValues {
 
  
 
@@ -193,9 +409,33 @@ These methods set the requested attribute if an argument is supplied to the meth
 
 =over 4
 
-=item update ($info)
+=item getUpperErrorValue{ (EMPTY)
 
-XDF::Value has a special update method. These objects are so simple they seem to merit special handling. This new update method takes eitherand attribute Hash reference or a STRING. If the input value is a HASH reference, we construct an object from it, else, we just set its value attribute to the contents of the passed STRING. 
+
+
+=item setUpperErrorValue ($value)
+
+Set the upperErrorValue attribute. 
+
+=item getLowerErrorValue (EMPTY)
+
+
+
+=item setLowerErrorValue ($value)
+
+Set the lowerErrorValue attribute. 
+
+=item getErrorValues (EMPTY)
+
+A convience method which returns an array reference holding the value of the lowerErrorValue and upperErrorValue attributes. 
+
+=item setErrorValue ($value)
+
+Sets the value of both the upperErrorValue and lowerErrorValueattributes to the passed value. 
+
+=item getXMLAttributes (EMPTY)
+
+This method returns the XMLAttributes of this class. 
 
 =back
 
@@ -224,7 +464,7 @@ B<Pretty_XDF_Output>, B<Pretty_XDF_Output_Indentation>, B<DefaultDataArraySize>.
 =over 4
 
 XDF::ErroredValue inherits the following instance methods of L<XDF::GenericObject>:
-B<new>, B<clone>, B<setObjRef>.
+B<new>, B<clone>, B<update>.
 
 =back
 
@@ -234,6 +474,15 @@ B<new>, B<clone>, B<setObjRef>.
 
 XDF::ErroredValue inherits the following instance methods of L<XDF::BaseObject>:
 B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<toXMLFileHandle>, B<toXMLFile>.
+
+=back
+
+
+
+=over 4
+
+XDF::ErroredValue inherits the following instance methods of L<XDF::Value>:
+B<getValueId{>, B<setValueId>, B<getValueIdRef>, B<setValueIdRef>, B<getSpecial{>, B<setSpecial>, B<getInequality{>, B<setInequality>, B<getValue{>, B<setValue>, B<setXMLAttributes>.
 
 =back
 

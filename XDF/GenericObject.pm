@@ -51,9 +51,8 @@ use vars qw (%field);
 # Public Data
 
 # CLASS DATA
-my @Class_Attributes = qw (
-                             _objRef
-                          );
+                             # _objRef
+my @Class_Attributes = ();
 
 # Initalization
 # set up object attributes.
@@ -75,8 +74,6 @@ sub classAttributes {
 sub AUTOLOAD {
   my ($self, $val, $attr, $field_ref) = @_;
   
-  # my $attr = $AUTOLOAD;
-  
   # subst. to rip off leading class name
   $attr =~ s/.*:://; 
   return unless $attr =~ m/[^A-Z]/; # skip all-cap methods (e.g. DESTROY)
@@ -86,19 +83,37 @@ sub AUTOLOAD {
   
   # We use the local value, if it exists, otherwise we go to 
   # the reference object, if it exists
-  if (!defined $self->{uc $attr} && $attr ne '_objRef' && $self->_objRef() ) {
+#  if (!defined $self->{ucfirst $attr} && $attr ne '_objRef' && $self->_objRef() ) {
 
-    return $self->_objRef->$attr(); # may only get, NOT set object Refs 
+#    return $self->_objRef->$attr(); # may only get, NOT set object Refs 
 
-  } else {
+#  } else {
+
+   # this should only be used by a clone operation. 
+   if (1) {
+     my $event = &_getEventStack();
+     # dont print if from clone
+     print STDERR "Compatablity method ",ref($self),"->$attr() called from :$event\n\n" 
+        unless $event =~ m/clone/;
+    }
 
     # now the general purpose set/get method part
     # set attribute to $val, if it exists 
-    $self->{uc $attr} = $val if defined $val;
-    return $self->{uc $attr}; # always return our current value 
+    $self->{ucfirst $attr} = $val if defined $val;
+    return $self->{ucfirst $attr}; # always return our current value 
 
-  }
+#  }
 
+}
+
+sub _getEventStack {
+   my ($package, $filename, $line, $subroutine);
+   my $outputLine = caller(1);
+   my $i = 2;
+   while (($package, $filename, $line, $subroutine) = caller($i++)) {
+     $outputLine .= '->' . $subroutine;
+   }
+   return $outputLine;
 }
 
 # /** new
@@ -112,38 +127,34 @@ sub new {
   my $class = ref ($proto) || $proto;
   my $self = bless( { }, $class);
 
-  $self->_openGroupNodeHash({}); # used only by toXMLFileHandle
-  $self->_groupMemberHash({}); # init of groupMember Hash (all objects have) 
+  $self->{_openGroupNodeHash} = {}; # used only by toXMLFileHandle
+  $self->{_groupMemberHash} = {}; # init of groupMember Hash (all objects have) 
 
   $self->_init(); # init of class specific stuff
 
   # init of instance specific stuff 
-  $self->update($attribHashRef) if defined $attribHashRef;
+  $self->setXMLAttributes($attribHashRef) if defined $attribHashRef;
 
   return $self;
 
 }
 
 # /** clone
-# Clone an exact copy object from this object. B<CURRENTLY BROKEN>. 
+# Clone a deep copy from this object. 
 # */
 sub clone {
   my ($self, $_parentArray) = @_;
 
   my $clone = (ref $self)->new();
 
-  $_parentArray = $clone if !defined $_parentArray && $clone =~ m/XDF::Array/;
+  # IF this object is an array, then we will use it now as the
+  # parent array of all sub-objects that it owns.
+  $_parentArray = $clone if ref($clone) eq 'XDF::Array';
    
   foreach my $attrib ( @{$self->classAttributes} ) { 
-    if ($attrib !~ m/(_objRef|_parentArray)/) {
+    if ($attrib !~ m/_parentArray/) {
       my $val = $self->_clone_attribute($attrib, $_parentArray);
-      $clone->$attrib($val) if defined $val; 
-    } elsif ($attrib =~ m/_objRef/) {
-      # objRef is retained as orign reference
-      # This is not really desireable, what we would like is to copy the
-      # reference object + local attribs and make it the new node. But
-      # watch out for ID attribute values, which will be wrong...
-      $clone->$attrib($self->$attrib()) if defined $self->$attrib();
+      $clone->$attrib($val);
     } else {
       # _parentArray is set as new cloned array (should it exist)
       $clone->$attrib($_parentArray) if defined $_parentArray;
@@ -153,7 +164,6 @@ sub clone {
   return $clone;
 }
 
-# preliminary routine
 sub _clone_attribute {
   my ($self, $attrib, $parentArray) = @_;
   
@@ -208,19 +218,20 @@ sub _clone_attribute {
 
 # /** update
 # Update the attributes of this object from the passed attribute HASH Reference.
+# This method is depreciated.
 # */
 sub update {
-  my ($self, $attribHashRef) = @_;
-  while (my ($attrib, $value) = each (%{$attribHashRef}) ) { $self->$attrib($value); }
+   my ($self) = @_;
+   print STDERR "Error: ".ref($self)."->update is a deprecated method. Use setXMLAttributes instead.\n";
 }
 
 # Private Method. Default is empty
 sub _init { my ($self) = @_; return $self; }
 
-sub setObjRef {
-  my ($self, $value) = @_;
-  $self->_objRef($value) if defined $value && ref $value;
-}
+#sub setObjRef {
+#  my ($self, $value) = @_;
+#  $self->_objRef($value) if defined $value && ref $value;
+#}
 
 # Protected Method. 
 sub _remove_from_list { 
@@ -267,6 +278,12 @@ sub _remove_from_list {
 # Modification History
 #
 # $Log$
+# Revision 1.3  2000/12/14 22:11:26  thomas
+# Big changes to the API. get/set methods, added Href/Entity stuff, deep cloning,
+# added Href, Notes, NotesLocationOrder nodes/classes. Ripped out _enlarge_array
+# from DataCube (not needed) and fixed problems outputing delimited/formatted
+# read nodes. -b.t.
+#
 # Revision 1.2  2000/10/16 17:37:21  thomas
 # Changed over to BaseObject Class from Object Class.
 # Added in History Modification section.
@@ -312,6 +329,106 @@ This method returns a list reference containing the namesof the class attributes
 
 =back
 
+=head2 ATTRIBUTE Methods
+
+These methods set the requested attribute if an argument is supplied to the method. Whether or not an argument is supplied the current value of the attribute is always returned. Values of these methods are always SCALAR (may be number, string, or reference).
+
+=over 4
+
+=item # Initalization
+
+ 
+
+=item # set up object attributes.
+
+ 
+
+=item for my $attr ( @Class_Attributes ) { $field{$attr}++; }
+
+ 
+
+=item # /** classAttributes
+
+ 
+
+=item #  This method returns a list reference containing the names
+
+ 
+
+=item #  of the class attributes for this class.
+
+ 
+
+=item #  This method takes no arguments may not be changed. 
+
+ 
+
+=item # */
+
+ 
+
+=item sub classAttributes { 
+
+ 
+
+=item }
+
+ 
+
+=item #
+
+ 
+
+=item # Methods ..
+
+ 
+
+=item #
+
+ 
+
+=item sub AUTOLOAD {
+
+ 
+
+=item my ($self, $val, $attr, $field_ref) = @_;
+
+ 
+
+=item # subst. to rip off leading class name
+
+ 
+
+=item $attr =~ s/.*:://; 
+
+ 
+
+=item return unless $attr =~ m/[^A-Z]/; # skip all-cap methods (e.g. DESTROY)
+
+ 
+
+=item # safety check
+
+ 
+
+=item croak "invalid attribute method: $self->$attr()" unless defined %{$field_ref}->{$attr};
+
+ 
+
+=item # We use the local value, if it exists, otherwise we go to 
+
+ 
+
+=item # the reference object, if it exists
+
+ 
+
+=item #  if (!defined $self->{ucfirst $attr} && $attr ne '_objRef' && $self->_objRef() ) {
+
+ 
+
+=back
+
 =head2 OTHER Methods
 
 =over 4
@@ -322,15 +439,11 @@ Create a new object. Returns the new object if successfull. It takes an optional
 
 =item clone ($_parentArray)
 
-Clone an exact copy object from this object. B<CURRENTLY BROKEN>. 
+Clone a deep copy from this object. 
 
-=item update ($attribHashRef)
+=item update (EMPTY)
 
-Update the attributes of this object from the passed attribute HASH Reference. 
-
-=item setObjRef ($value)
-
-
+Update the attributes of this object from the passed attribute HASH Reference. This method is depreciated. 
 
 =back
 

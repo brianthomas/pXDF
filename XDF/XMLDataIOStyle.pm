@@ -72,13 +72,18 @@ my $Def_Endian             = 'BigEndian';
 my $Untagged_Instruction_Node_Name = "for";
 
 my $Class_XML_Node_Name = "read";
-my @Class_Attributes = qw (
+my @Class_XML_Attributes = qw (
                              readId
                              readIdRef
                              encoding
                              endian
+                          );
+my @Class_Attributes = qw (
                              _parentArray
                           );
+
+# add in class XML attributes
+push @Class_Attributes, @Class_XML_Attributes;
 
 # add in super class attributes
 push @Class_Attributes, @{&XDF::BaseObject::classAttributes};
@@ -104,6 +109,86 @@ sub classAttributes {
   \@Class_Attributes;
 }
 
+sub untaggedInstructionNodeName { 
+  return $Untagged_Instruction_Node_Name; 
+}
+
+#
+# GET/SET Methods
+#
+
+# /** getReadId
+# */
+sub getReadId{
+   my ($self) = @_;
+   return $self->{ReadId};
+}
+
+# /** setReadId
+#     Set the readId attribute. 
+# */
+sub setReadId {
+   my ($self, $value) = @_;
+   $self->{ReadId} = $value;
+}
+
+# /** getReadIdRef 
+# */
+sub getReadIdRef {
+   my ($self) = @_;
+   return $self->{ReadIdRef};
+}
+
+# /** setReadIdRef 
+#     Set the readIdRef attribute. 
+# */
+sub setReadIdRef {
+   my ($self, $value) = @_;
+   $self->{ReadIdRef} = $value;
+}
+
+# /** getEncoding
+# */
+sub getEncoding{
+   my ($self) = @_;
+   return $self->{Encoding};
+}
+
+# /** setEncoding
+#     Set the encoding attribute. 
+# */
+sub setEncoding {
+   my ($self, $value) = @_;
+   $self->{Encoding} = $value;
+}
+
+# /** getEndian
+# */
+sub getEndian{
+   my ($self) = @_;
+   return $self->{Endian};
+}
+
+# /** setEndian
+#     Set the endian attribute. 
+# */
+sub setEndian {
+   my ($self, $value) = @_;
+   $self->{Endian} = $value;
+}
+
+
+# /** getXMLAttributes
+#      This method returns the XMLAttributes of this class. 
+#  */
+sub getXMLAttributes {
+  return \@Class_XML_Attributes;
+}
+
+#
+# Private Methods 
+#
+
 # This is called when we cant find any defined method
 # exists already. Used to handle general purpose set/get
 # methods for our attributes (object fields).
@@ -115,75 +200,22 @@ sub AUTOLOAD {
 sub _init { 
   my ($self) = @_; 
 
-  $self->encoding($Def_Encoding);
-  $self->endian($Def_Endian);
+  $self->{Encoding} = $Def_Encoding;
+  $self->{Endian} = $Def_Endian;
 
   return $self;
 
 }
 
-# this is for untagged styles. Is overridden by 
-# local method in TaggedXMLDataIOStyleObject.
-#sub _write_untagged_read {
-sub toXMLFileHandle {
-  my ($self, $fileHandle, $junk, $indent) = @_;
-
-  my $niceOutput = $self->Pretty_XDF_Output;
-
-  $indent = "" unless defined $indent;
-  my $more_indent = $self->Pretty_XDF_Output_Indentation;
-
-  print $fileHandle "$indent" if $niceOutput;
-
-  # open the read block
-  print $fileHandle "<" . $self->classXMLNodeName . ">";
-  print $fileHandle "\n" if $niceOutput;
-
-  my @indent;
-  my $next_indent = $indent . $more_indent;
-  foreach my $axisObj (@{$self->_parentArray->axisList}) {
-    my $axisId = $axisObj->axisId;
-    push @indent, $next_indent;
-    print $fileHandle "$next_indent" if $niceOutput;
-    print $fileHandle "<$Untagged_Instruction_Node_Name axisIdRef=\"$axisId\" >";
-    print $fileHandle "\n" if $niceOutput;
-    $next_indent .= $more_indent;
-  }
-
-  # now dump ourselves here using the trusty generic method
-  $self->SUPER::toXMLFileHandle($fileHandle, undef, $next_indent);
-
-  #close the instructions
-  for (reverse @indent) {
-    print $fileHandle "$_" if $niceOutput;
-    print $fileHandle "</$Untagged_Instruction_Node_Name>";
-    print $fileHandle "\n" if $niceOutput;
-  }
-
-  # close the read block
-  print $fileHandle "$indent" if $niceOutput;
-  print $fileHandle "</" . $self->classXMLNodeName . ">";
-  print $fileHandle "\n" if $niceOutput;
-
-}
-
-# /** getReadAxisOrder
-# Retrieve the order in which the axis will be read in/written out.
-# from the data cube.
-# Returns a scalar ARRAY reference of axisId values.
-# */
-#sub getReadAxisOrder { 
-#  my ($self) = @_; 
-#  my @readList;
-#  foreach my $axisObj (@{$self->_parentArray->axisList}) {
-#    push @readList, $axisObj->axisId;
-#  }
-#  return \@readList;
-#}
-
 # Modification History
 #
 # $Log$
+# Revision 1.4  2000/12/14 22:11:27  thomas
+# Big changes to the API. get/set methods, added Href/Entity stuff, deep cloning,
+# added Href, Notes, NotesLocationOrder nodes/classes. Ripped out _enlarge_array
+# from DataCube (not needed) and fixed problems outputing delimited/formatted
+# read nodes. -b.t.
+#
 # Revision 1.3  2000/12/01 20:03:38  thomas
 # Brought Pod docmentation up to date. Bumped up version
 # number. -b.t.
@@ -236,37 +268,49 @@ This method returns a list reference containing the namesof the class attributes
 
 =back
 
-=head2 ATTRIBUTE Methods
-
-These methods set the requested attribute if an argument is supplied to the method. Whether or not an argument is supplied the current value of the attribute is always returned. Values of these methods are always SCALAR (may be number, string, or reference).
-
-=over 4
-
-=item readId
-
- 
-
-=item readIdRef
-
- 
-
-=item encoding
-
-What encoding to use when writing out XML data.  
-
-=item endian
-
-What endian to use when writing out binary data.  
-
-=back
-
 =head2 OTHER Methods
 
 =over 4
 
-=item toXMLFileHandle ($indent, $junk, $fileHandle)
+=item untaggedInstructionNodeName (EMPTY)
 
 
+
+=item getReadId{ (EMPTY)
+
+
+
+=item setReadId ($value)
+
+Set the readId attribute. 
+
+=item getReadIdRef (EMPTY)
+
+
+
+=item setReadIdRef ($value)
+
+Set the readIdRef attribute. 
+
+=item getEncoding{ (EMPTY)
+
+
+
+=item setEncoding ($value)
+
+Set the encoding attribute. 
+
+=item getEndian{ (EMPTY)
+
+
+
+=item setEndian ($value)
+
+Set the endian attribute. 
+
+=item getXMLAttributes (EMPTY)
+
+This method returns the XMLAttributes of this class. 
 
 =back
 
@@ -295,7 +339,7 @@ B<Pretty_XDF_Output>, B<Pretty_XDF_Output_Indentation>, B<DefaultDataArraySize>.
 =over 4
 
 XDF::XMLDataIOStyle inherits the following instance methods of L<XDF::GenericObject>:
-B<new>, B<clone>, B<update>, B<setObjRef>.
+B<new>, B<clone>, B<update>.
 
 =back
 
@@ -304,7 +348,7 @@ B<new>, B<clone>, B<update>, B<setObjRef>.
 =over 4
 
 XDF::XMLDataIOStyle inherits the following instance methods of L<XDF::BaseObject>:
-B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<toXMLFile>.
+B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLAttributes>, B<toXMLFileHandle>, B<toXMLFile>.
 
 =back
 

@@ -55,11 +55,16 @@ use vars qw ($AUTOLOAD %field @ISA);
 # /** description
 # A scalar string description (long name) of this object. 
 # */
-my @Class_Attributes = qw (
+my @Class_XML_Attributes = qw (
                              name
                              description
+                          );
+my @Class_Attributes = qw (
                              _memberObjHash
                           );
+
+# add in class XML attributes
+push @Class_Attributes, @Class_XML_Attributes;
 
 # add in super class attributes
 push @Class_Attributes, @{&XDF::BaseObject::classAttributes};
@@ -77,15 +82,49 @@ sub classAttributes {
   \@Class_Attributes;
 }
 
-# This is called when we cant find any defined method
-# exists already. Used to handle general purpose set/get
-# methods for our attributes (object fields).
-sub AUTOLOAD {
-  my ($self,$val) = @_;
-  &XDF::GenericObject::AUTOLOAD($self, $val, $AUTOLOAD, \%field );
+#
+# Set/Get Methods 
+#
+
+# /** getName
+# */
+sub getName {
+   my ($self) = @_;
+   return $self->{Name};
 }
 
-sub _init { my ($self) = @_; $self->_memberObjHash({}); }
+# /** setName
+#     Set the name attribute. 
+# */
+sub setName {
+   my ($self, $value) = @_;
+   $self->{Name} = $value;
+}
+
+# /** getDescription
+#  */
+sub getDescription {
+   my ($self) = @_;
+   return $self->{Description};
+}
+
+# /** setDescription
+#  */
+sub setDescription {
+   my ($self, $value) = @_;
+   $self->{Description} = $value;
+}
+
+# /** getXMLAttributes
+#      This method returns the XMLAttributes of this class. 
+#  */
+sub getXMLAttributes {
+  return \@Class_XML_Attributes;
+}
+
+#
+# Other Public Methods 
+#
 
 # /** addMemberObject
 # Add an object to this group. 
@@ -95,8 +134,8 @@ sub addMemberObject {
 
   return unless defined $obj && ref $obj;
 
-  unless ( exists %{$self->_memberObjHash}->{$obj} ) {
-    %{$self->_memberObjHash}->{$obj} = $obj;
+  unless ( exists %{$self->{_memberObjHash}}->{$obj} ) {
+    %{$self->{_memberObjHash}}->{$obj} = $obj;
     return $obj;
   }
 
@@ -110,8 +149,8 @@ sub removeMemberObject {
 
   return unless defined $obj && ref $obj;
 
-  if ( exists %{$self->_memberObjHash}->{$obj} ) {
-    delete %{$self->_memberObjHash}->{$obj};
+  if ( exists %{$self->{_memberObjHash}}->{$obj} ) {
+    delete %{$self->{_memberObjHash}}->{$obj};
     return $obj;
   }
 }
@@ -123,12 +162,36 @@ sub removeMemberObject {
 sub hasMemberObj {
   my ($self, $obj) = @_;
   return unless defined $obj && ref $obj;
-  return exists %{$self->_memberObjHash}->{$obj} ? 1 : undef;
+  return exists %{$self->{_memberObjHash}}->{$obj} ? 1 : undef;
+}
+
+#
+# Private Methods 
+#
+
+# This is called when we cant find any defined method
+# exists already. Used to handle general purpose set/get
+# methods for our attributes (object fields).
+sub AUTOLOAD {
+  my ($self,$val) = @_;
+  &XDF::GenericObject::AUTOLOAD($self, $val, $AUTOLOAD, \%field );
+}
+
+sub _init { 
+   my ($self) = @_; 
+
+   $self->{_memberObjHash} = {}; 
 }
 
 # Modification History
 #
 # $Log$
+# Revision 1.4  2000/12/14 22:11:26  thomas
+# Big changes to the API. get/set methods, added Href/Entity stuff, deep cloning,
+# added Href, Notes, NotesLocationOrder nodes/classes. Ripped out _enlarge_array
+# from DataCube (not needed) and fixed problems outputing delimited/formatted
+# read nodes. -b.t.
+#
 # Revision 1.3  2000/12/01 20:03:38  thomas
 # Brought Pod docmentation up to date. Bumped up version
 # number. -b.t.
@@ -177,25 +240,29 @@ This method returns a list reference containing the namesof the class attributes
 
 =back
 
-=head2 ATTRIBUTE Methods
-
-These methods set the requested attribute if an argument is supplied to the method. Whether or not an argument is supplied the current value of the attribute is always returned. Values of these methods are always SCALAR (may be number, string, or reference).
-
-=over 4
-
-=item name
-
-The STRING description (short name) of this object.  
-
-=item description
-
-A scalar string description (long name) of this object.  
-
-=back
-
 =head2 OTHER Methods
 
 =over 4
+
+=item getName (EMPTY)
+
+
+
+=item setName ($value)
+
+Set the name attribute. 
+
+=item getDescription (EMPTY)
+
+
+
+=item setDescription ($value)
+
+
+
+=item getXMLAttributes (EMPTY)
+
+This method returns the XMLAttributes of this class. 
 
 =item addMemberObject ($obj)
 
@@ -236,7 +303,7 @@ B<Pretty_XDF_Output>, B<Pretty_XDF_Output_Indentation>, B<DefaultDataArraySize>.
 =over 4
 
 XDF::Group inherits the following instance methods of L<XDF::GenericObject>:
-B<new>, B<clone>, B<update>, B<setObjRef>.
+B<new>, B<clone>, B<update>.
 
 =back
 
@@ -245,7 +312,7 @@ B<new>, B<clone>, B<update>, B<setObjRef>.
 =over 4
 
 XDF::Group inherits the following instance methods of L<XDF::BaseObject>:
-B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<toXMLFileHandle>, B<toXMLFile>.
+B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLAttributes>, B<toXMLFileHandle>, B<toXMLFile>.
 
 =back
 

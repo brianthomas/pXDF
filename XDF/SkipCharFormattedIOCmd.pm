@@ -31,13 +31,18 @@ use vars qw ($AUTOLOAD %field @ISA);
 my $Def_Count = 1;
 my $Def_Output_Char = " ";
 my $Class_XML_Node_Name = "skipChars";
-my @Class_Attributes = qw (
+my @Class_XML_Attributes = qw (
                              count
                              output
                           );
+my @Class_Attributes = ();
+
+# add in class XML attributes
+push @Class_Attributes, @Class_XML_Attributes;
 
 # add in super class attributes
 push @Class_Attributes, @{&XDF::FormattedIOCmd::classAttributes};
+push @Class_XML_Attributes, @{&XDF::FormattedIOCmd::getXMLAttributes};
 
 # Initalization
 # set up object attributes.
@@ -51,6 +56,56 @@ sub classAttributes {
   \@Class_Attributes; 
 }
 
+#
+# Get/Set Methods
+# 
+
+# /** getCount
+# */
+sub getCount {
+   my ($self) = @_;
+   return $self->{Count};
+}
+
+# /** setCount
+#     Set the count attribute. 
+# */
+sub setCount {
+   my ($self, $value) = @_;
+   $self->{Count} = $value;
+}
+
+# /** getOutput
+# */
+sub getOutput {
+   my ($self) = @_;
+   return $self->{Output};
+}
+
+# /** setOutput
+#     Set the output attribute. 
+# */
+sub setOutput {
+   my ($self, $value) = @_;
+   $self->{Output} = $value;
+}
+
+sub getBytes { 
+  my ($self) = @_;  
+  return $self->{Count}; 
+}
+
+# /** getXMLAttributes
+#      This method returns the XMLAttributes of this class. 
+#  */
+sub getXMLAttributes {
+  return \@Class_XML_Attributes;
+}
+
+#
+# Private Methods
+#
+
 # This is called when we cant find any defined method
 # exists already. Used to handle general purpose set/get
 # methods for our attributes (object fields).
@@ -61,22 +116,20 @@ sub AUTOLOAD {
 
 sub _init { 
   my ($self) = @_;
-  $self->count($Def_Count);
-  $self->output($Def_Output_Char);
+  $self->{Count} = $Def_Count;
+  $self->{Output} = $Def_Output_Char;
 }
-
-sub bytes { my ($self) = @_; return $self->count; }
 
 sub _templateNotation { 
   my ($self, $endian, $encoding, $input) = @_; 
-  return "x" . $self->bytes if $input; 
-  return "A" . length($self->output);
+  return "x" . $self->getBytes() if $input; 
+  return "A" . length($self->{Output});
 }
 
 sub _regexNotation {
   my ($self) = @_;
 
-  my $notation = "\.{". $self->count. "}";
+  my $notation = "\.{". $self->{Count}. "}";
   return $notation;
 }
 
@@ -84,8 +137,8 @@ sub _regexNotation {
 sub _sprintfNotation {
   my ($self) = @_;
 
-  my $char = $self->output;
-  my $notation = "$char" x $self->count;
+  my $char = $self->{Output};
+  my $notation = "$char" x $self->{Count};
 
   return $notation;
 
@@ -94,6 +147,12 @@ sub _sprintfNotation {
 # Modification History
 #
 # $Log$
+# Revision 1.4  2000/12/14 22:11:26  thomas
+# Big changes to the API. get/set methods, added Href/Entity stuff, deep cloning,
+# added Href, Notes, NotesLocationOrder nodes/classes. Ripped out _enlarge_array
+# from DataCube (not needed) and fixed problems outputing delimited/formatted
+# read nodes. -b.t.
+#
 # Revision 1.3  2000/12/01 20:03:38  thomas
 # Brought Pod docmentation up to date. Bumped up version
 # number. -b.t.
@@ -147,11 +206,215 @@ These methods set the requested attribute if an argument is supplied to the meth
 
 =over 4
 
-=item count
+=item # add in class XML attributes
 
  
 
-=item output
+=item push @Class_Attributes, @Class_XML_Attributes;
+
+ 
+
+=item # add in super class attributes
+
+ 
+
+=item push @Class_Attributes, @{&XDF::FormattedIOCmd::classAttributes};
+
+ 
+
+=item push @Class_XML_Attributes, @{&XDF::FormattedIOCmd::getXMLAttributes};
+
+ 
+
+=item # Initalization
+
+ 
+
+=item # set up object attributes.
+
+ 
+
+=item for my $attr ( @Class_Attributes ) { $field{$attr}++; }
+
+ 
+
+=item sub classXMLNodeName { 
+
+ 
+
+=item }
+
+ 
+
+=item sub classAttributes { 
+
+ 
+
+=item }
+
+ 
+
+=item #
+
+ 
+
+=item # Get/Set Methods
+
+ 
+
+=item # 
+
+ 
+
+=item # /** getCount
+
+ 
+
+=item # */
+
+ 
+
+=item sub getCount {
+
+ 
+
+=item return $self->{Count};
+
+ 
+
+=item }
+
+ 
+
+=item # /** setCount
+
+ 
+
+=item #     Set the count attribute. 
+
+ 
+
+=item # */
+
+ 
+
+=item sub setCount {
+
+ 
+
+=item $self->{Count} = $value;
+
+ 
+
+=item }
+
+ 
+
+=item # /** getOutput
+
+ 
+
+=item # */
+
+ 
+
+=item sub getOutput {
+
+ 
+
+=item return $self->{Output};
+
+ 
+
+=item }
+
+ 
+
+=item # /** setOutput
+
+ 
+
+=item #     Set the output attribute. 
+
+ 
+
+=item # */
+
+ 
+
+=item sub setOutput {
+
+ 
+
+=item $self->{Output} = $value;
+
+ 
+
+=item }
+
+ 
+
+=item sub getBytes { 
+
+ 
+
+=item return $self->{Count}; 
+
+ 
+
+=item }
+
+ 
+
+=item # /** getXMLAttributes
+
+ 
+
+=item #      This method returns the XMLAttributes of this class. 
+
+ 
+
+=item #  */
+
+ 
+
+=item sub getXMLAttributes {
+
+ 
+
+=item }
+
+ 
+
+=item #
+
+ 
+
+=item # Private Methods
+
+ 
+
+=item #
+
+ 
+
+=item # This is called when we cant find any defined method
+
+ 
+
+=item # exists already. Used to handle general purpose set/get
+
+ 
+
+=item # methods for our attributes (object fields).
+
+ 
+
+=item sub AUTOLOAD {
+
+ 
+
+=item my ($self,$val) = @_;
 
  
 
@@ -161,9 +424,29 @@ These methods set the requested attribute if an argument is supplied to the meth
 
 =over 4
 
-=item bytes (EMPTY)
+=item getCount (EMPTY)
 
 
+
+=item setCount ($value)
+
+Set the count attribute. 
+
+=item getOutput (EMPTY)
+
+
+
+=item setOutput ($value)
+
+Set the output attribute. 
+
+=item getBytes (EMPTY)
+
+
+
+=item getXMLAttributes (EMPTY)
+
+This method returns the XMLAttributes of this class. 
 
 =back
 
@@ -192,7 +475,7 @@ B<Pretty_XDF_Output>, B<Pretty_XDF_Output_Indentation>, B<DefaultDataArraySize>.
 =over 4
 
 XDF::SkipCharFormattedIOCmd inherits the following instance methods of L<XDF::GenericObject>:
-B<new>, B<clone>, B<update>, B<setObjRef>.
+B<new>, B<clone>, B<update>.
 
 =back
 
@@ -201,7 +484,7 @@ B<new>, B<clone>, B<update>, B<setObjRef>.
 =over 4
 
 XDF::SkipCharFormattedIOCmd inherits the following instance methods of L<XDF::BaseObject>:
-B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<toXMLFileHandle>, B<toXMLFile>.
+B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLAttributes>, B<toXMLFileHandle>, B<toXMLFile>.
 
 =back
 

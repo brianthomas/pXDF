@@ -77,6 +77,7 @@ use XDF::Field;
 use XDF::FieldRelation;
 use XDF::FixedDataFormat;
 use XDF::FormattedXMLDataIOStyle;
+use XDF::Href;
 use XDF::IntegerDataFormat;
 use XDF::Parameter;
 use XDF::RepeatFormattedIOCmd;
@@ -116,7 +117,7 @@ my $XDF; # reference to the top level structure object
 my $CURRENT_STRUCTURE;
 my $CURRENT_ARRAY;
 my $LAST_NOTE_OBJECT;
-my $LAST_NOTES_OBJECT;
+my $LAST_NOTES_PARENT_OBJ;
 my $LAST_UNIT_OBJECT;
 my $LAST_UNITS_OBJECT;
 my $LAST_PARAM_OBJECT;
@@ -125,15 +126,22 @@ my @CURRENT_FORMAT_OBJECT = (); # used for untagged reads only
 my @CURRENT_FIELDGROUP_OBJECT = (); 
 my @CURRENT_PARAMGROUP_OBJECT = (); 
 my @CURRENT_VALUEGROUP_OBJECT = (); 
+my %CURRENT_ARRAY_AXES; # = {};
 my $LAST_PARAMGROUP_PARENT_OBJECT;
 my $LAST_VALUEGROUP_PARENT_OBJECT;
 
 my $TAGGED_LOCATOR_OBJ; 
-#my @FOR_STATEMENT = ();
+my @READAXISORDER = ();
 
 my $DataIOStyle_Attrib_Ref; # used for holding on to the attrib_hash of a 'read' node
                             # for later when we know what kind of DataIOStyle obj to use
 my $Data_Format_Attrib_Ref;
+
+
+# needed to capture internal entities.
+my %Notation;
+my %Entity;
+my %UnParsedEntity;
 
 # needed to allow many supporting subroutines (like parent_node_name) 
 # to work. Indicates our current position within the Document as we are
@@ -209,7 +217,7 @@ my %XDF_node_name = (
                       'binaryInteger' => 'binaryInteger',
                       'data' => 'data',
                       'dataFormat' => 'dataFormat',
-                      'exponent' => 'exponent',
+                      'exponent' => 'exponential',
                       'field' => 'field',
                       'fieldAxis' => 'fieldAxis',
                       'fixed' => 'fixed',
@@ -566,13 +574,63 @@ sub handle_xml_decl {
 
 sub handle_unparsed {
   my ($parser_ref, $entity, $base, $sysid, $pubid, $notation) = @_;
-  &print_debug("H_UNPARSED: $entity, $base, $sysid, $pubid, $notation \n"); 
+
+   my $msgstring = "H_UNPARSED: $entity";
+   $UnParsedEntity{$entity} = {}; # add a new entry;
+
+   if (defined $base) {
+      $msgstring .= ", Base:$base";
+      ${$UnParsedEntity{$entity}}{'base'} = $base;
+   }
+
+   if (defined $sysid) {
+      $msgstring .= ", SYS:$sysid";
+      ${$UnParsedEntity{$entity}}{'sysid'} = $sysid;
+   }
+
+   if (defined $pubid) {
+      $msgstring .= " PUB:$pubid";
+      ${$UnParsedEntity{$entity}}{'pubid'} = $pubid;
+   }
+
+   if (defined $notation) {
+      $msgstring .= " NOTATION:$notation";
+      ${$UnParsedEntity{$entity}}{'notation'} = $notation;
+   }
+
+   $msgstring .= "\n";
+   &print_debug($msgstring);
+
+print STDERR $msgstring;
 
 }
 
 sub handle_notation {
   my ($parser_ref, $notation, $base, $sysid, $pubid) = @_;
-   &print_debug("H_NOTATION: $notation, $base, $sysid, $pubid \n"); 
+
+   my $msgstring = "H_NOTATION: $notation ";
+   $Notation{$notation} = {}; # add a new entry
+
+   if (defined $base) {
+      $msgstring .= ", Base:$base";
+      ${$Notation{$notation}}{'base'} = $base;
+   }
+
+   if (defined $sysid) {
+      $msgstring .= ", SYS:$sysid";
+      ${$Notation{$notation}}{'sysid'} = $sysid;
+   }
+
+   if (defined $pubid) {
+      $msgstring .= " PUB:$pubid";
+      ${$Notation{$notation}}{'pubid'} = $pubid;
+   }
+
+   $msgstring .= "\n";
+   &print_debug($msgstring);
+
+print STDERR $msgstring;
+
 }
 
 sub handle_element {
@@ -721,19 +779,49 @@ sub handle_default {
   
 sub handle_external_ent {
    my ($parser_ref, $base, $sysid, $pubid) = @_;
+
    my $entityString = "H_EXTERN_ENT: ";
    $entityString .= ", Base:$base" if defined $base;
    $entityString .= ", SYS:$sysid" if defined $sysid;
    $entityString .= " PUB:$pubid" if defined $pubid;
    $entityString .= "\n";
    &print_debug($entityString);
+
+ print STDERR "$entityString";
+
 }
 
 sub handle_entity {
    my ($parser_ref, $name, $val, $sysid, $pubid, $ndata) = @_;
-   &print_debug("H_ENTITY: $name, $val");
-   &print_debug(", $sysid, $pubid, $ndata") if defined $sysid && defined $pubid && defined $ndata;
-   &print_debug("\n");
+
+   my $msgstring = "H_ENTITY: $name";
+   $Entity{$name} = {}; # add a new entry;
+
+   if (defined $val) {
+      $msgstring .= ", VAL:$val";
+      ${$Entity{$name}}{'value'} = $val;
+   }
+
+   if (defined $sysid) {
+      $msgstring .= ", SYS:$sysid";
+      ${$Entity{$name}}{'sysid'} = $sysid;
+   }
+  
+   if (defined $pubid) {
+      $msgstring .= ", PUB:$pubid";
+      ${$Entity{$name}}{'pubid'} = $pubid;
+   }
+
+   if (defined $ndata) {
+      $msgstring .= " NDATA:$ndata";
+      ${$Entity{$name}}{'ndata'} = $ndata;
+   }
+
+   $msgstring .= "\n";
+   &print_debug($msgstring);
+
+ print STDERR "$msgstring";
+
 }
 
 # ------------ END XML PARSER HANDLERS -----------
@@ -743,10 +831,17 @@ sub asciiDelimiter_node_end { pop @CURRENT_FORMAT_OBJECT; }
 sub asciiDelimiter_node_start {
   my (%attrib_hash) = @_;
 
+  # if this is still defined, we havent init'd an
+  # XMLDataIOStyle object for this array yet, do it now. 
   # set the format object in the current array
-  my $formatObj = $CURRENT_ARRAY->XmlDataIOStyle(new XDF::DelimitedXMLDataIOStyle(\%attrib_hash));
-  
-  push @CURRENT_FORMAT_OBJECT, $formatObj;
+  if ( defined $DataIOStyle_Attrib_Ref) {
+    $CURRENT_ARRAY->setXMLDataIOStyle(new XDF::DelimitedXMLDataIOStyle($DataIOStyle_Attrib_Ref));
+    $CURRENT_ARRAY->getXMLDataIOStyle->setXMLAttributes(\%attrib_hash);
+    $DataIOStyle_Attrib_Ref = undef;
+    push @CURRENT_FORMAT_OBJECT, $CURRENT_ARRAY->getXMLDataIOStyle();
+  }
+
+  push @CURRENT_FORMAT_OBJECT, $CURRENT_ARRAY->getXMLDataIOStyle();
 
 }
 
@@ -755,6 +850,8 @@ sub array_node_start {
 
   $CURRENT_ARRAY = $CURRENT_STRUCTURE->addArray(\%attrib_hash);
   $CURRENT_DATATYPE_OBJECT = $CURRENT_ARRAY;
+  my %tmpHash;
+  %CURRENT_ARRAY_AXES = %tmpHash;
 
 }
 
@@ -763,20 +860,29 @@ sub axis_node_start {
 
   my $axisObj = new XDF::Axis(\%attrib_hash);
 
+  # add in reference object, if it exists 
+  if (exists($attrib_hash{'axisIdRef'})) {
+
+     my $id = $attrib_hash{'axisIdRef'};
+
+     # clone from the reference object
+     $axisObj = $AxisObj{$id}->clone();
+
+     # override with local values
+     $axisObj->setXMLAttributes(\%attrib_hash);
+     $axisObj->setAxisId(&getUniqueIdName($id, \%AxisObj)); # set ID attribute to unique name 
+     $axisObj->setAxisIdRef(undef); # unset IDREF attribute 
+     
+     # record this axis under its parent id 
+     $CURRENT_ARRAY_AXES{$id} = $axisObj;
+  }
+
   # add this object to the lookup table, if it has an ID
-    if (exists($attrib_hash{'axisId'})) {
-       my $axisId = $attrib_hash{'axisId'};
-       &print_warning( "More than one axis node with axisId=\"$axisId\", using latest node.\n" )
-            if defined $AxisObj{$axisId};
-       $AxisObj{$axisId} = $axisObj;
-    }
-  
-   # add in reference object, if it exists 
-   if (exists($attrib_hash{'axisIdRef'})) {
-        my $id = $attrib_hash{'axisIdRef'};
-        my $refObj = $AxisObj{$id};
-        $axisObj->setObjRef($AxisObj{$id}) if $refObj;
-   }
+  if ((my $axisId = $attrib_hash{'axisId'})) {
+     &print_warning( "Danger: More than one axis node with axisId=\"$axisId\", using latest node.\n" )
+           if defined $AxisObj{$axisId};
+     $AxisObj{$axisId} = $axisObj;
+  }
 
   $axisObj = $CURRENT_ARRAY->addAxis($axisObj);
 
@@ -801,7 +907,7 @@ sub binaryFloatField_node_start {
   
   if (ref($dataTypeObj) eq 'XDF::Field' or ref($dataTypeObj) eq 'XDF::Array' ) {
   
-     $dataTypeObj->dataFormat(new XDF::BinaryFloatDataFormat(\%merged_hash));
+     $dataTypeObj->setDataFormat(new XDF::BinaryFloatDataFormat(\%merged_hash));
   
   } else {
   
@@ -823,7 +929,7 @@ sub binaryIntegerField_node_start {
   
   if (ref($dataTypeObj) eq 'XDF::Field' or ref($dataTypeObj) eq 'XDF::Array' ) {
   
-     $dataTypeObj->dataFormat(new XDF::BinaryIntegerDataFormat(\%merged_hash));
+     $dataTypeObj->setDataFormat(new XDF::BinaryIntegerDataFormat(\%merged_hash));
   
   } else {
   
@@ -852,14 +958,14 @@ sub dataTag_node_end {
 sub data_node_charData {
   my ($string) = @_;
 
-  my $readObj = $CURRENT_ARRAY->XmlDataIOStyle();
+  my $readObj = $CURRENT_ARRAY->getXMLDataIOStyle();
 
   if (ref ($readObj) eq 'XDF::TaggedXMLDataIOStyle' ) {
 
     # dont add this data unless it has more than just whitespace
     if (!$IGNORE_WHITESPACE_ONLY_DATA || $string !~ m/^\s*$/) {
 
-       &print_debug("ADDING TAGGED DATA to ($TAGGED_LOCATOR_OBJ) : [$string]\n");
+       &print_debug("ADDING DATA to ($TAGGED_LOCATOR_OBJ) : [$string]\n");
        $DATA_TAG_LEVEL = $CURRENT_DATA_TAG_LEVEL;
        $CURRENT_ARRAY->addData($TAGGED_LOCATOR_OBJ, $string);
     }
@@ -897,7 +1003,7 @@ sub data_node_end {
   # instead of a buffer read in formatted reads. Come back and
   # improve this later if possible.
 
-  my $formatObj = $CURRENT_ARRAY->XmlDataIOStyle();
+  my $formatObj = $CURRENT_ARRAY->getXMLDataIOStyle();
 
   if ( ref($formatObj) eq 'XDF::DelimitedXMLDataIOStyle' or
        ref($formatObj) eq 'XDF::FormattedXMLDataIOStyle' ) {
@@ -908,13 +1014,15 @@ sub data_node_end {
     # set up appropriate instructions for reading
     if ( ref($formatObj) eq 'XDF::FormattedXMLDataIOStyle' ) {
       $template  = $formatObj->_templateNotation(1);
-      $recordSize = $formatObj->bytes();
+      $recordSize = $formatObj->getBytes();
       $data_has_special_integers = $formatObj->hasSpecialIntegers;
     } elsif(ref($formatObj) eq 'XDF::DelimitedXMLDataIOStyle') {
       $regex = $formatObj->_regexNotation();
     }
 
-   my $locator = $CURRENT_ARRAY->createLocator();
+    my $locator = $CURRENT_ARRAY->createLocator();
+    $locator->setIterationOrder(\@READAXISORDER);
+    $formatObj->setWriteAxisOrderList(\@READAXISORDER);
 
     while ( $DATABLOCK ) {
 
@@ -927,7 +1035,7 @@ sub data_node_end {
 
         @data = unpack($template, $1);
 
-        @data = &deal_with_special_integer_data($CURRENT_ARRAY->dataFormatList, \@data) 
+        @data = &deal_with_special_integer_data($CURRENT_ARRAY->getDataFormatList, \@data) 
            if $data_has_special_integers; 
 
       } elsif(ref($formatObj) eq 'XDF::DelimitedXMLDataIOStyle') {
@@ -947,6 +1055,18 @@ sub data_node_end {
 
         for (@data) {
           $CURRENT_ARRAY->addData($locator, $_);
+if(0) {
+my $locationPos;
+my $locationName;
+for (@{$locator->getIterationOrder()}) {
+   $locationName .= $_->getAxisId() . ",";
+   $locationPos .= $locator->getAxisLocation($_) . ",";
+}
+chop $locationName;
+print STDERR "ADDING DATA [$locationName]($locationPos) : [$_]\n";
+}
+
+          &print_debug("ADDING DATA [$locator]($CURRENT_ARRAY) : [$_]\n");
           $locator->next();
         }
 
@@ -976,11 +1096,26 @@ sub data_node_start {
 
   # we only need to do this for the first time we enter
   if ($DATA_NODE_LEVEL == 0) { 
-    # update the array dataCube with attributes
-    $CURRENT_ARRAY->dataCube->update(\%attrib_hash);
+
+    # href is special
+    if (exists $attrib_hash{'href'}) { 
+       my $hrefObj = new XDF::Href(); 
+       my $hrefName = $attrib_hash{'href'};
+       $hrefObj->setName($hrefName);
+       $hrefObj->setSysId(${$Entity{$hrefName}}{'sysid'});
+       $hrefObj->setBase(${$Entity{$hrefName}}{'base'});
+       $hrefObj->setNdata(${$Entity{$hrefName}}{'ndata'});
+       $hrefObj->setPubId(${$Entity{$hrefName}}{'pubid'});
+       $CURRENT_ARRAY->getDataCube()->setHref($hrefObj);
+       delete $attrib_hash{'href'};
+    }
+
+    # update the array dataCube with XML attributes
+    $CURRENT_ARRAY->getDataCube()->setXMLAttributes(\%attrib_hash);
+
   }
 
-  my $readObj = $CURRENT_ARRAY->XmlDataIOStyle();
+  my $readObj = $CURRENT_ARRAY->getXMLDataIOStyle();
 
   # these days, this should always be defined.
   if (defined $readObj) {
@@ -991,6 +1126,12 @@ sub data_node_start {
        # A safety. We clear datablock when this is the first datanode we 
        # have entered DATABLOCK is used in cases where we read in untagged data
        $DATABLOCK = "" if $DATA_NODE_LEVEL == 0; 
+       
+       if (defined (my $href = $CURRENT_ARRAY->getDataCube()->getHref())) {
+          # add to the datablock
+          $DATABLOCK .= &_getHrefData($href);
+       }
+
      }
 
      # this declares we are now reading data, 
@@ -1020,7 +1161,7 @@ sub exponentField_node_start {
   
   if (ref($dataTypeObj) eq 'XDF::Field' or ref($dataTypeObj) eq 'XDF::Array' ) {
   
-     $dataTypeObj->dataFormat(new XDF::ExponentialDataFormat(\%merged_hash));
+     $dataTypeObj->setDataFormat(new XDF::ExponentialDataFormat(\%merged_hash));
   
   } else {
   
@@ -1035,7 +1176,7 @@ sub field_node_start {
 
    my $parent_node_name = &parent_node_name();
 
-   my $fieldObj = $CURRENT_ARRAY->fieldAxis()->addField(\%attrib_hash);
+   my $fieldObj = $CURRENT_ARRAY->getFieldAxis()->addField(\%attrib_hash);
 
    # add this object to all open groups
    foreach my $groupObj (@CURRENT_FIELDGROUP_OBJECT) { $fieldObj->addToGroup($groupObj); }
@@ -1054,22 +1195,34 @@ sub field_node_start {
 sub fieldAxis_node_start {
    my (%attrib_hash) = @_;
 
-    my $axisObj = $CURRENT_ARRAY->addFieldAxis(\%attrib_hash, undef, 1);
-
-    # add this object to the lookup table, if it has an ID
-    if (exists($attrib_hash{'axisId'})) {
-       my $axisId = $attrib_hash{'axisId'};
-       &print_warning( "More than one axis node with axisId=\"$axisId\", using latest node.\n" ) 
-            if defined $AxisObj{$axisId};
-       $AxisObj{$axisId} = $axisObj;
-    }
+   my $axisObj = new XDF::FieldAxis(\%attrib_hash);
 
    # add in reference object, if it exists 
    if (exists($attrib_hash{'axisIdRef'})) {
-        my $id = $attrib_hash{'axisIdRef'};
-        my $refObj = $AxisObj{$id};
-        $axisObj->setObjRef($AxisObj{$id}) if $refObj;
+      my $id = $attrib_hash{'axisIdRef'};
+
+      # clone from the reference object
+      $axisObj = $AxisObj{$id}->clone();
+
+      # override with local values
+      $axisObj->setXMLAttributes(\%attrib_hash);
+      $axisObj->setAxisId(&getUniqueIdName($id, \%AxisObj)); # set ID attribute to unique name 
+      $axisObj->setAxisIdRef(undef); # unset IDREF attribute 
+
+      # record this axis under its parent id 
+      $CURRENT_ARRAY_AXES{$id} = $axisObj;
    }
+
+   # add this object to the lookup table, if it has an ID
+   if ((my $axisId = $attrib_hash{'axisId'})) {
+      my $axisId = $attrib_hash{'axisId'};
+      &print_warning( "More than one axis node with axisId=\"$axisId\", using latest node.\n" )
+            if defined $AxisObj{$axisId};
+      $AxisObj{$axisId} = $axisObj;
+   }
+
+   # add the axis object to the array
+   $CURRENT_ARRAY->addFieldAxis($axisObj, undef, 1);
 
 }
 
@@ -1084,7 +1237,7 @@ sub fieldGroup_node_start {
 
   if($parent_node_name eq $XDF_node_name{'fieldAxis'} ) {
 
-    $fieldGroupObj = $CURRENT_ARRAY->fieldAxis()->addFieldGroup(\%attrib_hash);
+    $fieldGroupObj = $CURRENT_ARRAY->getFieldAxis()->addFieldGroup(\%attrib_hash);
 
   } elsif($parent_node_name eq $XDF_node_name{'fieldGroup'} ) {
 
@@ -1110,14 +1263,7 @@ sub field_relationship_node_start {
   my (%attrib_hash) = @_;
 
    my $fieldObj = &last_field_obj();
-   my $relObj = $fieldObj->relation(new XDF::FieldRelation(\%attrib_hash));
-
-   # add in reference object, if it exists 
-   if (exists($attrib_hash{'fieldIdRef'})) {
-        my $fieldId = $attrib_hash{'fieldIdRef'};
-        my $refFieldObj = $FieldObj{$fieldId};
-        $relObj->setObjRef($refFieldObj) if $refFieldObj;
-   }
+   my $relObj = $fieldObj->setRelation(new XDF::FieldRelation(\%attrib_hash));
 
 }
 
@@ -1133,7 +1279,7 @@ sub fixedField_node_start {
   
   if (ref($dataTypeObj) eq 'XDF::Field' or ref($dataTypeObj) eq 'XDF::Array' ) {
   
-     $dataTypeObj->dataFormat(new XDF::FixedDataFormat(\%merged_hash));
+     $dataTypeObj->setDataFormat(new XDF::FixedDataFormat(\%merged_hash));
   
   } else {
   
@@ -1148,18 +1294,36 @@ sub for_node_start {
 
   # well, if we see for nodes, we must have untagged data.
   # lets set the DataIOStyle
+  #if ( defined $DataIOStyle_Attrib_Ref) {
+#    $CURRENT_ARRAY->setXMLDataIOStyle(new XDF::FormattedXMLDataIOStyle($DataIOStyle_Attrib_Ref))
+#  } 
+#  $DataIOStyle_Attrib_Ref = undef;
+
+  # for node sets the iteration order for how we will setData
+  # in the datacube (important for delimited and formatted reads).
+  if (defined (my $id = $attrib_hash{'axisIdRef'})) {
+    my $axisObj = $CURRENT_ARRAY_AXES{$id};
+    $axisObj = $AxisObj{$id} unless defined $axisObj;
+    push @READAXISORDER, $axisObj;
+  } else {
+    print STDERR "Error: got for node without axisIdRef, aborting read.\n";
+    exit (-1); 
+  }
+
+  # well, if we see for nodes, we must have untagged data.
+  # lets set the DataIOStyle
 #  if ( defined $DataIOStyle_Attrib_Ref) {
-#    $CURRENT_ARRAY->XmlDataIOStyle(new XDF::FormattedXMLDataIOStyle($DataIOStyle_Attrib_Ref))
+#    $CURRENT_ARRAY->setXMLDataIOStyle(new XDF::FormattedXMLDataIOStyle($DataIOStyle_Attrib_Ref))
 #  } else {
 #    die "Weird Reader error! no XMLDataIOStyle attribute reference!\n";
 #  } 
 #  $DataIOStyle_Attrib_Ref = undef;
 
-#  my $readObj = $CURRENT_ARRAY->XmlDataIOStyle;
+#  my $readObj = $CURRENT_ARRAY->getXMLDataIOStyle;
 
   # add the read axis (its what the for node specifies)
-#  $readObj->addReadAxis($attrib_hash{'axisIdRef'});
-#  push @FOR_STATEMENT, $attrib_hash{'axisIdRef'};
+  #$readObj->addReadAxis($attrib_hash{'axisIdRef'});
+  #push @READAXISORDER, $AxisObj{$attrib_hash{'axisIdRef'}};
 
   # Now for something completely sub-optimal: since there can be 
   # more than one 'for' node we may do this more than once.
@@ -1186,7 +1350,7 @@ sub integerField_node_start {
   
   if (ref($dataTypeObj) eq 'XDF::Field' or ref($dataTypeObj) eq 'XDF::Array' ) {
   
-     $dataTypeObj->dataFormat(new XDF::IntegerDataFormat(\%merged_hash));
+     $dataTypeObj->setDataFormat(new XDF::IntegerDataFormat(\%merged_hash));
   
   } else {
   
@@ -1207,7 +1371,7 @@ sub note_node_charData {
   } else {
 
     # error! did they specify a value on an idRef'd node??
-    &print_warning("Crazy error! tried to put value on non-existent note!($string)\n"); 
+    &print_warning("Weird error: tried to put value on non-existent note!($string)\n"); 
 
   }
 
@@ -1218,20 +1382,34 @@ sub note_node_start {
    my (%attrib_hash) = @_;
 
    # note: note nodes sometimes appear within notes node,
-   # use $LAST_NOTES_OBJECT to determine if this is the case
+   # use $LAST_NOTES_PARENT_OBJ to determine if this is the case
    # (yes this is crappy)
-   my $parent_node = defined $LAST_NOTES_OBJECT ? $XDF_node_name{'array'} : undef;
+   my $parent_node = defined $LAST_NOTES_PARENT_OBJ ? $XDF_node_name{'array'} : undef;
    $parent_node = &parent_node_name() unless defined $parent_node;
   
-   my $refNoteObj;
-   # does this object have a noteIdRef? If so, we must supply
-   # a reference to a prior note object
+   my $noteObj = new XDF::Note(\%attrib_hash);
+
+   # does this object have a noteIdRef? If so, we clone a copy
    if (exists($attrib_hash{'noteIdRef'})) {
-         my $id = $attrib_hash{'noteIdRef'};
-         $refNoteObj = $NoteObj{$id};
+      my $id = $attrib_hash{'noteIdRef'};
+
+      # clone from the reference object
+      $noteObj = $NoteObj{$id}->clone();
+
+      # override with local values
+      $noteObj->setXMLAttributes(\%attrib_hash);
+      $noteObj->setNoteId(&getUniqueIdName($id, \%NoteObj)); # set ID attribute to unique name 
+      $noteObj->setNoteIdRef(undef); # unset IDREF attribute 
    }
 
-   my $noteObj;
+   # Does this object have a noteId? if so, add to our roster of notes 
+   if ((my $id = $noteObj->getNoteId())) {
+         &print_warning("More than one note node with noteId=\"$id\", using latest node.\n")
+            if defined $NoteObj{$id};
+         $NoteObj{$id} = $noteObj;
+   }
+
+
    my $addNoteObj;
    if ($parent_node eq $XDF_node_name{'array'}) {
          $addNoteObj = $CURRENT_ARRAY;
@@ -1244,17 +1422,7 @@ sub note_node_start {
    }
 
    if (defined $addNoteObj) {
-      $noteObj = $addNoteObj->addNote(new XDF::Note(\%attrib_hash));
-      $noteObj->setObjRef($refNoteObj) if defined $refNoteObj;
-   }
-
-
-   # Does this object have a noteId? if so, add to our roster of notes 
-   if (exists($attrib_hash{'noteId'})) {
-         my $id = $attrib_hash{'noteId'};
-         &print_warning("More than one note node with noteId=\"$id\", using latest node.\n") 
-            if defined $NoteObj{$id};
-         $NoteObj{$id} = $noteObj;
+      $noteObj = $addNoteObj->addNote($noteObj);
    }
 
    $LAST_NOTE_OBJECT = $noteObj;
@@ -1267,17 +1435,18 @@ sub note_index_node_start {
 }
 
 sub notes_node_end {
-   my $notesObj = $LAST_NOTES_OBJECT;
+   my $notesParentObj = $LAST_NOTES_PARENT_OBJ;
 
-#   if (ref($notesObj) eq 'XDF::Array') {
-#     for (@NOTE_LOCATOR_ORDER) { $notesObj->addAxisIdToLocatorOrder($_); }
-#   }
+   if (exists $notesParentObj->{Notes}) { 
+      my $notesObj = $notesParentObj->{Notes}; 
+      for (@NOTE_LOCATOR_ORDER) { $notesObj->addAxisIdToLocatorOrder($_); }
+   }
 
    # reset the location order 
    @NOTE_LOCATOR_ORDER = ();
    
    # clear notes object
-   $LAST_NOTES_OBJECT = undef;
+   $LAST_NOTES_PARENT_OBJ = undef;
 }
 
 sub notes_node_start {
@@ -1296,7 +1465,7 @@ sub notes_node_start {
         die "Weird parent $parent_node_name for notes object\n";
    }
 
-   $LAST_NOTES_OBJECT = $obj if defined $obj; # ->notes() if defined $obj;
+   $LAST_NOTES_PARENT_OBJ = $obj if defined $obj; # ->notes() if defined $obj;
 
 }
 
@@ -1375,7 +1544,7 @@ sub parameterGroup_node_start {
 
 sub read_node_end {
 
-  my $readObj = $CURRENT_ARRAY->XmlDataIOStyle();
+  my $readObj = $CURRENT_ARRAY->getXMLDataIOStyle();
 
   die "Fatal: No XMLDataIOStyle defined for this array!, exiting" unless defined $readObj;
 
@@ -1390,15 +1559,8 @@ sub read_node_end {
   } elsif (ref($readObj) eq 'XDF::DelimitedXMLDataIOStyle' or
            ref($readObj) eq 'XDF::FormattedXMLDataIOStyle' ) 
   {
-
-    # zero out all the axisId counts
-    #foreach my $tag (@{$readObj->getReadAxisOrder()}) {
-#    foreach my $tag (@FOR_STATEMENT) {
-#      $TAG_COUNT{$tag} = 0;
-#    }
-
+     # do nothing
   } else {
-
      die "Dont know what do with this read style (",$readObj->style(),").\n";
   } 
 
@@ -1411,7 +1573,7 @@ sub read_node_start {
   $DataIOStyle_Attrib_Ref = \%attrib_hash;
 
   # zero this out for upcoming read 
-  #@FOR_STATEMENT = ();
+  @READAXISORDER = ();
 
   # clear out the format command object array
   # (its used by Formatted reads only, but this is reasonable 
@@ -1426,9 +1588,9 @@ sub readCell_node_start {
   # if this is still defined, we havent init'd an
   # XMLDataIOStyle object for this array yet, do it now. 
   if ( defined $DataIOStyle_Attrib_Ref) {
-    my $readObj = $CURRENT_ARRAY->XmlDataIOStyle(new XDF::FormattedXMLDataIOStyle($DataIOStyle_Attrib_Ref));
+    $CURRENT_ARRAY->setXMLDataIOStyle(new XDF::FormattedXMLDataIOStyle($DataIOStyle_Attrib_Ref));
     $DataIOStyle_Attrib_Ref = undef;
-    push @CURRENT_FORMAT_OBJECT, $readObj;
+    push @CURRENT_FORMAT_OBJECT, $CURRENT_ARRAY->getXMLDataIOStyle();
   } 
 
   my $formatObj = &current_format_obj();
@@ -1444,9 +1606,9 @@ sub repeat_node_start {
   # If this is still defined, we havent init'd an
   # XMLDataIOStyle object for this array yet, do it now. 
   if ( defined $DataIOStyle_Attrib_Ref) {
-    my $readObj = $CURRENT_ARRAY->XmlDataIOStyle(new XDF::FormattedXMLDataIOStyle($DataIOStyle_Attrib_Ref));
+    $CURRENT_ARRAY->setXMLDataIOStyle(new XDF::FormattedXMLDataIOStyle($DataIOStyle_Attrib_Ref));
     $DataIOStyle_Attrib_Ref = undef;
-    push @CURRENT_FORMAT_OBJECT, $readObj;
+    push @CURRENT_FORMAT_OBJECT, $CURRENT_ARRAY->getXMLDataIOStyle();
   } 
 
   my $formatObj = &current_format_obj();
@@ -1474,9 +1636,9 @@ sub skipChar_node_start {
   # If this is still defined, we havent init'd an
   # XMLDataIOStyle object for this array yet, do it now. 
   if ( defined $DataIOStyle_Attrib_Ref) {
-    my $readObj = $CURRENT_ARRAY->XmlDataIOStyle(new XDF::FormattedXMLDataIOStyle($DataIOStyle_Attrib_Ref));
+    $CURRENT_ARRAY->setXMLDataIOStyle(new XDF::FormattedXMLDataIOStyle($DataIOStyle_Attrib_Ref));
     $DataIOStyle_Attrib_Ref = undef;
-    push @CURRENT_FORMAT_OBJECT, $readObj;
+    push @CURRENT_FORMAT_OBJECT, $CURRENT_ARRAY->getXMLDataIOStyle();
   }
 
   my $formatObj = &current_format_obj();
@@ -1496,7 +1658,7 @@ sub stringField_node_start {
 
   if (ref($dataTypeObj) eq 'XDF::Field' or ref($dataTypeObj) eq 'XDF::Array' ) { 
 
-     $dataTypeObj->dataFormat(new XDF::StringDataFormat(\%merged_hash));
+     $dataTypeObj->setDataFormat(new XDF::StringDataFormat(\%merged_hash));
 
   } else {
 
@@ -1526,14 +1688,12 @@ sub tagToAxis_node_start {
   # well, if we see tagToAxis nodes, must have tagged data, the 
   # default style. No need for initing further. 
   if ( defined $DataIOStyle_Attrib_Ref) {
-    $CURRENT_ARRAY->XmlDataIOStyle(new XDF::TaggedXMLDataIOStyle($DataIOStyle_Attrib_Ref)) 
+    $CURRENT_ARRAY->setXMLDataIOStyle(new XDF::TaggedXMLDataIOStyle($DataIOStyle_Attrib_Ref)) 
   }
   $DataIOStyle_Attrib_Ref = undef;
 
-  my $readObj = $CURRENT_ARRAY->XmlDataIOStyle();
-
   # add in the axis, tag information
-  $CURRENT_ARRAY->XmlDataIOStyle->setAxisTag($attrib_hash{'tag'}, $attrib_hash{'axisIdRef'});
+  $CURRENT_ARRAY->getXMLDataIOStyle()->setAxisTag($attrib_hash{'tag'}, $attrib_hash{'axisIdRef'});
 
 }
 
@@ -1543,7 +1703,7 @@ sub unit_node_charData {
 
   if (defined $LAST_UNIT_OBJECT) {
     # add string as the value of the note
-    $LAST_UNIT_OBJECT->value($string);
+    $LAST_UNIT_OBJECT->setValue($string);
 
   } else {
 
@@ -1827,11 +1987,11 @@ sub vector_node_start {
      my $axisValue = $axisObj->addAxisUnitDirection(\%attrib_hash);
 
      # add in reference object, if it exists
-     if (exists($attrib_hash{'axisIdRef'})) {
-          my $axisId = $attrib_hash{'axisIdRef'};
-          my $refAxisObj = $AxisObj{$axisId};
-          $axisValue->setObjRef($refAxisObj) if $refAxisObj;
-     }
+ #    if (exists($attrib_hash{'axisIdRef'})) {
+ #         my $axisId = $attrib_hash{'axisIdRef'};
+ #         my $refAxisObj = $AxisObj{$axisId};
+ #         $axisValue->setObjRef($refAxisObj) if $refAxisObj;
+ #    }
 
   } else {
         &print_warning( "$XDF_node_name{'vector'} node not supported for $parent_node yet. Ignoring node.\n");
@@ -1851,7 +2011,40 @@ sub null_cmd { }
 
 sub parent_node_name { return $CURRENT_NODE_PATH[$#CURRENT_NODE_PATH-1]; } 
 
+sub getUniqueIdName {
+   my ($id, $hash_ref) = @_;
+   my %hash = %{$hash_ref};
+
+   # this will create axes with name that has trailing zeros 
+   while (exists $hash{$id}) { $id .= '0'; }
+
+   return $id;
+}
+
 sub grand_parent_node_name { return $CURRENT_NODE_PATH[$#CURRENT_NODE_PATH-2]; } 
+
+# only deals with files right now. Bleah.
+sub _getHrefData {
+   my ($href) = @_;
+
+   my $file;
+   my $text;
+   $file = $href->getBase() if $href->getBase();
+   $file .= $href->getSysId();
+   if (defined $file) {
+       undef $/; #input rec separator, once newline, now nothing.
+                 # will cause whole file to be read in one whack 
+       open(DATAFILE, $file);
+       $text = <DATAFILE>;
+       close DATAFILE;
+   } else {
+      die "Can't read Href data, undefined sysId!\n";
+   }
+
+   print STDERR "DATABLOCK:[$text]\n";
+
+   return $text;
+}
 
 sub make_attrib_array_a_hash {
   my (@array) = @_; 
@@ -1901,28 +2094,6 @@ sub print_warning {
   die "$0 exiting, too many warnings.\n" if ($MAX_WARNINGS > 0 && $NROF_WARNING++ > $MAX_WARNINGS);
 
 }
-
-sub check_obj_ref {
-  my ($obj, $objId, $objIdRef, $attrib_ref, $list_ref );
-
-  # add this object to the lookup table, if it has an ID
-  if (exists %{$attrib_ref}->{$objId} ) {
-       my $id = %{$attrib_ref}->{$objId};
-       &print_warning("More than one node with id=\"$objId\", using latest node.\n") 
-          if defined %{$list_ref}->{$id};
-       %{$list_ref}->{$id} = $obj;
-  }
-
-  # add in reference object, if it exists 
-   #if (exists($attrib_hash{'axisIdRef'})) {
-   if (exists %{$attrib_ref}->{$objIdRef} ) {
-      my $id = %{$attrib_ref}->{$objIdRef};
-      my $refObj = %{$list_ref}->{$id};
-      $obj->setObjRef($refObj) if $refObj;
-   }
-
-}
-
 
 # Treatment for hex, octal reads
 # that can occur in formatted data
@@ -1974,10 +2145,10 @@ sub current_dataType_obj { return $CURRENT_DATATYPE_OBJECT; }
 sub current_format_obj { return $CURRENT_FORMAT_OBJECT[$#CURRENT_FORMAT_OBJECT]; }
 
 sub last_field_obj {
- return @{$CURRENT_ARRAY->fieldAxis()->fieldList()}[$#{$CURRENT_ARRAY->fieldAxis()->fieldList()}];
+ return @{$CURRENT_ARRAY->getFieldAxis()->getFieldList()}[$#{$CURRENT_ARRAY->getFieldAxis()->getFieldList()}];
 }
 
-sub last_axis_obj { return @{$CURRENT_ARRAY->axisList()}[$#{$CURRENT_ARRAY->axisList()}]; }
+sub last_axis_obj { return @{$CURRENT_ARRAY->getAxisList()}[$#{$CURRENT_ARRAY->getAxisList()}]; }
 
 sub last_parameter_obj { return $LAST_PARAM_OBJECT; }
 
@@ -1994,6 +2165,12 @@ sub my_fail {
 # Modification History
 #
 # $Log$
+# Revision 1.8  2000/12/14 22:11:26  thomas
+# Big changes to the API. get/set methods, added Href/Entity stuff, deep cloning,
+# added Href, Notes, NotesLocationOrder nodes/classes. Ripped out _enlarge_array
+# from DataCube (not needed) and fixed problems outputing delimited/formatted
+# read nodes. -b.t.
+#
 # Revision 1.7  2000/12/05 16:31:13  thomas
 # Changed default behavior of XML Parser. parseParamEnt and
 # Namespace may be options passed to the parser via the
@@ -2097,7 +2274,14 @@ A change in the value of these attributes will change the functioning of ALL ins
                   number will be displayed. Has no effect unless XML::Parser::Checker
                   is the parser. Defaults to 200. 
  
-  'noExpand'   => Don't expand entities in output if true.
+  'noExpand'   => Don't expand entities in output if true. Default is false. 
+ 
+  'nameSpaces' => When this option is given with a true value, then the parser does namespace
+                  processing. By default, namespace processing is turned off.
+ 
+  'parseParamEnt' => Unless standalone is set to "yes" in the XML declaration, setting this to
+                     a true value allows the external DTD to be read, and parameter entities
+                     to be parsed and expanded. The default is false. 
  
   'quiet'      => Set the reader to run quietly. Defaults to 1 ('yes'). 
   
@@ -2115,7 +2299,7 @@ A change in the value of these attributes will change the functioning of ALL ins
 
 =head1 SEE ALSO
 
-L<XDF::Array>, L<XDF::BinaryFloatDataFormat>, L<XDF::BinaryIntegerDataFormat>, L<XDF::DelimitedXMLDataIOStyle>, L<XDF::ExponentialDataFormat>, L<XDF::Field>, L<XDF::FieldRelation>, L<XDF::FixedDataFormat>, L<XDF::FormattedXMLDataIOStyle>, L<XDF::IntegerDataFormat>, L<XDF::Parameter>, L<XDF::RepeatFormattedIOCmd>, L<XDF::ReadCellFormattedIOCmd>, L<XDF::SkipCharFormattedIOCmd>, L<XDF::StringDataFormat>, L<XDF::Structure>, L<XDF::XMLDataIOStyle>
+L<XDF::Array>, L<XDF::BinaryFloatDataFormat>, L<XDF::BinaryIntegerDataFormat>, L<XDF::DelimitedXMLDataIOStyle>, L<XDF::ExponentialDataFormat>, L<XDF::Field>, L<XDF::FieldRelation>, L<XDF::FixedDataFormat>, L<XDF::FormattedXMLDataIOStyle>, L<XDF::Href>, L<XDF::IntegerDataFormat>, L<XDF::Parameter>, L<XDF::RepeatFormattedIOCmd>, L<XDF::ReadCellFormattedIOCmd>, L<XDF::SkipCharFormattedIOCmd>, L<XDF::StringDataFormat>, L<XDF::Structure>, L<XDF::XMLDataIOStyle>
 
 =back
 

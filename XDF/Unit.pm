@@ -44,10 +44,14 @@ use vars qw ($AUTOLOAD %field @ISA);
 
 # CLASS DATA
 my $Class_XML_Node_Name = "unit";
-my @Class_Attributes = qw (
+my @Class_XML_Attributes = qw (
                              power
                              value
                           );
+my @Class_Attributes = ();
+
+# add in class XML attributes
+push @Class_Attributes, @Class_XML_Attributes;
 
 # /** power
 # The power of this unit. Takes a SCALAR number value.
@@ -81,26 +85,63 @@ sub classAttributes {
   \@Class_Attributes;
 }
 
-# This is called when we cant find any defined method
-# exists already. Used to handle general purpose set/get
-# methods for our attributes (object fields).
-sub AUTOLOAD {
-  my ($self,$val) = @_;
-  &XDF::GenericObject::AUTOLOAD($self, $val, $AUTOLOAD, \%field );
+#
+# Get/Set Methods
+#
+
+# /** getPower
+# */
+sub getPower {
+   my ($self) = @_;
+   return $self->{Power};
 }
 
-# Override XDF::BaseObject::update. Special new method for Value objects.
-# /** update
-# XDF::Unit has a special update method. 
+# /** setPower
+#     Set the power attribute. 
+# */
+sub setPower {
+   my ($self, $value) = @_;
+   $self->{Power} = $value;
+}
+
+# /** getValue
+# */
+sub getValue {
+   my ($self) = @_;
+   return $self->{Value};
+}
+
+# /** setValue
+#     Set the value attribute. 
+# */
+sub setValue {
+   my ($self, $value) = @_;
+   $self->{Value} = $value;
+}
+
+# /** getXMLAttributes
+#      This method returns the XMLAttributes of this class. 
+#  */
+sub getXMLAttributes { 
+  return \@Class_XML_Attributes;
+}
+
+#
+# other Public methods
+#
+
+# Override XDF::BaseObject::setXMLAttributes. Special new method for Value objects.
+# /** setXMLAttributes
+# XDF::Unit has a special setXMLAttributes method. 
 # These objects are so simple they seem to merit 
-# special handling. This new update method takes either
+# special handling. This new setXMLAttributes method takes either
 # and attribute Hash reference or a STRING.
 # If the input value is a HASH reference, we 
 # construct an object from it, else, we 
 # just set its value attribute to the contents of 
 # the passed STRING. 
 # */
-sub update {
+sub setXMLAttributes {
   my ($self, $info ) = @_;
 
   # these objects are so simple they seem to merit 
@@ -109,17 +150,35 @@ sub update {
   # we assume its a string, and the value of the note.
   if (defined $info) {
     if (ref($info) ) {
-      $self->SUPER::update($info);
+      $self->SUPER::setXMLAttributes($info);
     } else {
-      $self->value($info);
+      $self->setValue($info);
     }
   }
 
 }
 
+#
+# Private Methods
+#
+
+# This is called when we cant find any defined method
+# exists already. Used to handle general purpose set/get
+# methods for our attributes (object fields).
+sub AUTOLOAD {
+  my ($self,$val) = @_;
+  &XDF::GenericObject::AUTOLOAD($self, $val, $AUTOLOAD, \%field );
+}
+
 # Modification History
 #
 # $Log$
+# Revision 1.4  2000/12/14 22:11:26  thomas
+# Big changes to the API. get/set methods, added Href/Entity stuff, deep cloning,
+# added Href, Notes, NotesLocationOrder nodes/classes. Ripped out _enlarge_array
+# from DataCube (not needed) and fixed problems outputing delimited/formatted
+# read nodes. -b.t.
+#
 # Revision 1.3  2000/12/01 20:03:38  thomas
 # Brought Pod docmentation up to date. Bumped up version
 # number. -b.t.
@@ -178,13 +237,317 @@ These methods set the requested attribute if an argument is supplied to the meth
 
 =over 4
 
-=item power
+=item # add in class XML attributes
 
-The power of this unit. Takes a SCALAR number value.  
+ 
 
-=item value
+=item push @Class_Attributes, @Class_XML_Attributes;
 
-The value of this unit (e.g. "m" or "cm" or "km", etc) 
+ 
+
+=item # /** power
+
+ 
+
+=item # The power of this unit. Takes a SCALAR number value.
+
+ 
+
+=item # */ 
+
+ 
+
+=item # /** value
+
+ 
+
+=item # The value of this unit (e.g. "m" or "cm" or "km", etc)
+
+ 
+
+=item # */
+
+ 
+
+=item # add in super class attributes
+
+ 
+
+=item push @Class_Attributes, @{&XDF::BaseObject::classAttributes};
+
+ 
+
+=item # Initalization
+
+ 
+
+=item # set up object attributes.
+
+ 
+
+=item for my $attr ( @Class_Attributes ) { $field{$attr}++; }
+
+ 
+
+=item # /** classXMLNodeName
+
+ 
+
+=item # This method returns the class node name of XDF::Unit.
+
+ 
+
+=item # This method takes no arguments may not be changed. 
+
+ 
+
+=item # */
+
+ 
+
+=item sub classXMLNodeName {
+
+ 
+
+=item }
+
+ 
+
+=item # /** classAttributes
+
+ 
+
+=item #  This method returns a list reference containing the names
+
+ 
+
+=item #  of the class attributes of XDF::Unit. 
+
+ 
+
+=item #  This method takes no arguments may not be changed. 
+
+ 
+
+=item # */
+
+ 
+
+=item sub classAttributes {
+
+ 
+
+=item \@Class_Attributes;
+
+ 
+
+=item }
+
+ 
+
+=item #
+
+ 
+
+=item # Get/Set Methods
+
+ 
+
+=item #
+
+ 
+
+=item # /** getPower
+
+ 
+
+=item # */
+
+ 
+
+=item sub getPower {
+
+ 
+
+=item return $self->{Power};
+
+ 
+
+=item }
+
+ 
+
+=item # /** setPower
+
+ 
+
+=item #     Set the power attribute. 
+
+ 
+
+=item # */
+
+ 
+
+=item sub setPower {
+
+ 
+
+=item $self->{Power} = $value;
+
+ 
+
+=item }
+
+ 
+
+=item # /** getValue
+
+ 
+
+=item # */
+
+ 
+
+=item sub getValue {
+
+ 
+
+=item return $self->{Value};
+
+ 
+
+=item }
+
+ 
+
+=item # /** setValue
+
+ 
+
+=item #     Set the value attribute. 
+
+ 
+
+=item # */
+
+ 
+
+=item sub setValue {
+
+ 
+
+=item $self->{Value} = $value;
+
+ 
+
+=item }
+
+ 
+
+=item # /** getXMLAttributes
+
+ 
+
+=item #      This method returns the XMLAttributes of this class. 
+
+ 
+
+=item #  */
+
+ 
+
+=item sub getXMLAttributes { 
+
+ 
+
+=item }
+
+ 
+
+=item #
+
+ 
+
+=item # other Public methods
+
+ 
+
+=item #
+
+ 
+
+=item # Override XDF::BaseObject::setXMLAttributes. Special new method for Value objects.
+
+ 
+
+=item # /** setXMLAttributes
+
+ 
+
+=item # XDF::Unit has a special setXMLAttributes method. 
+
+ 
+
+=item # These objects are so simple they seem to merit 
+
+ 
+
+=item # special handling. This new setXMLAttributes method takes either
+
+ 
+
+=item # and attribute Hash reference or a STRING.
+
+ 
+
+=item # If the input value is a HASH reference, we 
+
+ 
+
+=item # construct an object from it, else, we 
+
+ 
+
+=item # just set its value attribute to the contents of 
+
+ 
+
+=item # the passed STRING. 
+
+ 
+
+=item # */
+
+ 
+
+=item sub setXMLAttributes {
+
+ 
+
+=item # these objects are so simple they seem to merit 
+
+ 
+
+=item # special handling. If $info is a reference, we assume
+
+ 
+
+=item # it is an attribute hash (as per other objects). Else,
+
+ 
+
+=item # we assume its a string, and the value of the note.
+
+ 
+
+=item if (defined $info) {
+
+ 
+
+=item if (ref($info) ) {
+
+ 
 
 =back
 
@@ -192,9 +555,29 @@ The value of this unit (e.g. "m" or "cm" or "km", etc)
 
 =over 4
 
-=item update ($info)
+=item getPower (EMPTY)
 
-XDF::Unit has a special update method. These objects are so simple they seem to merit special handling. This new update method takes eitherand attribute Hash reference or a STRING. If the input value is a HASH reference, we construct an object from it, else, we just set its value attribute to the contents of the passed STRING. 
+
+
+=item setPower ($value)
+
+Set the power attribute. 
+
+=item getValue (EMPTY)
+
+
+
+=item setValue ($value)
+
+Set the value attribute. 
+
+=item getXMLAttributes (EMPTY)
+
+This method returns the XMLAttributes of this class. 
+
+=item setXMLAttributes ($info)
+
+XDF::Unit has a special setXMLAttributes method. These objects are so simple they seem to merit special handling. This new setXMLAttributes method takes eitherand attribute Hash reference or a STRING. If the input value is a HASH reference, we construct an object from it, else, we just set its value attribute to the contents of the passed STRING. 
 
 =back
 
@@ -223,7 +606,7 @@ B<Pretty_XDF_Output>, B<Pretty_XDF_Output_Indentation>, B<DefaultDataArraySize>.
 =over 4
 
 XDF::Unit inherits the following instance methods of L<XDF::GenericObject>:
-B<new>, B<clone>, B<setObjRef>.
+B<new>, B<clone>, B<update>.
 
 =back
 

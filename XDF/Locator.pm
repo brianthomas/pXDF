@@ -72,17 +72,13 @@ push @Class_Attributes, @{&XDF::GenericObject::classAttributes};
 # set up object attributes.
 for my $attr ( @Class_Attributes ) { $field{$attr}++; }
 
-# This is called when we cant find any defined method
-# exists already. Used to handle general purpose set/get
-# methods for our attributes (object fields).
-sub AUTOLOAD {
-  my ($self,$val) = @_;
-  &XDF::GenericObject::AUTOLOAD($self, $val, $AUTOLOAD, \%field );
-}
+#
+# Constructor
+#
 
 # only allow Array objects to create locators
 sub new { 
-  my ($proto, $attribHashRef) = @_;
+  my ($proto, $parentArray) = @_;
 
   unless (caller eq 'XDF::Array') {
     croak "Error: $proto is not meant to be instanciated standalone. Use XDF::Array method to create instance.\n";
@@ -91,10 +87,7 @@ sub new {
   my $class = ref ($proto) || $proto;
   my $self = bless( { }, $class);
 
-  $self->_init(); # init of class specific stuff
-
-  # init of instance specific stuff 
-  $self->update($attribHashRef) if defined $attribHashRef;
+  $self->_init($parentArray); # init of class specific stuff
 
   # now, since we KNOW _parentArray is defined
   # (has to be intanciated via XDF::Array ONLY)
@@ -102,22 +95,115 @@ sub new {
   # to the origin (ie index 0 for each axis).
   # We choose the parent Array axisList ordering for our
   # default location ordering.
-  foreach my $axisObj (@{$self->_parentArray->axisList}) {
+  foreach my $axisObj (@{$self->{_parentArray}->getAxisList()}) {
      my %location = (
                        'axis'  => $axisObj,
                        'index' => 0,
                     );
-     push @{$self->_locationList}, \%location;
+     push @{$self->{_locationList}}, \%location;
   }
 
   return $self;
 }
 
-# private method called from XDF::GenericObject->new
-sub _init {
-  my ($self) = @_;
-  $self->_locationList([]); 
+#
+# Get/Set Methods
+#
+
+#/** setAxisLocation
+# */
+sub setAxisLocation {
+  my ($self, $axisObjOrAxisId, $index) = @_;
+
+  return unless defined $axisObjOrAxisId and defined $index;
+
+  for (@{$self->{_locationList}}) {
+     if (%{$_}->{'axis'} eq $axisObjOrAxisId) {
+       %{$_}->{'index'} = $index;
+       last;
+     }
+  }
+  return undef;
 }
+
+# /** getAxisLocation
+# */
+sub getAxisLocation {
+  my ($self, $axisObj ) = @_;
+
+  return unless defined $axisObj;
+
+  for (@{$self->{_locationList}}) {
+     if (%{$_}->{'axis'} eq $axisObj) {
+       return %{$_}->{'index'};
+     }
+  }
+  return undef;
+}
+
+# note that the ordering is *still* that of 
+# the axisList in Array
+sub getAxisLocations {
+  my ($self) = @_;
+
+  my @list = ();
+  for(@{$self->{_locationList}}) {
+    push @list, %{$_}->{'index'};
+  }
+  return \@list;
+
+}
+
+#/** getIterationOrder
+# */
+sub getIterationOrder {
+  my ($self) = @_;
+
+  my @axisList = ();
+  for(@{$self->{_locationList}}) {
+    push @axisList, %{$_}->{'axis'};
+  }
+  return \@axisList;
+}
+
+#/** setIterationOrder
+#  This will also result in a resetting the current (axis) indices to the origin
+#  location. 
+#  The last axis is considered the 'fastest' axis in the traversal.
+# */
+sub setIterationOrder {
+  my ($self, $axisOrderListRef ) = @_;
+
+  # we should check here that the number of entries matches the
+  # dimension of the parent array
+
+  $self->{_locationList} = [];
+  foreach my $axisObj (@{$axisOrderListRef}) {
+     my %location = (
+                       'axis'  => $axisObj,
+                       'index' => 0,
+                    );
+
+     push @{$self->{_locationList}}, \%location;
+  }
+
+}
+
+# /** setAxisLocationByAxisValue
+#  
+# */ 
+#sub setAxisLocationByAxisValue {
+#  my ($self, $axisObj, $axisValueOrValueObj) = @_;
+#
+#  return unless defined $axisObj && ref($axisObj) eq 'XDF::Axis'
+#                 and defined $axisValueOrValueObj;
+#
+#  $self->setLocation($axisObj, $axisObj->getIndexFromAxisValue($axisValueOrValueObj));
+#}
+
+#
+# Other Public Methods
+#
 
 # Are we at the end of the array ?
 # Note that this ISNT very performance oriented. I can
@@ -127,70 +213,14 @@ sub hasNext {
 
   my $outOfDataCells = 1;
 
-  for (@{$self->_locationList}) {
-    if (%{$_}->{'index'} < (%{$_}->{'axis'}->length()-1) ) {
+  for (@{$self->{_locationList}}) {
+    if (%{$_}->{'index'} < (%{$_}->{'axis'}->getLength()-1) ) {
       $outOfDataCells = 0;
       last;
     }
   }
   return $outOfDataCells ? 0 : 1;
 }
-
-sub setAxisLocation {
-  my ($self, $axisObjOrAxisId, $index) = @_;
-
-  return unless defined $axisObjOrAxisId and defined $index;
-
-  for (@{$self->_locationList}) { 
-     if (%{$_}->{'axis'} eq $axisObjOrAxisId) {
-       %{$_}->{'index'} = $index;
-       last;
-     } 
-  }
-
-  return $index;
-} 
-
-# /** getAxisLocation
-# Only axisObj ref supported right now (need to change Reader)
-# */
-sub getAxisLocation {
-  my ($self, $axisObjOrAxisId ) = @_;
-
-  return unless defined $axisObjOrAxisId;
-
-  for (@{$self->_locationList}) { 
-     if (%{$_}->{'axis'} eq $axisObjOrAxisId) {
-       return %{$_}->{'index'};
-     } 
-  }
-
-}
-
-# note that the ordering is *still* that of 
-# the axisList in Array
-sub getAxisLocations {
-  my ($self) = @_;
-
-  my @list = ();
-  for(@{$self->_locationList}) { 
-    push @list, %{$_}->{'index'};
-  }
-  return @list;
-
-}
-
-# /** setAxisLocationByAxisValue
-#  
-# */ 
-sub setAxisLocationByAxisValue {
-  my ($self, $axisObj, $axisValueOrValueObj) = @_;
-  
-  return unless defined $axisObj && ref($axisObj) eq 'XDF::Axis'
-                 and defined $axisValueOrValueObj;
-  
-  $self->setLocation($axisObj, $axisObj->getIndexFromAxisValue($axisValueOrValueObj));
-} 
 
 # /** next
 # Change the locator coordinates to the next datacell as
@@ -203,8 +233,8 @@ sub next {
 
   my $outOfDataCells = 1;
 
-  for (@{$self->_locationList}) {
-    if (%{$_}->{'index'} < (%{$_}->{'axis'}->length()-1) ) {
+  for (reverse @{$self->{_locationList}}) {
+    if (%{$_}->{'index'} < (%{$_}->{'axis'}->getLength()-1) ) {
       %{$_}->{'index'} += 1;
       $outOfDataCells = 0;
       last;
@@ -225,10 +255,10 @@ sub prev {
 
   my $outOfDataCells = 1;
 
-  for (reverse @{$self->_locationList}) {
+  for (reverse @{$self->{_locationList}}) {
     %{$_}->{'index'} -= 1;
     if (%{$_}->{'index'} < 0) {
-      %{$_}->{'index'} = %{$_}->{'axis'}->length();
+      %{$_}->{'index'} = %{$_}->{'axis'}->getLength();
     } else {
       last;
     } 
@@ -236,40 +266,10 @@ sub prev {
   
   # we flipped over if first member of the list is 
   # set to the length of its axis
-  $outOfDataCells = 1 if ( @{$self->_locationList}->[0]->{'index'} == 
-                           @{$self->_locationList}->[0]->{'axis'}->length() );
+  $outOfDataCells = 1 if ( @{$self->{_locationList}}->[0]->{'index'} == 
+                           @{$self->{_locationList}}->[0]->{'axis'}->getLength() );
 
   return $outOfDataCells ? 0 : 1;
-}
-
-sub setIterationOrder {
-  my ($self, $axisOrderListRef ) = @_;
-
-  croak "Locator can't setIterationOrder, axisOrderList arg missing or not a list."
-    unless (defined $axisOrderListRef && ref($axisOrderListRef) eq 'ARRAY'); 
-
-  my $oldList = $self->_locationList;
-  $self->_locationList([]);
-
-  foreach my $axisObj (@{$axisOrderListRef}) {
-     my $index = 0; 
-
-     for(@{$oldList}) {
-       if(%{$_}->{'axis'} eq $axisObj) {
-         $index = %{$_}->{'index'};
-         last;
-       }
-     }
-
-     my %location = (
-                       'axis'  => $axisObj,
-                       'index' => $index,
-                    );
-
-     push @{$self->_locationList}, \%location;
-
-  }
-
 }
 
 # /** reset
@@ -278,17 +278,7 @@ sub setIterationOrder {
 sub reset {
   my ($self) = @_;
 
-  for(@{$self->_locationList}) { $_->{'index'} = 0; }
-}
-
-sub getIterationOrder {
-  my ($self) = @_;
-
-  my @axisList = ();
-  for(@{$self->_locationList}) {
-    push @axisList, %{$_}->{'axis'};
-  }
-  return @axisList;
+  for(@{$self->{_locationList}}) { $_->{'index'} = 0; }
 }
 
 sub toXMLFileHandle {
@@ -297,9 +287,35 @@ sub toXMLFileHandle {
 }
 
 
+#
+# Private Methods 
+#
+
+# This is called when we cant find any defined method
+# exists already. Used to handle general purpose set/get
+# methods for our attributes (object fields).
+sub AUTOLOAD {
+  my ($self,$val) = @_;
+  &XDF::GenericObject::AUTOLOAD($self, $val, $AUTOLOAD, \%field );
+}
+
+# private method called from XDF::GenericObject->new
+sub _init {
+  my ($self, $parentArray) = @_;
+  $self->{_parentArray} = $parentArray;
+  $self->{_locationList} = [];
+}
+ 
+
 # Modification History
 #
 # $Log$
+# Revision 1.5  2000/12/14 22:11:26  thomas
+# Big changes to the API. get/set methods, added Href/Entity stuff, deep cloning,
+# added Href, Notes, NotesLocationOrder nodes/classes. Ripped out _enlarge_array
+# from DataCube (not needed) and fixed problems outputing delimited/formatted
+# read nodes. -b.t.
+#
 # Revision 1.4  2000/12/01 20:03:38  thomas
 # Brought Pod docmentation up to date. Bumped up version
 # number. -b.t.
@@ -348,11 +364,7 @@ XDF::Locator inherits class and attribute methods of L<XDF::GenericObject>.
 
 =over 4
 
-=item new ($attribHashRef)
-
-
-
-=item hasNext (EMPTY)
+=item new ($parentArray)
 
 
 
@@ -360,15 +372,23 @@ XDF::Locator inherits class and attribute methods of L<XDF::GenericObject>.
 
 
 
-=item getAxisLocation ($axisObjOrAxisId)
+=item getAxisLocation ($axisObj)
 
-Only axisObj ref supported right now (need to change Reader)
+
 
 =item getAxisLocations (EMPTY)
 
 
 
-=item setAxisLocationByAxisValue ($axisValueOrValueObj, $axisObj)
+=item getIterationOrder (EMPTY)
+
+
+
+=item setIterationOrder ($axisOrderListRef)
+
+This will also result in a resetting the current (axis) indices to the originlocation. The last axis is considered the 'fastest' axis in the traversal. 
+
+=item hasNext (EMPTY)
 
 
 
@@ -380,17 +400,9 @@ Change the locator coordinates to the next datacell asdetermined from the locato
 
 Change the locator coordinates to the previous datacell asdetermined from the locator iteration order. Returns '0' if it must cycle to the last datacell. 
 
-=item setIterationOrder ($axisOrderListRef)
-
-
-
 =item reset (EMPTY)
 
 Reset the locator to the origin. 
-
-=item getIterationOrder (EMPTY)
-
-
 
 =item toXMLFileHandle (EMPTY)
 
@@ -414,7 +426,7 @@ A change in the value of these attributes will change the functioning of ALL ins
 =over 4
 
 XDF::Locator inherits the following instance methods of L<XDF::GenericObject>:
-B<clone>, B<update>, B<setObjRef>.
+B<clone>, B<update>.
 
 =back
 

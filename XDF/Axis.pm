@@ -115,10 +115,9 @@ use vars qw ($AUTOLOAD %field @ISA);
 
 my $Class_XML_Node_Name = "axis";
 
-# the order of these attributes IS important. In order for the ID/IDREF
-# stuff to work, _objRef MUST be the last attribute
+# the order of these attributes IS important.
 # 
-my @Class_Attributes = qw (
+my @Class_XML_Attributes = qw (
                       name
                       description
                       axisDatatype
@@ -127,9 +126,15 @@ my @Class_Attributes = qw (
                       axisId
                       axisIdRef
                       valueList
-                      _length
-                      _valueGroupOwnedHash
                           ); 
+
+my @Class_Attributes = qw (
+                             _length
+                             _valueGroupOwnedHash
+                          ); 
+
+# add in class XML attributes
+push @Class_Attributes, @Class_XML_Attributes;
 
 # add in super class attributes
 push @Class_Attributes, @{&XDF::BaseObject::classAttributes};
@@ -155,33 +160,146 @@ sub classAttributes {
   \@Class_Attributes; 
 }
 
-# This is called when we cant find any defined method
-# exists already. Used to handle general purpose set/get
-# methods for our attributes (object fields).
-sub AUTOLOAD { 
-  my ($self,$val) = @_;
-  &XDF::GenericObject::AUTOLOAD($self, $val, $AUTOLOAD, \%field );
+#
+# set/get Methods
+#
+
+# /** getName
+# */
+sub getName {
+   my ($self) = @_;
+   return $self->{Name};
 }
 
-sub _init {
+# /** setName
+#     Set the name attribute. 
+# */
+sub setName {
+   my ($self, $value) = @_;
+   $self->{Name} = $value;
+}
+
+# /** getDescription
+#  */
+sub getDescription {
+   my ($self) = @_;
+   return $self->{Description};
+}
+
+# /** setDescription
+#  */
+sub setDescription {
+   my ($self, $value) = @_;
+   $self->{Description} = $value;
+}
+
+# /** getAxisDatatype
+# */
+sub getAxisDatatype {
+   my ($self) = @_;
+   return $self->{AxisDatatype};
+}
+
+# /** setAxisDatatype
+#     Set the axisDatatype attribute. 
+# */
+sub setAxisDatatype {
+   my ($self, $value) = @_;
+   $self->{AxisDatatype} = $value;
+}
+
+# /** getAxisUnits
+# */
+sub getAxisUnits {
+   my ($self) = @_;
+   return $self->{AxisUnits};
+}
+
+# /** setAxisUnits
+#     Set the axisUnits attribute. 
+# */
+sub setAxisUnits {
+   my ($self, $value) = @_;
+   $self->{AxisUnits} = $value;
+}
+
+# /** getAxisId
+# */
+sub getAxisId {
+   my ($self) = @_;
+   return $self->{AxisId};
+}
+
+# /** setAxisId
+#     Set the axisId attribute. 
+# */
+sub setAxisId {
+   my ($self, $value) = @_;
+   $self->{AxisId} = $value;
+}
+
+# /** getAxisIdRef 
+# */
+sub getAxisIdRef {
+   my ($self) = @_;
+   return $self->{AxisIdRef};
+}
+
+# /** setAxisIdRef
+#     Set the axisIdRef attribute. 
+# */
+sub setAxisIdRef {
+   my ($self, $value) = @_;
+   $self->{AxisIdRef} = $value;
+}
+
+# /** getAlign
+# */
+sub getAlign {
+   my ($self) = @_;
+   return $self->{Align};
+}
+
+# /** setAlign
+#     Set the align attribute. 
+# */
+sub setAlign {
+   my ($self, $value) = @_;
+   $self->{Align} = $value;
+}
+
+# /** getValueList
+#  */
+sub getValueList {
+   my ($self) = @_;
+   return $self->{ValueList};
+}
+
+# /** setValueList
+#  */
+sub setValueList {
+   my ($self, $value) = @_;
+   $self->{ValueList} = $value;
+}
+
+# /** getXMLAttributes
+#      This method returns the XMLAttributes of this class. 
+#  */
+sub getXMLAttributes {
+  return \@Class_XML_Attributes;
+}
+
+# /** getLength
+# Get the length of this axis (eg number of axis value objects) 
+# */
+sub getLength {
   my ($self) = @_;
-
-  my $unitsObj = $self->axisUnits(new XDF::Units());
-  $unitsObj->setXMLNodeName("axisUnits");
-
-  $self->_valueGroupOwnedHash({}); 
-
-  # initialize lists 
-  $self->valueList([]);
-  
-  # set the minimum array size (essentially the size of the axis)
-  $#{$self->valueList} = $self->DefaultDataArraySize();
-
-  # this variable is needed because $#{$self->valueList}
-  # is pre-allocated in prior statement, and is not necess.
-  # reflective of the real axis size.
-  $self->_length(0);
+  $self->{_length};
 }
+
+#
+# Other Public Methods
+#
 
 # /** addAxisValue
 # Add an XDF::AxisValue object to this axis. 
@@ -203,9 +321,9 @@ sub addAxisValue {
   # NOT have reference objects at all.
 
   # add this axis value to the list
-  push @{$self->valueList}, $obj;
+  push @{$self->{ValueList}}, $obj;
 
-  $self->_length($self->_length+1);
+  $self->{_length} = $self->{_length} + 1;
 
   return $obj;
 }
@@ -223,11 +341,11 @@ sub setAxisValue {
   unless (ref($valueObj) eq 'XDF::Value' or 
           ref($valueObj) eq 'XDF::UnitDirection' )
   {
-    $valueObj  = @{$self->valueList}->[$index];
+    $valueObj  = @{$self->{ValueList}}->[$index];
     $valueObj->value($valueOrValueObjRef);
   } 
 
-  @{$self->valueList}->[$index] = $valueObj;
+  @{$self->{ValueList}}->[$index] = $valueObj;
 
   return $valueObj;
 }
@@ -239,7 +357,7 @@ sub addAxisUnitDirection {
   my ($self, $attribHashRef) = @_; 
 
   my $obj = XDF::UnitDirection->new($attribHashRef);
-  push @{$self->valueList}, $obj;
+  push @{$self->{ValueList}}, $obj;
 
   return $obj;
 }
@@ -250,9 +368,9 @@ sub addAxisUnitDirection {
 # */ 
 sub removeAxisValue {
   my ($self, $what) = @_;
-  $self->_remove_from_list($what, $self->valueList(), 'valueList');
+  $self->_remove_from_list($what, $self->{ValueList}, 'valueList');
   # bump down size of the axis 
-  $self->_length($self->_length()-1);
+  $self->{_length} = $self->{_length} -1;
 }
 
 # /** getAxisValue 
@@ -261,7 +379,7 @@ sub removeAxisValue {
 sub getAxisValue {
   my ($self, $index) = @_;
   return unless (defined $index && $index >= 0);
-  return @{$self->valueList()}->[$index];
+  return @{$self->{ValueList}}->[$index];
 }
 
 # /** getAxisValues 
@@ -271,19 +389,19 @@ sub getAxisValues {
    my ($self) = @_;
 
    my @values = ();
-   foreach my $axisVal (@{$self->valueList}) {
+   foreach my $axisVal (@{$self->{ValueList}}) {
       next unless defined $axisVal;
-      push @values, $axisVal->value();
+      push @values, $axisVal->getValue();
    }
 
-   return @values;
+   return \@values;
 }
 
 # /** addUnit 
 # Add an XDF::Unit object to the XDF::Units object contained in this axis. 
 # */ 
 sub addUnit { my ($self, $attribHashRefOrObjectRef) = @_;
-   my $unitObj = $self->axisUnits()->addUnit($attribHashRefOrObjectRef);
+   my $unitObj = $self->{AxisUnits}->addUnit($attribHashRefOrObjectRef);
    return $unitObj;
 }
 
@@ -292,7 +410,7 @@ sub addUnit { my ($self, $attribHashRefOrObjectRef) = @_;
 # */ 
 sub removeUnit { 
   my ($self, $indexOrObjectRef) = @_; 
-  return $self->axisUnits()->removeUnit($indexOrObjectRef); 
+  return $self->{AxisUnits}->removeUnit($indexOrObjectRef); 
 }
 
 # /** addValueGroup 
@@ -311,7 +429,7 @@ sub addValueGroup {
   }
 
   # add the group to the groupOwnedHash
-  %{$self->_valueGroupOwnedHash}->{$groupObj} = $groupObj;
+  %{$self->{_valueGroupOwnedHash}}->{$groupObj} = $groupObj;
 
   return $groupObj;
 }
@@ -321,16 +439,7 @@ sub addValueGroup {
 # */
 sub removeValueGroup { 
   my ($self, $hashKey ) = @_; 
-  delete %{$self->_valueGroupOwnedHash}->{$hashKey}; 
-}
-
-# /** length
-# Get the length of this axis (eg number of axis value objects) 
-# */
-sub length { 
-  my ($self) = @_; 
-  return defined $self->_objRef && defined $self->_objRef->_length ? 
-          $self->_objRef->_length() : $self->_length(); 
+  delete %{$self->{_valueGroupOwnedHash}}->{$hashKey}; 
 }
 
 # /** getIndexFromValue
@@ -348,17 +457,56 @@ sub getIndexFromAxisValue {
   return unless defined $value;
 
   my $index;
-  foreach $index (0 .. $#{$self->valueList}) {
-    if ($value eq @{$self->valueList}->[$index]->value) {
+  foreach $index (0 .. $#{$self->{ValueList}}) {
+    if ($value eq @{$self->{ValueList}}->[$index]->value) {
       return $index;
     }
   } 
   return;
 }
 
+#
+# Private Methods 
+#
+
+# This is called when we cant find any defined method
+# exists already. Used to handle general purpose set/get
+# methods for our attributes (object fields).
+sub AUTOLOAD {
+  my ($self,$val) = @_;
+  &XDF::GenericObject::AUTOLOAD($self, $val, $AUTOLOAD, \%field );
+}
+
+sub _init {
+  my ($self) = @_;
+
+  $self->{AxisUnits} = new XDF::Units();
+  $self->{AxisUnits}->setXMLNodeName("axisUnits");
+
+  $self->{_valueGroupOwnedHash} = {};
+
+  # initialize lists 
+  $self->{ValueList} = [];
+
+  # set the minimum array size (essentially the size of the axis)
+  $#{$self->{ValueList}} = $self->DefaultDataArraySize();
+
+  # this variable is needed because $#{$self->{ValueList}}
+  # is pre-allocated in prior statement, and is not necess.
+  # reflective of the real axis size.
+  $self->{_length} = 0;
+
+}
+
 # Modification History
 #
 # $Log$
+# Revision 1.4  2000/12/14 22:11:26  thomas
+# Big changes to the API. get/set methods, added Href/Entity stuff, deep cloning,
+# added Href, Notes, NotesLocationOrder nodes/classes. Ripped out _enlarge_array
+# from DataCube (not needed) and fixed problems outputing delimited/formatted
+# read nodes. -b.t.
+#
 # Revision 1.3  2000/12/01 20:03:37  thomas
 # Brought Pod docmentation up to date. Bumped up version
 # number. -b.t.
@@ -423,49 +571,81 @@ This method returns a list reference containing the namesof the class attributes
 
 =back
 
-=head2 ATTRIBUTE Methods
-
-These methods set the requested attribute if an argument is supplied to the method. Whether or not an argument is supplied the current value of the attribute is always returned. Values of these methods are always SCALAR (may be number, string, or reference).
-
-=over 4
-
-=item name
-
-The STRING description (short name) of this object.  
-
-=item description
-
-A scalar string description (long name) of this object.  
-
-=item axisDatatype
-
-Holds a SCALAR object reference to a single Datatype (L<XDF::DataFormat>) object for this axis.  
-
-=item axisUnits
-
-Holds a SCALAR object reference to the XDF::Units object for this axis.  
-
-=item align
-
-B<NOT CURRENTLY IMPLEMENTED> 
-
-=item axisId
-
-A scalar string holding the axis id of this object.  
-
-=item axisIdRef
-
-A scalar string holding the reference object axisId. A reference object is used to supply those attributesof the object which have not been set. Note that $obj->axisIdRef is simply what will be written to the XML file if $obj->toXMLFileHandle method is called. You will have to $obj->setObjRef($refObject) to get the referencing functionality within the code.  
-
-=item valueList
-
-Holds a scalar Array Reference to the list of axisValue objects for this axis.  
-
-=back
-
 =head2 OTHER Methods
 
 =over 4
+
+=item getName (EMPTY)
+
+
+
+=item setName ($value)
+
+Set the name attribute. 
+
+=item getDescription (EMPTY)
+
+
+
+=item setDescription ($value)
+
+
+
+=item getAxisDatatype (EMPTY)
+
+
+
+=item setAxisDatatype ($value)
+
+Set the axisDatatype attribute. 
+
+=item getAxisUnits (EMPTY)
+
+
+
+=item setAxisUnits ($value)
+
+Set the axisUnits attribute. 
+
+=item getAxisId (EMPTY)
+
+
+
+=item setAxisId ($value)
+
+Set the axisId attribute. 
+
+=item getAxisIdRef (EMPTY)
+
+
+
+=item setAxisIdRef ($value)
+
+Set the axisIdRef attribute. 
+
+=item getAlign (EMPTY)
+
+
+
+=item setAlign ($value)
+
+Set the align attribute. 
+
+=item getValueList (EMPTY)
+
+
+
+=item setValueList ($value)
+
+
+
+=item getXMLAttributes (EMPTY)
+
+This method returns the XMLAttributes of this class. 
+
+=item getLength (EMPTY)
+
+Get the length of this axis (eg number of axis value objects) 
 
 =item addAxisValue ($value)
 
@@ -507,10 +687,6 @@ Insert a ValueGroup object into this object to group the axisValues.
 
 Remove a ValueGroup object from this object 
 
-=item length (EMPTY)
-
-Get the length of this axis (eg number of axis value objects) 
-
 =item getIndexFromAxisValue ($value)
 
 
@@ -542,7 +718,7 @@ B<Pretty_XDF_Output>, B<Pretty_XDF_Output_Indentation>, B<DefaultDataArraySize>.
 =over 4
 
 XDF::Axis inherits the following instance methods of L<XDF::GenericObject>:
-B<new>, B<clone>, B<update>, B<setObjRef>.
+B<new>, B<clone>, B<update>.
 
 =back
 
@@ -551,7 +727,7 @@ B<new>, B<clone>, B<update>, B<setObjRef>.
 =over 4
 
 XDF::Axis inherits the following instance methods of L<XDF::BaseObject>:
-B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<toXMLFileHandle>, B<toXMLFile>.
+B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLAttributes>, B<toXMLFileHandle>, B<toXMLFile>.
 
 =back
 

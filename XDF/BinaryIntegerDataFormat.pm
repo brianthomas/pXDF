@@ -49,13 +49,20 @@ use vars qw ($AUTOLOAD %field @ISA);
 my $Def_BinaryInteger_Bits = 32;
 my $Def_BinaryInteger_Signed = 'yes';
 my $Class_XML_Node_Name = "binaryInteger";
-my @Class_Attributes = qw (
+my @Class_XML_Attributes = qw (
                              signed
                              bits
                           );
+my @Class_Attributes = ();
+
+#add in class XML attributes
+push @Class_Attributes, @Class_XML_Attributes;
 
 # add in super class attributes
 push @Class_Attributes, @{&XDF::DataFormat::classAttributes};
+
+# add in super class XML attributes
+push @Class_XML_Attributes, @{&XDF::DataFormat::getXMLAttributes};
 
 # /** bits
 # The number of bits this XDF::BinaryIntegerDataFormat holds.
@@ -91,6 +98,61 @@ sub classAttributes {
   \@Class_Attributes;
 }
 
+#
+# GET/SET Methods 
+#
+
+# /** getBits
+# */
+sub getBits {
+   my ($self) = @_;
+   return $self->{Bits};
+}
+
+# /** setBits
+#     Set the (number of) bits attribute. 
+# */
+sub setBits {
+   my ($self, $value) = @_;
+   $self->{Bits} = $value;
+}
+
+# /** getSigned
+# */
+sub getSigned{
+   my ($self) = @_;
+   return $self->{Signed};
+}
+
+# /** setSigned
+#     Set the signed attribute. 
+# */
+sub setSigned {
+   my ($self, $value) = @_;
+   $self->{Signed} = $value;
+}
+
+# /** getBytes
+# A convenience method.
+# Return the number of bytes this XDF::BinaryIntegerDataFormat holds.
+# */
+sub getBytes { 
+  my ($self) = @_; 
+  return int($self->{Bits}/8); 
+}
+
+
+# /** getXMLAttributes
+#      This method returns the XMLAttributes of this class. 
+#  */
+sub getXMLAttributes {
+  return \@Class_XML_Attributes;
+}
+
+#
+# Private/Protected methods 
+#
+
 # This is called when we cant find any defined method
 # exists already. Used to handle general purpose set/get
 # methods for our attributes (object fields).
@@ -102,23 +164,15 @@ sub AUTOLOAD {
 sub _init {
   my ($self) = @_;
 
-  $self->bits($Def_BinaryInteger_Bits);
-  $self->signed($Def_BinaryInteger_Signed);
+  $self->{Bits} = $Def_BinaryInteger_Bits;
+  $self->{Signed} = $Def_BinaryInteger_Signed;
 }
 
-# /** bytes
-# A convenience method.
-# Return the number of bytes this XDF::BinaryIntegerDataFormat holds.
-# */
-sub bytes { 
-  my ($self) = @_; 
-  return int($self->bits/8); 
-}
 
 sub _templateNotation {
   my ($self, $endian, $encoding) = @_;
 
-  my $width = $self->bytes/4; 
+  my $width = $self->getBytes()/4; 
 
   # we have 32 bit numbers as default
   die "XDF::BinaryInteger cant handle > 32 bit Integer Numbers\n" unless ($width <= 1);
@@ -133,7 +187,7 @@ sub _templateNotation {
 sub _regexNotation {
   my ($self) = @_;
 
-  my $width = $self->bytes;
+  my $width = $self->getBytes();
   my $symbol = $Perl_Regex_Field_BinaryInteger;
 
   my $notation = '(';
@@ -153,7 +207,7 @@ sub _sprintfNotation {
   my $notation = '%';
   my $field_symbol = $Perl_Sprintf_Field_BinaryInteger;
 
-  $notation .= $self->width; 
+  $notation .= $self->{Width}; 
   $notation .= $field_symbol;
 
   return $notation;
@@ -170,6 +224,12 @@ sub fortranNotation {
 # Modification History
 #
 # $Log$
+# Revision 1.5  2000/12/14 22:11:26  thomas
+# Big changes to the API. get/set methods, added Href/Entity stuff, deep cloning,
+# added Href, Notes, NotesLocationOrder nodes/classes. Ripped out _enlarge_array
+# from DataCube (not needed) and fixed problems outputing delimited/formatted
+# read nodes. -b.t.
+#
 # Revision 1.4  2000/12/01 20:03:37  thomas
 # Brought Pod docmentation up to date. Bumped up version
 # number. -b.t.
@@ -232,13 +292,257 @@ These methods set the requested attribute if an argument is supplied to the meth
 
 =over 4
 
-=item signed
+=item #add in class XML attributes
 
-Whether this XDF::BinaryIntegerDataFormat holds signed or unsignedinteger. Takes the values of "yes" or "no".  
+ 
 
-=item bits
+=item push @Class_Attributes, @Class_XML_Attributes;
 
-The number of bits this XDF::BinaryIntegerDataFormat holds.  
+ 
+
+=item # add in super class attributes
+
+ 
+
+=item push @Class_Attributes, @{&XDF::DataFormat::classAttributes};
+
+ 
+
+=item # add in super class XML attributes
+
+ 
+
+=item push @Class_XML_Attributes, @{&XDF::DataFormat::getXMLAttributes};
+
+ 
+
+=item # /** bits
+
+ 
+
+=item # The number of bits this XDF::BinaryIntegerDataFormat holds.
+
+ 
+
+=item # */
+
+ 
+
+=item # /** signed
+
+ 
+
+=item # Whether this XDF::BinaryIntegerDataFormat holds signed or unsigned
+
+ 
+
+=item # integer. Takes the values of "yes" or "no".
+
+ 
+
+=item # */
+
+ 
+
+=item # Something specific to Perl
+
+ 
+
+=item # We use the "string" style here
+
+ 
+
+=item my $Perl_Sprintf_Field_BinaryInteger = 's';
+
+ 
+
+=item my $Perl_Regex_Field_BinaryInteger = '\.';
+
+ 
+
+=item # Initalization
+
+ 
+
+=item # set up object attributes.
+
+ 
+
+=item for my $attr ( @Class_Attributes ) { $field{$attr}++; }
+
+ 
+
+=item # /** classXMLNodeName
+
+ 
+
+=item # This method returns the class XML node name.
+
+ 
+
+=item # This method takes no arguments may not be changed. 
+
+ 
+
+=item # */
+
+ 
+
+=item sub classXMLNodeName {
+
+ 
+
+=item }
+
+ 
+
+=item # /** classAttributes
+
+ 
+
+=item #  This method returns a list containing the names
+
+ 
+
+=item #  of the attributes of this class.
+
+ 
+
+=item #  This method takes no arguments may not be changed. 
+
+ 
+
+=item # */
+
+ 
+
+=item sub classAttributes {
+
+ 
+
+=item }
+
+ 
+
+=item #
+
+ 
+
+=item # GET/SET Methods 
+
+ 
+
+=item #
+
+ 
+
+=item # /** getBits
+
+ 
+
+=item # */
+
+ 
+
+=item sub getBits {
+
+ 
+
+=item return $self->{Bits};
+
+ 
+
+=item }
+
+ 
+
+=item # /** setBits
+
+ 
+
+=item #     Set the (number of) bits attribute. 
+
+ 
+
+=item # */
+
+ 
+
+=item sub setBits {
+
+ 
+
+=item $self->{Bits} = $value;
+
+ 
+
+=item }
+
+ 
+
+=item # /** getSigned
+
+ 
+
+=item # */
+
+ 
+
+=item sub getSigned{
+
+ 
+
+=item return $self->{Signed};
+
+ 
+
+=item }
+
+ 
+
+=item # /** setSigned
+
+ 
+
+=item #     Set the signed attribute. 
+
+ 
+
+=item # */
+
+ 
+
+=item sub setSigned {
+
+ 
+
+=item $self->{Signed} = $value;
+
+ 
+
+=item }
+
+ 
+
+=item # /** getBytes
+
+ 
+
+=item # A convenience method.
+
+ 
+
+=item # Return the number of bytes this XDF::BinaryIntegerDataFormat holds.
+
+ 
+
+=item # */
+
+ 
+
+=item sub getBytes { 
+
+ 
 
 =back
 
@@ -246,9 +550,29 @@ The number of bits this XDF::BinaryIntegerDataFormat holds.
 
 =over 4
 
-=item bytes (EMPTY)
+=item getBits (EMPTY)
+
+
+
+=item setBits ($value)
+
+Set the (number of) bits attribute. 
+
+=item getSigned{ (EMPTY)
+
+
+
+=item setSigned ($value)
+
+Set the signed attribute. 
+
+=item getBytes (EMPTY)
 
 A convenience method. Return the number of bytes this XDF::BinaryIntegerDataFormat holds. 
+
+=item getXMLAttributes (EMPTY)
+
+This method returns the XMLAttributes of this class. 
 
 =item fortranNotation (EMPTY)
 
@@ -281,7 +605,7 @@ B<Pretty_XDF_Output>, B<Pretty_XDF_Output_Indentation>, B<DefaultDataArraySize>.
 =over 4
 
 XDF::BinaryIntegerDataFormat inherits the following instance methods of L<XDF::GenericObject>:
-B<new>, B<clone>, B<update>, B<setObjRef>.
+B<new>, B<clone>, B<update>.
 
 =back
 
@@ -290,7 +614,7 @@ B<new>, B<clone>, B<update>, B<setObjRef>.
 =over 4
 
 XDF::BinaryIntegerDataFormat inherits the following instance methods of L<XDF::DataFormat>:
-B<toXMLFileHandle>.
+B<getLessThanValue>, B<setLessThanValue>, B<getLessThanOrEqualValue>, B<setLessThanOrEqualValue>, B<getGreaterThanValue>, B<setGreaterThanValue>, B<getGreaterThanOrEqualValue>, B<setGreaterThanOrEqualValue>, B<getInfiniteValue>, B<setInfiniteValue>, B<getInfiniteNegativeValue>, B<setInfiniteNegativeValue>, B<getNoDataValue>, B<setNoDataValue>, B<toXMLFileHandle>.
 
 =back
 
@@ -299,7 +623,7 @@ B<toXMLFileHandle>.
 =over 4
 
 XDF::BinaryIntegerDataFormat inherits the following instance methods of L<XDF::BaseObject>:
-B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<toXMLFile>.
+B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLAttributes>, B<toXMLFile>.
 
 =back
 
