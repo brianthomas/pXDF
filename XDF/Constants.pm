@@ -47,7 +47,7 @@ use integer;
 # object would suffice. Nevertheless, we can save memory by always
 # using this single document.
 my $InternalDOMDocument;
-my $XDF_DTD_NAME = "XDF_0.17.dtd"; 
+my $XDF_DTD_NAME = "XDF_017.dtd"; 
 
 # internal thing. 
 my $PCDATA_Attribute = 'value';
@@ -209,6 +209,9 @@ sub XDF_NODE_NAMES { (
 # Modification History
 #
 # $Log$
+# Revision 1.7  2001/04/25 15:55:58  thomas
+# fixed XDF DTD name
+#
 # Revision 1.6  2001/04/17 18:59:27  thomas
 # Added some stuff from BaseObject, and new
 # stuff needed by Specifiaction Class.

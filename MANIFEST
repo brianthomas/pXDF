@@ -56,7 +56,7 @@ XDF/ValueGroup.pm
 XDF/XMLElement.pm
 XDF/XMLDataIOStyle.pm
 t/runXDF.t
-samples/XDF_0.17.dtd
+samples/XDF_017.dtd
 samples/guiview.pl
 samples/read.pl
 samples/read_write_any_xml.pl
