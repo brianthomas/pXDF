@@ -130,9 +130,14 @@ sub new {
   my $class = ref ($proto) || $proto;
   my $self = bless( { }, $class);
 
-  $self->{_openGroupNodeHash} = {}; # used only by toXMLFileHandle
-  $self->{_groupMemberHash} = {}; # init of groupMember Hash (all objects have) 
-
+  # sigh. this should find ALL, but only gets one superclass,
+  # well, better than nothing I suppose.
+  #my @isa  = eval " \@$class\:\:ISA ";
+  #if ($#isa > -1) { 
+    #if ($self->SUPER::can("_init")) {
+    #  $self->SUPER::_init; # init of super class specific stuff
+    #}
+  #}
   $self->_init(); # init of class specific stuff
 
   # init of instance specific stuff 
@@ -279,6 +284,9 @@ sub _remove_from_list {
 # Modification History
 #
 # $Log$
+# Revision 1.7  2001/04/17 18:54:12  thomas
+# Properly doing init now. Removed init of BaseObject attributes(!!!)
+#
 # Revision 1.6  2001/03/16 19:54:57  thomas
 # Documentation updated and improved, re-ran makeDoc on file.
 #
