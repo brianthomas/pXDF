@@ -843,6 +843,9 @@ sub _build_locator_string {
 # Modification History
 #
 # $Log$
+# Revision 1.21  2001/04/25 16:01:31  thomas
+# updated documentation
+#
 # Revision 1.20  2001/04/17 18:59:51  thomas
 # Using Specification class now.
 # Properly calling superclass init now.
@@ -1041,15 +1044,6 @@ Retrieve the SCALAR value of the requested datacell.
 
 =over 4
 
-
-
-=over 4
-
-The following class methods are inherited from L<XDF::BaseObject>:
-B<DefaultDataArraySize>. 
-
-=back
-
 =back
 
 
@@ -1072,7 +1066,7 @@ B<new>, B<clone>, B<update>.
 =over 4
 
 XDF::DataCube inherits the following instance (object) methods of L<XDF::BaseObject>:
-B<addXMLElement>, B<removeXMLElement>, B<getXMLElementList>, B<setXMLElementList>, B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLAttributes>, B<setXMLNotationHash>, B<toXMLString>, B<toXMLFile>.
+B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLAttributes>, B<toXMLString>, B<toXMLFile>.
 
 =back
 

@@ -287,6 +287,9 @@ sub _sprintfNotation {
 # Modification History
 #
 # $Log$
+# Revision 1.16  2001/04/25 16:01:31  thomas
+# updated documentation
+#
 # Revision 1.15  2001/04/17 18:53:02  thomas
 # Properly calling superclass init now
 #
@@ -415,11 +418,11 @@ Set the (number of) bits attribute.
 
 Set the signed attribute.  
 
-=item convertBitStringToIntegerBits ($dataEndian, $bitString)
+=item convertBitStringToIntegerBits ($bitString, $dataEndian)
 
 Convert the string representation of bits into the binaryinteger bits as specified by an instance of a BinaryIntegerDataFormat object. The desired endianness must be supplied. The integer bits are returned.  
 
-=item convertIntegerToIntegerBits ($dataEndian, $integerValue)
+=item convertIntegerToIntegerBits ($integerValue, $dataEndian)
 
 Convert the passed number into binary integer bits as specified by the instance of a BinaryIntegerDataFormat object. The desired endianness of the output data bits must be supplied. The integer bits are returned.  
 
@@ -434,15 +437,6 @@ A convenience method. Return the number of bytes this XDF::BinaryIntegerDataForm
 =head2 INHERITED Class Methods
 
 =over 4
-
-
-
-=over 4
-
-The following class methods are inherited from L<XDF::BaseObject>:
-B<Pretty_XDF_Output>, B<Pretty_XDF_Output_Indentation>, B<DefaultDataArraySize>. 
-
-=back
 
 =back
 
@@ -475,7 +469,7 @@ B<toXMLFileHandle>.
 =over 4
 
 XDF::BinaryIntegerDataFormat inherits the following instance (object) methods of L<XDF::BaseObject>:
-B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLAttributes>, B<setXMLNotationHash>, B<toXMLFile>.
+B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLAttributes>, B<toXMLString>, B<toXMLFile>.
 
 =back
 

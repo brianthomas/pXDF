@@ -278,6 +278,9 @@ sub AUTOLOAD {
 # Modification History
 #
 # $Log$
+# Revision 1.12  2001/04/25 16:01:31  thomas
+# updated documentation
+#
 # Revision 1.11  2001/04/17 18:56:42  thomas
 # Now using Specification Class.
 # Properly calling superclass init now
@@ -391,15 +394,6 @@ This returns the number of bytes this object describes. Undef is returned if not
 
 =over 4
 
-
-
-=over 4
-
-The following class methods are inherited from L<XDF::BaseObject>:
-B<DefaultDataArraySize>. 
-
-=back
-
 =back
 
 
@@ -422,7 +416,7 @@ B<new>, B<clone>, B<update>.
 =over 4
 
 XDF::DataFormat inherits the following instance (object) methods of L<XDF::BaseObject>:
-B<addXMLElement>, B<removeXMLElement>, B<getXMLElementList>, B<setXMLElementList>, B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLAttributes>, B<setXMLNotationHash>, B<toXMLString>, B<toXMLFile>.
+B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLAttributes>, B<toXMLString>, B<toXMLFile>.
 
 =back
 

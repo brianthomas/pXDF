@@ -236,6 +236,9 @@ sub reverse64BitStringByteOrder {
 # Modification History
 #
 # $Log$
+# Revision 1.5  2001/04/25 16:01:31  thomas
+# updated documentation
+#
 # Revision 1.4  2001/03/16 19:54:57  thomas
 # Documentation updated and improved, re-ran makeDoc on file.
 #
@@ -336,7 +339,7 @@ Determine if the passed quanity is an allowed value for the special attributeof 
 
 Determine if the passed quanity is an allowed value for the inequality attributeof the Value object.  
 
-=item reverseBitStringByteOrder ($numOfBits, $bitString)
+=item reverseBitStringByteOrder ($bitString, $numOfBits)
 
 Reverses the *byte* ordering of the passed bit string. Returns revsersed bitstring.  
 

@@ -279,6 +279,9 @@ sub _sprintfNotation {
 # Modification History
 #
 # $Log$
+# Revision 1.7  2001/04/25 16:01:31  thomas
+# updated documentation
+#
 # Revision 1.6  2001/03/16 19:54:56  thomas
 # Documentation updated and improved, re-ran makeDoc on file.
 #
@@ -395,15 +398,6 @@ Return the number of bytes this XDF::FloatDataFormat holds.
 
 =over 4
 
-
-
-=over 4
-
-The following class methods are inherited from L<XDF::BaseObject>:
-B<Pretty_XDF_Output>, B<Pretty_XDF_Output_Indentation>, B<DefaultDataArraySize>. 
-
-=back
-
 =back
 
 
@@ -435,7 +429,7 @@ B<toXMLFileHandle>.
 =over 4
 
 XDF::FloatDataFormat inherits the following instance (object) methods of L<XDF::BaseObject>:
-B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLAttributes>, B<setXMLNotationHash>, B<toXMLFile>.
+B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLAttributes>, B<toXMLString>, B<toXMLFile>.
 
 =back
 

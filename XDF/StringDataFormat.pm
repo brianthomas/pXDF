@@ -195,6 +195,9 @@ sub _sprintfNotation {
 # Modification History
 #
 # $Log$
+# Revision 1.12  2001/04/25 16:01:31  thomas
+# updated documentation
+#
 # Revision 1.11  2001/04/17 18:55:20  thomas
 # Properly calling superclass init now
 #
@@ -313,15 +316,6 @@ The fortran style notation for this object.
 
 =over 4
 
-
-
-=over 4
-
-The following class methods are inherited from L<XDF::BaseObject>:
-B<Pretty_XDF_Output>, B<Pretty_XDF_Output_Indentation>, B<DefaultDataArraySize>. 
-
-=back
-
 =back
 
 
@@ -353,7 +347,7 @@ B<toXMLFileHandle>.
 =over 4
 
 XDF::StringDataFormat inherits the following instance (object) methods of L<XDF::BaseObject>:
-B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLAttributes>, B<setXMLNotationHash>, B<toXMLFile>.
+B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLAttributes>, B<toXMLString>, B<toXMLFile>.
 
 =back
 

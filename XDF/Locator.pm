@@ -350,6 +350,9 @@ sub _init {
 # Modification History
 #
 # $Log$
+# Revision 1.14  2001/04/25 16:01:31  thomas
+# updated documentation
+#
 # Revision 1.13  2001/04/17 18:54:43  thomas
 # Properly calling superclass init now
 #
@@ -448,7 +451,7 @@ The following instance (object) methods are defined for XDF::Locator.
 
 =over 4
 
-=item setAxisIndex ($index, $axisObjOrAxisId)
+=item setAxisIndex ($axisObjOrAxisId, $index)
 
  
 
@@ -472,7 +475,7 @@ Returns a list of the current indices (present locator position in the dataCube)
 
 This will also result in a resetting the current (axis) indices to the originlocation. The first axis is considered the 'fastest' axis in the traversal.  
 
-=item setAxisIndexByAxisValue ($axisValueOrValueObj, $axisObj)
+=item setAxisIndexByAxisValue ($axisObj, $axisValueOrValueObj)
 
 Set the index of an axis to the index of a valuealong that axis 
 

@@ -239,6 +239,9 @@ sub _sprintfNotation {
 # Modification History
 #
 # $Log$
+# Revision 1.12  2001/04/25 16:01:31  thomas
+# updated documentation
+#
 # Revision 1.11  2001/04/17 18:56:11  thomas
 # Now using Specifiaction class.
 # Properly calling superclass init now
@@ -369,15 +372,6 @@ Set the recordTerminator attribute.
 
 =over 4
 
-
-
-=over 4
-
-The following class methods are inherited from L<XDF::BaseObject>:
-B<DefaultDataArraySize>. 
-
-=back
-
 =back
 
 
@@ -400,7 +394,7 @@ B<new>, B<clone>, B<update>.
 =over 4
 
 XDF::DelimitedXMLDataIOStyle inherits the following instance (object) methods of L<XDF::BaseObject>:
-B<addXMLElement>, B<removeXMLElement>, B<getXMLElementList>, B<setXMLElementList>, B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLAttributes>, B<setXMLNotationHash>, B<toXMLString>, B<toXMLFile>.
+B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLAttributes>, B<toXMLString>, B<toXMLFile>.
 
 =back
 

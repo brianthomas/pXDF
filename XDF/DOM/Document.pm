@@ -139,6 +139,10 @@ The following instance (object) methods are defined for XDF::DOM::Document.
 
 Creates an XDF element node. Returns an XDF::DOM::Element whichmay be inserted within the document.  
 
+=item getXDFElements (EMPTY)
+
+ 
+
 =back
 
 
@@ -165,7 +169,7 @@ Creates an XDF element node. Returns an XDF::DOM::Element whichmay be inserted w
 
 =over 4
 
-L< XDF::DOM>, L< XDF::DOM::Parser>, L< XDF::DOM::Element>, L< XDF::Structure>
+L< XDF::DOM::Parser>, L< XDF::DOM::Element>, L< XDF::Structure>, L<XDF::DOM>
 
 =back
 

@@ -503,6 +503,9 @@ sub _init {
 # Modification History
 #
 # $Log$
+# Revision 1.11  2001/04/25 16:01:31  thomas
+# updated documentation
+#
 # Revision 1.10  2001/04/17 19:00:41  thomas
 # Using Specification class now.
 # Properly calling superclass init now.
@@ -774,7 +777,7 @@ B<new>, B<clone>, B<update>.
 =over 4
 
 XDF::Structure inherits the following instance (object) methods of L<XDF::BaseObject>:
-B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLAttributes>, B<toXMLFileHandle>, B<toXMLString>, B<toXMLFile>.
+B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLAttributes>, B<toXMLString>, B<toXMLFile>.
 
 =back
 
@@ -783,7 +786,7 @@ B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLAttributes>, B<toXM
 =over 4
 
 XDF::Structure inherits the following instance (object) methods of L<XDF::BaseObjectWithXMLElements>:
-B<addXMLElement>, B<removeXMLElement>, B<getXMLElementList>, B<setXMLElementList>.
+B<addXMLElement>, B<removeXMLElement>, B<getXMLElementList>, B<setXMLElementList>, B<toXMLFileHandle>.
 
 =back
 

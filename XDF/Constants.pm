@@ -209,6 +209,9 @@ sub XDF_NODE_NAMES { (
 # Modification History
 #
 # $Log$
+# Revision 1.8  2001/04/25 16:01:31  thomas
+# updated documentation
+#
 # Revision 1.7  2001/04/25 15:55:58  thomas
 # fixed XDF DTD name
 #
@@ -269,6 +272,14 @@ XDF::Constants - Perl Class for Constants
 The following methods are defined for the class XDF::Constants.
 
 =over 4
+
+=item XDF_DTD_NAME (EMPTY)
+
+ 
+
+=item XML_SPEC_VERSION (EMPTY)
+
+ 
 
 =item BIG_ENDIAN (EMPTY)
 
@@ -379,6 +390,10 @@ The following methods are defined for the class XDF::Constants.
  
 
 =item DEFAULT_VALUELIST_REPEATABLE (EMPTY)
+
+ 
+
+=item XDF_ROOT_NODE_NAME (EMPTY)
 
  
 

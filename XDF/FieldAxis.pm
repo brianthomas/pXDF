@@ -441,6 +441,9 @@ sub _init {
 # Modification History
 #
 # $Log$
+# Revision 1.11  2001/04/25 16:01:31  thomas
+# updated documentation
+#
 # Revision 1.10  2001/04/17 19:00:10  thomas
 # Using Specification class now.
 # Properly calling superclass init now.
@@ -609,7 +612,7 @@ Returns the field object reference at specified index on success, undef on failu
 
 Convenience method that returns ALL field objects held in this field axis. Returns a list of field object references (ordered by field axis index). If there are no fields in this field axis, the returned list is empty.  
 
-=item setField ($fieldObjectRef, $index)
+=item setField ($index, $fieldObjectRef)
 
 Set the field object at indicated index. This method may also be used to 'remove'a field, the user requests that the index location be set to 'undef'. In eithercase this method returns the object that was set at the indicated index. If themethod cannot set the field at the index location, the methodreturns undef on failure.  
 
@@ -633,15 +636,6 @@ Remove a fieldGroup object from this object.
 
 =over 4
 
-
-
-=over 4
-
-The following class methods are inherited from L<XDF::BaseObject>:
-B<Pretty_XDF_Output>, B<Pretty_XDF_Output_Indentation>, B<DefaultDataArraySize>. 
-
-=back
-
 =back
 
 
@@ -664,7 +658,7 @@ B<new>, B<clone>, B<update>.
 =over 4
 
 XDF::FieldAxis inherits the following instance (object) methods of L<XDF::BaseObject>:
-B<addXMLElement>, B<removeXMLElement>, B<getXMLElementList>, B<setXMLElementList>, B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLAttributes>, B<setXMLNotationHash>, B<toXMLFileHandle>, B<toXMLFile>.
+B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLAttributes>, B<toXMLFileHandle>, B<toXMLString>, B<toXMLFile>.
 
 =back
 

@@ -173,6 +173,9 @@ sub AUTOLOAD {
 # Modification History
 #
 # $Log$
+# Revision 1.8  2001/04/25 16:01:31  thomas
+# updated documentation
+#
 # Revision 1.7  2001/03/16 19:54:57  thomas
 # Documentation updated and improved, re-ran makeDoc on file.
 #
@@ -281,15 +284,6 @@ XDF::Unit has a special setXMLAttributes method. These objects are so simple the
 
 =over 4
 
-
-
-=over 4
-
-The following class methods are inherited from L<XDF::BaseObject>:
-B<Pretty_XDF_Output>, B<Pretty_XDF_Output_Indentation>, B<DefaultDataArraySize>. 
-
-=back
-
 =back
 
 
@@ -312,7 +306,7 @@ B<new>, B<clone>, B<update>.
 =over 4
 
 XDF::Unit inherits the following instance (object) methods of L<XDF::BaseObject>:
-B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLNotationHash>, B<toXMLFileHandle>, B<toXMLFile>.
+B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<toXMLFileHandle>, B<toXMLString>, B<toXMLFile>.
 
 =back
 

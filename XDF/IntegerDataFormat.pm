@@ -218,6 +218,9 @@ sub _sprintfNotation {
 # Modification History
 #
 # $Log$
+# Revision 1.13  2001/04/25 16:01:31  thomas
+# updated documentation
+#
 # Revision 1.12  2001/04/17 18:54:27  thomas
 # Properly calling superclass init now
 #
@@ -344,15 +347,6 @@ A convenience method. Return the number of bytes this XDF::BinaryFloatField hold
 
 =over 4
 
-
-
-=over 4
-
-The following class methods are inherited from L<XDF::BaseObject>:
-B<Pretty_XDF_Output>, B<Pretty_XDF_Output_Indentation>, B<DefaultDataArraySize>. 
-
-=back
-
 =back
 
 
@@ -384,7 +378,7 @@ B<toXMLFileHandle>.
 =over 4
 
 XDF::IntegerDataFormat inherits the following instance (object) methods of L<XDF::BaseObject>:
-B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLAttributes>, B<setXMLNotationHash>, B<toXMLFile>.
+B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLAttributes>, B<toXMLString>, B<toXMLFile>.
 
 =back
 

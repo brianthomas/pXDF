@@ -269,6 +269,9 @@ sub toXMLFileHandle {
 # Modification History
 #
 # $Log$
+# Revision 1.2  2001/04/25 16:01:31  thomas
+# updated documentation
+#
 # Revision 1.1  2001/04/17 18:45:34  thomas
 # New class derived from BaseObject. Allows holding
 # of XMLElements within the object.
@@ -341,6 +344,10 @@ The following instance (object) methods are defined for XDF::BaseObjectWithXMLEl
 
  
 
+=item toXMLFileHandle ($fileHandle, $XMLDeclAttribs, $indent, $dontCloseNode, $newNodeNameString, $noChildObjectNodeName, $isRootNode)
+
+ 
+
 =back
 
 
@@ -371,7 +378,7 @@ B<new>, B<clone>, B<update>.
 =over 4
 
 XDF::BaseObjectWithXMLElements inherits the following instance (object) methods of L<XDF::BaseObject>:
-B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLAttributes>, B<toXMLFileHandle>, B<toXMLString>, B<toXMLFile>.
+B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLAttributes>, B<toXMLString>, B<toXMLFile>.
 
 =back
 

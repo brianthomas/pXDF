@@ -166,6 +166,9 @@ sub _init {
 # Modification History
 #
 # $Log$
+# Revision 1.8  2001/04/25 16:01:31  thomas
+# updated documentation
+#
 # Revision 1.7  2001/04/17 19:00:10  thomas
 # Using Specification class now.
 # Properly calling superclass init now.
@@ -265,15 +268,6 @@ Set the locationOrderList attribute.
 
 =over 4
 
-
-
-=over 4
-
-The following class methods are inherited from L<XDF::BaseObject>:
-B<DefaultDataArraySize>. 
-
-=back
-
 =back
 
 
@@ -296,7 +290,7 @@ B<new>, B<clone>, B<update>.
 =over 4
 
 XDF::NotesLocationOrder inherits the following instance (object) methods of L<XDF::BaseObject>:
-B<addXMLElement>, B<removeXMLElement>, B<getXMLElementList>, B<setXMLElementList>, B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLAttributes>, B<setXMLNotationHash>, B<toXMLString>, B<toXMLFile>.
+B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLAttributes>, B<toXMLString>, B<toXMLFile>.
 
 =back
 

@@ -258,6 +258,9 @@ sub toXMLFileHandle {
 # Modification History
 #
 # $Log$
+# Revision 1.4  2001/04/25 16:01:31  thomas
+# updated documentation
+#
 # Revision 1.3  2001/04/17 18:47:26  thomas
 # Completely redone. This class is now derived from XML::DOM::Element
 # (as it should be) with added methods to make that class
@@ -301,19 +304,11 @@ The following methods are defined for the class XDF::XMLElement.
 
 =item classAttributes (EMPTY)
 
-This method takes no arguments may not be changed. This method returns a list reference containing the namesof the class attributes of XDF::XMLElement.  
+This method returns a list reference containing the namesof the class attributes of XDF::XMLElement. Note that for XDF::XMLElement this is an empty list. Any attributesthat this class has are inherited from XML::DOM::Element, a classoutside of the XDF package.  
 
-=item new ($name, $value, $ownerDoc)
+=item new ($tagName, $ownerDoc)
 
- 
-
-=item Pretty_XDF_Output (EMPTY)
-
- 
-
-=item Pretty_XDF_Output_Indentation (EMPTY)
-
- 
+Creates a new XMLElement. $tagName variable must be specified, but $ownerDoc is not needed.  
 
 =back
 
@@ -377,7 +372,7 @@ Append character data into this node. This is a short cut method,it actually cre
 
 =over 4
 
-L< XDF::Array>, L< XDF::Structure>
+L< XDF::Array>, L< XDF::Structure>, L<XDF::Constants>, L<XDF::Specification>
 
 =back
 

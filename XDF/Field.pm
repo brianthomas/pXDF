@@ -502,6 +502,9 @@ sub _init {
 # Modification History
 #
 # $Log$
+# Revision 1.12  2001/04/25 16:01:31  thomas
+# updated documentation
+#
 # Revision 1.11  2001/04/23 19:28:01  thomas
 # allow XMLElements to be held within field class
 #
@@ -562,7 +565,7 @@ XDF::Field - Perl Class for Field
 
  An XDF::Field describes a field at a given indice on a field axis. 
 
-XDF::Field inherits class and attribute methods of L<XDF::GenericObject>, L<XDF::BaseObject>.
+XDF::Field inherits class and attribute methods of L<XDF::GenericObject>, L<XDF::BaseObject>, L<XDF::BaseObjectWithXMLElements>.
 
 
 =head1 METHODS
@@ -747,15 +750,6 @@ Remove an XDF::Unit object from the list of XDF::Units held inthe array units re
 
 =over 4
 
-
-
-=over 4
-
-The following class methods are inherited from L<XDF::BaseObject>:
-B<Pretty_XDF_Output>, B<Pretty_XDF_Output_Indentation>, B<DefaultDataArraySize>. 
-
-=back
-
 =back
 
 
@@ -778,7 +772,16 @@ B<new>, B<clone>, B<update>.
 =over 4
 
 XDF::Field inherits the following instance (object) methods of L<XDF::BaseObject>:
-B<addXMLElement>, B<removeXMLElement>, B<getXMLElementList>, B<setXMLElementList>, B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLAttributes>, B<setXMLNotationHash>, B<toXMLFileHandle>, B<toXMLFile>.
+B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLAttributes>, B<toXMLString>, B<toXMLFile>.
+
+=back
+
+
+
+=over 4
+
+XDF::Field inherits the following instance (object) methods of L<XDF::BaseObjectWithXMLElements>:
+B<addXMLElement>, B<removeXMLElement>, B<getXMLElementList>, B<setXMLElementList>, B<toXMLFileHandle>.
 
 =back
 
@@ -792,7 +795,7 @@ B<addXMLElement>, B<removeXMLElement>, B<getXMLElementList>, B<setXMLElementList
 
 =over 4
 
-L< XDF::FieldAxis>, L< XDF::FieldRelationship;>, L<XDF::BaseObject>, L<XDF::DataFormat>, L<XDF::Units>
+L< XDF::FieldAxis>, L< XDF::FieldRelationship;>, L<XDF::BaseObjectWithXMLElements>, L<XDF::DataFormat>, L<XDF::Units>
 
 =back
 

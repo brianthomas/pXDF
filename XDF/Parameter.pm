@@ -402,6 +402,9 @@ sub _init {
 # Modification History
 #
 # $Log$
+# Revision 1.11  2001/04/25 16:01:31  thomas
+# updated documentation
+#
 # Revision 1.10  2001/04/17 18:51:16  thomas
 # properly calling superclass init now
 #
@@ -595,15 +598,6 @@ Remove an XDF::Unit object from the list of XDF::Units held inthe array units re
 
 =over 4
 
-
-
-=over 4
-
-The following class methods are inherited from L<XDF::BaseObject>:
-B<Pretty_XDF_Output>, B<Pretty_XDF_Output_Indentation>, B<DefaultDataArraySize>. 
-
-=back
-
 =back
 
 
@@ -626,7 +620,7 @@ B<new>, B<clone>, B<update>.
 =over 4
 
 XDF::Parameter inherits the following instance (object) methods of L<XDF::BaseObject>:
-B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLAttributes>, B<setXMLNotationHash>, B<toXMLFileHandle>, B<toXMLFile>.
+B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLAttributes>, B<toXMLFileHandle>, B<toXMLString>, B<toXMLFile>.
 
 =back
 

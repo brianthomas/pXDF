@@ -227,6 +227,9 @@ sub _init {
 # Modification History
 #
 # $Log$
+# Revision 1.9  2001/04/25 16:01:31  thomas
+# updated documentation
+#
 # Revision 1.8  2001/04/17 18:51:16  thomas
 # properly calling superclass init now
 #
@@ -357,7 +360,7 @@ Convience method. Returns an Array of units held within this object.
 
  
 
-=item toXMLFileHandle ($dontCloseNode, $indent, $XMLDeclAttribs, $fileHandle)
+=item toXMLFileHandle ($fileHandle, $XMLDeclAttribs, $indent, $dontCloseNode)
 
  
 
@@ -368,15 +371,6 @@ Convience method. Returns an Array of units held within this object.
 =head2 INHERITED Class Methods
 
 =over 4
-
-
-
-=over 4
-
-The following class methods are inherited from L<XDF::BaseObject>:
-B<Pretty_XDF_Output>, B<Pretty_XDF_Output_Indentation>, B<DefaultDataArraySize>. 
-
-=back
 
 =back
 
@@ -400,7 +394,7 @@ B<new>, B<clone>, B<update>.
 =over 4
 
 XDF::Units inherits the following instance (object) methods of L<XDF::BaseObject>:
-B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLAttributes>, B<setXMLNotationHash>, B<toXMLFile>.
+B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLAttributes>, B<toXMLString>, B<toXMLFile>.
 
 =back
 
