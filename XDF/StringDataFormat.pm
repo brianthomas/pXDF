@@ -48,7 +48,7 @@ use vars qw ($AUTOLOAD %field @ISA);
 # CLASS DATA
 my $Class_XML_Node_Name = "string";
 my @Local_Class_XML_Attributes = qw (
-                             width
+                             length
                           );
 my @Local_Class_Attributes = ();
 my @Class_Attributes;
@@ -102,23 +102,42 @@ sub getClassXMLAttributes {
 # Get/Set Methods
 #
 
-# /** getWidth
+# /** getLength
 # Get the width of this string field in characters.
 # Normally this translates to the number of bytes the object holds,
 # however, note that the encoding of the data is important. When
-# the encoding is UTF-16, then the number of bytes effectively is 2x $obj->getWidth().
+# the encoding is UTF-16, then the number of bytes effectively is twice
+# the value of $obj->getLength().
+# */
+sub getLength {
+   my ($self) = @_;
+   return $self->{length};
+}
+
+# /** setLength
+#     Set the (character) length attribute. 
+# */
+sub setLength {
+   my ($self, $value) = @_;
+   $self->{length} = $value;
+}
+
+# /** getWidth
+# A convenience method, same as getLength(); 
+# Returns the length of this string in bytes.
+# -- currently not working properly (unless you choose 8-bit encoding :)
 # */
 sub getWidth {
-   my ($self) = @_;
-   return $self->{width};
+  my ($self) = @_;
+  return $self->getLength();
 }
 
 # /** setWidth
-#     Set the width attribute. 
+# A convenience method, same as setLength(); 
 # */
 sub setWidth {
    my ($self, $value) = @_;
-   $self->{width} = $value;
+   $self->setLength($value);
 }
 
 # /** numOfBytes
@@ -127,7 +146,7 @@ sub setWidth {
 # */
 sub numOfBytes {
   my ($self) = @_;
-  $self->getWidth();
+  return $self->getLength();
 }
 
 # /** getXMLAttributes
@@ -149,7 +168,7 @@ sub fortranNotation {
   my ($self) = @_;
 
   my $notation = "A";
-  $notation .= $self->getWidth();
+  $notation .= $self->getLength();
   return $notation;
 }
 
@@ -170,7 +189,7 @@ sub _init {
 
   $self->SUPER::_init();
 
-  $self->setWidth(0);
+  $self->setLength(1);
 
   # adds to ordered list of XML attributes
   $self->_appendAttribsToXMLAttribOrder(\@Local_Class_XML_Attributes);
@@ -190,7 +209,7 @@ sub _outputTemplateNotation {
 sub _regexNotation {
   my ($self) = @_;
 
-  my $width = $self->getWidth();
+  my $width = $self->getLength();
   my $symbol = $Perl_Regex_Field_String;
 
   my $notation = '(';
@@ -208,7 +227,7 @@ sub _sprintfNotation {
   my ($self) = @_;
 
   my $notation = '%';
-  $notation .= $self->getWidth; 
+  $notation .= $self->getLength; 
   $notation .= $Perl_Sprintf_Field_String;
 
   return $notation;
@@ -266,14 +285,6 @@ This method returns the XMLAttributes of this class.
 The following instance (object) methods are defined for XDF::StringDataFormat.
 
 =over 4
-
-=item getWidth (EMPTY)
-
-Get the width of this string field in characters. Normally this translates to the number of bytes the object holds,however, note that the encoding of the data is important. Whenthe encoding is UTF-16, then the number of bytes effectively is 2x $obj->getWidth().  
-
-=item setWidth ($value)
-
-Set the width attribute.  
 
 =item numOfBytes (EMPTY)
 
