@@ -728,7 +728,11 @@ sub _writeFormattedData {
        }
        else
        {
-          carp("DataCube cannot write out, unimplemented format command:$command\n");
+          if (defined $command) {
+             carp("DataCube cannot write out, unimplemented format command:$command\n");
+          } else {
+             carp("DataCube cannot write out, format command not defined (weird)!\n");
+          }
        }
 
        if($nrofCommands > 0)
@@ -765,9 +769,19 @@ sub _doReadCellFormattedIOCmdOutput {
    }
    elsif (ref($thisDataFormat) eq 'XDF::FloatDataFormat') 
    {
-      #$output = sprintf "%5.2f", $datum;
-      $output = sprintf $template, $datum;
+      #$output = sprintf $template, $datum;
       #$output = pack $template, $datum;
+      $output = $datum;
+
+      # pad with leading spaces
+      my $padsize = $formatsize - length($output);
+      $output = " " x $padsize . $output if $padsize > 0;
+#      while ($actualsize < $formatsize)
+#      {
+#         print $fileHandle " ";
+#         $actualsize++;
+#      }
+
    }
    elsif (ref($thisDataFormat) eq 'XDF::IntegerDataFormat') 
    {
@@ -807,19 +821,19 @@ sub _doReadCellFormattedIOCmdOutput {
    if (defined $output) {
 
       # pad with leading spaces
-      my $actualsize = length($output);
-      while ($actualsize < $formatsize)
-      {
-         print $fileHandle " ";
-         $actualsize++;
-      }
+#      my $actualsize = length($output);
+#      while ($actualsize < $formatsize)
+#      {
+#         print $fileHandle " ";
+#         $actualsize++;
+#      }
 
       # now write the data out
       print $fileHandle $output;
 
    } else {
       # throw error
-      carp("doReadCell got NO data\n");
+      carp("doReadCellFormattedIOCmdOutput got NO data\n");
    }
 
 }
@@ -849,6 +863,13 @@ sub _build_locator_string {
 # Modification History
 #
 # $Log$
+# Revision 1.23  2001/05/25 22:11:45  thomas
+# Fixed floatnumbers to pad w/ spaces for right justify. This
+# prevents the case of printf turning "-.9" into "-0.9" which
+# exceeds the width of the field. We will need another fix
+# to appropriately round the number, and throw a warning
+# when this happens.
+#
 # Revision 1.22  2001/05/23 17:24:14  thomas
 # change to allow right-justification of ASCII
 # numbers.
