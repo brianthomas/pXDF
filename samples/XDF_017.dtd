@@ -25,20 +25,20 @@ to the elements: XDF, structure, array, and field.  Do not change here.
 Rather create a subfieldML.dtd that overrides this and XDF_TYPE and
 calls XDF.dtd by a parameter entity.
 -->
-<!ENTITY % XDF_ELEMENTS_ADDITION " ">
-<!ENTITY % AXIS_ELEMENTS_ADDITION " ">
-<!ENTITY % ARRAY_ELEMENTS_ADDITION " ">
-<!ENTITY % STRUCTURE_ELEMENTS_ADDITION " ">
-<!ENTITY % FIELD_ELEMENTS_ADDITION " ">
+<!ENTITY % XDF_CHILDREN " ">
+<!ENTITY % AXIS_CHILDREN " ">
+<!ENTITY % ARRAY_CHILDREN " ">
+<!ENTITY % STRUCTURE_CHILDREN " ">
+<!ENTITY % FIELD_CHILDREN " ">
 <!ENTITY % XDF_TYPE "basic">
 
-<!ELEMENT XDF (%XDF_ELEMENTS_ADDITION;(structure | parameter | parameterGroup | array | note)+)>
+<!ELEMENT XDF (%XDF_CHILDREN;(structure | parameter | parameterGroup | array | note)+)>
 <!ATTLIST XDF
 	name CDATA #IMPLIED
 	description CDATA #IMPLIED
 	type   CDATA  "%XDF_TYPE;"
 >
-<!ELEMENT structure (%STRUCTURE_ELEMENTS_ADDITION;(structure | parameter | parameterGroup | array | note)+)>
+<!ELEMENT structure (%STRUCTURE_CHILDREN;(structure | parameter | parameterGroup | array | note)+)>
 <!ATTLIST structure
 	name CDATA #IMPLIED
 	description CDATA #IMPLIED
@@ -113,7 +113,7 @@ calls XDF.dtd by a parameter entity.
 -->
 <!ELEMENT valueList (#PCDATA)>
 <!ATTLIST valueList
-	size NMTOKEN #REQUIRED
+	size NMTOKEN #IMPLIED
 	delimiter CDATA "&space;"
 	repeatable (yes | no) "no"
 	start CDATA  #IMPLIED
@@ -156,7 +156,7 @@ calls XDF.dtd by a parameter entity.
         on each axis of the current array to properly assemble it.
 
 -->
-<!ELEMENT array (%ARRAY_ELEMENTS_ADDITION;(parameter | parameterGroup)*, axis*, (fieldAxis | (units, dataFormat)), axis*, read, data, notes?)>
+<!ELEMENT array (%ARRAY_CHILDREN;(parameter | parameterGroup)*, axis*, (fieldAxis | (units, dataFormat)), axis*, read, data, notes?)>
 <!ATTLIST array
 	name CDATA #IMPLIED
 	description CDATA #IMPLIED
@@ -192,11 +192,11 @@ calls XDF.dtd by a parameter entity.
         to accomplish an array/@apppendTo.
 
 -->
-<!ELEMENT axis (%AXIS_ELEMENTS_ADDITION;((axisUnits, (value | valueList | valueGroup)+) | unitDirection)*)>
+<!ELEMENT axis (%AXIS_CHILDREN;((axisUnits, (value | valueList | valueGroup)+) | unitDirection)*)>
 <!ATTLIST axis
 	name CDATA #IMPLIED
 	description CDATA #IMPLIED
-	axisId ID #IMPLIED
+	axisId ID #REQUIRED
 	axisIdRef IDREF #IMPLIED
 	align IDREF #IMPLIED
 	axisDatatype (integer | float | exponential | string | url) #IMPLIED
@@ -237,7 +237,7 @@ calls XDF.dtd by a parameter entity.
 	axisId ID #IMPLIED
 	axisIdRef IDREF #IMPLIED
 >
-<!ELEMENT field (%FIELD_ELEMENTS_ADDITION;(units, dataFormat)?, relation?, note*)>
+<!ELEMENT field (%FIELD_CHILDREN;(units, dataFormat)?, relation?, note*)>
 <!ATTLIST field
 	name CDATA #IMPLIED
 	description CDATA #IMPLIED
