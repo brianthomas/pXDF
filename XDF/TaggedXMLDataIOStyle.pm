@@ -120,6 +120,15 @@ sub getAxisTags {
 
 }
 
+#/** setWriteAxisOrderList
+# There will perhaps be a use for this one day on tagged data, but the limitations 
+# of declaring tags and validating within the DTD prevent this for now. Dont use. 
+#*/
+sub setWriteAxisOrderList {
+  my ($self) = @_;
+  warn "setWriteAxisOrderList has no effect currently for TaggedXMLDataIOStyle, Ignoring\n";
+}
+
 # /** getXMLAttributes
 #      This method returns the XMLAttributes of this class. 
 #  */
@@ -156,7 +165,8 @@ sub toXMLFileHandle {
   print $fileHandle "\n" if $niceOutput;
 
   my @tags = $self->getAxisTags;
-  foreach my $axisObj ( @{$self->{_parentArray}->getAxisList()} ) {
+  #foreach my $axisObj ( @{$self->{_parentArray}->getAxisList()} ) {
+  foreach my $axisObj ( @{$self->getWriteAxisOrderList()} ) {
     my $axisId = $axisObj->getAxisId();
     my $tag = shift @tags;
     print $fileHandle "$more_indent" if $niceOutput;
@@ -165,7 +175,7 @@ sub toXMLFileHandle {
     print $fileHandle $axisId . "\"";
     print $fileHandle " tag=\"";
     print $fileHandle $tag;
-    print $fileHandle "\">";
+    print $fileHandle "\"/>";
 
     print $fileHandle "\n" if $niceOutput;
   }
@@ -228,6 +238,9 @@ sub _removeAxisTag {
 # Modification History
 #
 # $Log$
+# Revision 1.11  2001/03/26 18:12:24  thomas
+# use writeAxisOrderList in toXMLFileHandle.
+#
 # Revision 1.10  2001/03/23 20:38:40  thomas
 # broke up printing of attributes in toXMLFileHandle
 # so that toXMLString will work properly.
