@@ -50,7 +50,7 @@ package XDF::Parameter;
 use Carp;
 
 use XDF::Utility;
-use XDF::BaseObject;
+use XDF::BaseObjectWithValueList;
 use XDF::Note;
 use XDF::Units;
 use XDF::ErroredValue;
@@ -61,8 +61,8 @@ use integer;
 use vars qw ($AUTOLOAD %field @ISA);
 
 
-# inherits from XDF::BaseObject
-@ISA = ("XDF::BaseObject");
+# inherits from XDF::BaseObjectWithValueList
+@ISA = ("XDF::BaseObjectWithValueList");
 
 # CLASS DATA
 # /** name
@@ -104,13 +104,15 @@ my @Class_XML_Attributes = qw (
                       valueList
                       noteList
                           );
-my @Class_Attributes = ();
+my @Class_Attributes = qw (
+                          _valueGroupOwnedHash
+                       );
 
 # add in class XML attributes
 push @Class_Attributes, @Class_XML_Attributes;
 
 # add in super class attributes
-push @Class_Attributes, @{&XDF::BaseObject::classAttributes};
+push @Class_Attributes, @{&XDF::BaseObjectWithValueList::classAttributes};
 
 # Initalization
 # set up object attributes.
@@ -240,13 +242,18 @@ sub getValueList {
 }
 
 # /** setValueList
-#     Set the valueList attribute. 
+#     Set the valueList attribute. You may either pass an array of Value
+#     objects OR a valueList object (either ValueListAlgorithm or ValueListDelimitedList).
+#     Using a valueList *object* will result in a more compact description of 
+#     the passed values when the parameter is printed out.
 # */
 sub setValueList {
-   my ($self, $arrayRefValue) = @_;
-   # you must do it this way, or when the arrayRef changes it changes us here!
-   my @list = @{$arrayRefValue};
-   $self->{ValueList} = \@list;
+   my ($self, $arrayOrValueListObjRefValue) = @_;
+
+   # clear old list
+   $self->resetValues();
+   $self->addValueList($arrayOrValueListObjRefValue);
+
 }
 
 # /** getUnits
@@ -275,6 +282,98 @@ sub getXMLAttributes {
 # Other Public Methods
 #
 
+# /** addValueList
+# Append a list of values held by the passed ValueListObject (or Array of Values)
+# into this Parameter object.
+# */
+sub addValueList {
+   my ($self, $arrayOrValueListObjRefValue) = @_;
+
+   croak "parameter->setValueList() passed non-reference.\n"
+      unless (ref($arrayOrValueListObjRefValue));
+
+   if (ref($arrayOrValueListObjRefValue) eq 'ARRAY') {
+
+      # you must do it this way, or when the arrayRef changes it changes us here!
+      if ($#{$arrayOrValueListObjRefValue} >= 0) {
+         foreach my $valueObj (@{$arrayOrValueListObjRefValue}) {
+            push @{$self->{ValueList}}, $valueObj;
+         }
+
+         # since we added vanilla values
+         # no compact description allowed now 
+         $self->_resetBaseValueListObjects();
+
+         return 1;
+      }
+
+   }
+   elsif (ref($arrayOrValueListObjRefValue) =~ m/^XDF::ValueList/)
+   {
+
+       my @values = @{$arrayOrValueListObjRefValue->getValues()};
+       if ($#values >= 0) {
+          $self->_addValueListObj($arrayOrValueListObjRefValue);
+          foreach my $valueObj (@values) {
+             push @{$self->{ValueList}}, $valueObj;
+          }
+          return 1;
+       } else {
+          carp "parameter->addValueList passed ValueList object with 0 values, Ignoring.\n";
+       }
+
+   }
+   else
+   {
+      croak "Unknown reference object passed to setvalueList in parameter:$arrayOrValueListObjRefValue. Dying.\n";
+   }
+
+   return 0;
+}
+
+
+# /** resetValues
+# Remove (reset the valueList) all Value objects held within this object.
+# */
+sub resetValues {
+   my ($self) = @_;
+
+   # free up all declared values
+   $self->{ValueList} = []; # has to be this way to avoid deep recursion 
+
+   # no compact description allowed now 
+   $self->_resetBaseValueListObjects();
+
+}
+
+# /** addValueGroup 
+# Insert a valueGroup object into this object.
+# Returns 1 on success, 0 on failure.
+# */ 
+sub addValueGroup {
+  my ($self, $valueGroupObj) = @_;
+ 
+  return 0 unless defined $valueGroupObj && ref $valueGroupObj;
+
+  # add the group to the groupOwnedHash
+  %{$self->{_valueGroupOwnedHash}}->{$valueGroupObj} = $valueGroupObj;
+
+  return 1;
+}
+
+# /** removeValueGroup 
+# Remove a valueGroup object from this object. 
+# Returns 1 on success, 0 on failure.
+# */
+sub removeValueGroup {
+   my ($self, $hashKey) = @_;
+   if (exists %{$self->{_valueGroupOwnedHash}}->{$hashKey}) {
+      delete %{$self->{_valueGroupOwnedHash}}->{$hashKey};
+      return 1;
+   }
+   return 0;
+}
+
 # /** addValue
 # Add an erroredValueObject to this object. 
 # Returns 1 on success, 0 on failure. 
@@ -287,6 +386,9 @@ sub addValue {
   # add the new value to the list
   push @{$self->{ValueList}}, $valueObj;
 
+  # no compact description allowed now 
+  $self->_resetBaseValueListObjects();
+
   return 1;
 }
 
@@ -297,7 +399,12 @@ sub addValue {
 # */
 sub removeValue {
   my ($self, $indexOrObjectRef) = @_;
-  return $self->_remove_from_list($indexOrObjectRef, $self->{ValueList}, 'valueList');
+  my $success = $self->_remove_from_list($indexOrObjectRef, $self->{ValueList}, 'valueList');
+  if ($success) {
+     # no compact description allowed now 
+     $self->_resetBaseValueListObjects();
+  }
+  return $success;
 }
 
 # /** addNote
@@ -366,8 +473,11 @@ sub _init {
   $self->setUnits(new XDF::Units());
 
   # initialize lists
+  $self->{_valueGroupOwnedHash} = {};
   $self->setNoteList([]);
   $self->setValueList([]);
+
+  $self->{_valueListGetMethodName} = "getValueList";
 
 }
 
@@ -375,6 +485,9 @@ sub _init {
 # Modification History
 #
 # $Log$
+# Revision 1.13  2001/07/13 21:42:10  thomas
+# added ValueList stuff
+#
 # Revision 1.12  2001/06/29 21:07:12  thomas
 # changed public add (and remove) methods to
 # conform to Java API standard: e.g. return boolean
@@ -424,204 +537,3 @@ sub _init {
 1;
 
 
-__END__
-
-=head1 NAME
-
-XDF::Parameter - Perl Class for Parameter
-
-=head1 SYNOPSIS
-
-
-    my $parameterObj = $dataObj->add_parameter();
-
-    $parameterObj->name('param1');
-    $parameterObj->value(1000);
-
-    my $parameter_name = $parameterObj->name();
-  
-
-
-...
-
-=head1 DESCRIPTION
-
- An XDF::Parameter describes a scientific parameter assocated with the  L<XDF::Structure> or L<XDF::Array> that it is contained in.  Parameter is a flexible container for holding what is essentially information  about data but is not needed to read/write/manipulate the data in a mathematical sense. 
-
-XDF::Parameter inherits class and attribute methods of L<XDF::GenericObject>, L<XDF::BaseObject>.
-
-
-=head1 METHODS
-
-=over 4
-
-=head2 CLASS Methods
-
-The following methods are defined for the class XDF::Parameter.
-
-=over 4
-
-=item classXMLNodeName (EMPTY)
-
-This method returns the class node name of XDF::Parameter. This method takes no arguments may not be changed.  
-
-=item classAttributes (EMPTY)
-
-This method returns a list reference containing the namesof the class attributes of XDF::Parameter. This method takes no arguments may not be changed.  
-
-=item getXMLAttributes (EMPTY)
-
-This method returns the XMLAttributes of this class.  
-
-=item addUnit (EMPTY)
-
-Insert an XDF::Unit object into the L<XDF::Units> object (e.g. $obj->units)held in this object. This method takes either a reference to an attribute hash ORobject reference to an existing XDF::Unit asits argument. Attributes in the attribute hash reference shouldcorrespond to attributes of the L<XDF::Unit> object. The attribute/value pairs in the attribute hash reference areused to initialize the new XDF::Unit object. RETURNS : an XDF::Unit object if successfull, undef if not.  
-
-=back
-
-=head2 INSTANCE (Object) Methods
-
-The following instance (object) methods are defined for XDF::Parameter.
-
-=over 4
-
-=item getName (EMPTY)
-
- 
-
-=item setName ($value)
-
-Set the name attribute.  
-
-=item getDescription (EMPTY)
-
- 
-
-=item setDescription ($value)
-
- 
-
-=item getParamId (EMPTY)
-
- 
-
-=item setParamId ($value)
-
-Set the paramId attribute.  
-
-=item getParamIdRef (EMPTY)
-
- 
-
-=item setParamIdRef ($value)
-
-Set the paramIdRef attribute.  
-
-=item getDatatype (EMPTY)
-
- 
-
-=item setDatatype ($value)
-
-Set the datatype attribute.  
-
-=item getNoteList (EMPTY)
-
- 
-
-=item setNoteList ($arrayRefValue)
-
-Set the noteList attribute.  
-
-=item getValueList (EMPTY)
-
- 
-
-=item setValueList ($arrayRefValue)
-
-Set the valueList attribute.  
-
-=item getUnits (EMPTY)
-
- 
-
-=item setUnits ($value)
-
-Set the units attribute.  
-
-=item addValue ($attribHashRefOrStringOrObjectRef)
-
-Add a value to this object. Takes either an attribute HASH reference or object reference as its argument. Returns the value object reference on success, undef on failure.  
-
-=item removeValue ($indexOrObjectRef)
-
-Remove an XDF::Value from the list of values in this parameter object. Takes either an index number or object reference as its argument. Returns 1 on success, undef on failure.  
-
-=item addNote ($info)
-
-Insert an XDF::Note object into the XDF::Notes object held by this object. This method may optionally take a reference to an attribute hash asits argument. Attributes in the attribute hash shouldcorrespond to attributes of the L<XDF::Note> object. The attribute/value pairs in the attribute hash reference areused to initialize the new XDF::Note object. RETURNS : an XDF::Note object reference on success, undef on failure.  
-
-=item removeNote ($what)
-
-Removes an XDF::Note object from the list of XDF::Note objectsheld within the XDF::Notes object of this object. This method takes either the list index number or an object reference as its argument. RETURNS : 1 on success, undef on failure.  
-
-=item removeUnit ($indexOrObjectRef)
-
-Remove an XDF::Unit object from the list of XDF::Units held inthe array units reference object. This method takes either the list index number or an object reference as its argument. RETURNS : 1 on success, undef on failure.  
-
-=back
-
-
-
-=head2 INHERITED Class Methods
-
-=over 4
-
-=back
-
-
-
-=head2 INHERITED INSTANCE Methods
-
-=over 4
-
-
-
-=over 4
-
-XDF::Parameter inherits the following instance (object) methods of L<XDF::GenericObject>:
-B<new>, B<clone>, B<update>.
-
-=back
-
-
-
-=over 4
-
-XDF::Parameter inherits the following instance (object) methods of L<XDF::BaseObject>:
-B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLAttributes>, B<toXMLFileHandle>, B<toXMLString>, B<toXMLFile>.
-
-=back
-
-=back
-
-=back
-
-=head1 SEE ALSO
-
-
-
-=over 4
-
-L< XDF::Array>, L< XDF::ParameterGroup>, L< XDF::Structure>, L<XDF::Utility>, L<XDF::BaseObject>, L<XDF::Note>, L<XDF::Units>, L<XDF::ErroredValue>
-
-=back
-
-=head1 AUTHOR
-
-    Brian Thomas  (thomas@adc.gsfc.nasa.gov)
-    Astronomical Data Center <http://adc.gsfc.nasa.gov>
-    NASA/Goddard Space Flight Center
- 
-
-=cut

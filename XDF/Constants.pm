@@ -162,8 +162,9 @@ sub VALUE_SPECIAL_LIST { ( &VALUE_SPECIAL_INFINITE,  &VALUE_SPECIAL_INFINITE_NEG
                            &VALUE_SPECIAL_NODATA, &VALUE_SPECIAL_NOTANUMBER, &VALUE_SPECIAL_UNDERFLOW,
                            &VALUE_SPECIAL_OVERFLOW ); }
 
+sub DEFAULT_VALUELIST_SIZE { 0; }
 sub DEFAULT_VALUELIST_STEP { 1; }
-sub DEFAULT_VALUELIST_START { 1; }
+sub DEFAULT_VALUELIST_START { 0; }
 sub DEFAULT_VALUELIST_REPEATABLE { 0; }
 sub DEFAULT_VALUELIST_DELIMITER { " "; }
 
@@ -224,6 +225,9 @@ sub XDF_NODE_NAMES { (
 # Modification History
 #
 # $Log$
+# Revision 1.13  2001/07/13 21:42:14  thomas
+# added ValueList stuff
+#
 # Revision 1.12  2001/07/03 17:55:43  thomas
 # added notAnumber, over|underflow to value special
 # list.
