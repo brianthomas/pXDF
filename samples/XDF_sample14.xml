@@ -1,0 +1,66 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE XDF SYSTEM "XDF_018.dtd" [
+<!ENTITY table1 SYSTEM "XDF_sample14.dat" NDATA xdf>
+]>
+<!-- shows how to hold an external, delimited image -->
+<XDF name="A sample XDF document" description="This shows how to put any data into XDF format">
+  <parameter name="obsdate">
+    <unitless/>
+    <value>01-12-99</value>
+  </parameter>
+  <array name="Raw Data">
+    <parameter name="integration time">
+      <units>
+        <unit>sec</unit>
+      </units>
+      <value>900</value>
+    </parameter>
+    <units>
+      <unit>counts</unit>
+      <unit power="-1">seconds</unit>
+    </units>
+    <dataFormat>
+      <float width="5" precision="2"/>
+    </dataFormat>
+    <axis name="x" axisId="x-axis" size="10">
+      <units>
+        <unit>pixel</unit>
+      </units>
+      <valueList size="10" step="1" start="0"/>
+    </axis>
+    <axis name="y" axisId="y-axis" size="10">
+      <units>
+        <unit>pixel</unit>
+      </units>
+      <valueList size="10" delimiter=" " repeatable="yes">10  9 8 7 6 5 4 3 2 1</valueList>
+    </axis>
+    <dataStyle encoding="ISO-8859-1">
+      <delimited>
+        <delimitedInstruction>
+<!-- next line sez: use any number of space characters as the delimiter -->
+          <delimiter repeatable="yes">
+            <chars value=" "/>
+          </delimiter>
+          <recordTerminator>
+            <newLine/>
+          </recordTerminator>
+        </delimitedInstruction>
+        <for axisIdRef="y-axis">
+          <for axisIdRef="x-axis">
+            <doInstruction/>
+          </for>
+        </for>
+      </delimited>
+    </dataStyle>
+    <data href="table1"/>
+    <notes>
+      <locationOrder>
+        <index axisIdRef="x-axis"/>
+        <index axisIdRef="y-axis"/>
+      </locationOrder>
+      <note>Improper cooling of the camera may have resulted in significant dark current.</note>
+      <note location="2 6" noteId="note2">No data because of a cosmic ray hit</note>
+      <note location="3 8" noteIdRef="note2"/>
+    </notes>
+  </array>
+</XDF>
