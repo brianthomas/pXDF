@@ -34,7 +34,7 @@ package XDF::RecordTerminator;
 # */
 
 use XDF::BaseObject;
-use XDF::Chars;
+use XDF::NewLine;
 use XDF::Log;
 
 use strict;
@@ -135,7 +135,8 @@ sub _init {
 
   $self->SUPER::_init();
 
-  $self->setValue(new XDF::Chars());
+  #$self->setValue(new XDF::Chars());
+  $self->setValue(new XDF::NewLine());
 
   # adds to ordered list of XML attributes
   $self->_appendAttribsToXMLAttribOrder(\@Local_Class_XML_Attributes);
