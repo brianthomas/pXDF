@@ -1,0 +1,18 @@
+*** ./lib/XML/DOM.pm	Thu Mar  1 09:22:55 2001
+--- /usr/lib/perl5/site_perl/5.6.0/XML/DOM.pm	Tue Apr 10 12:34:51 2001
+***************
+*** 4535,4540 ****
+--- 4539,4551 ----
+  	}
+      }
+  
++     # no value on things with sysId
++     if (defined $_[2] && defined $_[1])
++     {
++        print STDERR "XML::DOM Warning $_[0] had both value($_[1]) And SYSId ($_[2]), removing value.\n";
++        $_[1] = undef;
++     }
++ 
+      undef $_DP_last_text;
+  
+      $_[6] = "Hidden" unless $_DP_expand_pent || $_DP_level == 0;
