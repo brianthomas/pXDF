@@ -358,6 +358,7 @@ sub toXMLFileHandle {
 }
 
 #/** toXMLString
+#  Print out the XML representation of this object.
 #  Similar to toXMLFileHandle method, takes the same arguments barring the
 #  first (e.g. the FileHandle reference) which is not needed for this method.
 #  Returns a string XML representation of the object.
@@ -581,6 +582,9 @@ sub READLINE {
 # Modification History
 #
 # $Log$
+# Revision 1.20  2001/07/30 19:48:28  thomas
+# added documentation to toXMLString method
+#
 # Revision 1.19  2001/07/23 15:58:07  thomas
 # added ability to add arbitary XML attribute to class.
 # getXMLattributes now an instance method, we
