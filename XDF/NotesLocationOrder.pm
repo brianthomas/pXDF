@@ -133,6 +133,8 @@ sub _basicXMLWriter {
     return;
   }
 
+  return unless $#{$self->{locationOrderList}} > -1;
+
   $indent = "" unless defined $indent;
 
   my $spec = XDF::Specification->getInstance();
