@@ -38,9 +38,6 @@ use XML::DOM;
 use strict;
 use integer;
 
-# inherits from nothing
-#@ISA { (); #"XDF::GenericObject")}
-
 # This is used by XMLElement for referencing a document. Only
 # because the DOM spec requires that a document be specified 
 # do we do this. Ush. IF only the DocumentFragment (a lighterweight)
@@ -225,6 +222,9 @@ sub XDF_NODE_NAMES { (
 # Modification History
 #
 # $Log$
+# Revision 1.14  2001/08/13 19:46:04  thomas
+# removed commented out code.
+#
 # Revision 1.13  2001/07/13 21:42:14  thomas
 # added ValueList stuff
 #
