@@ -1251,9 +1251,9 @@ sub note_index_node_start {
 sub notes_node_end {
    my $notesObj = $LAST_NOTES_OBJECT;
 
-   if (ref($notesObj) eq 'XDF::Array') {
+#   if (ref($notesObj) eq 'XDF::Array') {
 #     for (@NOTE_LOCATOR_ORDER) { $notesObj->addAxisIdToLocatorOrder($_); }
-   }
+#   }
 
    # reset the location order 
    @NOTE_LOCATOR_ORDER = ();
@@ -1976,6 +1976,9 @@ sub my_fail {
 # Modification History
 #
 # $Log$
+# Revision 1.3  2000/11/01 22:25:28  thomas
+# Minor cleanup of code. (where??) -b.t.
+#
 # Revision 1.2  2000/10/16 17:37:21  thomas
 # Changed over to BaseObject Class from Object Class.
 # Added in History Modification section.
