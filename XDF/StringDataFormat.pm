@@ -142,7 +142,8 @@ sub numOfBytes {
 #
 
 # /** fortranNotation
-# The fortran style notation for this object.
+# A convenience method to generate the FORTRAN notation for this dataformat.
+# Returns the FORTRAN DataFormat notation.
 # */
 sub fortranNotation {
   my ($self) = @_;
