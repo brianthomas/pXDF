@@ -895,12 +895,8 @@ sub array_node_start {
   my $newarray = new XDF::Array(\%attrib_hash);
 
   # add this array to our list of arrays if it has an ID
-  if ($newarray) {
-     my $arrayId = $newarray->getArrayId();
-     if ( defined $arrayId)
-     {
-        $ArrayObj{$arrayId} = $newarray;
-     }
+  if ($newarray && (my $arrayId = $newarray->getArrayId)) {
+     $ArrayObj{$arrayId} = $newarray;
   }
 
   $CURRENT_ARRAY = $newarray;
@@ -937,7 +933,8 @@ sub axis_node_start {
   }
 
   # add this object to the lookup table, if it has an ID
-  if ((my $axisId = $attrib_hash{'axisId'}) && !$CURRENT_ARRAY->getAppendTo()) {
+  #if ((my $axisId = $attrib_hash{'axisId'}) && !$CURRENT_ARRAY->getAppendTo()) {
+  if ((my $axisId = $axisObj->getAxisId) && !$CURRENT_ARRAY->getAppendTo()) {
      &print_warning( "Danger: More than one axis node with axisId=\"$axisId\", using latest node.\n" )
            if defined $AxisObj{$axisId};
      $AxisObj{$axisId} = $axisObj;
@@ -1251,8 +1248,9 @@ sub field_node_start {
    # add this object to all open groups
    foreach my $groupObj (@CURRENT_FIELDGROUP_OBJECT) { $fieldObj->addToGroup($groupObj); }
 
-   if(defined $fieldObj && exists($attrib_hash{'fieldId'})) {
-      my $id = $attrib_hash{'fieldId'};
+   #if(defined $fieldObj && exists($attrib_hash{'fieldId'})) {
+   if(defined $fieldObj && (my $id = $fieldObj->getFieldId)) {
+      #my $id = $attrib_hash{'fieldId'};
       &print_warning("More than one field node with fieldId=\"$id\", using latest node.\n") 
             if defined $FieldObj{$id};
        $FieldObj{$id} = $fieldObj;
@@ -1287,8 +1285,8 @@ sub fieldAxis_node_start {
    }
 
    # add this object to the lookup table, if it has an ID
-   if ((my $axisId = $attrib_hash{'axisId'})) {
-      my $axisId = $attrib_hash{'axisId'};
+   #if ((my $axisId = $attrib_hash{'axisId'})) {
+   if ((my $axisId = $axisObj->getAxisId) && !$CURRENT_ARRAY->getAppendTo()) {
       &print_warning( "More than one axis node with axisId=\"$axisId\", using latest node.\n" )
             if defined $AxisObj{$axisId};
       $AxisObj{$axisId} = $axisObj;
@@ -1650,6 +1648,10 @@ sub read_node_start {
         }
      }
    
+     # add this object to the lookup array
+     my $id = $readObj->getReadId();
+     $XMLDataIOStyleObj{$id} = $readObj;
+
   } else { 
      $DataIOStyle_Attrib_Ref = \%attrib_hash;
   }
@@ -2475,6 +2477,12 @@ sub _appendArrayToArray {
 # Modification History
 #
 # $Log$
+# Revision 1.16  2001/03/14 17:13:25  thomas
+# Wherent updating the global ID/IDFEF object
+# tables properly, as a result not generating
+# unique Id's properly after the first cloned object.
+# Now fixed.
+#
 # Revision 1.15  2001/03/14 16:44:12  thomas
 # Fixes to the ReadId/IdRef problem (but some issues remain).
 # Added AppendArrayToArray method (for appentTo functionality).
