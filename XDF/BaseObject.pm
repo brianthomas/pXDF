@@ -634,6 +634,9 @@ sub _find_All_child_Href_Objects {
 # Modification History
 #
 # $Log$
+# Revision 1.11  2001/03/21 20:19:23  thomas
+# Fixed documentation to show addXMLElement, etc. methods in perldoc
+#
 # Revision 1.10  2001/03/21 20:18:01  thomas
 # Added methods for XMLElement class. Fixed
 # toXMLFileHandle method so these would print
@@ -735,6 +738,22 @@ Write this structure and all the objects it owns to the supplied filehandle in X
 The following instance (object) methods are defined for XDF::BaseObject.
 
 =over 4
+
+=item addXMLElement ($xmlElementObjRef)
+
+ 
+
+=item removeXMLElement ($xmlElementObjRef)
+
+ 
+
+=item getXMLElementList (EMPTY)
+
+ 
+
+=item setXMLElementList ($listRef)
+
+ 
 
 =item addToGroup ($groupObj)
 

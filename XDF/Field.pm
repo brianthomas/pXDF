@@ -497,6 +497,9 @@ sub _init {
 # Modification History
 #
 # $Log$
+# Revision 1.9  2001/03/21 20:19:23  thomas
+# Fixed documentation to show addXMLElement, etc. methods in perldoc
+#
 # Revision 1.8  2001/03/16 19:54:56  thomas
 # Documentation updated and improved, re-ran makeDoc on file.
 #
@@ -764,7 +767,7 @@ B<new>, B<clone>, B<update>.
 =over 4
 
 XDF::Field inherits the following instance (object) methods of L<XDF::BaseObject>:
-B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLAttributes>, B<setXMLNotationHash>, B<toXMLFileHandle>, B<toXMLFile>.
+B<addXMLElement>, B<removeXMLElement>, B<getXMLElementList>, B<setXMLElementList>, B<addToGroup>, B<removeFromGroup>, B<isGroupMember>, B<setXMLAttributes>, B<setXMLNotationHash>, B<toXMLFileHandle>, B<toXMLFile>.
 
 =back
 
