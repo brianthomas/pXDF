@@ -1865,6 +1865,8 @@ sub _valueGroup_node_start {
 sub _valueList_node_charData {
   my ($self, $string) = @_;
 
+print STDERR "valuelist charData parent:",$self->_parentNodeName(), "\n";
+
   # split up string based on declared delimiter
   my $delimiter = '/' . $self->{currentValueList}->{'delimiter'};
   if ($self->{currentValueList}->{'repeatable'} eq 'yes') {
@@ -1914,7 +1916,7 @@ sub _valueList_node_charData {
 
   } else {
 
-     die " ERROR: UNKNOWN parent node ($self->{currentValueList}->{'parent_node'}, can't treat for valueList.\n";
+     die " ERROR: UNKNOWN parent node (",$self->{currentValueList}->{'parent_node'},") can't treat for valueList.\n";
 
   }
 
@@ -1929,6 +1931,7 @@ sub _valueList_node_start {
    my ($self, %attrib_hash) = @_;
 
    my $parent_node = $self->_parentNodeName();
+
    my @values = &_get_valueList_node_values(%attrib_hash);
 
    # IT could be that no values exist because they are stored
@@ -1981,6 +1984,8 @@ sub _valueList_node_start {
       }
 
    } else {
+
+print STDERR "setting valuelist parent node name to $parent_node\n";
 
          $self->{currentValueList}->{'parent_node'} = $parent_node;
          $self->{currentValueList}->{'delimiter'} = defined $attrib_hash{'delimiter'} ?
@@ -2159,6 +2164,7 @@ sub _init {
   # need this in order to properly simulate action of valueList node
   my %valueListHash = ( 'parent_node' => "",
                         'delimiter' => "",
+                        'repeatable' => "",
                       );
   $self->{currentValueList} = \%valueListHash;
 
@@ -2674,6 +2680,9 @@ sub _appendArrayToArray {
 # Modification History
 #
 # $Log$
+# Revision 1.20  2001/03/16 22:48:02  thomas
+# fixes to valueListGroup.
+#
 # Revision 1.19  2001/03/16 19:51:24  thomas
 # Fully converted to object oriented. Improved
 # documentation too.
