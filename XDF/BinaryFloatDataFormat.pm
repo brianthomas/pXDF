@@ -110,6 +110,9 @@ sub getBits {
 # */
 sub setBits {
    my ($self, $value) = @_;
+
+   carp "Cant set bits to value other than 32 or 64 \n" 
+      unless (defined $value && ($value == 64 or $value == 32));
    $self->{Bits} = $value;
 }
 
@@ -119,7 +122,7 @@ sub setBits {
 # */
 sub getBytes { 
   my ($self) = @_; 
-  return int($self->{Bits}/8); 
+  return int(($self->{Bits})/8);
 }
 
 # /** getXMLAttributes
@@ -149,13 +152,16 @@ sub _init {
 sub _templateNotation {
   my ($self, $endian, $encoding) = @_;
 
-  my $width = $self->getBytes()/4; 
+  my $width = $self->getBits(); 
 
   # we have 64 bit numbers as upper limit on size
-  die "XDF::BinaryFloatDataFormat cant handle > 64 bit Numbers\n" unless ($width <= 2);
+  die "XDF::BinaryFloatDataFormat cant handle > 64 bit Numbers\n" unless ($width <= 64);
 
-  my $symbol = "d"; # we always use double to prevent perl rounding 
+  my $symbol = "d"; # we *should* always use double to prevent perl rounding 
                     # that can occur for using the 32-bit "f" 
+
+  # hurm, IF we do this there will be rounding. 
+  $symbol = 'f' if ($width <= 32);
   return "$symbol";
 
 }
@@ -178,15 +184,16 @@ sub _regexNotation {
 
 # returns sprintf field notation
 sub _sprintfNotation {
-  my ($self) = @_;
-
-  my $notation = '%';
-  my $field_symbol = $Perl_Sprintf_Field_BinaryFloat;
-
-  $notation .= $self->getBytes();
-  $notation .= $field_symbol;
-
-  return $notation;
+#  my ($self) = @_;
+#
+#  my $notation = '%';
+#  my $field_symbol = $Perl_Sprintf_Field_BinaryFloat;
+#
+#  $notation .= $self->getBytes();
+#  $notation .= $field_symbol;
+#
+#  return $notation;
+   carp "_sprintfNotation shouldnt be called for binary numbers\n";
 }
 
 # /** fortranNotation
@@ -200,6 +207,12 @@ sub fortranNotation {
 # Modification History
 #
 # $Log$
+# Revision 1.7  2001/01/04 22:21:41  thomas
+# Bug fix. Was writing double precision when declared
+# number of bits was 32 (!). Also fix to prevent
+# setting number of bits to value other than 32 or
+# 64. -b.t.
+#
 # Revision 1.6  2000/12/15 22:11:58  thomas
 # Regenerated perlDoc section in files. -b.t.
 #
