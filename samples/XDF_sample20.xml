@@ -1,5 +1,6 @@
 <?xml version="1.0" standalone="no"?>
-<!DOCTYPE XDF SYSTEM "XDF_018.dtd">
+<!DOCTYPE XDF SYSTEM "XDF_018.dtd"> 
+<!-- test of whitespace handling in delimited read of PCDATA section -->
 <XDF name="A sample XDF document" description="This shows how to put any data into XDF format">
       <parameter name="obsdate"><unitless/><value>01-12-99</value></parameter>
       <array name="Raw Data">
@@ -8,13 +9,15 @@
           </parameter>
           <units><unit>counts</unit><unit power="-1">seconds</unit></units>
           <dataFormat><float width="5" precision="2"/></dataFormat>
-          <axis name="x" axisId="x-axis" size="10">
+          <axis name="x" axisId="x-axis" size="5">
              <units><unit>pixel</unit></units>
-             <valueListAlgorithm><polynomial size="10">0 1</polynomial></valueListAlgorithm>
+             <dataFormat><integer width="1"/></dataFormat>
+             <valueListAlgorithm><polynomial size="5">0 1</polynomial></valueListAlgorithm>
           </axis>
-          <axis name="y" axisId="y-axis" size="10">
+          <axis name="y" axisId="y-axis" size="4">
              <units><unit>pixel</unit></units>
-             <valueList delimiter=" " repeatable="yes">10  9 8 7 6 5 4 3 2 1</valueList>
+             <dataFormat><integer width="1"/></dataFormat>
+             <valueList delimiter=" " repeatable="yes">1  2 4 5 </valueList>
           </axis>
           <dataStyle encoding="ISO-8859-1">
              <delimited>
@@ -24,8 +27,8 @@
 <!-- next line sez: use *one* space character as the recordterminator -->
                  <recordTerminator><chars value=" "/></recordTerminator>
                </delimitedInstruction>
-               <for axisIdRef="y-axis">
-                 <for axisIdRef="x-axis">
+               <for axisIdRef="x-axis">
+                 <for axisIdRef="y-axis">
                    <doInstruction/>
                  </for>
                </for>
@@ -36,18 +39,11 @@
          delimited
       2) the array isnt "ragged" which is to say all records are complete.
 -->
-          <data>76.53 78.75 67.78 32.59 05.97
-68.77 25.39 51.86  2.48 40.29
-89.37 10.68 82.31 17.85 25.87 64.17 92.64 47.88 44.54 85.05
- 7.48  1.09  3.15  8.63 20.26  7.27 24.19 72.09  9.69 69.78
-75.43 86.23 48.53 43.22 18.81 54.50 11.99 44.20  6.37 14.47
-84.50 95.73 25.15 66.81 13.58 51.03 30.98  6.22 98.91 75.51
-91.27  6.39 76.60 94.42 15.01 96.86  1.69 39.20 68.95 11.38
- 8.98 44.38 97.61 57.51 87.60 16.42 12.01 99.59 60.63 18.38
-14.05 45.13 14.11 39.21 11.93 27.70 90.23 42.91 33.92 89.14
-18.42 25.19 95.53 95.03 19.62 10.54 91.89 21.31 49.74 60.83
-32.69 58.72  5.22 30.30 16.23 92.81 46.72 28.24 92.40  7.35
-          </data>
+           <data>1.00  2.00 3.00 4.00 5.00
+6.00 7.00 8.00 9.00
+10.00
+11.00 12.00 13.00 14.00 15.00
+16.00 17.00 18.00 19.00 20.00</data> <!-- ending of block is strickly INCORRECT (no recordterminator) but should work --> 
           <notes>
              <locationOrder>
                 <index axisIdRef="x-axis"/>
