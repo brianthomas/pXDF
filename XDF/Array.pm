@@ -94,6 +94,13 @@ my $Class_Node_Name = "array";
 my @Class_XML_Attributes = qw (
                                 name
                                 description
+                     lessThanValue
+                     lessThanOrEqualValue
+                     greaterThanValue
+                     greaterThanOrEqualValue
+                     infiniteValue
+                     infiniteNegativeValue
+                     noDataValue
                                 paramList
                                 units
                                 dataFormat
@@ -104,7 +111,6 @@ my @Class_XML_Attributes = qw (
                               );
 my @Class_Attributes = qw (
                              _paramGroupOwnedHash
-                             _locatorOrder
                           );
 
 # /** name
@@ -199,6 +205,109 @@ sub getDescription {
 sub setDescription {
    my ($self, $value) = @_;
    $self->{Description} = $value;
+}
+
+# /** getLessThanValue
+# */
+sub getLessThanValue {
+   my ($self) = @_;
+   return $self->{LessThanValue};
+}
+
+# /** setLessThanValue
+#     Set the lessThanValue attribute. 
+# */
+sub setLessThanValue {
+   my ($self, $value) = @_;
+   $self->{LessThanValue} = $value;
+}
+
+# /** getLessThanOrEqualValue
+# */
+sub getLessThanOrEqualValue {
+   my ($self) = @_;
+   return $self->{LessThanOrEqualValue};
+}
+
+# /** setLessThanOrEqualValue
+#     Set the lessThanOrEqualValue attribute. 
+# */
+sub setLessThanOrEqualValue {
+   my ($self, $value) = @_;
+   $self->{LessThanOrEqualValue} = $value;
+}
+
+sub getGreaterThanValue {
+   my ($self) = @_;
+   return $self->{GreaterThanValue};
+}
+
+# /** setGreaterThanValue
+#     Set the greaterThanValue attribute. 
+# */
+sub setGreaterThanValue {
+   my ($self, $value) = @_;
+   $self->{GreaterThanValue} = $value;
+}
+
+# /** getGreaterThanOrEqualValue
+# */
+sub getGreaterThanOrEqualValue {
+   my ($self) = @_;
+   return $self->{GreaterThanOrEqualValue};
+}
+
+# /** setGreaterThanOrEqualValue
+#     Set the greaterThanOrEqualValue attribute. 
+# */
+sub setGreaterThanOrEqualValue {
+   my ($self, $value) = @_;
+   $self->{GreaterThanOrEqualValue} = $value;
+}
+
+# /** getInfiniteValue
+# */
+sub getInfiniteValue {
+   my ($self) = @_;
+   return $self->{InfiniteValue};
+}
+
+# /** setInfiniteValue
+#     Set the infiniteValue attribute. 
+# */
+sub setInfiniteValue {
+   my ($self, $value) = @_;
+   $self->{InfiniteValue} = $value;
+}
+
+# /** getInfiniteNegativeValue
+# */
+sub getInfiniteNegativeValue {
+   my ($self) = @_;
+   return $self->{InfiniteNegativeValue};
+}
+
+# /** setInfiniteNegativeValue
+#     Set the infiniteNegativeValue attribute. 
+# */
+sub setInfiniteNegativeValue {
+   my ($self, $value) = @_;
+   $self->{InfiniteNegativeValue} = $value;
+}
+
+# /** getNoDataValue
+# */
+sub getNoDataValue {
+   my ($self) = @_;
+   return $self->{NoDataValue};
+}
+
+# /** setNoDataValue
+#     Set the noDataValue attribute. 
+# */
+sub setNoDataValue {
+   my ($self, $value) = @_;
+   $self->{NoDataValue} = $value;
 }
 
 # /** getDataCube
